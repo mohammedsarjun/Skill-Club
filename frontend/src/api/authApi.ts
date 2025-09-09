@@ -4,6 +4,7 @@ export interface SignUpData{
     firstName:string,
     lastName:string,
     email:string,
+    phone:number|string,
     password:string,
     agreement:string|boolean
 }

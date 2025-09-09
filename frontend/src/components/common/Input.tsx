@@ -8,7 +8,7 @@ type InputProps = {
   fullWidth?: boolean;
   rounded?: boolean;
   className?: string;
-  error?: string;
+  error?: string|number;
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void
   name?: string;
 };

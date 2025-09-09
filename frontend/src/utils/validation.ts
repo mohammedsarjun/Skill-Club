@@ -19,10 +19,11 @@ export const passwordSchema = z
   .regex(/[0-9]/, "Password must contain a number")
   .regex(/[!@#$%^&*]/, "Password must contain a special character");
 
-export const confirmPasswordSchema = (password: string) =>
-  z.string().refine((val) => val === password, {
-    message: "Passwords do not match",
-  });
+export const phoneSchema = z
+  .string()
+  .trim()
+  .regex(/^\+?[0-9]{10,15}$/, "Phone number must be 10–15 digits and can start with +");
+
 
 
   //signup validation
@@ -34,7 +35,7 @@ export const confirmPasswordSchema = (password: string) =>
     const lastNameError= nameSchema.safeParse(formData.lastName);
     const emailError=emailSchema.safeParse(formData.email)
     const passwordError=passwordSchema.safeParse(formData.password)
-
+    const phoneError=phoneSchema.safeParse(formData.phone)
     if (!firstNameError.success) {
         newErrors.firstName=firstNameError.error.issues[0].message;
     } 
@@ -49,6 +50,10 @@ export const confirmPasswordSchema = (password: string) =>
 
     if (!passwordError.success) {
       newErrors.password = passwordError.error.issues[0].message;
+    }
+
+    if(!phoneError.success){
+           newErrors.phone = phoneError.error.issues[0].message;
     }
 
     if (!formData.agreement) {

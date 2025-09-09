@@ -20,6 +20,7 @@ export default function SignUp() {
     lastName: "",
     email: "",
     password: "",
+    phone:"",
     agreement: false,
   });
 
@@ -27,6 +28,7 @@ export default function SignUp() {
     firstName: "",
     lastName: "",
     email: "",
+    phone:"",
     password: "",
     agreement: false,
   });
@@ -106,6 +108,16 @@ export default function SignUp() {
               onChange={(e) => handleInputChange(e, setErrors, setFormData)}
               error={errors.email}
             />
+
+             <Input
+              name="phone"
+              type="number"
+              placeholder="Phone"
+              className="leading-5"
+              onChange={(e) => handleInputChange(e, setErrors, setFormData)}
+              error={errors.phone}
+            />
+
             <Input
               name="password"
               type="password"
