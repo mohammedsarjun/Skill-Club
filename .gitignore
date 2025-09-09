@@ -1,2 +1,3 @@
 # Environment variables (only backend has .env)
 backend/.env
+backend/dist/git add .gitignore
