@@ -1,27 +1,63 @@
-export function validateName(name: string): string | null {
-  const trimmed = name.trim();
-  if (!trimmed) return "Name is required";
-  if (trimmed.length < 2) return "Name must be at least 2 characters";
-  if (trimmed.length > 50) return "Name must be less than 50 characters";
-  const regex = /^[A-Za-zÀ-ÖØ-öø-ÿ' -]+$/;
-  if (!regex.test(trimmed)) return "Name can only contain letters, spaces, hyphens, and apostrophes";
-  return null;
-}
+import { z } from "zod";
+import { SignUpData } from "@/api/authApi";
+export const nameSchema = z
+  .string()
+  .trim()
+  .min(2, "Name must be at least 2 characters")
+  .max(50, "Name must be less than 50 characters")
+  .regex(/^[A-Za-zÀ-ÖØ-öø-ÿ' -]+$/, "Name can only contain letters, spaces, hyphens, and apostrophes");
 
-export function validateEmail(email: string): Boolean | null {
-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return regex.test(email) ;
-}
+export const emailSchema = z
+  .string()
+  .email("Invalid email format");
 
-export function validatePassword(password: string): string | null {
-  if (password.length < 8) return "Password must be at least 8 characters long";
-  if (!/[A-Z]/.test(password)) return "Password must contain an uppercase letter";
-  if (!/[a-z]/.test(password)) return "Password must contain a lowercase letter";
-  if (!/[0-9]/.test(password)) return "Password must contain a number";
-  if (!/[!@#$%^&*]/.test(password)) return "Password must contain a special character";
-  return null;
-}
+export const passwordSchema = z
+  .string()
+  .min(8, "Password must be at least 8 characters long")
+  .regex(/[A-Z]/, "Password must contain an uppercase letter")
+  .regex(/[a-z]/, "Password must contain a lowercase letter")
+  .regex(/[0-9]/, "Password must contain a number")
+  .regex(/[!@#$%^&*]/, "Password must contain a special character");
 
-export function validateConfirmPassword(password: string, confirm: string): string | null {
-  return password === confirm ? null : "Passwords do not match";
-}
+export const confirmPasswordSchema = (password: string) =>
+  z.string().refine((val) => val === password, {
+    message: "Passwords do not match",
+  });
+
+
+  //signup validation
+  export const handleSignUpSubmit = (e: React.FormEvent,formData:SignUpData,setErrors:React.Dispatch<React.SetStateAction<SignUpData>>) => {
+    e.preventDefault();
+
+    const newErrors: Record<string, string | null> = {};
+    const firstNameError = nameSchema.safeParse(formData.firstName);
+    const lastNameError= nameSchema.safeParse(formData.lastName);
+    const emailError=emailSchema.safeParse(formData.email)
+    const passwordError=passwordSchema.safeParse(formData.password)
+
+    if (!firstNameError.success) {
+        newErrors.firstName=firstNameError.error.issues[0].message;
+    } 
+
+    if (!lastNameError.success) {
+      newErrors.lastName =lastNameError.error.issues[0].message;
+    }
+
+    if (!emailError.success) {
+      newErrors.email = emailError.error.issues[0].message;
+    }
+
+    if (!passwordError.success) {
+      newErrors.password = passwordError.error.issues[0].message;
+    }
+
+    if (!formData.agreement) {
+      newErrors.agreement =  "You must agree to the terms to continue.";
+    }
+
+    setErrors((prev) => ({ ...prev, ...newErrors }));
+
+    if (Object.keys(newErrors).length === 0) return true
+    return false
+      
+  };
