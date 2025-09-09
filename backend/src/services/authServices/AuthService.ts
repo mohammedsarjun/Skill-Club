@@ -1,4 +1,4 @@
-import { IAuthService } from "./IAuthService.js";
+import { IAuthService } from "./interfaces/IAuthService.js";
 
 export class AuthService implements IAuthService{
     signup(userData: any): Promise<any> {

@@ -8,17 +8,12 @@ import Image from "next/image";
 import { SignUpData } from "@/api/authApi";
 import { useRouter } from "next/navigation";
 import { authApi } from "@/api/authApi";
-import {
-  validateName,
-  validateEmail,
-  validatePassword,
-} from "@/utils/validation";
+import { handleSignUpSubmit } from "@/utils/validation";
 
-import { handleInputChange,handleCheckBox } from "@/utils/formHandlers";
+import { handleInputChange, handleCheckBox } from "@/utils/formHandlers";
 
 export default function SignUp() {
   const route = useRouter();
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<SignUpData>({
     firstName: "",
@@ -33,43 +28,15 @@ export default function SignUp() {
     lastName: "",
     email: "",
     password: "",
-    agreement:false
+    agreement: false,
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const newErrors: Record<string, string | null> = {};
-
-    if (!formData.firstName || validateName(formData.firstName)) {
-      newErrors.firstName = validateName(formData.firstName);
-    }
-
-    if (!formData.lastName || validateName(formData.lastName)) {
-      newErrors.lastName = validateName(formData.lastName);
-    }
-
-    if (!formData.email || !validateEmail(formData.email)) {
-      newErrors.email = "Invalid email address";
-    }
-
-    if (!formData.password || validatePassword(formData.password)) {
-      newErrors.password = validatePassword(formData.password);
-    }
-
-    if (!formData.agreement) {
-      newErrors.agreement =  "You must agree to the terms to continue.";
-    }
-
-
-    setErrors((prev) => ({ ...prev, ...newErrors }));
-
-    if (Object.keys(newErrors).length === 0) {
-      authApi.signUp(formData);
-    }
-  };
-
-
+  function handleSubmit(e: React.FormEvent){
+       const success=handleSignUpSubmit(e,formData,setErrors)
+       if(success){
+        authApi.signUp(formData);
+       }
+  }
 
   const handleGoogleSignup = () => {
     console.log("Google signup clicked");
@@ -127,7 +94,7 @@ export default function SignUp() {
                 fullWidth={true}
                 placeholder="Last Name"
                 className="leading-5"
-                 onChange={(e) => handleInputChange(e, setErrors, setFormData)}
+                onChange={(e) => handleInputChange(e, setErrors, setFormData)}
                 error={errors.lastName}
               />
             </div>
@@ -149,9 +116,11 @@ export default function SignUp() {
             />
 
             <Checkbox
-            name="agreement"
-            error={errors.agreement}
-            onChange={(e) => handleCheckBox("agreement",e, setFormData,setErrors)}
+              name="agreement"
+              error={errors.agreement}
+              onChange={(e) =>
+                handleCheckBox("agreement", e, setFormData, setErrors)
+              }
               label={
                 <span>
                   I agree to the Skill Club{" "}
@@ -175,7 +144,7 @@ export default function SignUp() {
               <Button
                 type="submit"
                 content="JOIN SKILL CLUB"
-                onClick={handleSubmit}
+                onClick={(e)=>handleSubmit(e)}
               />
             </div>
           </form>
