@@ -1,11 +1,13 @@
 import { Request,Response } from "express";
-import { IAuthService } from "../../services/authServices/interfaces/IAuthService.js";
+import { injectable, inject } from "tsyringe";
+import type { IAuthService } from "../../services/authServices/interfaces/IAuthService.js";
+import "../../config/container.js"
+@injectable()
 export class AuthController{
     private authService:IAuthService
-    constructor(authService:IAuthService){
+    constructor(@inject("IAuthService") authService:IAuthService){
         this.authService=authService
     }
-
     async signup(req:Request,res:Response){
         try{
             const {firstName,lastName,email,phone,password,agreement} = req.body

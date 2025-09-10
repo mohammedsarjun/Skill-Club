@@ -23,8 +23,8 @@ interface IFreelancerProfile {
     portfolio: string;
 }
 export interface IUser extends Document {
-    firstname: string;
-    lastname: string;
+    firstName: string;
+    lastName: string;
     email: string;
     phone: string;
     password: string;
@@ -36,10 +36,10 @@ export interface IUser extends Document {
     createdAt: Date;
     updatedAt: Date;
 }
-declare const User: mongoose.Model<IUser, {}, {}, {}, mongoose.Document<unknown, {}, IUser, {}, {}> & IUser & Required<{
+export declare const User: mongoose.Model<IUser, {}, {}, {}, mongoose.Document<unknown, {}, IUser, {}, {}> & IUser & Required<{
     _id: unknown;
 }> & {
     __v: number;
 }, any>;
-export default User;
+export {};
 //# sourceMappingURL=user.model.d.ts.map

@@ -28,8 +28,8 @@ interface IFreelancerProfile {
 }
 
 export interface IUser extends Document {
-  firstname: string;
-  lastname: string;
+  firstName: string;
+  lastName: string;
   email: string;
   phone: string;
   password: string;
@@ -71,20 +71,20 @@ const freelancerProfileSchema = new Schema<IFreelancerProfile>({
 
 const userSchema = new Schema<IUser>(
   {
-    firstname: { type: String, required: true },
-    lastname: { type: String, required: true },
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     phone: { type: String, required: true },
     password: { type: String, required: true },
     address: addressSchema,
     dob: Date,
     isVerified: { type: Boolean, default: false },
-    roles: { type: [String], default: ["user"] },
+    roles: { type: [String] },
     freelancerProfile: freelancerProfileSchema,
   },
   { timestamps: true }
 );
 
 // ------------------- Model -------------------
-const User = mongoose.model<IUser>("User", userSchema);
-export default User;
+export const User = mongoose.model<IUser>("User", userSchema);
+

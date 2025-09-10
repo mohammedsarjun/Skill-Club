@@ -24,8 +24,8 @@ const freelancerProfileSchema = new Schema({
     portfolio: String,
 });
 const userSchema = new Schema({
-    firstname: { type: String, required: true },
-    lastname: { type: String, required: true },
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     phone: { type: String, required: true },
     password: { type: String, required: true },
@@ -36,6 +36,5 @@ const userSchema = new Schema({
     freelancerProfile: freelancerProfileSchema,
 }, { timestamps: true });
 // ------------------- Model -------------------
-const User = mongoose.model("User", userSchema);
-export default User;
+export const User = mongoose.model("User", userSchema);
 //# sourceMappingURL=user.model.js.map
