@@ -18,8 +18,14 @@ let AuthService = class AuthService {
     }
     async signup(userData) {
         const result = await this.userRepository.create(userData);
-        console.log(result);
-        return Promise.resolve();
+        return {
+            _id: result._id,
+            firstName: result.firstName,
+            lastName: result.lastName,
+            email: result.email,
+            phone: result.phone,
+            password: result.password,
+        };
     }
     login(userData) {
         return Promise.resolve();

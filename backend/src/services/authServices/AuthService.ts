@@ -3,15 +3,21 @@ import type { IUserRepository } from "../../repositories/interfaces/IUserReposit
 import { injectable, inject } from "tsyringe";
 import "../../config/container.js"
 @injectable()
-export class AuthService implements IAuthService{
-    private userRepository:IUserRepository
-    constructor(@inject("IUserRepository") userRepository:IUserRepository){
-        this.userRepository=userRepository
+export class AuthService implements IAuthService {
+    private userRepository: IUserRepository
+    constructor(@inject("IUserRepository") userRepository: IUserRepository) {
+        this.userRepository = userRepository
     }
     async signup(userData: any): Promise<any> {
-       const result= await this.userRepository.create(userData)
-        console.log(result)
-        return Promise.resolve()
+        const result = await this.userRepository.create(userData)
+        return {
+            _id:result._id,
+            firstName: result.firstName,
+            lastName: result.lastName,
+            email: result.email,
+            phone: result.phone,
+            password: result.password,
+        }
     }
 
     login(userData: any): Promise<any> {

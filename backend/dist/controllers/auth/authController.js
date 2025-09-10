@@ -19,7 +19,18 @@ let AuthController = class AuthController {
     async signup(req, res) {
         try {
             const { firstName, lastName, email, phone, password, agreement } = req.body;
-            const user = this.authService.signup({ firstName, lastName, email, phone, password, agreement });
+            const user = await this.authService.signup({ firstName, lastName, email, phone, password, agreement });
+            res.status(201).json({
+                success: true,
+                message: "User created successfully",
+                data: {
+                    id: user._id,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    phone: user.phone,
+                },
+            });
         }
         catch (error) {
             res.status(400).json({ message: error.message });

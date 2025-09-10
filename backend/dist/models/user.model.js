@@ -32,7 +32,7 @@ const userSchema = new Schema({
     address: addressSchema,
     dob: Date,
     isVerified: { type: Boolean, default: false },
-    roles: { type: [String], default: ["user"] },
+    roles: { type: [String] },
     freelancerProfile: freelancerProfileSchema,
 }, { timestamps: true });
 // ------------------- Model -------------------
