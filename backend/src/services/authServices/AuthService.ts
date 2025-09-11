@@ -10,6 +10,7 @@ export class AuthService implements IAuthService {
     }
     async signup(userData: any): Promise<any> {
         const result = await this.userRepository.create(userData)
+
         return {
             _id:result._id,
             firstName: result.firstName,

@@ -33,10 +33,16 @@ export default function SignUp() {
     agreement: false,
   });
 
-  function handleSubmit(e: React.FormEvent){
+   async function handleSubmit(e: React.FormEvent){
        const success=handleSignUpSubmit(e,formData,setErrors)
        if(success){
-        authApi.signUp(formData);
+       const response = await authApi.signUp(formData);
+
+       if(response.success){
+        console.log(response.data)
+        route.push("/signup/otp")
+
+       }
        }
   }
 

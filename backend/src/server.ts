@@ -3,7 +3,7 @@ import express from 'express'
 import { connectDB } from "./config/db.js";
 import dotenv from "dotenv";
 import cors from "cors"
-
+import sendEmailOtp from "./utils/sendOtp.js";
 
 //Importing routes
 import authRouter from './routes/authRouter.js';
@@ -21,7 +21,7 @@ app.use(cors({
 }));
 
 
-
+sendEmailOtp("sarjunsarjunms77@gmail.com","1234")
 app.use("/api/auth",authRouter)
 
 app.listen(PORT,()=>{
