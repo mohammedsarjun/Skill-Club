@@ -39,9 +39,9 @@ export default function SignUp() {
        const response = await authApi.signUp(formData);
 
        if(response.success){
-        console.log(response.data)
+   
         route.push("/signup/otp")
-
+     console.log(response.data)
        }
        }
   }

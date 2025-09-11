@@ -11,14 +11,18 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 import { injectable, inject } from "tsyringe";
+import bcrypt from "bcryptjs";
+import { createOtpDigit } from "../../utils/otpGenerator.js";
 import "../../config/container.js";
 let AuthController = class AuthController {
-    constructor(authService) {
+    constructor(authService, otpService) {
         this.authService = authService;
+        this.otpService = otpService;
     }
     async signup(req, res) {
         try {
-            const { firstName, lastName, email, phone, password, agreement } = req.body;
+            let { firstName, lastName, email, phone, password, agreement } = req.body;
+            password = await bcrypt.hash(password, 10);
             const user = await this.authService.signup({
                 firstName,
                 lastName,
@@ -27,6 +31,8 @@ let AuthController = class AuthController {
                 password,
                 agreement,
             });
+            const otp = await createOtpDigit();
+            await this.otpService.createOtp(email, otp);
             res.status(201).json({
                 success: true,
                 message: "User created successfully",
@@ -40,14 +46,15 @@ let AuthController = class AuthController {
             });
         }
         catch (error) {
-            res.status(400).json({ message: error.message + "erroey than", });
+            res.status(400).json({ message: error.message });
         }
     }
 };
 AuthController = __decorate([
     injectable(),
     __param(0, inject("IAuthService")),
-    __metadata("design:paramtypes", [Object])
+    __param(1, inject("IOtpServices")),
+    __metadata("design:paramtypes", [Object, Object])
 ], AuthController);
 export { AuthController };
 //# sourceMappingURL=authController.js.map

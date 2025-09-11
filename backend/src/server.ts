@@ -21,7 +21,7 @@ app.use(cors({
 }));
 
 
-sendEmailOtp("sarjunsarjunms77@gmail.com","1234")
+
 app.use("/api/auth",authRouter)
 
 app.listen(PORT,()=>{

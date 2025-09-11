@@ -1,4 +1,4 @@
-import { User } from "../models/user.model.js";
+import { User } from "../models/userModel.js";
 import BaseRepository from "./baseRepositories/baseRepository.js";
 export class UserRepository extends BaseRepository {
     constructor() {
@@ -6,7 +6,7 @@ export class UserRepository extends BaseRepository {
     }
     // Find user by email
     async findByEmail(email) {
-        return await User.findOne({ email });
+        return await this.model.findOne({ email });
     }
 }
-//# sourceMappingURL=UserRepository.js.map
+//# sourceMappingURL=userRepository.js.map

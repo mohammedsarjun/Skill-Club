@@ -12,6 +12,7 @@ export interface SignUpData {
 export const authApi = {
   signUp: async (data: SignUpData): Promise<any> => {
     try {
+   
       const response = await axiosClient.post(
         authenticationRoutes.userSignUp,
         data

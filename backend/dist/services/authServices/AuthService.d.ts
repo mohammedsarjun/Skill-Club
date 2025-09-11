@@ -7,4 +7,4 @@ export declare class AuthService implements IAuthService {
     signup(userData: any): Promise<any>;
     login(userData: any): Promise<any>;
 }
-//# sourceMappingURL=AuthService.d.ts.map
+//# sourceMappingURL=authService.d.ts.map
