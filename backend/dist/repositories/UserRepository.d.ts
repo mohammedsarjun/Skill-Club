@@ -5,4 +5,4 @@ export declare class UserRepository extends BaseRepository<IUser> implements IUs
     constructor();
     findByEmail(email: string): Promise<IUser | null>;
 }
-//# sourceMappingURL=userRepository.d.ts.map
+//# sourceMappingURL=UserRepository.d.ts.map

@@ -9,4 +9,4 @@ export class UserRepository extends BaseRepository {
         return await this.model.findOne({ email });
     }
 }
-//# sourceMappingURL=userRepository.js.map
+//# sourceMappingURL=UserRepository.js.map

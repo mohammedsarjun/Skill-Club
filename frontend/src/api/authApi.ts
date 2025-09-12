@@ -18,6 +18,9 @@ export const authApi = {
         data
       );
 
+      localStorage.setItem("otpEmail",response.data.data.email)
+      localStorage.setItem("otpExpiry",response.data.data.expiresAt)
+
       return response.data;
     } catch (error) {}
   },

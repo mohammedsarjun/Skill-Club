@@ -32,21 +32,19 @@ let AuthController = class AuthController {
                 agreement,
             });
             const otp = await createOtpDigit();
-            await this.otpService.createOtp(email, otp);
+            const otpRespose = await this.otpService.createOtp(email, otp);
+            console.log(otpRespose);
             res.status(201).json({
                 success: true,
                 message: "User created successfully",
                 data: {
-                    id: user._id,
-                    firstName: user.firstName,
-                    lastName: user.lastName,
-                    email: user.email,
-                    phone: user.phone,
+                    email: otpRespose?.email,
+                    expiresAt: otpRespose?.expiresAt
                 },
             });
         }
         catch (error) {
-            res.status(400).json({ message: error.message });
+            res.status(400).json({ message: error.message + "from controller" });
         }
     }
 };
