@@ -10,6 +10,7 @@ type ButtonProps={
   fullWidth?: boolean;
   rounded?: boolean;
   className?: string; 
+  disabled?: boolean; 
 }
 export default function Button({
   content,       
@@ -19,6 +20,7 @@ export default function Button({
   fullWidth = false, 
   rounded = true,  
   className = "",  
+   disabled = false,    
 }:ButtonProps) {
 
   const colors = {
@@ -38,7 +40,11 @@ export default function Button({
         font-semibold 
         ${className}
         transition duration-200
+        ${disabled ? "opacity-50  cursor-not-allowed" : ""} 
       `}
+       disabled={disabled} 
+      
+
     >
       {content}
     </button>

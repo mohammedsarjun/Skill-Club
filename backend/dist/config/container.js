@@ -1,9 +1,9 @@
 import { container } from "tsyringe";
 //Week 1
 //Auth
-import { AuthService } from "../services/authServices/AuthService.js";
+import { AuthService } from "../services/authServices/authService.js";
 import { OtpService } from "../services/authServices/otpServices.js";
-import { UserRepository } from "../repositories/UserRepository.js";
+import { UserRepository } from "../repositories/userRepository.js";
 import { OtpRepository } from "../repositories/otpRepository.js";
 // Register service
 container.register("IAuthService", { useClass: AuthService });

@@ -132,6 +132,7 @@ export default function SignUp() {
             />
 
             <Checkbox
+            checked={formData.agreement}
               name="agreement"
               error={errors.agreement}
               onChange={(e) =>

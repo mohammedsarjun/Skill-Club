@@ -2,12 +2,13 @@ import React from "react";
 
 type CheckboxProps = {
   label?: React.ReactNode;                           
-  checked?: boolean;                        
+  checked?: boolean|any;                        
   onChange?: (checked: boolean) => void;   
   id?: string;                             
   className?: string;                     
   error?: string|boolean;
-  name:string
+  name:string;
+  sizeClass?:string
 };
 
 export default function Checkbox({
@@ -16,7 +17,9 @@ export default function Checkbox({
   id,
   className = "",
   error,
-  name
+  name,
+  checked=false,
+  sizeClass=""
 }: CheckboxProps) {
   return (
     <div className={`flex flex-col ${className}`}>
@@ -26,7 +29,8 @@ export default function Checkbox({
           id={id}
           onChange={(e) => onChange && onChange(e.target.checked)}
           name={name}
-          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-2 focus:ring-blue-400"
+          className={`w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-2 focus:ring-blue-400 ${sizeClass}`}
+          checked={checked}
         />
         {label && (
           <label htmlFor={id} className="ml-2 text-gray-700 select-none">

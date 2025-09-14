@@ -22,6 +22,7 @@ export function handleCheckBox<T extends Record<string, any>>(
   setFormData: React.Dispatch<React.SetStateAction<T>>,
   setErrors: React.Dispatch<React.SetStateAction<T>>,
 ) {
+  console.log(isChecked)
 
       setErrors((error) => ({
     ...error,
@@ -32,5 +33,6 @@ export function handleCheckBox<T extends Record<string, any>>(
     ...data,
     [name]:isChecked,
   }));
+
 }
 
