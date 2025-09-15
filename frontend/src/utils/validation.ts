@@ -66,3 +66,13 @@ export const phoneSchema = z
     return false
       
   };
+
+
+export const categorySchema = z.object({
+  name: z.string().nonempty("Name is required"),
+  description: z.string().min(10, "Description must be at least 10 characters"),
+  status: z.enum(["list", "unlist"]).refine(
+    (val) => ["list", "unlist"].includes(val),
+    { message: "Enter a proper value" }
+  ),
+});

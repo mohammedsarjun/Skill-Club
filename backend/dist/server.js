@@ -14,6 +14,10 @@ app.use(cors({
     origin: "http://localhost:3000"
 }));
 app.use("/api/auth", authRouter);
+app.post("/api/admin/categories", (req, res) => {
+    console.log(req.body);
+});
+// app.use("/api/admin",adminRouter)
 app.listen(PORT, () => {
     console.log("Server is Running On Port : ", PORT);
 });

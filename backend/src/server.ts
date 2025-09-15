@@ -7,7 +7,7 @@ import sendEmailOtp from "./utils/sendOtp.js";
 
 //Importing routes
 import authRouter from './routes/authRouter.js';
-
+import adminRouter from "./routes/adminRouter.js";
 dotenv.config();
 const PORT=process.env.PORT
 
@@ -23,6 +23,8 @@ app.use(cors({
 
 
 app.use("/api/auth",authRouter)
+
+app.use("/api/admin",adminRouter)
 
 app.listen(PORT,()=>{
     console.log("Server is Running On Port : ",PORT)
