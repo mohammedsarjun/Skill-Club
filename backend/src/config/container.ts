@@ -18,5 +18,6 @@ container.register<IOtpServices>("IOtpServices",{useClass:OtpService})
 // Register Repository
 container.register<IUserRepository>("IUserRepository",{useClass:UserRepository})
 container.register<IOtpRepository>("IOtpRepository",{useClass:OtpRepository})
-// You can also register controllers if needed
-// container.register<AuthController>(AuthController, { useClass: AuthController });
+
+//Category and skills
+

@@ -6,6 +6,8 @@ import type { IOtpServices } from "../../services/authServices/interfaces/IOtpSe
 import bcrypt from "bcryptjs";
 import { OtpService } from "../../services/authServices/otpServices.js";
 import { createOtpDigit } from "../../utils/otpGenerator.js";
+import { mapCreateUserDtoToUserModel } from "../../mapper/authMapper/auth.mapper.js";
+import { CreateUserDTO } from "../../dto/authDTO/auth.dto.js";
 import "../../config/container.js";
 @injectable()
 export class AuthController implements IAuthController {
@@ -20,23 +22,18 @@ export class AuthController implements IAuthController {
       let { firstName, lastName, email, phone, password, agreement } =
         req.body;
 
-        password= await bcrypt.hash(password,10)
+        const dto = mapCreateUserDtoToUserModel(req.body)
 
-      const user = await this.authService.signup({
-        firstName,
-        lastName,
-        email,
-        phone,
-        password,
-        agreement,
-      });
+
+
+        dto.password= await bcrypt.hash(dto.password,10)
+
+      const user = await this.authService.signup(dto);
 
 
       const otp=await createOtpDigit()
 
      const otpRespose=await this.otpService.createOtp(email,otp)
-     
-     console.log(otpRespose)
       res.status(201).json({
         success: true,
         message: "User created successfully",

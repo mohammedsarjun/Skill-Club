@@ -46,7 +46,7 @@ export default function Button({
       
 
     >
-      {content}
+      {content??""}
     </button>
   );
 }

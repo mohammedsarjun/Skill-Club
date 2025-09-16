@@ -1,5 +1,7 @@
+
+import { CreateUserDTO } from "../../../dto/authDTO/auth.dto.js";
 export interface IAuthService{
-    signup(userData:any):Promise<{
+    signup(userData:CreateUserDTO):Promise<{
   _id: string;
   firstName: string;
   lastName: string;

@@ -158,7 +158,7 @@ const DynamicFormModal: React.FC<DynamicFormProps> = ({
               className="w-full px-3 rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
             >
               {field.options?.map((opt) => (
-                <option value={opt.value}>
+                <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>
               ))}

@@ -1,4 +1,5 @@
-import { otpModel,IOtp } from "../models/otpModel.js";
+import { otpModel } from "../models/otpModel.js";
+import { IOtp } from "../models/interfaces/IOtpModel.js";
 import BaseRepository from "./baseRepositories/baseRepository.js";
 import type { IOtpRepository } from "./interfaces/IOtpRepository.js";
 

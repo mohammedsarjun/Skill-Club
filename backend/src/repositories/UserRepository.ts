@@ -1,4 +1,5 @@
-import { User, IUser } from "../models/userModel.js";
+import { User} from "../models/userModel.js";
+import {IUser} from "../models/interfaces/IUserModel.js"
 import { Model, Document, FilterQuery, UpdateQuery } from "mongoose";
 import BaseRepository from "./baseRepositories/baseRepository.js";
 import { IUserRepository } from "./interfaces/IUserRepository.js";

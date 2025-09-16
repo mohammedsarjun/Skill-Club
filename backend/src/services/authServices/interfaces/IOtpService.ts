@@ -1,4 +1,4 @@
-import { IOtp } from "../../../models/otpModel.js";
+import { IOtp } from "../../../models/interfaces/IOtpModel.js"
 
 export interface IOtpServices {
     createOtp(email: string, otp: string): Promise<IOtp | null>
