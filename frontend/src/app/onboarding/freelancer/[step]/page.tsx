@@ -4,6 +4,13 @@ import { useParams, useRouter } from "next/navigation";
 import Step1Form from "@/components/onboarding/Step1Form";
 import Step2Form from "@/components/onboarding/Step2Form"
 import Step3Form from "@/components/onboarding/Step3Form"
+import Step4Form from "@/components/onboarding/Step4Form"
+import Step5Form from "@/components/onboarding/Step5Form"
+import Step6Form from "@/components/onboarding/Step6Form"
+import Step7Form from "@/components/onboarding/Step7Form"
+import Step8Form from "@/components/onboarding/Step8Form"
+import Step9Form from "@/components/onboarding/Step9Form"
+import Step10Form from "@/components/onboarding/Step10Form"
 // import Step1Form from "@/components/onboarding/Step1Form";
 // import Step2Form from "@/components/onboarding/Step2Form";
 // ... up to Step7
@@ -32,7 +39,7 @@ export default function OnboardingStepPage() {
 //   }
 
   return(
-    <Step3Form onBack={()=>1} onNext={()=>2}></Step3Form>
+    <Step10Form onBack={()=>1} onNext={()=>2}></Step10Form>
   )
 //    ) <StepComponent onNext={handleNext} />;
 }

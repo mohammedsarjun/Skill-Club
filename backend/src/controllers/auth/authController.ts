@@ -43,7 +43,8 @@ export class AuthController implements IAuthController {
         },
       });
     } catch (error: any) {
-      res.status(400).json({ message: error.message +"from controller"});
+      throw error
+
     }
   }
 }

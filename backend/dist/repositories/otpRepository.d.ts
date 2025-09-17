@@ -1,4 +1,4 @@
-import { IOtp } from "../models/otpModel.js";
+import { IOtp } from "../models/interfaces/IOtpModel.js";
 import BaseRepository from "./baseRepositories/baseRepository.js";
 import type { IOtpRepository } from "./interfaces/IOtpRepository.js";
 export declare class OtpRepository extends BaseRepository<IOtp> implements IOtpRepository {

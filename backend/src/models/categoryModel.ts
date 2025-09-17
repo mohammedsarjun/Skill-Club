@@ -14,9 +14,10 @@ const categorySchema = new Schema({
         type: String,
         required: true,
     },
-    isActive:{
-        type:Boolean,
-        default:true
+    status:{
+        type:String,
+        enum:["list","unlist"],
+        default:"list"
     }
 
 },{timestamps:true});

@@ -20,4 +20,10 @@ container.register<IUserRepository>("IUserRepository",{useClass:UserRepository})
 container.register<IOtpRepository>("IOtpRepository",{useClass:OtpRepository})
 
 //Category and skills
-
+import { AdminCategoryServices } from "../services/adminServices/adminCategoryServices.js";
+import { IAdminCategoryServices } from "../services/adminServices/interfaces/IAdminCategoryServices.js";
+import { AdminCategoryRepository } from "../repositories/adminRepositoies/adminCategoryRepository.js";
+import { IAdminCategoryRepository } from "../repositories/adminRepositoies/interfaces/IAdminCategoryRepository.js";
+//add category
+container.register<IAdminCategoryServices>("IAdminCategoryServices",{useClass:AdminCategoryServices})
+container.register<IAdminCategoryRepository>("IAdminCategoryRepository",{useClass:AdminCategoryRepository})

@@ -3,6 +3,7 @@ import express from 'express';
 import { connectDB } from "./config/db.js";
 import dotenv from "dotenv";
 import cors from "cors";
+import { errorHandler } from "./middlewares/ErrorHandlers.js";
 //Importing routes
 import authRouter from './routes/authRouter.js';
 import adminRouter from "./routes/adminRouter.js";
@@ -16,6 +17,7 @@ app.use(cors({
 }));
 app.use("/api/auth", authRouter);
 app.use("/api/admin", adminRouter);
+app.use(errorHandler);
 app.listen(PORT, () => {
     console.log("Server is Running On Port : ", PORT);
 });

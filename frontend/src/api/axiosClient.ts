@@ -14,7 +14,10 @@ axiosClient.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error) // handles request setup errors
+  (error) =>{
+        const message = error.response?.data?.message || "Something went wrong. Try again!";
+        return Promise.reject(new Error(message));
+  } 
 );
 
 axiosClient.interceptors.response.use(

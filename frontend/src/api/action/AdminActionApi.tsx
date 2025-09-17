@@ -10,12 +10,21 @@ const AdminActionApi = {
         adminEndPoint.adminCreateCategory,
         data
       );
+      console.log(response.data)
+      return response.data;
+    } catch (error:any) {
+        return error.response.data
+    }
+  },
 
+  getCategories: async():Promise<any>=>{
+    try{
+      const response = await axiosClient.get(adminEndPoint.adminGetCategories);
       return response.data;
     } catch (error) {
         console.log(error)
     }
-  },
+  }
 };
 
 export default AdminActionApi

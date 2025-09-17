@@ -1,12 +1,14 @@
 import express from 'express'
-import { AuthController } from '../controllers/auth/authController.js'
+
+import { AdminCategoryController } from '../controllers/adminController/adminCategoryController.js';
 import { container } from "tsyringe";
+import { categoryValidationSchema } from '../utils/validationSchemas/categoryValidation.js';
 import { validate } from '../middlewares/validate.js';
-import { signupSchema } from '../utils/authValidations.js';
 const adminRouter = express.Router()
 
-const authController=container.resolve(AuthController)
-adminRouter.post("/categories",authController.signup.bind(authController))
+
+const categoryController=container.resolve(AdminCategoryController)
+adminRouter.post("/categories",validate(categoryValidationSchema),categoryController.addCategory.bind(categoryController))
 
 
 export default adminRouter

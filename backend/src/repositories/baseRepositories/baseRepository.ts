@@ -1,7 +1,8 @@
-
 import { Model, Document, FilterQuery, UpdateQuery } from "mongoose";
 import { IBaseRepository } from "./interfaces/IBaseRepository.js";
-export default class BaseRepository<T extends Document> implements IBaseRepository<T> {
+export default class BaseRepository<T extends Document>
+  implements IBaseRepository<T>
+{
   protected model: Model<T>;
 
   constructor(model: Model<T>) {
@@ -11,6 +12,10 @@ export default class BaseRepository<T extends Document> implements IBaseReposito
   async create(data: Partial<T>): Promise<T> {
     const doc = new this.model(data);
     return await doc.save();
+  }
+
+  async findOne(filter: FilterQuery<T>): Promise<T | null> {
+    return await this.model.findOne(filter).exec();
   }
 
   async findById(id: string): Promise<T | null> {

@@ -1,0 +1,1 @@
+{"version":3,"file":"IOtpModel.d.ts","sourceRoot":"","sources":["../../../src/models/interfaces/IOtpModel.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,QAAQ,EAAE,MAAM,UAAU,CAAC;AACpC,MAAM,WAAW,IAAK,SAAQ,QAAQ;IAClC,KAAK,EAAE,MAAM,CAAC;IACd,GAAG,EAAE,MAAM,CAAC;IACZ,SAAS,EAAE,IAAI,CAAC;IAChB,SAAS,EAAE,IAAI,CAAC;CACnB"}

@@ -1,5 +1,6 @@
 const adminRouterEndPoints ={
-    adminCreateCategory:"/admin/categories"
+    adminCreateCategory:"/admin/categories",
+    adminGetCategories:"/admin/categories"
 }
 
 export default adminRouterEndPoints

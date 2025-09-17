@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { FaTimes } from "react-icons/fa";
 import Button from "../common/Button";
-interface StepTwoProps {
+interface StepThreeProps {
   onBack: () => void;
   onNext: () => void;
 }
 
-export default function StepTwo({ onBack, onNext }: StepTwoProps) {
+export default function StepThreeForm({ onBack, onNext }: StepThreeProps) {
   const [skills, setSkills] = useState<string[]>([]);
   const [input, setInput] = useState("");
 

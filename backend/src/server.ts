@@ -3,6 +3,8 @@ import express from 'express'
 import { connectDB } from "./config/db.js";
 import dotenv from "dotenv";
 import cors from "cors"
+import { errorHandler } from "./middlewares/ErrorHandlers.js";
+import AppError from "./utils/AppError.js";
 import sendEmailOtp from "./utils/sendOtp.js";
 
 //Importing routes
@@ -25,6 +27,8 @@ app.use(cors({
 app.use("/api/auth",authRouter)
 
 app.use("/api/admin",adminRouter)
+
+app.use(errorHandler);
 
 app.listen(PORT,()=>{
     console.log("Server is Running On Port : ",PORT)

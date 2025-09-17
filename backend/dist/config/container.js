@@ -11,6 +11,10 @@ container.register("IOtpServices", { useClass: OtpService });
 // Register Repository
 container.register("IUserRepository", { useClass: UserRepository });
 container.register("IOtpRepository", { useClass: OtpRepository });
-// You can also register controllers if needed
-// container.register<AuthController>(AuthController, { useClass: AuthController });
+//Category and skills
+import { AdminCategoryServices } from "../services/adminServices/adminCategoryServices.js";
+import { AdminCategoryRepository } from "../repositories/adminRepositoies/adminCategoryRepository.js";
+//add category
+container.register("IAdminCategoryServices", { useClass: AdminCategoryServices });
+container.register("IAdminCategoryRepository", { useClass: AdminCategoryRepository });
 //# sourceMappingURL=container.js.map

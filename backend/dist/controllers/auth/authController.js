@@ -13,6 +13,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 import { injectable, inject } from "tsyringe";
 import bcrypt from "bcryptjs";
 import { createOtpDigit } from "../../utils/otpGenerator.js";
+import { mapCreateUserDtoToUserModel } from "../../mapper/authMapper/auth.mapper.js";
 import "../../config/container.js";
 let AuthController = class AuthController {
     constructor(authService, otpService) {
@@ -22,18 +23,11 @@ let AuthController = class AuthController {
     async signup(req, res) {
         try {
             let { firstName, lastName, email, phone, password, agreement } = req.body;
-            password = await bcrypt.hash(password, 10);
-            const user = await this.authService.signup({
-                firstName,
-                lastName,
-                email,
-                phone,
-                password,
-                agreement,
-            });
+            const dto = mapCreateUserDtoToUserModel(req.body);
+            dto.password = await bcrypt.hash(dto.password, 10);
+            const user = await this.authService.signup(dto);
             const otp = await createOtpDigit();
             const otpRespose = await this.otpService.createOtp(email, otp);
-            console.log(otpRespose);
             res.status(201).json({
                 success: true,
                 message: "User created successfully",
@@ -44,7 +38,7 @@ let AuthController = class AuthController {
             });
         }
         catch (error) {
-            res.status(400).json({ message: error.message + "from controller" });
+            throw error;
         }
     }
 };
