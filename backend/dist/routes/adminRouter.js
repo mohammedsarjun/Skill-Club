@@ -6,5 +6,6 @@ import { validate } from '../middlewares/validate.js';
 const adminRouter = express.Router();
 const categoryController = container.resolve(AdminCategoryController);
 adminRouter.post("/categories", validate(categoryValidationSchema), categoryController.addCategory.bind(categoryController));
+adminRouter.get("/categories", categoryController.getAllCategory.bind(categoryController));
 export default adminRouter;
 //# sourceMappingURL=adminRouter.js.map

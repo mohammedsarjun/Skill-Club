@@ -1,17 +1,18 @@
-import { 
-  FaPlus,      // Plus
-  FaEdit,      // Edit
-  FaTrashAlt,  // Trash2
-  FaTag,       // Tag
-  FaSearch     // Search
-} from 'react-icons/fa';
+import {
+  FaPlus, // Plus
+  FaEdit, // Edit
+  FaTrashAlt, // Trash2
+  FaTag, // Tag
+  FaSearch, // Search
+} from "react-icons/fa";
 
+import { Dispatch, SetStateAction } from "react";
 // components/Admin/CategorySkills/Table.tsx
 import { useState } from "react";
 
-import Button from '../common/Button';
-import Input from '../common/Input';
-import DynamicForm from '../common/Form';
+import Button from "../common/Button";
+import Input from "../common/Input";
+import DynamicForm from "../common/Form";
 
 // Define interfaces for props
 interface Column {
@@ -25,9 +26,8 @@ interface Filter {
   options: string[];
 }
 
-
 // Field types
-type FieldType = 'text' | 'number' | 'textarea' | 'checkbox' | 'select';
+type FieldType = "text" | "number" | "textarea" | "checkbox" | "select";
 
 interface SelectOption {
   label: string;
@@ -40,7 +40,6 @@ interface Field {
   placeholder?: string;
   label?: string;
   options?: SelectOption[];
-
 }
 
 interface TableProps {
@@ -48,9 +47,13 @@ interface TableProps {
   data: Record<string, any>[]; // array of objects
   filters?: Filter[];
   addButtonLabel: string;
-  formFields?:Field[]|undefined;
-  handleOpenModal?:()=>void;
-  handleCloseModal?:()=>void;
+  formFields?: Field[] | undefined;
+  handleOpenModal?: () => void;
+  handleCloseModal?: () => void;
+  page: number;
+  setPage: Dispatch<SetStateAction<number>>;
+  search: string;
+  setSearch: (searchData:any)=>void;
 }
 
 const Table: React.FC<TableProps> = ({
@@ -60,16 +63,20 @@ const Table: React.FC<TableProps> = ({
   addButtonLabel,
   formFields,
   handleOpenModal,
+  page,
+  setPage,
+  search,
+  setSearch,
 }) => {
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
-
+  const [activeFilters, setActiveFilters] = useState<Record<string, string>>(
+    {}
+  );
 
   // Filter data based on search + dropdown filters
   const filteredData = data.filter((row) => {
     // Search
     const matchesSearch = columns.some((col) =>
-      String(row[col.key]).toLowerCase().includes(searchTerm.toLowerCase())
+      String(row[col.key]).toLowerCase().includes(search.toLowerCase())
     );
 
     // Filters
@@ -80,11 +87,6 @@ const Table: React.FC<TableProps> = ({
     return matchesSearch && matchesFilters;
   });
 
-
-
-
-
-
   return (
     <div>
       {/* Search + Filters + Add Button */}
@@ -92,10 +94,9 @@ const Table: React.FC<TableProps> = ({
         <div className="flex gap-2">
           {/* Search */}
           <Input
-            type='text'
-            placeholder='Search ...'
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            type="text"
+            placeholder="Search ..."
+            onChange={(e) => setSearch(e.target.value)}
           ></Input>
 
           {/* Filters */}
@@ -124,14 +125,16 @@ const Table: React.FC<TableProps> = ({
         {/* Add Button */}
         <Button
           content={addButtonLabel}
-          type='button'
+          type="button"
           onClick={handleOpenModal}
         ></Button>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Job Categories</h2>
+          <h2 className="text-lg font-semibold text-gray-900">
+            Job Categories
+          </h2>
         </div>
         <div className="overflow-x-auto">
           {/* Table */}
@@ -156,10 +159,7 @@ const Table: React.FC<TableProps> = ({
                 filteredData.map((row, index) => (
                   <tr key={index} className="hover:bg-gray-50">
                     {columns.map((col) => (
-                      <td
-                        key={col.key}
-                        className="px-6 py-4 whitespace-nowrap"
-                      >
+                      <td key={col.key} className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="bg-emerald-100 rounded-lg p-2 mr-3"></div>
                           <div className="text-sm font-medium text-gray-900">
@@ -180,10 +180,7 @@ const Table: React.FC<TableProps> = ({
                 ))
               ) : (
                 <tr>
-                  <td
-                    colSpan={columns.length + 1}
-                    className="text-center py-4"
-                  >
+                  <td colSpan={columns.length + 1} className="text-center py-4">
                     No data found
                   </td>
                 </tr>
@@ -195,11 +192,23 @@ const Table: React.FC<TableProps> = ({
 
       {/* Simple Pagination Placeholder */}
       <div className="mt-4 flex justify-end">
-        <button className="px-3 py-1 border rounded mx-1">Prev</button>
-        <button className="px-3 py-1 border rounded mx-1">1</button>
-        <button className="px-3 py-1 border rounded mx-1">Next</button>
-      </div>
+        <button
+          className="px-3 py-1 border rounded mx-1"
+          onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+          disabled={page === 1}
+        >
+          Prev
+        </button>
 
+        <span className="px-3 py-1">{page}</span>
+
+        <button
+          className="px-3 py-1 border rounded mx-1"
+          onClick={() => setPage((prev) => prev + 1)}
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 };

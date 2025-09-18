@@ -1,13 +1,3 @@
-// ------------------- Interfaces -------------------
-import mongoose, { Document, Schema } from "mongoose";
-export interface IAddress {
-  country: string;
-  streetAddress: string;
-  city: string;
-  state: string;
-  zipCode: string;
-}
-
 export interface ILanguage {
   name: string;
   proficiency: string; 
@@ -29,13 +19,14 @@ export interface IEducation{
   school:string,
   degree:string,
   fieldOfStudy:string,
-  isCurrentEducation:boolean
+  isCurrentEducation:boolean,
   startYear:number,
   endYear?:number,
   description:string
 }
 
-export interface IFreelancerProfile {
+
+export interface IFreelancerData{
   workCategory: string;
   specialties:string[];
   skills: string[];
@@ -47,19 +38,5 @@ export interface IFreelancerProfile {
   hourlyRate: number;
   weeklyHours: number;
   portfolio: string;
-}
 
-export interface IUser extends Document {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  password: string;
-  address: IAddress;
-  dob: Date;
-  isVerified: boolean;
-  roles: string[];
-  freelancerProfile: IFreelancerProfile;
-  createdAt: Date;
-  updatedAt: Date;
 }

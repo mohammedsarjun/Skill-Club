@@ -3,7 +3,10 @@ import type { IAdminCategoryController } from "./interfaces/IAdminCategoryContro
 import { injectable, inject } from "tsyringe";
 import type { IAdminCategoryServices } from "../../services/adminServices/interfaces/IAdminCategoryServices.js";
 import "../../config/container.js";
-import { mapCreateCategoryDtoToCategoryModel } from "../../mapper/adminMapper/category.mapper.js";
+import {
+  mapCreateCategoryDtoToCategoryModel,
+  mapCategoryQuery,
+} from "../../mapper/adminMapper/category.mapper.js";
 @injectable()
 export class AdminCategoryController implements IAdminCategoryController {
   private adminCategoryService: IAdminCategoryServices;
@@ -22,7 +25,7 @@ export class AdminCategoryController implements IAdminCategoryController {
       res.status(201).json({
         success: true,
         message: "Category created successfully",
-        data:result
+        data: result,
       });
     } catch (error) {
       throw error;
@@ -41,7 +44,17 @@ export class AdminCategoryController implements IAdminCategoryController {
     return Promise.resolve();
   }
 
-  getAllCategory(req: Request, res: Response): Promise<void> {
-    return Promise.resolve();
+  async getAllCategory(req: Request, res: Response): Promise<void> {
+    try {
+      const dto = mapCategoryQuery(req.query);
+      const result = await this.adminCategoryService.getCategory(dto);
+      res.status(200).json({
+        success: true,
+        message: "Data Fetched successfully",
+        data: result,
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 }

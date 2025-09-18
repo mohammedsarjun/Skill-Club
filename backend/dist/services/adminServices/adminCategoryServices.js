@@ -13,6 +13,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 import { injectable, inject } from "tsyringe";
 import AppError from "../../utils/AppError.js";
 import { HttpStatus } from "../../enums/http-status.enum.js";
+import { mapCategoryModelToCategoryDto } from "../../mapper/adminMapper/category.mapper.js";
 let AdminCategoryServices = class AdminCategoryServices {
     constructor(adminCategoryRepository) {
         this.adminCategoryRepository = adminCategoryRepository;
@@ -30,6 +31,23 @@ let AdminCategoryServices = class AdminCategoryServices {
             name: result.name,
             description: result.description,
             status: result.status,
+        };
+    }
+    async getCategory(filterData) {
+        const page = filterData.page ?? 1;
+        const limit = filterData.limit ?? 10;
+        const skip = (page - 1) * limit;
+        const result = await this.adminCategoryRepository.findAll({ name: { $regex: filterData.search || "", $options: "i" } }, { skip, limit });
+        const total = await this.adminCategoryRepository.count({
+            name: filterData.search || "",
+        });
+        // Map to DTO
+        const data = result.map(mapCategoryModelToCategoryDto);
+        return {
+            data,
+            total,
+            page,
+            limit,
         };
     }
 };

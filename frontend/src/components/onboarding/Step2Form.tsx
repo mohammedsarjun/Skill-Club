@@ -146,7 +146,7 @@ export default function Step2Form({
       <div className="flex justify-between mt-6">
  
         <Button content="Back" type="submit" color="gray" onClick={onBack}></Button>
-        <Button content="Next" type="submit" disabled={!selectedCategory} onClick={onNext}></Button>
+        <Button content="Next" type="submit" disabled={!selectedCategory} onClick={handleNext}></Button>
       </div>
     </div>
   );

@@ -12,7 +12,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 import { injectable, inject } from "tsyringe";
 import "../../config/container.js";
-import { mapCreateCategoryDtoToCategoryModel } from "../../mapper/adminMapper/category.mapper.js";
+import { mapCreateCategoryDtoToCategoryModel, mapCategoryQuery, } from "../../mapper/adminMapper/category.mapper.js";
 let AdminCategoryController = class AdminCategoryController {
     constructor(adminCategoryService) {
         this.adminCategoryService = adminCategoryService;
@@ -24,7 +24,7 @@ let AdminCategoryController = class AdminCategoryController {
             res.status(201).json({
                 success: true,
                 message: "Category created successfully",
-                data: result
+                data: result,
             });
         }
         catch (error) {
@@ -40,8 +40,19 @@ let AdminCategoryController = class AdminCategoryController {
     findCategoryById(req, res) {
         return Promise.resolve();
     }
-    getAllCategory(req, res) {
-        return Promise.resolve();
+    async getAllCategory(req, res) {
+        try {
+            const dto = mapCategoryQuery(req.query);
+            const result = await this.adminCategoryService.getCategory(dto);
+            res.status(200).json({
+                success: true,
+                message: "Data Fetched successfully",
+                data: result,
+            });
+        }
+        catch (error) {
+            throw error;
+        }
     }
 };
 AdminCategoryController = __decorate([

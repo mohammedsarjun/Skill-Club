@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
-import { IUser,IAddress,ILanguage,IFreelancerProfile } from "./interfaces/IUserModel.js";
+import { IUser,IAddress,ILanguage,IFreelancerProfile, IExperience, IEducation } from "./interfaces/IUserModel.js";
 
 
 // ------------------- Schemas -------------------
@@ -16,12 +16,34 @@ const languageSchema = new Schema<ILanguage>({
   proficiency: String,
 });
 
+const experienceSchema = new Schema<IExperience>({
+  company:String,
+  location:String,
+  country:String,
+  isCurrentRole:Boolean,
+  startMonth:Number,
+  startYear:Number,
+  endMonth:Number,
+  endYear:Number
+})
+
+const educationSchema = new Schema<IEducation>({
+  school:String,
+  degree:String,
+  fieldOfStudy:String,
+  isCurrentEducation:Boolean,
+  startYear:Number,
+  endYear:Number,
+  description:String
+})
+
 const freelancerProfileSchema = new Schema<IFreelancerProfile>({
-  workField: String,
+  workCategory: String,
+  specialties:[String],
   skills: [String],
   professionalRole: String,
-  experience: String,
-  education: String,
+  experience: [experienceSchema],
+  education: [educationSchema],
   languages: [languageSchema],
   bio: String,
   hourlyRate: Number,

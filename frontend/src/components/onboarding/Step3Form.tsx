@@ -3,7 +3,7 @@ import { FaTimes } from "react-icons/fa";
 import Button from "../common/Button";
 interface StepThreeProps {
   onBack: () => void;
-  onNext: () => void;
+  onNext: (data:any) => void;
 }
 
 export default function StepThreeForm({ onBack, onNext }: StepThreeProps) {
@@ -38,6 +38,10 @@ export default function StepThreeForm({ onBack, onNext }: StepThreeProps) {
   const removeSkill = (value: string) => {
     setSkills(skills.filter((skill) => skill !== value));
   };
+
+   function handleNext() {
+    onNext({ skills:skills });
+  }
 
   return (
     <div>
@@ -117,7 +121,7 @@ export default function StepThreeForm({ onBack, onNext }: StepThreeProps) {
       <div className="flex justify-between mt-6">
  
         <Button content="Back" type="submit" color="gray" onClick={onBack}></Button>
-        <Button content="Next" type="submit" onClick={onNext}></Button>
+        <Button content="Next" type="submit" onClick={handleNext}></Button>
       </div>
     </div>
         

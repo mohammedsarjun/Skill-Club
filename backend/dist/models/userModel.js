@@ -11,12 +11,32 @@ const languageSchema = new Schema({
     name: String,
     proficiency: String,
 });
+const experienceSchema = new Schema({
+    company: String,
+    location: String,
+    country: String,
+    isCurrentRole: Boolean,
+    startMonth: Number,
+    startYear: Number,
+    endMonth: Number,
+    endYear: Number
+});
+const educationSchema = new Schema({
+    school: String,
+    degree: String,
+    fieldOfStudy: String,
+    isCurrentEducation: Boolean,
+    startYear: Number,
+    endYear: Number,
+    description: String
+});
 const freelancerProfileSchema = new Schema({
-    workField: String,
+    workCategory: String,
+    specialties: [String],
     skills: [String],
     professionalRole: String,
-    experience: String,
-    education: String,
+    experience: [experienceSchema],
+    education: [educationSchema],
     languages: [languageSchema],
     bio: String,
     hourlyRate: Number,

@@ -1,45 +1,59 @@
-"use client"
+"use client";
+
+import { useDispatch, useSelector } from "react-redux";
+import { updateFreelancerData } from "@/store/slices/freelancerSlice";
+import { RootState } from "@/store/index";
 
 import { useParams, useRouter } from "next/navigation";
 import Step1Form from "@/components/onboarding/Step1Form";
-import Step2Form from "@/components/onboarding/Step2Form"
-import Step3Form from "@/components/onboarding/Step3Form"
-import Step4Form from "@/components/onboarding/Step4Form"
-import Step5Form from "@/components/onboarding/Step5Form"
-import Step6Form from "@/components/onboarding/Step6Form"
-import Step7Form from "@/components/onboarding/Step7Form"
-import Step8Form from "@/components/onboarding/Step8Form"
-import Step9Form from "@/components/onboarding/Step9Form"
-import Step10Form from "@/components/onboarding/Step10Form"
-// import Step1Form from "@/components/onboarding/Step1Form";
-// import Step2Form from "@/components/onboarding/Step2Form";
-// ... up to Step7
+import Step2Form from "@/components/onboarding/Step2Form";
+import Step3Form from "@/components/onboarding/Step3Form";
+import Step4Form from "@/components/onboarding/Step4Form";
+import Step5Form from "@/components/onboarding/Step5Form";
+import Step6Form from "@/components/onboarding/Step6Form";
+import Step7Form from "@/components/onboarding/Step7Form";
+import Step8Form from "@/components/onboarding/Step8Form";
+import Step9Form from "@/components/onboarding/Step9Form";
+import Step10Form from "@/components/onboarding/Step10Form";
 
-// const stepComponents: Record<string, any> = {
-//   "1": Step1Form,
-//   "2": Step2Form,
-//   // ...
-//   "7": Step7Form,
-// };
+const stepComponents: Record<string, any> = {
+  "0": Step1Form,
+  "1": Step2Form,
+  "2": Step3Form,
+  "3": Step4Form,
+  "4": Step5Form,
+  "5": Step6Form,
+  "6": Step7Form,
+  "7": Step8Form,
+  "8": Step9Form,
+  "9": Step10Form,
+};
 
 export default function OnboardingStepPage() {
   const { step } = useParams();
   const router = useRouter();
+  const dispatch = useDispatch();
 
-//   const StepComponent = stepComponents[step as string];
+   const freelancerData = useSelector((state: RootState) => state.freelancer);
 
-//   if (!StepComponent) {
-//     return <p>Invalid step</p>;
-//   }
+  const StepComponent = stepComponents[step as string];
 
-//   function handleNext(data: any) {
-//     // save to DB
-//     // then go to next step
-//     router.push(`/onboarding/freelancer/${Number(step) + 1}`);
-//   }
+  if (!StepComponent) return <p>Invalid step</p>;
 
-  return(
-    <Step10Form onBack={()=>1} onNext={()=>2}></Step10Form>
-  )
-//    ) <StepComponent onNext={handleNext} />;
+    const handleNext = (stepData: any) => {
+    // update Redux store with current step data
+    dispatch(updateFreelancerData(stepData));
+
+    // go to next step
+    const nextStep = Number(step) + 1;
+    router.push(`/onboarding/freelancer/${nextStep}`);
+  };
+
+  const handleBack = () => {
+    const prevStep = Number(step) - 1;
+    if (prevStep > 0) router.push(`/onboarding/freelancer/${prevStep}`);
+  };
+
+  return <StepComponent onNext={handleNext} onBack={handleBack} data={freelancerData} />;
+
 }

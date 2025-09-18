@@ -4,10 +4,19 @@ import Button from "../common/Button";
 import Input from "../common/Input";
 interface StepFourProps {
   onBack: () => void;
-  onNext: () => void;
+  onNext: (data:any) => void;
 }
 
+
+
+
+
 export default function StepFourForm({ onBack, onNext }: StepFourProps) {
+ 
+  const [formData,setFormData]=useState()
+    function handleNext() {
+    onNext({ professionalRole:formData });
+  }
   return (
     <div>
       {/* Step Indicator */}
@@ -28,7 +37,8 @@ export default function StepFourForm({ onBack, onNext }: StepFourProps) {
         Your Professional Role
       </p>
 
-      <Input type="text" placeholder="Example:Web,App & Software Dev" name="professionalRole"></Input>
+      <Input type="text" onChange={(e:any)=>setFormData(e.target.value)} placeholder="Example:Web,App & Software Dev" name="professionalRole"></Input>
+
 
       {/* Navigation Buttons */}
       <div className="flex justify-between mt-6">
@@ -38,7 +48,7 @@ export default function StepFourForm({ onBack, onNext }: StepFourProps) {
           color="gray"
           onClick={onBack}
         ></Button>
-        <Button content="Next" type="submit" onClick={onNext}></Button>
+        <Button content="Next" type="submit" onClick={handleNext}></Button>
       </div>
     </div>
   );

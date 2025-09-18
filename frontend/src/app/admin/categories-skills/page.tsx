@@ -1,11 +1,12 @@
 // components/Admin/CategorySkills/DynamicManagementPage.tsx
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Table from "@/components/admin/Table";
 import DynamicForm from "@/components/common/Form";
 import AdminActionApi from "@/api/action/AdminActionApi";
 import { IcategoryData } from "@/types/interfaces/admin/IAdmin";
 import toast from "react-hot-toast";
+import { debounce } from "lodash";
 
 interface Category {
   id: number;
@@ -44,12 +45,12 @@ interface FormField {
   options?: { label: string; value: any }[];
 }
 
-// const [categoriesData, setCategoriesData] = useState<Category[]>([]);
+
 // Sample data
-const categoriesData: Category[] = [
-  { id: 1, name: "Web Development", description: "All web related jobs" },
-  { id: 2, name: "Design", description: "Graphic & UI/UX jobs" },
-];
+// const categoriesData: Category[] = [
+//   { id: 1, name: "Web Development", description: "All web related jobs" },
+//   { id: 2, name: "Design", description: "Graphic & UI/UX jobs" },
+// ];
 
 const specialtiesData: Specialty[] = [
   { id: 1, name: "Frontend", categoryName: "Web Development" },
@@ -65,8 +66,8 @@ async function onSubmit(data: IcategoryData) {
   const response = await AdminActionApi.createCategory(data);
   if (response.success) {
     toast.success(response.message);
-  }else{
-    toast.error(response.message)
+  } else {
+    toast.error(response.message);
   }
 }
 
@@ -74,36 +75,43 @@ const DynamicManagementPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
     "categories" | "specialties" | "skills"
   >("categories");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [categoriesData, setCategoriesData] = useState<Category[]>([]);
 
-  // useEffect(() => {
-  //   async function fetchData() {
-  //     try {
-  //       setLoading(true);
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        // setLoading(true);
 
-  //       if (activeTab === "categories") {
-  //         AdminActionApi.getCategories;
-  //       }
-  //       if (activeTab === "specialties") {
-  //         AdminActionApi.getCategories;
-  //       }
+        if (activeTab === "categories") {
+         const response = await AdminActionApi.getCategories(search, page, limit);
+         console.log(response)
+        }
+        // if (activeTab === "specialties") {
+        //   AdminActionApi.getCategories;
+        // }
 
-  //       if (activeTab === "skills") {
-  //         AdminActionApi.getCategories;
-  //       }
+        // if (activeTab === "skills") {
+        //   AdminActionApi.getCategories;
+        // }
+      } catch (err: any) {
+        toast.error(err.message);
+      }
+    }
+    fetchData();
+  }, [activeTab,search,page]);
 
-  //       const res = await fetch(url);
-  //       if (!res.ok) throw new Error("Failed to fetch " + activeTab);
-  //       const json = await res.json();
-  //       setData(json);
-  //     } catch (err: any) {
-  //       toast.error(err.message);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   }
-  //   fetchData();
-  // }, [activeTab]);
+  const debouncedSetSearch = useMemo(
+  () =>
+    debounce((value: string) => {
+      setSearch(value);
+    }, 500),
+  [setSearch]
+);
+
 
   function handleOpenModal() {
     setIsModalOpen(true);
@@ -245,6 +253,10 @@ const DynamicManagementPage: React.FC = () => {
         addButtonLabel={addButtonLabel}
         formFields={formFields}
         handleOpenModal={handleOpenModal}
+        page={page}
+        setPage={setPage}
+        search={search}
+         setSearch={debouncedSetSearch} 
       />
 
       {/* Modal */}

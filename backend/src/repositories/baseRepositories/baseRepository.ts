@@ -22,8 +22,16 @@ export default class BaseRepository<T extends Document>
     return await this.model.findById(id).exec();
   }
 
-  async findAll(filter: FilterQuery<T> = {}): Promise<T[]> {
-    return await this.model.find(filter).exec();
+  async findAll(
+    filter: FilterQuery<T> = {},
+    options?: { skip?: number; limit?: number }
+  ): Promise<T[]> {
+    let query = this.model.find(filter);
+
+    if (options?.skip) query = query.skip(options.skip);
+    if (options?.limit) query = query.limit(options.limit);
+
+    return await query.exec();
   }
 
   async update(id: string, data: UpdateQuery<T>): Promise<T | null> {
@@ -32,5 +40,9 @@ export default class BaseRepository<T extends Document>
 
   async delete(id: string): Promise<T | null> {
     return await this.model.findByIdAndDelete(id).exec();
+  }
+
+  async count(filter: FilterQuery<T> = {}): Promise<number> {
+    return await this.model.countDocuments(filter).exec();
   }
 }

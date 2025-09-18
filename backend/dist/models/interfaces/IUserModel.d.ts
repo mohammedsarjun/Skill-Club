@@ -10,12 +10,33 @@ export interface ILanguage {
     name: string;
     proficiency: string;
 }
+export interface IExperience {
+    title: string;
+    company: string;
+    location: string;
+    country: string;
+    isCurrentRole: boolean;
+    startMonth: number;
+    startYear: number;
+    endMonth?: number;
+    endYear?: number;
+}
+export interface IEducation {
+    school: string;
+    degree: string;
+    fieldOfStudy: string;
+    isCurrentEducation: boolean;
+    startYear: number;
+    endYear?: number;
+    description: string;
+}
 export interface IFreelancerProfile {
-    workField: string;
+    workCategory: string;
+    specialties: string[];
     skills: string[];
     professionalRole: string;
-    experience: string;
-    education: string;
+    experience: IExperience[];
+    education: IEducation[];
     languages: ILanguage[];
     bio: string;
     hourlyRate: number;
