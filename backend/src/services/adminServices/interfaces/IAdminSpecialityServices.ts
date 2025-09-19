@@ -1,0 +1,9 @@
+import { CreateSpecialityDTO} from "../../../dto/adminDTO/speciality.dto.js"
+import { GetSpecialityDto } from "../../../dto/adminDTO/speciality.dto.js"
+import { PaginatedSpecialityDto } from "../../../dto/adminDTO/speciality.dto.js"
+export interface IAdminSpecialityServices{
+    addSpeciality(specialityData:CreateSpecialityDTO):Promise<any>
+    getSpeciality(filterData:GetSpecialityDto):Promise<PaginatedSpecialityDto>
+    // getSpeciality(filterData:any):Promise<any>
+    // editSpeciality(data:any,id:string):Promise<any>
+}

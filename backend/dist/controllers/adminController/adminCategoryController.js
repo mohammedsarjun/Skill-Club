@@ -12,7 +12,8 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 import { injectable, inject } from "tsyringe";
 import "../../config/container.js";
-import { mapCreateCategoryDtoToCategoryModel, mapCategoryQuery, } from "../../mapper/adminMapper/category.mapper.js";
+import { mapCreateCategoryDtoToCategoryModel, mapCategoryQuery, mapUpdateCategoryDtoToCategoryModel, } from "../../mapper/adminMapper/category.mapper.js";
+import { HttpStatus } from "../../enums/http-status.enum.js";
 let AdminCategoryController = class AdminCategoryController {
     constructor(adminCategoryService) {
         this.adminCategoryService = adminCategoryService;
@@ -21,7 +22,7 @@ let AdminCategoryController = class AdminCategoryController {
         try {
             const dto = mapCreateCategoryDtoToCategoryModel(req.body);
             const result = await this.adminCategoryService.addCategory(dto);
-            res.status(201).json({
+            res.status(HttpStatus.CREATED).json({
                 success: true,
                 message: "Category created successfully",
                 data: result,
@@ -31,8 +32,20 @@ let AdminCategoryController = class AdminCategoryController {
             throw error;
         }
     }
-    editCategory(req, res) {
-        return Promise.resolve();
+    async editCategory(req, res) {
+        try {
+            const dto = req.body;
+            const updateData = mapUpdateCategoryDtoToCategoryModel(dto);
+            const result = await this.adminCategoryService.editCategory(updateData, dto.id);
+            res.status(HttpStatus.OK).json({
+                success: true,
+                message: "Category Edited successfully",
+                data: result,
+            });
+        }
+        catch (error) {
+            throw error;
+        }
     }
     listOrUnlistCategory(req, res) {
         return Promise.resolve();
@@ -44,7 +57,7 @@ let AdminCategoryController = class AdminCategoryController {
         try {
             const dto = mapCategoryQuery(req.query);
             const result = await this.adminCategoryService.getCategory(dto);
-            res.status(200).json({
+            res.status(HttpStatus.OK).json({
                 success: true,
                 message: "Data Fetched successfully",
                 data: result,

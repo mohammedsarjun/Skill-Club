@@ -2,6 +2,8 @@ import {
   CreateCategoryDTO,
   CategoryDto,
   GetCategoryDto,
+  UpdateCategoryDTO,
+  CategoryDtoMinimal,
 } from "../../dto/adminDTO/category.dto.js";
 import { ICategory } from "../../models/interfaces/ICategoryModel.js";
 
@@ -15,6 +17,18 @@ export const mapCreateCategoryDtoToCategoryModel = (
   };
 };
 
+export const mapUpdateCategoryDtoToCategoryModel = (
+  dto: Partial<UpdateCategoryDTO> // <- make it partial
+): Partial<Pick<ICategory, "name" | "description" | "status">> => {
+  const updatedData: Partial<Pick<ICategory, "name" | "description" | "status">> = {};
+
+  if (dto.name !== undefined) updatedData.name = dto.name;
+  if (dto.description !== undefined) updatedData.description = dto.description;
+  if (dto.status !== undefined) updatedData.status = dto.status;
+
+  return updatedData;
+};
+
 export const mapCategoryModelToCategoryDto = (
   category: ICategory
 ): CategoryDto => {
@@ -26,10 +40,24 @@ export const mapCategoryModelToCategoryDto = (
   };
 };
 
+
+
+export const mapCategoryModelToCategoryDtoMinimal = (
+  category: ICategory
+):CategoryDtoMinimal=> {
+  return {
+    id: category._id.toString(),
+    name: category.name,
+ 
+  };
+};
+
+
 export function mapCategoryQuery(dto: any): GetCategoryDto {
   return {
     search: dto.search || "",
     page: dto.page ? Number(dto.page) : 1,
     limit: dto.limit ? Number(dto.limit) : 10,
+    mode:dto.mode
   };
 }

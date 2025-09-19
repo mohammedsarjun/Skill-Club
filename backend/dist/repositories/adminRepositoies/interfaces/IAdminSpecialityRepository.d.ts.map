@@ -1,0 +1,1 @@
+{"version":3,"file":"IAdminSpecialityRepository.d.ts","sourceRoot":"","sources":["../../../../src/repositories/adminRepositoies/interfaces/IAdminSpecialityRepository.ts"],"names":[],"mappings":"AAAA,OAAO,cAAc,MAAM,0CAA0C,CAAC;AACtE,OAAO,EAAE,WAAW,EAAE,MAAM,gDAAgD,CAAC;AAC7E,MAAM,WAAW,0BAA2B,SAAQ,cAAc,CAAC,WAAW,CAAC;CAE9E"}

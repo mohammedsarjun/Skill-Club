@@ -14,4 +14,5 @@ export const categoryValidationSchema = z.object({
   status: z.enum(["list", "unlist"]),  
 });
 
+
 export type CategoryDTO = z.infer<typeof categoryValidationSchema>;

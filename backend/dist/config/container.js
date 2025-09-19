@@ -14,7 +14,12 @@ container.register("IOtpRepository", { useClass: OtpRepository });
 //Category and skills
 import { AdminCategoryServices } from "../services/adminServices/adminCategoryServices.js";
 import { AdminCategoryRepository } from "../repositories/adminRepositoies/adminCategoryRepository.js";
+import { AdminSpecialityServices } from "../services/adminServices/adminSpecialityServices.js";
+import { AdminSpecialityRepository } from "../repositories/adminRepositoies/adminSpecialityRepository.js";
 //add category
 container.register("IAdminCategoryServices", { useClass: AdminCategoryServices });
 container.register("IAdminCategoryRepository", { useClass: AdminCategoryRepository });
+//Speciality
+container.register("IAdminSpecialityServices", { useClass: AdminSpecialityServices });
+container.register("IAdminSpecialityRepository", { useClass: AdminSpecialityRepository });
 //# sourceMappingURL=container.js.map

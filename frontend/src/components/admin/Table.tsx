@@ -43,6 +43,7 @@ interface Field {
 }
 
 interface TableProps {
+  title:string,
   columns: Column[];
   data: Record<string, any>[]; // array of objects
   filters?: Filter[];
@@ -53,10 +54,13 @@ interface TableProps {
   page: number;
   setPage: Dispatch<SetStateAction<number>>;
   search: string;
-  setSearch: (searchData:any)=>void;
+  setSearch: (searchData: any) => void;
+  canDelete: boolean;
+  handleEditModal: (values: any) => void;
 }
 
 const Table: React.FC<TableProps> = ({
+  title,
   columns,
   data,
   filters = [],
@@ -67,6 +71,8 @@ const Table: React.FC<TableProps> = ({
   setPage,
   search,
   setSearch,
+  canDelete = false,
+  handleEditModal,
 }) => {
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>(
     {}
@@ -133,7 +139,7 @@ const Table: React.FC<TableProps> = ({
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="px-6 py-4 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900">
-            Job Categories
+            {title}
           </h2>
         </div>
         <div className="overflow-x-auto">
@@ -169,12 +175,21 @@ const Table: React.FC<TableProps> = ({
                       </td>
                     ))}
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                      <button className="text-emerald-600 hover:text-emerald-900">
-                        <FaEdit></FaEdit>
+                      <button
+                        className="text-emerald-600 hover:text-emerald-900"
+                        onClick={() => handleEditModal(row)} // send whole row for edit
+                      >
+                        <FaEdit />
                       </button>
-                      <button className="text-red-600 hover:text-red-900">
-                        <FaTrashAlt></FaTrashAlt>
-                      </button>
+
+                      {canDelete && (
+                        <button
+                          className="text-red-600 hover:text-red-900"
+                          // onClick={() => handleDelete(row.id)} // ✅ send only the id
+                        >
+                          <FaTrashAlt />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))

@@ -1,0 +1,1 @@
+{"version":3,"file":"ISpecialityModel.d.ts","sourceRoot":"","sources":["../../../src/models/interfaces/ISpecialityModel.ts"],"names":[],"mappings":"AAAA,OAAiB,EAAE,QAAQ,EAAU,MAAM,UAAU,CAAC;AAEtD,MAAM,WAAW,WAAY,SAAQ,QAAQ;IACzC,GAAG,EAAC,MAAM,CAAA;IACV,IAAI,EAAE,MAAM,CAAC;IACb,QAAQ,EAAC,MAAM,CAAC;IAChB,MAAM,EAAC,MAAM,CAAC;CACjB"}

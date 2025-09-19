@@ -13,7 +13,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 import { injectable, inject } from "tsyringe";
 import AppError from "../../utils/AppError.js";
 import { HttpStatus } from "../../enums/http-status.enum.js";
-import { mapCategoryModelToCategoryDto } from "../../mapper/adminMapper/category.mapper.js";
+import { mapCategoryModelToCategoryDto, mapCategoryModelToCategoryDtoMinimal } from "../../mapper/adminMapper/category.mapper.js";
 let AdminCategoryServices = class AdminCategoryServices {
     constructor(adminCategoryRepository) {
         this.adminCategoryRepository = adminCategoryRepository;
@@ -37,17 +37,41 @@ let AdminCategoryServices = class AdminCategoryServices {
         const page = filterData.page ?? 1;
         const limit = filterData.limit ?? 10;
         const skip = (page - 1) * limit;
+        const mode = filterData.mode;
         const result = await this.adminCategoryRepository.findAll({ name: { $regex: filterData.search || "", $options: "i" } }, { skip, limit });
         const total = await this.adminCategoryRepository.count({
             name: filterData.search || "",
         });
         // Map to DTO
-        const data = result.map(mapCategoryModelToCategoryDto);
+        let data;
+        if (mode == "detailed") {
+            data = result.map(mapCategoryModelToCategoryDto);
+        }
+        else {
+            data = result.map(mapCategoryModelToCategoryDtoMinimal);
+        }
         return {
             data,
             total,
             page,
             limit,
+        };
+    }
+    async editCategory(data, id) {
+        if (data.name) {
+            const existing = await this.adminCategoryRepository.findOne({
+                name: data.name,
+            });
+            if (existing) {
+                throw new AppError("Category with this name already exists", HttpStatus.CONFLICT);
+            }
+        }
+        const result = await this.adminCategoryRepository.update(id, data);
+        return {
+            id: result?._id,
+            name: result?.name,
+            description: result?.description,
+            status: result?.status,
         };
     }
 };

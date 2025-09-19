@@ -18,6 +18,8 @@ export default class BaseRepository {
             query = query.skip(options.skip);
         if (options?.limit)
             query = query.limit(options.limit);
+        if (options?.populate)
+            query = query.populate(options.populate);
         return await query.exec();
     }
     async update(id, data) {

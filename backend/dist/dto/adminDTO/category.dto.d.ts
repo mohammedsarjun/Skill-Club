@@ -3,10 +3,17 @@ export interface CreateCategoryDTO {
     description: string;
     status: string;
 }
+export interface UpdateCategoryDTO {
+    id: string;
+    name?: string;
+    description?: string;
+    status?: string;
+}
 export interface GetCategoryDto {
     search?: string;
     page?: number;
     limit?: number;
+    mode: string;
 }
 export interface CategoryDto {
     id: string;
@@ -14,8 +21,12 @@ export interface CategoryDto {
     description: string;
     status: string;
 }
+export interface CategoryDtoMinimal {
+    id: string;
+    name: string;
+}
 export interface PaginatedCategoryDto {
-    data: CategoryDto[];
+    data: CategoryDto[] | CategoryDtoMinimal[];
     total: number;
     page: number;
     limit: number;

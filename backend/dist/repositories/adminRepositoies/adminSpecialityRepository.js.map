@@ -1,0 +1,1 @@
+{"version":3,"file":"adminSpecialityRepository.js","sourceRoot":"","sources":["../../../src/repositories/adminRepositoies/adminSpecialityRepository.ts"],"names":[],"mappings":"AAEA,OAAO,cAAc,MAAM,uCAAuC,CAAC;AAEnE,OAAO,EAAE,eAAe,EAAE,MAAM,iCAAiC,CAAC;AAGlE,MAAM,OAAO,yBAA0B,SAAQ,cAA2B;IACxE;QACE,KAAK,CAAC,eAAe,CAAC,CAAC;IACzB,CAAC;CAEF"}

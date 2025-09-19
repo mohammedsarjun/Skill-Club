@@ -6,6 +6,7 @@ import DynamicForm from "@/components/common/Form";
 import AdminActionApi from "@/api/action/AdminActionApi";
 import { IcategoryData } from "@/types/interfaces/admin/IAdmin";
 import toast from "react-hot-toast";
+import { categorySchema,specialitySchema } from "@/utils/validation";
 import { debounce } from "lodash";
 
 interface Category {
@@ -17,7 +18,7 @@ interface Category {
 interface Specialty {
   id: number;
   name: string;
-  categoryName: string;
+  category: string;
 }
 
 interface Skill {
@@ -45,31 +46,15 @@ interface FormField {
   options?: { label: string; value: any }[];
 }
 
-
-// Sample data
-// const categoriesData: Category[] = [
-//   { id: 1, name: "Web Development", description: "All web related jobs" },
-//   { id: 2, name: "Design", description: "Graphic & UI/UX jobs" },
+// const specialtiesData: Specialty[] = [
+//   { id: 1, name: "Frontend", category: "Web Development" },
+//   { id: 2, name: "Backend", category: "Web Development" },
 // ];
-
-const specialtiesData: Specialty[] = [
-  { id: 1, name: "Frontend", categoryName: "Web Development" },
-  { id: 2, name: "Backend", categoryName: "Web Development" },
-];
 
 const skillsData: Skill[] = [
   { id: 1, name: "React.js", specialtyName: "Frontend" },
   { id: 2, name: "Node.js", specialtyName: "Backend" },
 ];
-
-async function onSubmit(data: IcategoryData) {
-  const response = await AdminActionApi.createCategory(data);
-  if (response.success) {
-    toast.success(response.message);
-  } else {
-    toast.error(response.message);
-  }
-}
 
 const DynamicManagementPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
@@ -79,20 +64,44 @@ const DynamicManagementPage: React.FC = () => {
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [canDeleteRow, setCanDeleteRow] = useState(false);
   const [categoriesData, setCategoriesData] = useState<Category[]>([]);
-
+  const [specialtiesData,setSpecialtiesData]= useState<Specialty[]>([]);
   useEffect(() => {
     async function fetchData() {
       try {
         // setLoading(true);
 
         if (activeTab === "categories") {
-         const response = await AdminActionApi.getCategories(search, page, limit);
-         console.log(response)
+          setCanDeleteRow(false);
+          const response = await AdminActionApi.getCategories(
+            search,
+            page,
+            limit
+          );
+          if (response.success) {
+            setCategoriesData(response.data.data);
+          } else {
+            toast.error(response.message);
+          }
         }
-        // if (activeTab === "specialties") {
-        //   AdminActionApi.getCategories;
-        // }
+        if (activeTab === "specialties") {
+          setCanDeleteRow(false);
+
+          const response = await AdminActionApi.getSpecialities(
+            search,
+            page,
+            limit
+          );
+          if (response.success) {
+            setSpecialtiesData(response.data.data);
+            console.log(response.data.data);
+          } else {
+            toast.error(response.message);
+          }
+          // AdminActionApi.getSpecialties;
+        }
 
         // if (activeTab === "skills") {
         //   AdminActionApi.getCategories;
@@ -102,16 +111,37 @@ const DynamicManagementPage: React.FC = () => {
       }
     }
     fetchData();
-  }, [activeTab,search,page]);
+  }, [activeTab, search, page]);
 
   const debouncedSetSearch = useMemo(
-  () =>
-    debounce((value: string) => {
-      setSearch(value);
-    }, 500),
-  [setSearch]
-);
+    () =>
+      debounce((value: string) => {
+        setSearch(value);
+      }, 500),
+    [setSearch]
+  );
 
+  async function onSubmit(data: IcategoryData, mode: string) {
+    let response: any;
+
+    if (activeTab == "categories" && mode == "create") {
+      response = await AdminActionApi.createCategory(data);
+    } else if (activeTab == "categories" && mode == "update") {
+      response = await AdminActionApi.updateCategory(data);
+      setCategoriesData((prev) =>
+        prev.map((cat) => (cat.id === response?.data?.id ? response.data : cat))
+      );
+    } else if (activeTab == "specialties" && mode == "create") {
+
+      response = await AdminActionApi.createSpeciality(data);
+    }
+
+    if (response.success) {
+      toast.success(response.message);
+    } else {
+      toast.error(response.message);
+    }
+  }
 
   function handleOpenModal() {
     setIsModalOpen(true);
@@ -158,27 +188,36 @@ const DynamicManagementPage: React.FC = () => {
     case "specialties":
       columns = [
         { key: "name", label: "Specialty Name" },
-        { key: "categoryName", label: "Category" },
+        { key: "category", label: "Category" },
       ];
       data = specialtiesData;
       filters = [
         {
-          key: "categoryName",
+          key: "category",
           label: "Category",
-          options: ["Web Development", "Design"],
+          options: [...categoriesData.map((cat) => cat.name)],
         },
       ];
       addButtonLabel = "Add Specialty";
       formFields = [
         { name: "name", type: "text", placeholder: "Enter specialty name" },
         {
-          name: "categoryName",
+          name: "category",
           type: "select",
           label: "Category",
           options: categoriesData.map((cat) => ({
             label: cat.name,
             value: cat.name,
           })),
+        },
+        {
+          name: "status",
+          type: "select",
+          options: [
+            { label: "List", value: "list" },
+            { label: "UnList", value: "unlist" },
+          ],
+          label: "Status",
         },
       ];
       break;
@@ -210,6 +249,34 @@ const DynamicManagementPage: React.FC = () => {
         },
       ];
       break;
+  }
+
+  const [editInitialValues, setEditInitialValues] = useState<
+    Record<string, any>
+  >({});
+
+  function handleEditModal(values: any) {
+    console.log(values);
+    if (activeTab === "categories") {
+      setEditInitialValues({
+        id: values.id,
+        name: values.name || "",
+        description: values.description || "",
+        status: values.status || "list",
+      });
+    } else if (activeTab === "specialties") {
+      setEditInitialValues({
+        name: values.name || "",
+        category: values.description || "", // here `description` can hold categoryName
+      });
+    } else if (activeTab === "skills") {
+      setEditInitialValues({
+        name: values.name || "",
+        specialtyName: values.description || "", // here `description` can hold specialtyName
+      });
+    }
+
+    setIsEditModalOpen(true);
   }
 
   return (
@@ -247,6 +314,15 @@ const DynamicManagementPage: React.FC = () => {
 
       {/* Table */}
       <Table
+        title={
+          activeTab == "categories"
+            ? "Job Categories"
+            : activeTab == "specialties"
+            ? "Specialties"
+            : activeTab == "skills"
+            ? "Skills"
+            : ""
+        }
         columns={columns}
         data={data}
         filters={filters}
@@ -256,7 +332,9 @@ const DynamicManagementPage: React.FC = () => {
         page={page}
         setPage={setPage}
         search={search}
-         setSearch={debouncedSetSearch} 
+        setSearch={debouncedSetSearch}
+        canDelete={canDeleteRow}
+        handleEditModal={handleEditModal}
       />
 
       {/* Modal */}
@@ -272,9 +350,112 @@ const DynamicManagementPage: React.FC = () => {
             <h2 className="text-lg font-semibold mb-4">Add New</h2>
             {/* You can replace this with DynamicForm later */}
             <DynamicForm
+              title={
+                activeTab == "categories"
+                  ? "Create Category"
+                  : activeTab == "specialties"
+                  ? "Create Specialty"
+                  : activeTab == "skills"
+                  ? "Create Skills"
+                  : ""
+              }
               fields={formFields}
               onSubmit={onSubmit}
               onClose={handleCloseModal}
+              validationSchema={activeTab==="categories"?categorySchema:activeTab==="specialties"?specialitySchema:specialitySchema}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center ">
+          <div className="bg-white rounded-lg p-6 relative w-1/3">
+            <button
+              onClick={() => setIsEditModalOpen(false)}
+              className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
+            >
+              ✕
+            </button>
+            <h2 className="text-lg font-semibold mb-4">Edit</h2>
+
+            <DynamicForm
+              title={
+                activeTab == "categories"
+                  ? "Edit Category"
+                  : activeTab == "specialties"
+                  ? "Edit Specialty"
+                  : activeTab == "skills"
+                  ? "Edit Skills"
+                  : ""
+              }
+              fields={
+                activeTab === "categories"
+                  ? [
+                      {
+                        name: "name",
+                        type: "text",
+                        placeholder: "Enter category name",
+                        label: "Category Name",
+                      },
+                      {
+                        name: "description",
+                        type: "textarea",
+                        placeholder: "Enter description",
+                        label: "Description",
+                      },
+                      {
+                        name: "status",
+                        type: "select",
+                        options: [
+                          { label: "List", value: "list" },
+                          { label: "UnList", value: "unlist" },
+                        ],
+                        label: "Status",
+                      },
+                    ]
+                  : activeTab === "specialties"
+                  ? [
+                      {
+                        name: "name",
+                        type: "text",
+                        placeholder: "Enter specialty name",
+                        label: "Specialty Name",
+                      },
+                      {
+                        name: "category",
+                        type: "select",
+                        label: "Category",
+                        options: categoriesData.map((cat) => ({
+                          label: cat.name,
+                          value: cat.name,
+                        })),
+                      },
+                    ]
+                  : [
+                      {
+                        name: "name",
+                        type: "text",
+                        placeholder: "Enter skill name",
+                        label: "Skill Name",
+                      },
+                      {
+                        name: "specialtyName",
+                        type: "select",
+                        label: "Specialty",
+                        options: specialtiesData.map((spec) => ({
+                          label: spec.name,
+                          value: spec.name,
+                        })),
+                      },
+                    ]
+              }
+              onSubmit={onSubmit}
+              onClose={() => setIsEditModalOpen(false)}
+              initialValues={editInitialValues}
+              mode="update"
+              validationSchema={categorySchema}
             />
           </div>
         </div>

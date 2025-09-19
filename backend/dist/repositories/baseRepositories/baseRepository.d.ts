@@ -1,4 +1,4 @@
-import { Model, Document, FilterQuery, UpdateQuery } from "mongoose";
+import { Model, Document, FilterQuery, UpdateQuery, PopulateOptions } from "mongoose";
 import { IBaseRepository } from "./interfaces/IBaseRepository.js";
 export default class BaseRepository<T extends Document> implements IBaseRepository<T> {
     protected model: Model<T>;
@@ -9,6 +9,7 @@ export default class BaseRepository<T extends Document> implements IBaseReposito
     findAll(filter?: FilterQuery<T>, options?: {
         skip?: number;
         limit?: number;
+        populate?: PopulateOptions | PopulateOptions[];
     }): Promise<T[]>;
     update(id: string, data: UpdateQuery<T>): Promise<T | null>;
     delete(id: string): Promise<T | null>;

@@ -24,6 +24,15 @@ import { AdminCategoryServices } from "../services/adminServices/adminCategorySe
 import { IAdminCategoryServices } from "../services/adminServices/interfaces/IAdminCategoryServices.js";
 import { AdminCategoryRepository } from "../repositories/adminRepositoies/adminCategoryRepository.js";
 import { IAdminCategoryRepository } from "../repositories/adminRepositoies/interfaces/IAdminCategoryRepository.js";
+import { IAdminSpecialityServices } from "../services/adminServices/interfaces/IAdminSpecialityServices.js";
+import { AdminSpecialityServices } from "../services/adminServices/adminSpecialityServices.js";
+import { IAdminSpecialityRepository } from "../repositories/adminRepositoies/interfaces/IAdminSpecialityRepository.js";
+import { AdminSpecialityRepository } from "../repositories/adminRepositoies/adminSpecialityRepository.js";
 //add category
 container.register<IAdminCategoryServices>("IAdminCategoryServices",{useClass:AdminCategoryServices})
 container.register<IAdminCategoryRepository>("IAdminCategoryRepository",{useClass:AdminCategoryRepository})
+
+//Speciality
+container.register<IAdminSpecialityServices>("IAdminSpecialityServices",{useClass:AdminSpecialityServices})
+container.register<IAdminSpecialityRepository>("IAdminSpecialityRepository",{useClass:AdminSpecialityRepository})
+

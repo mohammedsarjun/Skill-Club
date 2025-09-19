@@ -15,10 +15,24 @@ const AdminActionApi = {
     }
   },
 
+  updateCategory:async (data: IcategoryData): Promise<any> => {
+    try {
+      
+      const response = await axiosClient.patch(
+        adminEndPoint.adminUpdateCategory,
+        data
+      );
+      return response.data;
+    } catch (error: any) {
+      return error.response.data;
+    }
+  },
+
   getCategories: async (
     search: string = "",
     page: number = 1,
-    limit: number = 10
+    limit: number = 10,
+    mode:string="detailed",
   ): Promise<any> => {
     try {
       const response = await axiosClient.get(adminEndPoint.adminGetCategories, {
@@ -26,10 +40,45 @@ const AdminActionApi = {
           search,
           page,
           limit,
+          mode
         },
       });
-      console.log(response.data)
-      // return response.data;
+      return response.data;
+    } catch (error: any) {
+      return error.response.data;
+    }
+  },
+
+
+    createSpeciality: async (data: IcategoryData): Promise<any> => {
+    try {
+      const response = await axiosClient.post(
+        adminEndPoint.adminCreateSpeciality,
+        data
+      );
+      return response.data;
+    } catch (error: any) {
+      return error.response.data;
+    }
+  },
+
+
+   getSpecialities: async (
+    search: string = "",
+    page: number = 1,
+    limit: number = 10,
+    mode:string="detailed",
+  ): Promise<any> => {
+    try {
+      const response = await axiosClient.get(adminEndPoint.adminGetSpeciality, {
+        params: {
+          search,
+          page,
+          limit,
+          mode
+        },
+      });
+      return response.data;
     } catch (error: any) {
       return error.response.data;
     }

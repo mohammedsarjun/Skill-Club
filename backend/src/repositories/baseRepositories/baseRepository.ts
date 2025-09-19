@@ -1,4 +1,4 @@
-import { Model, Document, FilterQuery, UpdateQuery } from "mongoose";
+import { Model, Document, FilterQuery, UpdateQuery,PopulateOptions  } from "mongoose";
 import { IBaseRepository } from "./interfaces/IBaseRepository.js";
 export default class BaseRepository<T extends Document>
   implements IBaseRepository<T>
@@ -22,17 +22,25 @@ export default class BaseRepository<T extends Document>
     return await this.model.findById(id).exec();
   }
 
-  async findAll(
-    filter: FilterQuery<T> = {},
-    options?: { skip?: number; limit?: number }
-  ): Promise<T[]> {
-    let query = this.model.find(filter);
 
-    if (options?.skip) query = query.skip(options.skip);
-    if (options?.limit) query = query.limit(options.limit);
 
-    return await query.exec();
+async findAll(
+  filter: FilterQuery<T> = {},
+  options?: { 
+    skip?: number; 
+    limit?: number; 
+    populate?: PopulateOptions | PopulateOptions[] 
   }
+): Promise<T[]> {
+  let query = this.model.find(filter);
+
+  if (options?.skip) query = query.skip(options.skip);
+  if (options?.limit) query = query.limit(options.limit);
+  if (options?.populate) query = query.populate(options.populate);
+
+  return await query.exec();
+}
+
 
   async update(id: string, data: UpdateQuery<T>): Promise<T | null> {
     return await this.model.findByIdAndUpdate(id, data, { new: true }).exec();
