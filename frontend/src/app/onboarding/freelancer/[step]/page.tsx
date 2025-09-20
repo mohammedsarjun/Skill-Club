@@ -51,7 +51,7 @@ export default function OnboardingStepPage() {
 
   const handleBack = () => {
     const prevStep = Number(step) - 1;
-    if (prevStep > 0) router.push(`/onboarding/freelancer/${prevStep}`);
+    if (prevStep >= 0) router.push(`/onboarding/freelancer/${prevStep}`);
   };
 
   return <StepComponent onNext={handleNext} onBack={handleBack} data={freelancerData} />;

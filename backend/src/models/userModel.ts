@@ -38,6 +38,7 @@ const educationSchema = new Schema<IEducation>({
 })
 
 const freelancerProfileSchema = new Schema<IFreelancerProfile>({
+  logo:String,
   workCategory: String,
   specialties:[String],
   skills: [String],

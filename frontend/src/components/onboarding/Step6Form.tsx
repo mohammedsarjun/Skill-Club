@@ -1,6 +1,17 @@
+"use client";
 import React, { useState } from "react";
 import { FiPlus } from "react-icons/fi";
 import Button from "../common/Button";
+import { z } from "zod";
+
+// Zod schema for education
+const educationSchema = z.object({
+  school: z.string().min(2, "School is required"),
+  degree: z.string().min(2, "Degree is required"),
+  field: z.string().min(2, "Field is required"),
+  startYear: z.string().min(4, "Start year is required"),
+  endYear: z.string().min(4, "End year is required"),
+});
 
 interface StepSixProps {
   onBack: () => void;
@@ -9,39 +20,52 @@ interface StepSixProps {
 
 export default function StepSixForm({ onBack, onNext }: StepSixProps) {
   const [isOpen, setIsOpen] = useState(false);
-
-  // ✅ Store multiple educations
   const [educations, setEducations] = useState<any[]>([]);
 
-  // Form states
   const [school, setSchool] = useState("");
   const [degree, setDegree] = useState("");
   const [field, setField] = useState("");
   const [startYear, setStartYear] = useState("");
   const [endYear, setEndYear] = useState("");
+  const [errors, setErrors] = useState<Partial<Record<string, string>>>({});
 
   const years = Array.from({ length: 50 }, (_, i) => 2025 - i);
 
+  const handleFieldChange = (field: string, value: string) => {
+    switch (field) {
+      case "school": setSchool(value); break;
+      case "degree": setDegree(value); break;
+      case "field": setField(value); break;
+      case "startYear": setStartYear(value); break;
+      case "endYear": setEndYear(value); break;
+    }
+    setErrors(prev => ({ ...prev, [field]: undefined }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const data = {
-      school,
-      degree,
-      field,
-      startYear,
-      endYear,
-    };
+    const formData = { school, degree, field, startYear, endYear };
+
+    const result = educationSchema.safeParse(formData);
+    if (!result.success) {
+      const fieldErrors: Partial<Record<string, string>> = {};
+      result.error.issues.forEach(err => {
+        if (err.path[0]) fieldErrors[err.path[0] as string] = err.message;
+      });
+      setErrors(fieldErrors);
+      return;
+    }
 
     // Save education
-    setEducations((prev) => [...prev, data]);
+    setEducations(prev => [...prev, formData]);
+    setErrors({});
 
-    // Reset fields
+    // Reset form
     setSchool("");
     setDegree("");
     setField("");
     setStartYear("");
     setEndYear("");
-
     setIsOpen(false);
   };
 
@@ -70,92 +94,103 @@ export default function StepSixForm({ onBack, onNext }: StepSixProps) {
         </p>
       </div>
 
-      {/* ✅ Show saved educations */}
+      {/* Show saved educations */}
       {educations.length > 0 && (
         <div className="mt-4 space-y-2">
           {educations.map((edu, idx) => (
             <div key={idx} className="border p-3 rounded bg-gray-50">
               <p className="font-semibold">{edu.degree} in {edu.field}</p>
               <p className="text-sm text-gray-600">{edu.school}</p>
-              <p className="text-sm">
-                {edu.startYear} - {edu.endYear}
-              </p>
+              <p className="text-sm">{edu.startYear} - {edu.endYear}</p>
             </div>
           ))}
         </div>
       )}
 
-      <div className="flex justify-between mt-6">
+      <div className="flex justify-between mt-6 items-center">
         <Button content="Back" type="button" color="gray" onClick={onBack} />
-        {/* ✅ Pass all educations */}
-        <Button
-          content="Next"
-          type="button"
-          onClick={() => onNext(educations)}
-        />
+        <div className="flex items-center gap-4">
+          <span
+            className="text-green-600 cursor-pointer font-semibold"
+            onClick={() => onNext(null)}
+          >
+            Skip for now
+          </span>
+          <Button
+            content="Next"
+            type="button"
+            onClick={() => onNext(educations)}
+            disabled={educations.length === 0}
+          />
+        </div>
       </div>
 
+      {/* Education form modal */}
       {isOpen && (
-        <div
-          className="fixed inset-0 flex items-center justify-center z-50"
-          style={{ backgroundColor: "rgba(0, 0, 0, 0.15)" }}
-        >
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/15">
           <div className="bg-white rounded-lg w-11/12 max-w-2xl p-6 relative">
             <h2 className="text-xl font-semibold mb-4">Add Education</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <input
-                type="text"
-                placeholder="Ex: Harvard University"
-                value={school}
-                onChange={(e) => setSchool(e.target.value)}
-                className="w-full border px-3 py-2 rounded"
-                required
-              />
-              <input
-                type="text"
-                placeholder="Ex: Bachelor’s"
-                value={degree}
-                onChange={(e) => setDegree(e.target.value)}
-                className="w-full border px-3 py-2 rounded"
-                required
-              />
-              <input
-                type="text"
-                placeholder="Ex: Computer Science"
-                value={field}
-                onChange={(e) => setField(e.target.value)}
-                className="w-full border px-3 py-2 rounded"
-                required
-              />
+              <div>
+                <input
+                  type="text"
+                  placeholder="Ex: Harvard University"
+                  value={school}
+                  onChange={(e) => handleFieldChange("school", e.target.value)}
+                  className="w-full border px-3 py-2 rounded"
+                />
+                {errors.school && <p className="text-red-500 text-sm">{errors.school}</p>}
+              </div>
+
+              <div>
+                <input
+                  type="text"
+                  placeholder="Ex: Bachelor’s"
+                  value={degree}
+                  onChange={(e) => handleFieldChange("degree", e.target.value)}
+                  className="w-full border px-3 py-2 rounded"
+                />
+                {errors.degree && <p className="text-red-500 text-sm">{errors.degree}</p>}
+              </div>
+
+              <div>
+                <input
+                  type="text"
+                  placeholder="Ex: Computer Science"
+                  value={field}
+                  onChange={(e) => handleFieldChange("field", e.target.value)}
+                  className="w-full border px-3 py-2 rounded"
+                />
+                {errors.field && <p className="text-red-500 text-sm">{errors.field}</p>}
+              </div>
 
               <div className="flex space-x-2">
                 <select
                   value={startYear}
-                  onChange={(e) => setStartYear(e.target.value)}
+                  onChange={(e) => handleFieldChange("startYear", e.target.value)}
                   className="w-1/2 border px-3 py-2 rounded"
-                  required
                 >
                   <option value="">Start Year</option>
                   {years.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
+                    <option key={year} value={year}>{year}</option>
                   ))}
                 </select>
                 <select
                   value={endYear}
-                  onChange={(e) => setEndYear(e.target.value)}
+                  onChange={(e) => handleFieldChange("endYear", e.target.value)}
                   className="w-1/2 border px-3 py-2 rounded"
-                  required
                 >
                   <option value="">End Year</option>
                   {years.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
+                    <option key={year} value={year}>{year}</option>
                   ))}
                 </select>
               </div>
+              {(errors.startYear || errors.endYear) && (
+                <p className="text-red-500 text-sm">
+                  {errors.startYear || errors.endYear}
+                </p>
+              )}
 
               <div className="flex justify-end space-x-2 mt-4">
                 <button

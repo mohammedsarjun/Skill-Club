@@ -36,6 +36,7 @@ export interface IEducation{
 }
 
 export interface IFreelancerProfile {
+  logo:string
   workCategory: string;
   specialties:string[];
   skills: string[];
@@ -47,6 +48,7 @@ export interface IFreelancerProfile {
   hourlyRate: number;
   weeklyHours: number;
   portfolio: string;
+
 }
 
 export interface IUser extends Document {

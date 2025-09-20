@@ -1,12 +1,11 @@
+"use client";
 import React, { useState } from "react";
-import { FaTimes } from "react-icons/fa";
 import Button from "../common/Button";
-import Input from "../common/Input";
 import { FaTrash } from "react-icons/fa";
 
 interface StepSevenProps {
   onBack: () => void;
-  onNext: () => void;
+  onNext: (data: any) => void;
 }
 
 interface Language {
@@ -17,7 +16,7 @@ interface Language {
 }
 
 export default function StepSevenForm({ onBack, onNext }: StepSevenProps) {
- const [languages, setLanguages] = useState<Language[]>([
+  const [languages, setLanguages] = useState<Language[]>([
     { id: 1, name: "English", proficiency: "Fluent", mandatory: true },
   ]);
 
@@ -29,31 +28,31 @@ export default function StepSevenForm({ onBack, onNext }: StepSevenProps) {
   };
 
   const removeLanguage = (id: number) => {
-    setLanguages(languages.filter((lang) => !lang.mandatory && lang.id !== id));
+    setLanguages(languages.filter((lang) => lang.id !== id || lang.mandatory));
   };
 
-  const handleChange = (
-    id: number,
-    field: keyof Language,
-    value: string
-  ) => {
+  const handleChange = (id: number, field: keyof Language, value: string) => {
     setLanguages(
       languages.map((lang) =>
         lang.id === id ? { ...lang, [field]: value } : lang
       )
     );
   };
+
+  // Disable Next if any added language is empty
+  const isNextDisabled = languages.some(
+    (lang) => !lang.mandatory && lang.name.trim() === ""
+  );
+
+  // Get selected language names to prevent duplicates
+  const selectedNames = languages.map((lang) => lang.name).filter(Boolean);
+
   return (
     <div>
-      {/* Step Indicator */}
       <p className="text-gray-500">6/9</p>
-
-      {/* Heading */}
       <h2 className="text-2xl font-semibold mb-2">
         Looking good. Next, tell us which languages you speak.
       </h2>
-
-      {/* Description */}
       <p className="text-gray-600 mb-6 text-sm">
         Skill Club is global, so clients are often interested to know what
         languages you speak. English is a must, but do you speak any other
@@ -66,7 +65,6 @@ export default function StepSevenForm({ onBack, onNext }: StepSevenProps) {
             key={lang.id}
             className="flex items-center justify-between mb-3 bg-[#F5F5F5] p-3 rounded-lg"
           >
-            {/* Language selection */}
             <select
               value={lang.name}
               onChange={(e) => handleChange(lang.id, "name", e.target.value)}
@@ -80,14 +78,19 @@ export default function StepSevenForm({ onBack, onNext }: StepSevenProps) {
               ) : (
                 <>
                   <option value="">Select Language</option>
-                  <option value="Hindi">Hindi</option>
-                  <option value="Tamil">Tamil</option>
-                  <option value="Spanish">Spanish</option>
+                  {["Hindi", "Tamil", "Spanish"].map((name) => (
+                    <option
+                      key={name}
+                      value={name}
+                      disabled={selectedNames.includes(name)}
+                    >
+                      {name}
+                    </option>
+                  ))}
                 </>
               )}
             </select>
 
-            {/* Proficiency + delete */}
             <div className="flex items-center space-x-2">
               <select
                 value={lang.proficiency}
@@ -112,23 +115,29 @@ export default function StepSevenForm({ onBack, onNext }: StepSevenProps) {
           </div>
         ))}
 
-        {/* Add new language button */}
-        <button
-          onClick={addLanguage}
-          className="mt-3 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-        >
-          Add Language
-        </button>
+        {languages.length < 3 && (
+          <button
+            onClick={addLanguage}
+            className="mt-3 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          >
+            Add Language
+          </button>
+        )}
       </div>
-      {/* Navigation Buttons */}
-      <div className="flex justify-between mt-6">
+
+      {/* Navigation */}
+      <div className="flex justify-between mt-6 items-center">
+        <Button content="Back" type="button" color="gray" onClick={onBack} />
         <Button
-          content="Back"
-          type="submit"
-          color="gray"
-          onClick={onBack}
-        ></Button>
-        <Button content="Next" type="submit" onClick={onNext}></Button>
+          content="Next"
+          type="button"
+          onClick={() =>
+            onNext(
+              languages.map(({ name, proficiency }) => ({ name, proficiency }))
+            )
+          }
+          disabled={isNextDisabled}
+        />
       </div>
     </div>
   );

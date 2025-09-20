@@ -3,7 +3,7 @@ import { FaTimes } from "react-icons/fa";
 import Button from "../common/Button";
 interface StepThreeProps {
   onBack: () => void;
-  onNext: (data:any) => void;
+  onNext: (data: any) => void;
 }
 
 export default function StepThreeForm({ onBack, onNext }: StepThreeProps) {
@@ -25,11 +25,7 @@ export default function StepThreeForm({ onBack, onNext }: StepThreeProps) {
   ];
 
   const addSkill = (value: string) => {
-    if (
-      value &&
-      !skills.includes(value) &&
-      skills.length < 15
-    ) {
+    if (value && !skills.includes(value) && skills.length < 15) {
       setSkills([...skills, value]);
     }
     setInput("");
@@ -39,13 +35,13 @@ export default function StepThreeForm({ onBack, onNext }: StepThreeProps) {
     setSkills(skills.filter((skill) => skill !== value));
   };
 
-   function handleNext() {
-    onNext({ skills:skills });
+  function handleNext() {
+    onNext({ skills: skills });
   }
 
   return (
     <div>
-       {/* Step Indicator */}
+      {/* Step Indicator */}
       <p className="text-gray-500">2/9</p>
 
       {/* Heading */}
@@ -115,16 +111,21 @@ export default function StepThreeForm({ onBack, onNext }: StepThreeProps) {
         ))}
       </div>
 
-   
-
       {/* Navigation Buttons */}
       <div className="flex justify-between mt-6">
- 
-        <Button content="Back" type="submit" color="gray" onClick={onBack}></Button>
-        <Button content="Next" type="submit" onClick={handleNext}></Button>
+        <Button
+          content="Back"
+          type="submit"
+          color="gray"
+          onClick={onBack}
+        ></Button>
+        <Button
+          content="Next"
+          type="submit"
+          onClick={handleNext}
+          disabled={skills.length === 0}
+        />
       </div>
     </div>
-        
-
   );
 }

@@ -2,21 +2,23 @@ import React, { useState } from "react";
 import { FaTimes } from "react-icons/fa";
 import Button from "../common/Button";
 import Input from "../common/Input";
+
 interface StepFourProps {
   onBack: () => void;
-  onNext: (data:any) => void;
+  onNext: (data: any) => void;
 }
 
-
-
-
-
 export default function StepFourForm({ onBack, onNext }: StepFourProps) {
- 
-  const [formData,setFormData]=useState()
-    function handleNext() {
-    onNext({ professionalRole:formData });
+  const [formData, setFormData] = useState("");
+
+  // Validate input: remove leading/trailing spaces, at least 3 characters
+  const isValid = formData.trim().length >= 3;
+
+  function handleNext() {
+    if (!isValid) return; // safety check
+    onNext({ professionalRole: formData.trim() });
   }
+
   return (
     <div>
       {/* Step Indicator */}
@@ -33,12 +35,16 @@ export default function StepFourForm({ onBack, onNext }: StepFourProps) {
         describing your expertise in your own words.
       </p>
 
-       <p className="text-md font-semibold mb-2">
+      <p className="text-md font-semibold mb-2">
         Your Professional Role
       </p>
 
-      <Input type="text" onChange={(e:any)=>setFormData(e.target.value)} placeholder="Example:Web,App & Software Dev" name="professionalRole"></Input>
-
+      <Input
+        type="text"
+        onChange={(e: any) => setFormData(e.target.value)}
+        placeholder="Example: Web, App & Software Dev"
+        name="professionalRole"
+      />
 
       {/* Navigation Buttons */}
       <div className="flex justify-between mt-6">
@@ -48,7 +54,12 @@ export default function StepFourForm({ onBack, onNext }: StepFourProps) {
           color="gray"
           onClick={onBack}
         ></Button>
-        <Button content="Next" type="submit" onClick={handleNext}></Button>
+        <Button
+          content="Next"
+          type="submit"
+          onClick={handleNext}
+          disabled={!isValid} // disable until valid
+        ></Button>
       </div>
     </div>
   );

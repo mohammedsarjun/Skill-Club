@@ -25,8 +25,17 @@ export interface IEducation{
   description:string
 }
 
+ interface IAddress {
+  country: string;
+  streetAddress: string;
+  city: string;
+  state: string;
+  zipCode: number;
+}
+
 
 export interface IFreelancerData{
+  logo:string;
   workCategory: string;
   specialties:string[];
   skills: string[];
@@ -37,6 +46,7 @@ export interface IFreelancerData{
   bio: string;
   hourlyRate: number;
   weeklyHours: number;
+  address:IAddress
   portfolio: string;
 
 }

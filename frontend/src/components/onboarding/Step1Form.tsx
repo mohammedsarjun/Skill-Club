@@ -29,7 +29,15 @@ const freelancers = [
   },
 ];
 
-export default function Step1Form({ onNext }: { onNext: () => void }) {
+export default function Step1Form({
+  onNext,
+  onBack,
+  savedData,
+}: {
+  onNext: (data: any) => void;
+  onBack: () => void;
+  savedData?: any;
+}) {
   const [current, setCurrent] = useState(0);
   const freelancer = freelancers[current];
 
@@ -67,7 +75,7 @@ export default function Step1Form({ onNext }: { onNext: () => void }) {
         </p>
 
         <div className="flex items-center gap-3">
-            <Button content="Get Started" type="submit" onClick={onNext} className="pc-6 py-3"></Button>
+            <Button content="Get Started" type="submit" onClick={()=>onNext({data:""})} className="pc-6 py-3"></Button>
           <span className="text-sm text-gray-500 max-w-[200px]">
             It only takes 5–10 minutes and you can edit it later. We'll save as you go.
           </span>

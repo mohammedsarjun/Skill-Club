@@ -112,8 +112,13 @@ export default function Step2Form({
                   className="flex items-center cursor-pointer transition"
                   onClick={() => toggleSpecialty(spec.id)}
                 >
-                    <Checkbox name="" sizeClass="w-4 h-4" className="mr-3" checked={selectedSpecialties.includes(spec.id)}></Checkbox>
-    
+                  <Checkbox
+                    name=""
+                    sizeClass="w-4 h-4"
+                    className="mr-3"
+                    checked={selectedSpecialties.includes(spec.id)}
+                  ></Checkbox>
+
                   <span
                     className={`${
                       selectedSpecialties.includes(spec.id)
@@ -144,9 +149,18 @@ export default function Step2Form({
 
       {/* Navigation Buttons */}
       <div className="flex justify-between mt-6">
- 
-        <Button content="Back" type="submit" color="gray" onClick={onBack}></Button>
-        <Button content="Next" type="submit" disabled={!selectedCategory} onClick={handleNext}></Button>
+        <Button
+          content="Back"
+          type="submit"
+          color="gray"
+          onClick={onBack}
+        ></Button>
+        <Button
+          content="Next"
+          type="submit"
+          disabled={!(selectedCategory && selectedSpecialties.length > 0)}
+          onClick={handleNext}
+        />
       </div>
     </div>
   );
