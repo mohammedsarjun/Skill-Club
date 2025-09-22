@@ -1,11 +1,14 @@
 "use client";
-import React, { useState } from "react";
-import { FiPlus } from "react-icons/fi";
+import React, { useState, useEffect } from "react";
+import { FiPlus, FiTrash2 } from "react-icons/fi";
 import Button from "../common/Button";
 import { z } from "zod";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  updateFreelancerData,
+  removeFromObjectArrayField,
+} from "@/store/slices/freelancerSlice";
 
-// Zod schema for experience
-// Zod schema for experience with conditional end date
 const experienceSchema = z
   .object({
     title: z.string().min(2, "Title is required"),
@@ -20,20 +23,8 @@ const experienceSchema = z
   })
   .superRefine((data, ctx) => {
     if (!data.currentRole) {
-      if (!data.endMonth) {
-        ctx.addIssue({
-          path: ["endMonth"],
-          message: "End month is required",
-          code: "custom", // ✅ must include
-        });
-      }
-      if (!data.endYear) {
-        ctx.addIssue({
-          path: ["endYear"],
-          message: "End year is required",
-          code: "custom", // ✅ must include
-        });
-      }
+      if (!data.endMonth) ctx.addIssue({ path: ["endMonth"], message: "End month is required", code: "custom" });
+      if (!data.endYear) ctx.addIssue({ path: ["endYear"], message: "End year is required", code: "custom" });
     }
   });
 
@@ -43,6 +34,10 @@ interface StepFiveProps {
 }
 
 export default function StepFiveForm({ onBack, onNext }: StepFiveProps) {
+  const dispatch = useDispatch();
+  const savedData = useSelector((state: any) => state.freelancer);
+
+  // Form fields
   const [title, setTitle] = useState("");
   const [company, setCompany] = useState("");
   const [location, setLocation] = useState("");
@@ -54,38 +49,28 @@ export default function StepFiveForm({ onBack, onNext }: StepFiveProps) {
   const [endYear, setEndYear] = useState("");
 
   const [isOpen, setIsOpen] = useState(false);
-  const [experiences, setExperiences] = useState<any[]>([]);
-  const [errors, setErrors] = useState<Partial<Record<string, string>>>({});
+  const [experiences, setExperiences] = useState<any[]>(savedData?.experiences || []);
+  const [errors, setErrors] = useState<Partial<Record<string, string | undefined>>>({});
 
   const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    "January", "February", "March", "April", "May", "June", "July",
+    "August", "September", "October", "November", "December"
   ];
   const years = Array.from({ length: 50 }, (_, i) => 2025 - i);
 
-  // In handleSubmit
+  // Restore saved data when Redux changes
+  useEffect(() => {
+    if (savedData?.experiences) setExperiences(savedData.experiences);
+  }, [savedData?.experiences]);
+
+  // Handle form submit
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     const formData = {
-      title,
-      company,
-      location,
-      country,
-      startMonth,
-      startYear,
+      title, company, location, country,
+      startMonth, startYear,
       currentRole,
-      endMonth: currentRole ? undefined : endMonth, // undefined for conditional validation
+      endMonth: currentRole ? undefined : endMonth,
       endYear: currentRole ? undefined : endYear,
     };
 
@@ -100,82 +85,43 @@ export default function StepFiveForm({ onBack, onNext }: StepFiveProps) {
       return;
     }
 
-    // Clear errors and save experience
-    setErrors({});
-    setExperiences((prev) => [...prev, formData]);
+    // Save to local state
+    setExperiences(prev => {
+      const updated = [...prev, formData];
+      dispatch(updateFreelancerData({ experiences: updated })); // persist to Redux
+      return updated;
+    });
 
     // Reset form
-    setTitle("");
-    setCompany("");
-    setLocation("");
-    setCountry("");
+    setTitle(""); setCompany(""); setLocation(""); setCountry("");
+    setStartMonth(""); setStartYear(""); setEndMonth(""); setEndYear("");
     setCurrentRole(false);
-    setStartMonth("");
-    setStartYear("");
-    setEndMonth("");
-    setEndYear("");
+    setErrors({});
     setIsOpen(false);
   };
 
-  const handleClose = () => setIsOpen(false);
-
-  // When toggling currentRole, clear end date errors
-  const handleFieldChange = (field: string, value: any) => {
-    switch (field) {
-      case "title":
-        setTitle(value);
-        break;
-      case "company":
-        setCompany(value);
-        break;
-      case "location":
-        setLocation(value);
-        break;
-      case "country":
-        setCountry(value);
-        break;
-      case "startMonth":
-        setStartMonth(value);
-        break;
-      case "startYear":
-        setStartYear(value);
-        break;
-      case "endMonth":
-        setEndMonth(value);
-        break;
-      case "endYear":
-        setEndYear(value);
-        break;
-      case "currentRole":
-        setCurrentRole(value);
-        if (value) {
-          setErrors((prev) => ({
-            ...prev,
-            endMonth: undefined,
-            endYear: undefined,
-          }));
-        }
-        break;
-    }
-    setErrors((prev) => ({ ...prev, [field]: undefined }));
+  // Remove experience
+  const removeExperience = (index: number) => {
+    setExperiences(prev => {
+      const updated = prev.filter((_, i) => i !== index);
+  setExperiences(updated); // state update
+  // ✅ side effect outside of setState callback
+  dispatch(updateFreelancerData({ experiences: updated }));
+      return updated;
+    });
   };
 
   return (
     <div>
       <p className="text-gray-500">4/9</p>
-      <h2 className="text-2xl font-semibold mb-2">
-        If you have relevant work experience, add it here.
-      </h2>
+      <h2 className="text-2xl font-semibold mb-2">Add relevant work experience</h2>
       <p className="text-gray-600 mb-6 text-sm">
-        Freelancers who add their experience are twice as likely to win work.
-        But if you’re just starting out, you can still create a great profile.
-        Just head on to the next page.
+        Adding experience increases your chances of getting projects.
       </p>
 
+      {/* Add button */}
       <div className="relative w-full sm:w-1/2 md:w-1/3 h-40 bg-[#F5F5F5] rounded-xl p-4">
-        <p className="absolute bottom-4 left-16 text-sm sm:text-base font-semibold">
-          Add Experiences
-        </p>
+        <p className="absolute bottom-4 left-16 text-sm sm:text-base font-semibold">Add Experiences</p>
         <button
           onClick={() => setIsOpen(true)}
           className="absolute bottom-4 left-4 bg-green-500 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg hover:bg-green-600"
@@ -184,201 +130,90 @@ export default function StepFiveForm({ onBack, onNext }: StepFiveProps) {
         </button>
       </div>
 
+      {/* Show saved experiences */}
       {experiences.length > 0 && (
         <div className="mt-4 space-y-2">
           {experiences.map((exp, idx) => (
-            <div key={idx} className="border p-3 rounded bg-gray-50">
-              <p className="font-semibold">
-                {exp.title} at {exp.company}
-              </p>
-              <p className="text-sm text-gray-600">
-                {exp.location}, {exp.country}
-              </p>
-              <p className="text-sm">
-                {exp.startMonth} {exp.startYear} -{" "}
-                {exp.currentRole ? "Present" : `${exp.endMonth} ${exp.endYear}`}
-              </p>
+            <div key={idx} className="border p-3 rounded bg-gray-50 flex justify-between items-center">
+              <div>
+                <p className="font-semibold">{exp.title} at {exp.company}</p>
+                <p className="text-sm text-gray-600">{exp.location}, {exp.country}</p>
+                <p className="text-sm">{exp.startMonth} {exp.startYear} - {exp.currentRole ? "Present" : `${exp.endMonth} ${exp.endYear}`}</p>
+              </div>
+              <button onClick={() => removeExperience(idx)} className="text-red-500 hover:text-red-700">
+                <FiTrash2 size={18} />
+              </button>
             </div>
           ))}
         </div>
       )}
 
+      {/* Navigation */}
       <div className="flex justify-between mt-6 items-center">
         <Button content="Back" type="button" color="gray" onClick={onBack} />
         <div className="flex items-center gap-4">
-          <span
-            className="text-green-600 cursor-pointer font-semibold"
-            onClick={() => onNext(null)}
-          >
-            Skip for now
-          </span>
+          <span className="text-green-600 cursor-pointer font-semibold" onClick={() => onNext(null)}>Skip for now</span>
           <Button
             content="Next"
             type="button"
-            onClick={() => onNext(experiences)}
+            onClick={() => onNext({ experiences })}
             disabled={experiences.length === 0}
           />
         </div>
       </div>
 
+      {/* Modal */}
       {isOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/15">
           <div className="bg-white rounded-lg w-11/12 max-w-2xl p-6 relative">
             <h2 className="text-xl font-semibold mb-4">Add Experience</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <input
-                  type="text"
-                  placeholder="Ex: Software Engineer"
-                  value={title}
-                  onChange={(e) => handleFieldChange("title", e.target.value)}
-                  className="w-full border px-3 py-2 rounded"
-                />
-                {errors.title && (
-                  <p className="text-red-500 text-sm">{errors.title}</p>
-                )}
-              </div>
+              <input type="text" placeholder="Title" value={title} onChange={e => setTitle(e.target.value)} className="w-full border px-3 py-2 rounded" />
+              {errors.title && <p className="text-red-500 text-sm">{errors.title}</p>}
 
-              <div>
-                <input
-                  type="text"
-                  placeholder="Ex: Microsoft"
-                  value={company}
-                  onChange={(e) => handleFieldChange("company", e.target.value)}
-                  className="w-full border px-3 py-2 rounded"
-                />
-                {errors.company && (
-                  <p className="text-red-500 text-sm">{errors.company}</p>
-                )}
-              </div>
+              <input type="text" placeholder="Company" value={company} onChange={e => setCompany(e.target.value)} className="w-full border px-3 py-2 rounded" />
+              {errors.company && <p className="text-red-500 text-sm">{errors.company}</p>}
 
-              <div>
-                <input
-                  type="text"
-                  placeholder="Ex: London"
-                  value={location}
-                  onChange={(e) =>
-                    handleFieldChange("location", e.target.value)
-                  }
-                  className="w-full border px-3 py-2 rounded"
-                />
-                {errors.location && (
-                  <p className="text-red-500 text-sm">{errors.location}</p>
-                )}
-              </div>
+              <input type="text" placeholder="Location" value={location} onChange={e => setLocation(e.target.value)} className="w-full border px-3 py-2 rounded" />
+              {errors.location && <p className="text-red-500 text-sm">{errors.location}</p>}
 
-              <div>
-                <input
-                  type="text"
-                  placeholder="Country"
-                  value={country}
-                  onChange={(e) => handleFieldChange("country", e.target.value)}
-                  className="w-full border px-3 py-2 rounded"
-                />
-                {errors.country && (
-                  <p className="text-red-500 text-sm">{errors.country}</p>
-                )}
-              </div>
+              <input type="text" placeholder="Country" value={country} onChange={e => setCountry(e.target.value)} className="w-full border px-3 py-2 rounded" />
+              {errors.country && <p className="text-red-500 text-sm">{errors.country}</p>}
 
               <label className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={currentRole}
-                  onChange={(e) =>
-                    handleFieldChange("currentRole", e.target.checked)
-                  }
-                />
+                <input type="checkbox" checked={currentRole} onChange={e => setCurrentRole(e.target.checked)} />
                 <span>I am currently working in this role</span>
               </label>
 
               <div className="flex space-x-2">
-                <select
-                  value={startMonth}
-                  onChange={(e) =>
-                    handleFieldChange("startMonth", e.target.value)
-                  }
-                  className="w-1/2 border px-3 py-2 rounded"
-                >
+                <select value={startMonth} onChange={e => setStartMonth(e.target.value)} className="w-1/2 border px-3 py-2 rounded">
                   <option value="">Start Month</option>
-                  {months.map((month) => (
-                    <option key={month} value={month}>
-                      {month}
-                    </option>
-                  ))}
+                  {months.map(m => <option key={m} value={m}>{m}</option>)}
                 </select>
-                <select
-                  value={startYear}
-                  onChange={(e) =>
-                    handleFieldChange("startYear", e.target.value)
-                  }
-                  className="w-1/2 border px-3 py-2 rounded"
-                >
+                <select value={startYear} onChange={e => setStartYear(e.target.value)} className="w-1/2 border px-3 py-2 rounded">
                   <option value="">Start Year</option>
-                  {years.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
+                  {years.map(y => <option key={y} value={y}>{y}</option>)}
                 </select>
               </div>
-              {(errors.startMonth || errors.startYear) && (
-                <p className="text-red-500 text-sm">
-                  {errors.startMonth || errors.startYear}
-                </p>
-              )}
+              {(errors.startMonth || errors.startYear) && <p className="text-red-500 text-sm">{errors.startMonth || errors.startYear}</p>}
 
               {!currentRole && (
                 <div className="flex space-x-2">
-                  <select
-                    value={endMonth}
-                    onChange={(e) =>
-                      handleFieldChange("endMonth", e.target.value)
-                    }
-                    className="w-1/2 border px-3 py-2 rounded"
-                  >
+                  <select value={endMonth} onChange={e => setEndMonth(e.target.value)} className="w-1/2 border px-3 py-2 rounded">
                     <option value="">End Month</option>
-                    {months.map((month) => (
-                      <option key={month} value={month}>
-                        {month}
-                      </option>
-                    ))}
+                    {months.map(m => <option key={m} value={m}>{m}</option>)}
                   </select>
-                  <select
-                    value={endYear}
-                    onChange={(e) =>
-                      handleFieldChange("endYear", e.target.value)
-                    }
-                    className="w-1/2 border px-3 py-2 rounded"
-                  >
+                  <select value={endYear} onChange={e => setEndYear(e.target.value)} className="w-1/2 border px-3 py-2 rounded">
                     <option value="">End Year</option>
-                    {years.map((year) => (
-                      <option key={year} value={year}>
-                        {year}
-                      </option>
-                    ))}
+                    {years.map(y => <option key={y} value={y}>{y}</option>)}
                   </select>
                 </div>
               )}
-              {!currentRole && (errors.endMonth || errors.endYear) && (
-                <p className="text-red-500 text-sm">
-                  {errors.endMonth || errors.endYear}
-                </p>
-              )}
+              {!currentRole && (errors.endMonth || errors.endYear) && <p className="text-red-500 text-sm">{errors.endMonth || errors.endYear}</p>}
 
               <div className="flex justify-end space-x-2 mt-4">
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="px-4 py-2 rounded border"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 rounded bg-blue-600 text-white"
-                >
-                  Save
-                </button>
+                <button type="button" onClick={() => setIsOpen(false)} className="px-4 py-2 rounded border">Cancel</button>
+                <button type="submit" className="px-4 py-2 rounded bg-blue-600 text-white">Save</button>
               </div>
             </form>
           </div>

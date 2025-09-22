@@ -12,16 +12,47 @@ export interface SignUpData {
 export const authApi = {
   signUp: async (data: SignUpData): Promise<any> => {
     try {
-   
+
       const response = await axiosClient.post(
         authenticationRoutes.userSignUp,
         data
       );
 
-      localStorage.setItem("otpEmail",response.data.data.email)
-      localStorage.setItem("otpExpiry",response.data.data.expiresAt)
+      return response.data;
+    } catch (error: any) {
+      return error.response.data;
+    }
+  },
+
+  createOtp: async (email: string, userId: string | undefined, purpose: string): Promise<any> => {
+    try {
+
+      const response = await axiosClient.post(authenticationRoutes.createOtp, { email, purpose });
+
+      sessionStorage.setItem("otpEmail", response.data.data.email)
+      sessionStorage.setItem("otpExpiry", response.data.data.expiresAt)
+      if (userId) {
+        sessionStorage.setItem("userId", userId)
+      }
+
 
       return response.data;
-    } catch (error) {}
+    } catch (error: any) {
+      return error.response.data;
+    }
   },
+
+
+
+  verifyOtp: async (email: string, otp: string,userId?:string): Promise<any> => {
+    try {
+      const response = await axiosClient.post(authenticationRoutes.verifyOtp, { email, otp ,userId});
+
+      return response.data;
+    } catch (error: any) {
+      return error.response.data;
+    }
+  }
+
+
 };

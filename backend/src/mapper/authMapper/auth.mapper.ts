@@ -1,4 +1,4 @@
-import { CreateUserDTO } from "../../dto/authDTO/auth.dto.js";
+import { CreateUserDTO, GetUserDto } from "../../dto/authDTO/auth.dto.js";
 import { IUser } from "../../models/interfaces/IUserModel.js";
 
 export const mapCreateUserDtoToUserModel = (
@@ -14,3 +14,17 @@ export const mapCreateUserDtoToUserModel = (
     agreement:dto.agreement
   };
 };
+
+export const mapUserModelToGetUserDto = (
+  modelData: IUser
+  
+):  GetUserDto=> {
+  return {
+    id:modelData._id.toString(),
+    firstName: modelData.firstName,
+    lastName: modelData.lastName,
+    email: modelData.email,
+    phone: modelData.phone,
+  };
+};
+

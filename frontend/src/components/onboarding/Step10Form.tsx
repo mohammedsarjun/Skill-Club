@@ -1,8 +1,12 @@
-import React, { useState } from "react";
-import Button from "../common/Button";
+"use client";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import Button from "../common/Button";
+import { uploadToCloudinary } from "@/utils/cloudinary";
+import { useDispatch } from "react-redux";
+import { updateFreelancerData } from "@/store/slices/freelancerSlice"; // updated path
 
-interface StepSevenProps {
+interface StepNineProps {
   onBack: () => void;
   onNext: (data: {
     country: string;
@@ -12,30 +16,83 @@ interface StepSevenProps {
     zipCode: number;
     logo: string;
   }) => void;
+  savedData?: {
+    country?: string;
+    streetAddress?: string;
+    city?: string;
+    state?: string;
+    zipCode?: number;
+    logo?: string;
+  };
 }
 
-export default function StepSevenForm({ onBack, onNext }: StepSevenProps) {
+export default function StepNineForm({ onBack, onNext, savedData }: StepNineProps) {
+  const dispatch = useDispatch();
+
   const [logo, setLogo] = useState("/images/site logo.png");
   const [country, setCountry] = useState("");
   const [streetAddress, setStreetAddress] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
   const [zipCode, setZipCode] = useState<number | undefined>();
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Restore saved data
+  useEffect(() => {
+    if (savedData) {
+      if (savedData.logo) setLogo(savedData.logo);
+      if (savedData.country) setCountry(savedData.country);
+      if (savedData.streetAddress) setStreetAddress(savedData.streetAddress);
+      if (savedData.city) setCity(savedData.city);
+      if (savedData.state) setState(savedData.state);
+      if (savedData.zipCode) setZipCode(savedData.zipCode);
+    }
+  }, [savedData]);
+
+  // Handle file selection and upload to Cloudinary
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+
+      // Show temporary preview
+      const previewUrl = URL.createObjectURL(file);
+      setLogo(previewUrl);
+
+      try {
+        setUploading(true);
+        const uploadedUrl = await uploadToCloudinary(file);
+        setLogo(uploadedUrl); // Update state with Cloudinary URL
+
+        // Save to Redux immediately
+        dispatch(updateFreelancerData({ logo: uploadedUrl }));
+      } catch (err) {
+        console.error("Upload failed:", err);
+        alert("Failed to upload image. Please try again.");
+      } finally {
+        setUploading(false);
+      }
+    }
+  };
 
   const handleUploadClick = () => {
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const imageUrl = URL.createObjectURL(file);
-      setLogo(imageUrl);
-    }
-  };
-
   const handleNext = () => {
+    // Save all step data to Redux
+    dispatch(
+      updateFreelancerData({address:{
+        country,
+        streetAddress,
+        city,
+        state,
+        zipCode: zipCode || 0,
+      },logo:logo})
+    );
+
+    // Pass data to parent
     onNext({
       country,
       streetAddress,
@@ -46,17 +103,23 @@ export default function StepSevenForm({ onBack, onNext }: StepSevenProps) {
     });
   };
 
+  const isFormValid =
+    logo !== "/images/site logo.png" &&
+    country.trim() !== "" &&
+    streetAddress.trim() !== "" &&
+    city.trim() !== "" &&
+    state.trim() !== "" &&
+    zipCode !== undefined &&
+    zipCode > 0;
+
   return (
     <div>
-      {/* Step Indicator */}
       <p className="text-gray-500">9/9</p>
 
-      {/* Heading */}
       <h2 className="text-2xl font-semibold mb-2">
         A few last details, then you can check and publish your profile.
       </h2>
 
-      {/* Description */}
       <p className="text-gray-600 mb-6 text-sm">
         A professional photo helps you build trust with your clients. To keep
         things safe and simple, they’ll pay you through us - which is why we
@@ -66,13 +129,16 @@ export default function StepSevenForm({ onBack, onNext }: StepSevenProps) {
       <div className="flex gap-8 p-6 rounded-2xl">
         {/* Left Side - Profile Photo */}
         <div className="flex flex-col items-center gap-4 w-1/4">
-          <Image
-            src={logo}
-            alt="profileImg"
-            width={100}
-            height={100}
-            className="rounded-full object-cover border border-gray-300"
-          />
+          <div className="w-32 h-32 rounded-full overflow-hidden border border-gray-300 flex items-center justify-center">
+            <Image
+              src={logo}
+              alt="profileImg"
+              width={128}
+              height={128}
+              className="object-cover w-full h-full"
+            />
+          </div>
+
           <label className="cursor-pointer">
             <input
               type="file"
@@ -83,8 +149,9 @@ export default function StepSevenForm({ onBack, onNext }: StepSevenProps) {
             />
             <Button
               type="button"
-              content="+ Upload Photo"
+              content={uploading ? "Uploading..." : "+ Upload Photo"}
               onClick={handleUploadClick}
+              disabled={uploading}
             />
           </label>
         </div>
@@ -123,7 +190,6 @@ export default function StepSevenForm({ onBack, onNext }: StepSevenProps) {
             />
           </div>
 
-          {/* City, State, Zip in one row */}
           <div className="grid grid-cols-3 gap-4">
             <div>
               <label className="block mb-1 font-medium">City*</label>
@@ -158,13 +224,13 @@ export default function StepSevenForm({ onBack, onNext }: StepSevenProps) {
 
       {/* Navigation Buttons */}
       <div className="flex justify-between mt-6">
+        <Button content="Back" type="submit" color="gray" onClick={onBack} />
         <Button
-          content="Back"
+          content="Next"
           type="submit"
-          color="gray"
-          onClick={onBack}
-        ></Button>
-        <Button content="Next" type="submit" onClick={handleNext}></Button>
+          onClick={handleNext}
+          disabled={!isFormValid || uploading}
+        />
       </div>
     </div>
   );

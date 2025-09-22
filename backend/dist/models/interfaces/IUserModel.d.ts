@@ -1,4 +1,4 @@
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 export interface IAddress {
     country: string;
     streetAddress: string;
@@ -31,6 +31,7 @@ export interface IEducation {
     description: string;
 }
 export interface IFreelancerProfile {
+    logo: string;
     workCategory: string;
     specialties: string[];
     skills: string[];
@@ -44,15 +45,17 @@ export interface IFreelancerProfile {
     portfolio: string;
 }
 export interface IUser extends Document {
+    _id: Types.ObjectId;
     firstName: string;
     lastName: string;
     email: string;
-    phone: string;
+    phone: number;
     password: string;
     address: IAddress;
     dob: Date;
     isVerified: boolean;
     roles: string[];
+    activeRole: string;
     freelancerProfile: IFreelancerProfile;
     createdAt: Date;
     updatedAt: Date;

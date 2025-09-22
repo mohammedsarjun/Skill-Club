@@ -2,6 +2,7 @@ import {
   CreateSpecialityDTO,
   GetSpecialityDto,
   SpecialityDto,
+  UpdateSpecialityDTO,
 } from "../../dto/adminDTO/speciality.dto.js";
 import { ISpeciality } from "../../models/interfaces/ISpecialityModel.js";
 
@@ -13,6 +14,18 @@ export const mapCreateSpecialityDtoToSpecialityModel = (
     category: dto.category,
     status: dto.status,
   };
+};
+
+export const mapUpdateSpecialityDtoToSpecialityModel = (
+  dto: Partial<UpdateSpecialityDTO> // <- make it partial
+): Partial<Pick<ISpeciality, "name" | "category" | "status">> => {
+  const updatedData: Partial<Pick<ISpeciality, "name" | "category" | "status">> = {};
+
+  if (dto.name !== undefined) updatedData.name = dto.name;
+  if (dto.category !== undefined) updatedData.category = dto.category;
+  if (dto.status !== undefined) updatedData.status = dto.status;
+
+  return updatedData;
 };
 
 export function mapSpecialityQuery(dto: any): GetSpecialityDto {
@@ -27,6 +40,7 @@ export function mapSpecialityQuery(dto: any): GetSpecialityDto {
 export const mapSpecialityModelToSpecialityDto = (
   speciality: any 
 ): SpecialityDto => {
+  console.log(speciality)
   return {
     id: speciality._id.toString(),
     name: speciality.name,

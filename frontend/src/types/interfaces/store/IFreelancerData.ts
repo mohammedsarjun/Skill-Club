@@ -40,8 +40,8 @@ export interface IFreelancerData{
   specialties:string[];
   skills: string[];
   professionalRole: string;
-  experience: IExperience[];
-  education: IEducation[];
+  experiences: IExperience[];
+  educations: IEducation[];
   languages: ILanguage[];
   bio: string;
   hourlyRate: number;

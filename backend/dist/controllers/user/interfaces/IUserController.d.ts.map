@@ -1,0 +1,1 @@
+{"version":3,"file":"IUserController.d.ts","sourceRoot":"","sources":["../../../../src/controllers/user/interfaces/IUserController.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,QAAQ,EAAE,MAAM,SAAS,CAAC;AAC5C,MAAM,WAAW,eAAe;IAC5B,UAAU,CAAC,GAAG,EAAC,OAAO,EAAC,GAAG,EAAC,QAAQ,GAAE,OAAO,CAAC,IAAI,CAAC,CAAA;CACrD"}

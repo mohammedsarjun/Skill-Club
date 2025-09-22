@@ -3,6 +3,12 @@ export interface CreateSpecialityDTO {
     category: string;
     status: string;
 }
+export interface UpdateSpecialityDTO {
+    id: string;
+    name?: string;
+    category?: string;
+    status?: string;
+}
 export interface GetSpecialityDto {
     search?: string;
     page?: number;

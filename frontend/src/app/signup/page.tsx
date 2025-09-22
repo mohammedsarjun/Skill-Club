@@ -9,8 +9,8 @@ import { SignUpData } from "@/api/authApi";
 import { useRouter } from "next/navigation";
 import { authApi } from "@/api/authApi";
 import { handleSignUpSubmit } from "@/utils/validation";
-
 import { handleInputChange, handleCheckBox } from "@/utils/formHandlers";
+import toast from "react-hot-toast";
 
 export default function SignUp() {
   const route = useRouter();
@@ -20,7 +20,7 @@ export default function SignUp() {
     lastName: "",
     email: "",
     password: "",
-    phone:"",
+    phone: "",
     agreement: false,
   });
 
@@ -28,20 +28,42 @@ export default function SignUp() {
     firstName: "",
     lastName: "",
     email: "",
-    phone:"",
+    phone: "",
     password: "",
     agreement: false,
   });
 
-   async function handleSubmit(e: React.FormEvent){
-       const success=handleSignUpSubmit(e,formData,setErrors)
-       if(success){
-       const response = await authApi.signUp(formData);
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setIsLoading(true);
 
-       if(response.success){
-        route.push("/signup/otp")
-       }
-       }
+    try {
+      const isValid = handleSignUpSubmit(e, formData, setErrors);
+      if (!isValid) {
+        setIsLoading(false);
+        return;
+      }
+
+      const response = await authApi.signUp(formData);
+      if (!response.success) {
+        toast.error(response.message);
+        setIsLoading(false);
+        return;
+      }
+
+      const otpResponse = await authApi.createOtp(response.data.email, response.data.id,"signup");
+      if (!otpResponse.success) {
+        toast.error(otpResponse.message);
+        setIsLoading(false);
+        return;
+      }
+
+      route.push("/signup/otp");
+    } catch (error: any) {
+      console.error(error);
+      toast.error("Something went wrong. Please try again.");
+      setIsLoading(false);
+    }
   }
 
   const handleGoogleSignup = () => {
@@ -51,7 +73,7 @@ export default function SignUp() {
   return (
     <>
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
-        <div className="flex flex-col  items-center mb-6">
+        <div className="flex flex-col items-center mb-6">
           <Image
             src="/images/site logo.png"
             alt="Logo"
@@ -63,15 +85,20 @@ export default function SignUp() {
         </div>
 
         {/* Signup Card */}
-        <div className="signUp bg-white p-6 rounded-lg shadow-lg w-full max-w-md space-y-6">
-          {/* Google signup (neutral color) */}
-          <div className="google-signup flex items-center justify-center gap-2 w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 rounded cursor-pointer">
-            <Image
-              src="/icons/google.png"
-              alt="google"
-              width={20}
-              height={20}
-            />
+        <div className="signUp bg-white p-6 rounded-lg shadow-lg w-full max-w-md space-y-6 relative">
+          {/* Loading overlay */}
+          {isLoading && (
+            <div className="absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center z-10">
+              <div className="w-12 h-12 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+            </div>
+          )}
+
+          {/* Google signup */}
+          <div
+            className="google-signup flex items-center justify-center gap-2 w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 rounded cursor-pointer"
+            onClick={handleGoogleSignup}
+          >
+            <Image src="/icons/google.png" alt="google" width={20} height={20} />
             <span>Continue With Google</span>
           </div>
 
@@ -113,7 +140,7 @@ export default function SignUp() {
               error={errors.email}
             />
 
-             <Input
+            <Input
               name="phone"
               type="number"
               placeholder="Phone"
@@ -132,7 +159,7 @@ export default function SignUp() {
             />
 
             <Checkbox
-            checked={formData.agreement}
+              checked={formData.agreement}
               name="agreement"
               error={errors.agreement}
               onChange={(e) =>
@@ -161,7 +188,8 @@ export default function SignUp() {
               <Button
                 type="submit"
                 content="JOIN SKILL CLUB"
-                onClick={(e)=>handleSubmit(e)}
+                onClick={(e) => handleSubmit(e)}
+                disabled={isLoading}
               />
             </div>
           </form>

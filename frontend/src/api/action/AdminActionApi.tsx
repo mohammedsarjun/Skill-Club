@@ -1,6 +1,6 @@
 import { axiosClient } from "../axiosClient";
 import adminEndPoint from "@/types/endPoints/adminEndPoints";
-import { IcategoryData } from "@/types/interfaces/admin/IAdmin";
+import { IcategoryData, ISpeaciality } from "@/types/interfaces/admin/IAdmin";
 
 const AdminActionApi = {
   createCategory: async (data: IcategoryData): Promise<any> => {
@@ -15,9 +15,9 @@ const AdminActionApi = {
     }
   },
 
-  updateCategory:async (data: IcategoryData): Promise<any> => {
+  updateCategory: async (data: IcategoryData): Promise<any> => {
     try {
-      
+
       const response = await axiosClient.patch(
         adminEndPoint.adminUpdateCategory,
         data
@@ -26,13 +26,13 @@ const AdminActionApi = {
     } catch (error: any) {
       return error.response.data;
     }
-  },
 
+  },
   getCategories: async (
     search: string = "",
     page: number = 1,
     limit: number = 10,
-    mode:string="detailed",
+    mode: string = "detailed",
   ): Promise<any> => {
     try {
       const response = await axiosClient.get(adminEndPoint.adminGetCategories, {
@@ -50,7 +50,7 @@ const AdminActionApi = {
   },
 
 
-    createSpeciality: async (data: IcategoryData): Promise<any> => {
+  createSpeciality: async (data: IcategoryData): Promise<any> => {
     try {
       const response = await axiosClient.post(
         adminEndPoint.adminCreateSpeciality,
@@ -62,12 +62,26 @@ const AdminActionApi = {
     }
   },
 
+  updateSpeciality: async (data: ISpeaciality): Promise<any> => {
 
-   getSpecialities: async (
+    try {
+      const response = await axiosClient.patch(
+        adminEndPoint.adminUpdateSpeciality,
+        data
+      );
+      return response.data;
+    } catch (error: any) {
+      return error.response.data;
+    }
+
+  },
+
+
+  getSpecialities: async (
     search: string = "",
     page: number = 1,
     limit: number = 10,
-    mode:string="detailed",
+    mode: string = "detailed",
   ): Promise<any> => {
     try {
       const response = await axiosClient.get(adminEndPoint.adminGetSpeciality, {

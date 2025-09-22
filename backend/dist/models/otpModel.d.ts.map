@@ -1,1 +1,1 @@
-{"version":3,"file":"otpModel.d.ts","sourceRoot":"","sources":["../../src/models/otpModel.ts"],"names":[],"mappings":"AAAA,OAAiB,EAAE,KAAK,EAAoB,MAAM,UAAU,CAAC;AAC7D,OAAO,EAAE,IAAI,EAAE,MAAM,2BAA2B,CAAC;AAsBjD,eAAO,MAAM,QAAQ,EAAE,KAAK,CAAC,IAAI,CAA0C,CAAC"}
+{"version":3,"file":"otpModel.d.ts","sourceRoot":"","sources":["../../src/models/otpModel.ts"],"names":[],"mappings":"AAAA,OAAiB,EAAE,KAAK,EAAoB,MAAM,UAAU,CAAC;AAC7D,OAAO,EAAE,IAAI,EAAE,MAAM,2BAA2B,CAAC;AA2BjD,eAAO,MAAM,QAAQ,EAAE,KAAK,CAAC,IAAI,CAA0C,CAAC"}

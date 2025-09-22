@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaTimes } from "react-icons/fa";
 import Button from "../common/Button";
+
 interface StepThreeProps {
   onBack: () => void;
-  onNext: (data: any) => void;
+  onNext: (data: { skills: string[] }) => void;
+  savedData?: { skills?: string[] }; // ✅ receive saved data
 }
 
-export default function StepThreeForm({ onBack, onNext }: StepThreeProps) {
+export default function StepThreeForm({ onBack, onNext, savedData }: StepThreeProps) {
   const [skills, setSkills] = useState<string[]>([]);
   const [input, setInput] = useState("");
 
@@ -24,19 +26,28 @@ export default function StepThreeForm({ onBack, onNext }: StepThreeProps) {
     "TypeScript",
   ];
 
+  // ✅ Load saved skills if available
+  useEffect(() => {
+    if (savedData?.skills) {
+      setSkills(savedData.skills);
+    }
+  }, [savedData]);
+
+  const MAX_SKILLS = 15;
+
   const addSkill = (value: string) => {
-    if (value && !skills.includes(value) && skills.length < 15) {
-      setSkills([...skills, value]);
+    if (value && !skills.includes(value) && skills.length < MAX_SKILLS) {
+      setSkills((prev) => [...prev, value]);
     }
     setInput("");
   };
 
   const removeSkill = (value: string) => {
-    setSkills(skills.filter((skill) => skill !== value));
+    setSkills((prev) => prev.filter((skill) => skill !== value));
   };
 
   function handleNext() {
-    onNext({ skills: skills });
+    onNext({ skills });
   }
 
   return (
@@ -57,9 +68,7 @@ export default function StepThreeForm({ onBack, onNext }: StepThreeProps) {
       </p>
 
       {/* Input field */}
-      <label className="block text-gray-700 mb-2 font-medium">
-        Your skills
-      </label>
+      <label className="block text-gray-700 mb-2 font-medium">Your skills</label>
       <input
         type="text"
         className="w-full border rounded-lg px-4 py-2 mb-3 focus:ring-2 focus:ring-blue-400 focus:outline-none"
@@ -72,6 +81,7 @@ export default function StepThreeForm({ onBack, onNext }: StepThreeProps) {
             addSkill(input.trim());
           }
         }}
+        disabled={skills.length >= MAX_SKILLS}
       />
 
       {/* Added skills */}
@@ -90,7 +100,9 @@ export default function StepThreeForm({ onBack, onNext }: StepThreeProps) {
         ))}
       </div>
 
-      <p className="text-sm text-gray-500 mb-6">Max skills allowed: 15</p>
+      <p className="text-sm text-gray-500 mb-6">
+        {skills.length}/{MAX_SKILLS} skills added
+      </p>
 
       {/* Suggested skills */}
       <p className="text-gray-700 mb-2 font-medium">Suggested skills</p>
@@ -104,7 +116,7 @@ export default function StepThreeForm({ onBack, onNext }: StepThreeProps) {
                 : "bg-gray-100 text-gray-700 hover:bg-blue-100"
             }`}
             onClick={() => addSkill(s)}
-            disabled={skills.length >= 15 && !skills.includes(s)}
+            disabled={skills.length >= MAX_SKILLS && !skills.includes(s)}
           >
             {s}
           </button>
@@ -113,15 +125,10 @@ export default function StepThreeForm({ onBack, onNext }: StepThreeProps) {
 
       {/* Navigation Buttons */}
       <div className="flex justify-between mt-6">
-        <Button
-          content="Back"
-          type="submit"
-          color="gray"
-          onClick={onBack}
-        ></Button>
+        <Button content="Back" type="button" color="gray" onClick={onBack} />
         <Button
           content="Next"
-          type="submit"
+          type="button"
           onClick={handleNext}
           disabled={skills.length === 0}
         />

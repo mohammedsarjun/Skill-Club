@@ -4,7 +4,9 @@ export default class BaseRepository<T extends Document> implements IBaseReposito
     protected model: Model<T>;
     constructor(model: Model<T>);
     create(data: Partial<T>): Promise<T>;
-    findOne(filter: FilterQuery<T>): Promise<T | null>;
+    findOne(filter: FilterQuery<T>, options?: {
+        populate?: PopulateOptions | PopulateOptions[];
+    }): Promise<T | null>;
     findById(id: string): Promise<T | null>;
     findAll(filter?: FilterQuery<T>, options?: {
         skip?: number;

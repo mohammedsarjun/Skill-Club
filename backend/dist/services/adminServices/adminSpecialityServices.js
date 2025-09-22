@@ -13,7 +13,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 import { injectable, inject } from "tsyringe";
 import AppError from "../../utils/AppError.js";
 import { HttpStatus } from "../../enums/http-status.enum.js";
-import { mapSpecialityModelToSpecialityDto } from "../../mapper/adminMapper/speciality.mapper.js";
+import { mapSpecialityModelToSpecialityDto, mapUpdateSpecialityDtoToSpecialityModel } from "../../mapper/adminMapper/speciality.mapper.js";
 let AdminSpecialityServices = class AdminSpecialityServices {
     constructor(adminSpecialityRepository) {
         this.adminSpecialityRepository = adminSpecialityRepository;
@@ -25,22 +25,29 @@ let AdminSpecialityServices = class AdminSpecialityServices {
         if (existing) {
             throw new AppError("Speciality with this name already exists", HttpStatus.CONFLICT);
         }
-        const result = await this.adminSpecialityRepository.create(specialityData);
-        return {
-            id: result._id,
-            name: result.name,
-            category: result.category,
-            status: result.status,
-        };
+        // Create speciality
+        const created = await this.adminSpecialityRepository.create(specialityData);
+        // Fetch with category populated
+        const populated = await this.adminSpecialityRepository.findOne({ _id: created._id }, { populate: { path: "category", select: "_id name" } });
+        if (!populated) {
+            throw new AppError("Speciality not found after creation", HttpStatus.NOT_FOUND);
+        }
+        const result = mapSpecialityModelToSpecialityDto(populated);
+        return result;
     }
-    //   editSpeciality(data): Promise<any> {
-    //   }
     async getSpeciality(filterData) {
         const page = filterData.page ?? 1;
         const limit = filterData.limit ?? 10;
         const skip = (page - 1) * limit;
         const mode = filterData.mode;
-        const result = await this.adminSpecialityRepository.findAll({ name: { $regex: filterData.search || "", $options: "i" } }, { skip, limit, populate: { path: "category", select: "name" } });
+        const result = await this.adminSpecialityRepository.findAll({ name: { $regex: filterData.search || "", $options: "i" } }, {
+            skip,
+            limit,
+            populate: {
+                path: "category",
+                select: "_id name", // only get id and name
+            },
+        });
         const total = await this.adminSpecialityRepository.count({
             name: filterData.search || "",
         });
@@ -52,6 +59,26 @@ let AdminSpecialityServices = class AdminSpecialityServices {
             page,
             limit,
         };
+    }
+    // service
+    async editSpeciality(specialityData) {
+        // Check for duplicate name
+        if (specialityData?.name) {
+            const existing = await this.adminSpecialityRepository.findOne({ name: specialityData.name });
+            if (existing && existing._id.toString() !== specialityData.id) {
+                throw new AppError("Speciality with this name already exists", HttpStatus.CONFLICT);
+            }
+        }
+        // Map DTO to model and update
+        const dto = mapUpdateSpecialityDtoToSpecialityModel(specialityData);
+        await this.adminSpecialityRepository.update(specialityData.id, dto);
+        // ✅ Fetch updated speciality with category populated
+        const updatedSpeciality = await this.adminSpecialityRepository.findOne({ _id: specialityData.id }, { populate: { path: "category", select: "_id name" } });
+        if (!updatedSpeciality) {
+            throw new AppError("Speciality not found after update", HttpStatus.NOT_FOUND);
+        }
+        const result = mapSpecialityModelToSpecialityDto(updatedSpeciality);
+        return result;
     }
 };
 AdminSpecialityServices = __decorate([

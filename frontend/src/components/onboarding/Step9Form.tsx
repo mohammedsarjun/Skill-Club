@@ -1,14 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "../common/Button";
 import Input from "../common/Input";
 
 interface StepSevenProps {
   onBack: () => void;
-  onNext: (data: { hourlyRate: number }) => void; // ✅ pass hourlyRate
+  onNext: (data: { hourlyRate: number }) => void;
+  savedData?: { hourlyRate?: number }; // ✅ get saved data from Redux/persist
 }
 
-export default function StepSevenForm({ onBack, onNext }: StepSevenProps) {
+export default function StepSevenForm({ onBack, onNext, savedData }: StepSevenProps) {
   const [hourlyRate, setHourlyRate] = useState<number | "">("");
+
+  // ✅ Restore saved hourly rate on mount
+  useEffect(() => {
+    if (savedData?.hourlyRate) {
+      setHourlyRate(savedData.hourlyRate);
+    }
+  }, [savedData]);
 
   return (
     <div>

@@ -1,6 +1,6 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import freelancerReducer from "./slices/freelancerSlice";
-
+import authReducer from "./slices/authSlice";
 import storage from "redux-persist/lib/storage";
 import { persistReducer, persistStore } from "redux-persist";
 import {
@@ -22,6 +22,7 @@ const persistedFreelancerReducer = persistReducer(freelancerPersistConfig, freel
 
 const rootReducer = combineReducers({
   freelancer: persistedFreelancerReducer,
+  auth: authReducer,
   // other reducers (auth, ui...) - not persisted unless you wrap them too
 });
 

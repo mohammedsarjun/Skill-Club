@@ -1,6 +1,7 @@
 
 import mongoose, { Model, Document, Schema } from "mongoose";
 import { ISpeciality } from "./interfaces/ISpecialityModel.js";
+import { required } from "zod/mini";
 
 
 const specialitySchema = new Schema({
@@ -11,8 +12,7 @@ const specialitySchema = new Schema({
         trim:true
     },
     category: {
-        type: String,
-        required: true,
+        type: mongoose.Schema.Types.ObjectId, ref: "category",required:true
     },
     status:{
         type:String,

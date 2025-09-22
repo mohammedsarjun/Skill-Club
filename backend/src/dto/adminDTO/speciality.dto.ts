@@ -1,9 +1,17 @@
 
 //Request Dto
+
 export interface CreateSpecialityDTO {
   name: string;
   category:string;
   status:string
+}
+
+export interface UpdateSpecialityDTO {
+  id:string;
+  name?: string;
+  category?:string;
+  status?:string;
 }
 
 

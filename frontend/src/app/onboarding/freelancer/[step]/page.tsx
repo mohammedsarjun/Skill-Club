@@ -15,6 +15,7 @@ import Step7Form from "@/components/onboarding/Step7Form";
 import Step8Form from "@/components/onboarding/Step8Form";
 import Step9Form from "@/components/onboarding/Step9Form";
 import Step10Form from "@/components/onboarding/Step10Form";
+import Step11Form from "@/components/onboarding/Step11Form"
 
 const stepComponents: Record<string, any> = {
   "0": Step1Form,
@@ -27,6 +28,7 @@ const stepComponents: Record<string, any> = {
   "7": Step8Form,
   "8": Step9Form,
   "9": Step10Form,
+  "10":Step11Form
 };
 
 export default function OnboardingStepPage() {
@@ -54,6 +56,6 @@ export default function OnboardingStepPage() {
     if (prevStep >= 0) router.push(`/onboarding/freelancer/${prevStep}`);
   };
 
-  return <StepComponent onNext={handleNext} onBack={handleBack} data={freelancerData} />;
+  return <StepComponent onNext={handleNext} onBack={handleBack} savedData={freelancerData} />;
 
 }

@@ -5,7 +5,8 @@ const adminRouterEndPoints ={
 
     //Specialities
     adminCreateSpeciality:"/admin/speciality",
-    adminGetSpeciality:"/admin/speciality"
+    adminGetSpeciality:"/admin/speciality",
+    adminUpdateSpeciality:"/admin/speciality"
 }
 
 export default adminRouterEndPoints

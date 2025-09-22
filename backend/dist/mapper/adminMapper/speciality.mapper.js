@@ -5,6 +5,17 @@ export const mapCreateSpecialityDtoToSpecialityModel = (dto) => {
         status: dto.status,
     };
 };
+export const mapUpdateSpecialityDtoToSpecialityModel = (dto // <- make it partial
+) => {
+    const updatedData = {};
+    if (dto.name !== undefined)
+        updatedData.name = dto.name;
+    if (dto.category !== undefined)
+        updatedData.category = dto.category;
+    if (dto.status !== undefined)
+        updatedData.status = dto.status;
+    return updatedData;
+};
 export function mapSpecialityQuery(dto) {
     return {
         search: dto.search || "",
@@ -14,6 +25,7 @@ export function mapSpecialityQuery(dto) {
     };
 }
 export const mapSpecialityModelToSpecialityDto = (speciality) => {
+    console.log(speciality);
     return {
         id: speciality._id.toString(),
         name: speciality.name,

@@ -1,5 +1,6 @@
 // ------------------- Interfaces -------------------
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, Schema, Types } from "mongoose";
+
 export interface IAddress {
   country: string;
   streetAddress: string;
@@ -52,15 +53,17 @@ export interface IFreelancerProfile {
 }
 
 export interface IUser extends Document {
+  _id:Types.ObjectId
   firstName: string;
   lastName: string;
   email: string;
-  phone: string;
+  phone: number;
   password: string;
   address: IAddress;
   dob: Date;
   isVerified: boolean;
   roles: string[];
+  activeRole:string
   freelancerProfile: IFreelancerProfile;
   createdAt: Date;
   updatedAt: Date;

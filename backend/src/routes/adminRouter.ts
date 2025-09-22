@@ -19,4 +19,5 @@ adminRouter.patch("/categories",categoryController.editCategory.bind(categoryCon
 const specialityController=container.resolve(AdminSpecialityController)
 adminRouter.post("/speciality",validate(specialityValidationSchema),specialityController.addSpeciality.bind(specialityController))
 adminRouter.get("/speciality",specialityController.getAllSpeciality.bind(specialityController))
+adminRouter.patch("/speciality",specialityController.editSpeciality.bind(specialityController))
 export default adminRouter

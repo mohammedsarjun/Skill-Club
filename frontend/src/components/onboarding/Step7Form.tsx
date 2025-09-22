@@ -1,11 +1,14 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "../common/Button";
 import { FaTrash } from "react-icons/fa";
+import { useDispatch } from "react-redux";
+import { updateFreelancerData } from "@/store/slices/freelancerSlice"; // adjust path
 
 interface StepSevenProps {
   onBack: () => void;
   onNext: (data: any) => void;
+  savedData?: any; // saved from Redux/persist
 }
 
 interface Language {
@@ -15,10 +18,32 @@ interface Language {
   mandatory?: boolean;
 }
 
-export default function StepSevenForm({ onBack, onNext }: StepSevenProps) {
-  const [languages, setLanguages] = useState<Language[]>([
-    { id: 1, name: "English", proficiency: "Fluent", mandatory: true },
-  ]);
+export default function StepSevenForm({ onBack, onNext, savedData }: StepSevenProps) {
+  const dispatch = useDispatch();
+
+  const [languages, setLanguages] = useState<Language[]>(
+    savedData?.languages?.length
+      ? savedData.languages.map((lang: any, idx: number) => ({
+          id: Date.now() + idx,
+          name: lang.name,
+          proficiency: lang.proficiency,
+          mandatory: lang.mandatory || false,
+        }))
+      : [{ id: 1, name: "English", proficiency: "Fluent", mandatory: true }]
+  );
+
+  useEffect(() => {
+    // Persist languages to Redux whenever they change
+    dispatch(
+      updateFreelancerData({
+        languages: languages.map(({ name, proficiency, mandatory }) => ({
+          name,
+          proficiency,
+          mandatory,
+        })),
+      })
+    );
+  }, [languages, dispatch]);
 
   const addLanguage = () => {
     setLanguages([
@@ -44,7 +69,6 @@ export default function StepSevenForm({ onBack, onNext }: StepSevenProps) {
     (lang) => !lang.mandatory && lang.name.trim() === ""
   );
 
-  // Get selected language names to prevent duplicates
   const selectedNames = languages.map((lang) => lang.name).filter(Boolean);
 
   return (
@@ -125,7 +149,6 @@ export default function StepSevenForm({ onBack, onNext }: StepSevenProps) {
         )}
       </div>
 
-      {/* Navigation */}
       <div className="flex justify-between mt-6 items-center">
         <Button content="Back" type="button" color="gray" onClick={onBack} />
         <Button

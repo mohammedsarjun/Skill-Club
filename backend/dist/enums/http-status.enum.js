@@ -7,6 +7,7 @@ export var HttpStatus;
     HttpStatus[HttpStatus["FORBIDDEN"] = 403] = "FORBIDDEN";
     HttpStatus[HttpStatus["NOT_FOUND"] = 404] = "NOT_FOUND";
     HttpStatus[HttpStatus["CONFLICT"] = 409] = "CONFLICT";
+    HttpStatus[HttpStatus["GONE"] = 410] = "GONE";
     HttpStatus[HttpStatus["INTERNAL_SERVER_ERROR"] = 500] = "INTERNAL_SERVER_ERROR";
 })(HttpStatus || (HttpStatus = {}));
 //# sourceMappingURL=http-status.enum.js.map

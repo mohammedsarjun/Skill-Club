@@ -11,10 +11,8 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 import { injectable, inject } from "tsyringe";
-import bcrypt from "bcryptjs";
-import { createOtpDigit } from "../../utils/otpGenerator.js";
-import { mapCreateUserDtoToUserModel } from "../../mapper/authMapper/auth.mapper.js";
 import "../../config/container.js";
+import { HttpStatus } from "../../enums/http-status.enum.js";
 let AuthController = class AuthController {
     constructor(authService, otpService) {
         this.authService = authService;
@@ -22,19 +20,12 @@ let AuthController = class AuthController {
     }
     async signup(req, res) {
         try {
-            let { firstName, lastName, email, phone, password, agreement } = req.body;
-            const dto = mapCreateUserDtoToUserModel(req.body);
-            dto.password = await bcrypt.hash(dto.password, 10);
-            const user = await this.authService.signup(dto);
-            const otp = await createOtpDigit();
-            const otpRespose = await this.otpService.createOtp(email, otp);
-            res.status(201).json({
+            const user = await this.authService.signup(req.body);
+            console.log(user);
+            res.status(HttpStatus.CREATED).json({
                 success: true,
                 message: "User created successfully",
-                data: {
-                    email: otpRespose?.email,
-                    expiresAt: otpRespose?.expiresAt
-                },
+                data: user,
             });
         }
         catch (error) {

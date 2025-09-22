@@ -6,5 +6,6 @@ export interface IcategoryData {
 
 export interface ISpeaciality{
   speacialityName:string,
-  
+  category:string,
+  status:string
 }

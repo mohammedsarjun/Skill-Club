@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import type { IAdminSpecialityController } from "./interfaces/IAdminSpecialityController.js";
 import { injectable, inject } from "tsyringe";
 import type { IAdminSpecialityServices } from "../../services/adminServices/interfaces/IAdminSpecialityServices.js";
-import { mapCreateSpecialityDtoToSpecialityModel, mapSpecialityQuery } from "../../mapper/adminMapper/speciality.mapper.js";
+import { mapCreateSpecialityDtoToSpecialityModel, mapSpecialityQuery, mapUpdateSpecialityDtoToSpecialityModel } from "../../mapper/adminMapper/speciality.mapper.js";
 import "../../config/container.js";
 
 import { HttpStatus } from "../../enums/http-status.enum.js";
@@ -31,7 +31,18 @@ export class AdminSpecialityController implements IAdminSpecialityController {
     }
   }
 
-  editSpeciality(req: Request, res: Response): Promise<void> {
+  async editSpeciality(req: Request, res: Response): Promise<void> {
+    try {
+
+      const result = await this.adminSpecialityService.editSpeciality(req.body);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Speciality Updated successfully",
+        data: result,
+      });
+    } catch (error) {
+      throw error;
+    }
     return Promise.resolve();
   }
 

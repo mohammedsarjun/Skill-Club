@@ -19,6 +19,13 @@ container.register<IOtpServices>("IOtpServices",{useClass:OtpService})
 container.register<IUserRepository>("IUserRepository",{useClass:UserRepository})
 container.register<IOtpRepository>("IOtpRepository",{useClass:OtpRepository})
 
+
+//User
+import { userServices } from "../services/userServices/userService.js";
+import { IUserServices } from "../services/userServices/interfaces/IUserServices.js";
+container.register<IUserServices>("IUserServices", { useClass: userServices });
+
+
 //Category and skills
 import { AdminCategoryServices } from "../services/adminServices/adminCategoryServices.js";
 import { IAdminCategoryServices } from "../services/adminServices/interfaces/IAdminCategoryServices.js";

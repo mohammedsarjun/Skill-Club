@@ -1,13 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "../common/Button";
 
 interface StepSevenProps {
   onBack: () => void;
   onNext: (data: { bio: string }) => void;
+  savedData?: { bio?: string }; // ✅ get saved data from Redux/persist
 }
 
-export default function StepSevenForm({ onBack, onNext }: StepSevenProps) {
+export default function StepSevenForm({ onBack, onNext, savedData }: StepSevenProps) {
   const [bio, setBio] = useState("");
+
+  // ✅ Restore saved bio on mount
+  useEffect(() => {
+    if (savedData?.bio) {
+      setBio(savedData.bio);
+    }
+  }, [savedData]);
 
   return (
     <div>

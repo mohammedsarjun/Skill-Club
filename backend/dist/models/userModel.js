@@ -31,6 +31,7 @@ const educationSchema = new Schema({
     description: String
 });
 const freelancerProfileSchema = new Schema({
+    logo: String,
     workCategory: String,
     specialties: [String],
     skills: [String],
@@ -47,12 +48,13 @@ const userSchema = new Schema({
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    phone: { type: String, required: true },
+    phone: { type: Number, required: true },
     password: { type: String, required: true },
     address: addressSchema,
     dob: Date,
     isVerified: { type: Boolean, default: false },
     roles: { type: [String] },
+    activeRole: String,
     freelancerProfile: freelancerProfileSchema,
 }, { timestamps: true });
 // ------------------- Model -------------------

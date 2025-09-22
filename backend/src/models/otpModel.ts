@@ -14,6 +14,11 @@ const otpSchema = new Schema({
         type: Date,
         default: Date.now,
     },
+    purpose: {
+        type: String,
+        enum: ["signup", "forgotPassword", "changeEmail"], // extend later
+        required: true
+    },
     expiresAt: {
         type: Date,
         default: () => new Date(Date.now() + 70 * 1000),

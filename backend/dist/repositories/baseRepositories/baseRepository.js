@@ -6,8 +6,12 @@ export default class BaseRepository {
         const doc = new this.model(data);
         return await doc.save();
     }
-    async findOne(filter) {
-        return await this.model.findOne(filter).exec();
+    async findOne(filter, options) {
+        let query = this.model.findOne(filter);
+        if (options?.populate) {
+            query = query.populate(options.populate);
+        }
+        return await query.exec();
     }
     async findById(id) {
         return await this.model.findById(id).exec();

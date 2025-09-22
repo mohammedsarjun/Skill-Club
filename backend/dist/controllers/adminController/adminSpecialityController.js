@@ -32,7 +32,18 @@ let AdminSpecialityController = class AdminSpecialityController {
             throw error;
         }
     }
-    editSpeciality(req, res) {
+    async editSpeciality(req, res) {
+        try {
+            const result = await this.adminSpecialityService.editSpeciality(req.body);
+            res.status(HttpStatus.OK).json({
+                success: true,
+                message: "Speciality Updated successfully",
+                data: result,
+            });
+        }
+        catch (error) {
+            throw error;
+        }
         return Promise.resolve();
     }
     async getAllSpeciality(req, res) {

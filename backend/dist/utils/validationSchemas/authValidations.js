@@ -36,4 +36,15 @@ export const loginSchema = z.object({
     email: emailSchema,
     password: passwordSchema
 });
+export const verifyOtpSchema = z.object({
+    email: z
+        .string()
+        .email({ message: "Invalid email address" })
+        .nonempty({ message: "Email is required" }),
+    otp: z
+        .string()
+        .length(4, { message: "OTP must be 4 digits" })
+        .regex(/^\d{4}$/, { message: "OTP must contain only numbers" }),
+    userId: z.string().optional() // fixed optional userId
+});
 //# sourceMappingURL=authValidations.js.map
