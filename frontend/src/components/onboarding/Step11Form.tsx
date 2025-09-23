@@ -2,14 +2,15 @@
 import React from "react";
 import { FaPencilAlt, FaPlus } from "react-icons/fa";
 import Image from "next/image";
-
+import { IFreelancerData } from "@/types/interfaces/store/IFreelancerData";
 interface PreviewProfileProps {
     savedData: any;
     onEditPicture: () => void;
     onEditField: (field: "professionalRole" | "bio" | "hourlyRate" | "skills" | "workHistory" | "education" | "languages") => void;
+    onSubmit:()=>void
 }
 
-const PreviewProfile: React.FC<PreviewProfileProps> = ({ savedData, onEditPicture, onEditField }) => {
+const PreviewProfile: React.FC<PreviewProfileProps> = ({ savedData, onEditPicture, onEditField,onSubmit }) => {
     return (
         <div className="p-6 space-y-6 font-sans">
             {/* Header */}
@@ -22,7 +23,7 @@ const PreviewProfile: React.FC<PreviewProfileProps> = ({ savedData, onEditPictur
                     <p className="text-sm text-gray-600">
                         Make any edits you want, then submit your profile. You can make more changes after it’s live.
                     </p>
-                    <button className="mt-4 bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded">
+                    <button onClick={onSubmit} className="mt-4 bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded">
                         Submit profile
                     </button>
                 </div>
@@ -236,7 +237,7 @@ const PreviewProfile: React.FC<PreviewProfileProps> = ({ savedData, onEditPictur
 
                     {/* Education List */}
                     <div className="space-y-4 flex justify-end">
-                        <button className="mt-4 bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded">
+                        <button className="mt-4 bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded" onClick={onSubmit}>
                             Submit profile
                         </button>
                     </div>

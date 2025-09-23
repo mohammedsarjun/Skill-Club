@@ -77,10 +77,11 @@ const Table: React.FC<TableProps> = ({
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>(
     {}
   );
-
+console.log(filters)
   // Filter data based on search + dropdown filters
   const filteredData = data.filter((row) => {
     // Search
+    console.log(row,columns)
     const matchesSearch = columns.some((col) =>
       String(row[col.key]).toLowerCase().includes(search.toLowerCase())
     );

@@ -8,5 +8,8 @@ export declare class AuthController implements IAuthController {
     private otpService;
     constructor(authService: IAuthService, otpService: IOtpServices);
     signup(req: Request, res: Response): Promise<void>;
+    login(req: Request, res: Response): Promise<void>;
+    forgotPassword(req: Request, res: Response): Promise<void>;
+    resetPassword(req: Request, res: Response): Promise<void>;
 }
 //# sourceMappingURL=authController.d.ts.map

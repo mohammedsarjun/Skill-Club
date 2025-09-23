@@ -6,5 +6,7 @@ export declare class UserController implements IUserController {
     private userService;
     constructor(userService: IUserServices);
     selectRole(req: Request, res: Response): Promise<void>;
+    me(req: Request, res: Response): void;
+    createFreelancerProfile(req: Request, res: Response): void;
 }
 //# sourceMappingURL=userController.d.ts.map

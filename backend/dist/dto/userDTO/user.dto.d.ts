@@ -1,5 +1,56 @@
-export interface SelectRoleDto {
+export interface UserDto {
     userId: string;
     roles: string[];
+    activeRole: string;
+    isOnboardingCompleted: boolean;
+    isFreelancerOnboardingCompleted: boolean;
+}
+export interface AddressDTO {
+    country: string;
+    streetAddress: string;
+    city: string;
+    state: string;
+    zipCode: number;
+}
+export interface LanguageDTO {
+    name: string;
+    proficiency: string;
+    mandatory?: boolean;
+}
+export interface EducationDTO {
+    school: string;
+    degree: string;
+    field: string;
+    startYear: string;
+    endYear: string;
+}
+export interface ExperienceDTO {
+    title: string;
+    company: string;
+    location: string;
+    country: string;
+    startMonth?: string;
+    startYear?: string;
+    endMonth?: string;
+    endYear?: string;
+    currentRole?: boolean;
+}
+export interface FreelancerDTO {
+    [key: string]: any;
+    '0'?: {
+        name: string;
+        proficiency: string;
+    };
+    category: string;
+    specialties: string[];
+    skills: string[];
+    professionalRole: string;
+    educations: EducationDTO[];
+    languages: LanguageDTO[];
+    bio: string;
+    hourlyRate: number;
+    logo: string;
+    address: AddressDTO;
+    experiences: ExperienceDTO[];
 }
 //# sourceMappingURL=user.dto.d.ts.map

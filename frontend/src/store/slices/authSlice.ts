@@ -5,6 +5,8 @@ interface User {
   userId: string;
   role: string|null;
   activeRole:string|null
+  isOnboardingCompleted:boolean,
+  isFreelancerOnboardingCompleted:boolean
 }
 
 interface AuthState {
@@ -19,7 +21,7 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setUser(state, action: PayloadAction<User>) {
+    setUser(state, action: PayloadAction<User|null>) {
       state.user = action.payload;
     },
     clearUser(state) {

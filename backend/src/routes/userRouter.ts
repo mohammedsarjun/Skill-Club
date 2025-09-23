@@ -7,5 +7,7 @@ const userRouter = express.Router()
 
 const userController = container.resolve(UserController)
 userRouter.post("/role",authMiddleware,userController.selectRole.bind(userController))
+userRouter.get("/me",authMiddleware,userController.me.bind(userController))
+userRouter.post("/freelancer",authMiddleware,userController.createFreelancerProfile.bind(userController))
 
 export default userRouter

@@ -1,25 +1,34 @@
-
 "use client";
-import { useEffect } from "react";
-const jwt_decode: any = require("jwt-decode");
+import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/store/slices/authSlice";
+import { userApi } from "@/api/userApi";
 
 export default function AuthInitializer() {
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
+  const initialized = useRef(false);
 
-    useEffect(() => {
-        const token = document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("accessToken="))
-            ?.split("=")[1];
-         console.log(token)
-        if (token) {
-            const decoded:{userId: string; role: string | null; activeRole:string|null} = jwt_decode(token);
-   
-            dispatch(setUser(decoded));
+  useEffect(() => {
+    if (initialized.current) return; // already fetched
+    initialized.current = true;
+    
+    const fetchUser = async () => {
+      try {
+        const response = await userApi.me();
+        if (response.success) {
+            console.log(response)
+          dispatch(setUser(response.data));
+        } else {
+          dispatch(setUser(null));
         }
-    }, [dispatch]);
+      } catch (err) {
+        console.error(err);
+        dispatch(setUser(null));
+      }
+    };
 
-    return null;
+    fetchUser();
+  }, [dispatch]);
+
+  return null;
 }

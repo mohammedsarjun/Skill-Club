@@ -21,7 +21,6 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
 
     // Attach to request object
     req.user = decoded;
-    console.log(decoded)
     next();
   } catch (err) {
     console.error("Auth Middleware Error:", err);
@@ -32,6 +31,7 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
 // Optional Role Guard Middleware
 export function roleGuard(requiredRole: string) {
   return (req: Request, res: Response, next: NextFunction) => {
+    console.log(req.user,requiredRole,req.user?.roles?.includes(requiredRole))
     if (!req.user?.roles?.includes(requiredRole)) {
       return res.status(HttpStatus.FORBIDDEN).json({ message: "Forbidden: Insufficient role" });
     }

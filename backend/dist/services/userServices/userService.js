@@ -13,7 +13,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 import { injectable, inject } from "tsyringe";
 import AppError from "../../utils/AppError.js";
 import { HttpStatus } from "../../enums/http-status.enum.js";
-import { mapUserModelToSelectRolesDto } from "../../mapper/userMapper/user.mapper.js";
+import { mapFreelancerDtoToUserModel, mapUserModelToUserDto } from "../../mapper/userMapper/user.mapper.js";
 let userServices = class userServices {
     constructor(userRepository) {
         this.userRepository = userRepository;
@@ -32,13 +32,35 @@ let userServices = class userServices {
         if (!user) {
             throw new AppError("User not found", HttpStatus.NOT_FOUND);
         }
-        console.log(role + "hi");
-        if (!user.roles.includes(role)) {
-            user.roles.push(role);
-            await user.save();
+        // If user already has the role, just return the DTO
+        if (user.roles.includes(role)) {
+            return mapUserModelToUserDto(user);
         }
-        const dto = mapUserModelToSelectRolesDto(user);
-        return dto;
+        // Use repository to update roles & onboarding atomically
+        const updatedUser = await this.userRepository.addRoleAndCompleteOnboarding(id, role);
+        return mapUserModelToUserDto(updatedUser);
+    }
+    async createFreelancerProfile(id, freelancerData) {
+        if (!id) {
+            throw new Error("User ID is required");
+        }
+        if (!freelancerData || Object.keys(freelancerData).length === 0) {
+            throw new Error("Freelancer data cannot be empty");
+        }
+        // Map DTO to model
+        const dto = mapFreelancerDtoToUserModel(freelancerData);
+        try {
+            // Update user in the repository
+            const updatedUser = await this.userRepository.update(id, dto);
+            if (!updatedUser) {
+                throw new Error(`User with id ${id} not found`);
+            }
+            return updatedUser;
+        }
+        catch (error) {
+            console.error("Failed to create freelancer profile:", error);
+            throw new Error("Failed to create freelancer profile");
+        }
     }
 };
 userServices = __decorate([

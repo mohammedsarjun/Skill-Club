@@ -14,6 +14,7 @@ export declare const signupSchema: z.ZodObject<{
 export declare const loginSchema: z.ZodObject<{
     email: z.ZodString;
     password: z.ZodString;
+    rememberMe: z.ZodBoolean;
 }, z.core.$strip>;
 export declare const verifyOtpSchema: z.ZodObject<{
     email: z.ZodString;

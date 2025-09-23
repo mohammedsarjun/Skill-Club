@@ -20,11 +20,19 @@ container.register<IUserRepository>("IUserRepository",{useClass:UserRepository})
 container.register<IOtpRepository>("IOtpRepository",{useClass:OtpRepository})
 
 
+//GoogleAuth
+import { IGoogleAuthService } from "../services/authServices/interfaces/IGoogleAuthService.js";
+container.register<IGoogleAuthService>("IGoogleAuthService",{useClass:GoogleAuthService})
+
 //User
 import { userServices } from "../services/userServices/userService.js";
 import { IUserServices } from "../services/userServices/interfaces/IUserServices.js";
 container.register<IUserServices>("IUserServices", { useClass: userServices });
 
+//Admin
+
+//AdminAuth
+container.register<IAdminAuthServices>("IAdminAuthServices",{useClass:AdminAuthServices})
 
 //Category and skills
 import { AdminCategoryServices } from "../services/adminServices/adminCategoryServices.js";
@@ -35,6 +43,9 @@ import { IAdminSpecialityServices } from "../services/adminServices/interfaces/I
 import { AdminSpecialityServices } from "../services/adminServices/adminSpecialityServices.js";
 import { IAdminSpecialityRepository } from "../repositories/adminRepositoies/interfaces/IAdminSpecialityRepository.js";
 import { AdminSpecialityRepository } from "../repositories/adminRepositoies/adminSpecialityRepository.js";
+import GoogleAuthService from "../services/authServices/GoogleAuthService.js";
+import { IAdminAuthServices } from "../services/adminServices/interfaces/IAdminAuthServices.js";
+import { AdminAuthServices } from "../services/adminServices/adminAuthServices.js";
 //add category
 container.register<IAdminCategoryServices>("IAdminCategoryServices",{useClass:AdminCategoryServices})
 container.register<IAdminCategoryRepository>("IAdminCategoryRepository",{useClass:AdminCategoryRepository})

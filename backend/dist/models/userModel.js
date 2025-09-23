@@ -16,16 +16,15 @@ const experienceSchema = new Schema({
     location: String,
     country: String,
     isCurrentRole: Boolean,
-    startMonth: Number,
+    startMonth: String,
     startYear: Number,
-    endMonth: Number,
+    endMonth: String,
     endYear: Number
 });
 const educationSchema = new Schema({
     school: String,
     degree: String,
     fieldOfStudy: String,
-    isCurrentEducation: Boolean,
     startYear: Number,
     endYear: Number,
     description: String
@@ -36,26 +35,32 @@ const freelancerProfileSchema = new Schema({
     specialties: [String],
     skills: [String],
     professionalRole: String,
-    experience: [experienceSchema],
+    experiences: [experienceSchema],
     education: [educationSchema],
     languages: [languageSchema],
     bio: String,
     hourlyRate: Number,
-    weeklyHours: Number,
-    portfolio: String,
+    portfolio: [],
 });
 const userSchema = new Schema({
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
+    googleId: { type: String, required: false },
     email: { type: String, required: true, unique: true },
     phone: { type: Number, required: true },
-    password: { type: String, required: true },
+    password: { type: String, required: false },
+    avatar: { type: String },
     address: addressSchema,
     dob: Date,
     isVerified: { type: Boolean, default: false },
     roles: { type: [String] },
     activeRole: String,
     freelancerProfile: freelancerProfileSchema,
+    isOnboardingCompleted: { type: Boolean, default: false },
+    isFreelancerBoardingCompleted: { type: Boolean, default: false },
+    resetPasswordToken: { type: String, default: undefined },
+    resetPasswordExpires: { type: Date, default: undefined },
+    provider: { type: String, enum: ["local", "google"], default: "local" },
 }, { timestamps: true });
 // ------------------- Model -------------------
 export const User = mongoose.model("User", userSchema);

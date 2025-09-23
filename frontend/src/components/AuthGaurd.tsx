@@ -10,7 +10,17 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    if (user) router.replace("/client/profile"); // redirect logged-in users
+    console.log("rendering")
+    if (user) {
+      if (user.activeRole == "freelancer") {
+        router.replace("/freelancer/profile")
+      }else if(user.activeRole=="client"){
+       router.replace("/client/profile")
+      }else if(user.activeRole=="admin"){
+        router.replace("/admin/categories-skills")
+      }
+
+    }; // redirect logged-in users
   }, [user, router]);
 
   if (user) return null; // prevent flash

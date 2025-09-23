@@ -12,6 +12,7 @@ import sendEmailOtp from "./utils/sendOtp.js";
 import authRouter from './routes/authRouter.js';
 import adminRouter from "./routes/adminRouter.js";
 import userRouter from "./routes/userRouter.js";
+import axios from "axios";
 dotenv.config();
 const PORT=process.env.PORT
 
@@ -25,6 +26,7 @@ app.use(cors({
   origin: "http://localhost:3000",
     credentials: true,   
 }));
+
 
 
 

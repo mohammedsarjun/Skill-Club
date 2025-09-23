@@ -3,7 +3,7 @@ import React from "react";
 type CheckboxProps = {
   label?: React.ReactNode;                           
   checked?: boolean|any;                        
-  onChange?: (checked: boolean) => void;   
+  onChange?: (checked: any) => void;   
   id?: string;                             
   className?: string;                     
   error?: string|boolean;

@@ -24,15 +24,42 @@ let UserController = class UserController {
             const userId = req.user?.userId;
             const user = await this.userService.selectRole(userId, role);
             // Issue new JWT with updated roles
-            const payload = { userId: user.userId, roles: user.roles };
+            const payload = user;
             const accessToken = jwtService.createToken(payload, "15m");
             const refreshToken = jwtService.createToken(payload, "7d");
             res.cookie("accessToken", accessToken, { httpOnly: true, maxAge: 15 * 60 * 1000 });
             res.cookie("refreshToken", refreshToken, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
+            console.log(user);
             res.status(HttpStatus.OK).json({
                 success: true,
                 message: "Role Selected Successfully",
-                data: user.roles,
+                data: user,
+            });
+        }
+        catch (error) {
+            throw error;
+        }
+    }
+    me(req, res) {
+        try {
+            res.status(HttpStatus.OK).json({
+                success: true,
+                message: "Role Selected Successfully",
+                data: req.user
+            });
+        }
+        catch (error) {
+            throw error;
+        }
+    }
+    createFreelancerProfile(req, res) {
+        try {
+            const userId = req.user?.userId;
+            const user = this.userService.createFreelancerProfile(userId, req.body);
+            res.status(HttpStatus.OK).json({
+                success: true,
+                message: "Freelancer Profile Updated Successfully",
+                data: user,
             });
         }
         catch (error) {

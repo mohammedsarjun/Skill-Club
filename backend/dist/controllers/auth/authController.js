@@ -13,6 +13,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 import { injectable, inject } from "tsyringe";
 import "../../config/container.js";
 import { HttpStatus } from "../../enums/http-status.enum.js";
+import { jwtService } from "../../utils/jwt.js";
 let AuthController = class AuthController {
     constructor(authService, otpService) {
         this.authService = authService;
@@ -21,10 +22,67 @@ let AuthController = class AuthController {
     async signup(req, res) {
         try {
             const user = await this.authService.signup(req.body);
-            console.log(user);
             res.status(HttpStatus.CREATED).json({
                 success: true,
                 message: "User created successfully",
+                data: user,
+            });
+        }
+        catch (error) {
+            throw error;
+        }
+    }
+    async login(req, res) {
+        try {
+            const user = await this.authService.login(req.body);
+            // Generate JWT token
+            // 🔹 Create tokens
+            const payload = user;
+            const accessToken = jwtService.createToken(payload, "15m");
+            const refreshToken = jwtService.createToken(payload, "7d");
+            res.cookie("accessToken", accessToken, {
+                httpOnly: true,
+                secure: false, // 🔹 must be false on localhost (no HTTPS)
+                sameSite: "lax", // 🔹 "strict" blocks cross-site cookies
+                maxAge: 15 * 60 * 1000,
+            });
+            res.cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                secure: false,
+                sameSite: "lax",
+                maxAge: 7 * 24 * 60 * 60 * 1000,
+            });
+            res.status(HttpStatus.OK).json({
+                success: true,
+                message: "User Logged In successfully",
+                data: user,
+            });
+        }
+        catch (error) {
+            throw error;
+        }
+    }
+    async forgotPassword(req, res) {
+        try {
+            const { email } = req.body;
+            const user = await this.authService.forgotPassword(email);
+            res.status(HttpStatus.OK).json({
+                success: true,
+                message: "Reset link sent to your email.",
+                data: user,
+            });
+        }
+        catch (error) {
+            throw error;
+        }
+    }
+    async resetPassword(req, res) {
+        try {
+            const { token, password } = req.body.resetData;
+            const user = await this.authService.resetPassword(token, password);
+            res.status(HttpStatus.OK).json({
+                success: true,
+                message: "Password Changed Successfully.",
                 data: user,
             });
         }

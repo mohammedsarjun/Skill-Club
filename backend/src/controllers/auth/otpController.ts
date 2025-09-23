@@ -5,6 +5,7 @@ import type { IOtpServices } from "../../services/authServices/interfaces/IOtpSe
 import { HttpStatus } from "../../enums/http-status.enum.js";
 import type { IUserServices } from "../../services/userServices/interfaces/IUserServices.js";
 import { jwtService } from "../../utils/jwt.js";
+import { success } from "zod";
 
 
 @injectable()
@@ -27,6 +28,7 @@ export class OtpController implements IOtpController {
                 data: otpResponse,
                 purpose
             });
+            console.log("success")
         } catch (error: any) {
             throw error
 

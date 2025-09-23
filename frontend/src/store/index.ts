@@ -1,8 +1,8 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import freelancerReducer from "./slices/freelancerSlice";
 import authReducer from "./slices/authSlice";
-import storage from "redux-persist/lib/storage";
 import { persistReducer, persistStore } from "redux-persist";
+import storageSession from "redux-persist/lib/storage/session"; // <-- sessionStorage
 import {
   FLUSH,
   REHYDRATE,
@@ -13,9 +13,8 @@ import {
 } from "redux-persist";
 
 const freelancerPersistConfig = {
-  key: "freelancerOnboarding",  
-  storage,
-
+  key: "freelancerOnboarding",
+  storage: storageSession, // sessionStorage
 };
 
 const persistedFreelancerReducer = persistReducer(freelancerPersistConfig, freelancerReducer);
@@ -23,7 +22,6 @@ const persistedFreelancerReducer = persistReducer(freelancerPersistConfig, freel
 const rootReducer = combineReducers({
   freelancer: persistedFreelancerReducer,
   auth: authReducer,
-  // other reducers (auth, ui...) - not persisted unless you wrap them too
 });
 
 export const store = configureStore({
@@ -31,7 +29,6 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        // ignore redux-persist action types
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
     }),

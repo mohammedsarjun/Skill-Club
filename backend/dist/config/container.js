@@ -11,14 +11,20 @@ container.register("IOtpServices", { useClass: OtpService });
 // Register Repository
 container.register("IUserRepository", { useClass: UserRepository });
 container.register("IOtpRepository", { useClass: OtpRepository });
+container.register("IGoogleAuthService", { useClass: GoogleAuthService });
 //User
 import { userServices } from "../services/userServices/userService.js";
 container.register("IUserServices", { useClass: userServices });
+//Admin
+//AdminAuth
+container.register("IAdminAuthServices", { useClass: AdminAuthServices });
 //Category and skills
 import { AdminCategoryServices } from "../services/adminServices/adminCategoryServices.js";
 import { AdminCategoryRepository } from "../repositories/adminRepositoies/adminCategoryRepository.js";
 import { AdminSpecialityServices } from "../services/adminServices/adminSpecialityServices.js";
 import { AdminSpecialityRepository } from "../repositories/adminRepositoies/adminSpecialityRepository.js";
+import GoogleAuthService from "../services/authServices/GoogleAuthService.js";
+import { AdminAuthServices } from "../services/adminServices/adminAuthServices.js";
 //add category
 container.register("IAdminCategoryServices", { useClass: AdminCategoryServices });
 container.register("IAdminCategoryRepository", { useClass: AdminCategoryRepository });

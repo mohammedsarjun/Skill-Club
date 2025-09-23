@@ -9,6 +9,11 @@ export interface SignUpData {
   agreement: string | boolean;
 }
 
+export interface LoginData {
+  email: string;
+  password: string;
+  rememberMe: boolean;
+}
 export const authApi = {
   signUp: async (data: SignUpData): Promise<any> => {
     try {
@@ -22,6 +27,46 @@ export const authApi = {
     } catch (error: any) {
       return error.response.data;
     }
+  },
+    login: async (data: LoginData): Promise<any> => {
+    try {
+
+      const response = await axiosClient.post(
+        authenticationRoutes.userLogin,
+        data
+      );
+
+      return response.data;
+    } catch (error: any) {
+      return error.response.data;
+    }
+    
+  },
+  forgotPassword: async (email:string): Promise<any> => {
+    try {
+
+      const response = await axiosClient.post(
+        authenticationRoutes.forgotPassword,
+        {email}
+      );
+
+      return response.data;
+    } catch (error: any) {
+      return error.response.data;
+    }
+    
+  },  resetPassword: async (resetData:{token:string,password:string}): Promise<any> => {
+    try {
+      const response = await axiosClient.post(
+        authenticationRoutes.resetPassword ,
+        {resetData}
+      );
+
+      return response.data;
+    } catch (error: any) {
+      return error.response.data;
+    }
+    
   },
 
   createOtp: async (email: string, userId: string | undefined, purpose: string): Promise<any> => {
@@ -38,7 +83,8 @@ export const authApi = {
 
       return response.data;
     } catch (error: any) {
-      return error.response.data;
+      console.log(error)
+      // return error.response.data;
     }
   },
 

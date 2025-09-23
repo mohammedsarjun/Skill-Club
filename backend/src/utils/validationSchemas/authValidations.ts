@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { boolean, z } from "zod";
 
 // 🔹 Individual field schemas
 export const nameSchema = z
@@ -40,10 +40,9 @@ export const signupSchema = z.object({
 // 🔹 Login schema (simpler)
 export const loginSchema = z.object({
   email: emailSchema,
-  password: passwordSchema
+  password: passwordSchema,
+  rememberMe: z.boolean(),
 });
-
-
 export const verifyOtpSchema = z.object({
   email: z
     .string()

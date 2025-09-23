@@ -1,4 +1,6 @@
 const adminRouterEndPoints ={
+    //auth
+    adminLogin:"admin/login",
     adminCreateCategory:"/admin/categories",
     adminGetCategories:"/admin/categories",
     adminUpdateCategory:"/admin/categories",

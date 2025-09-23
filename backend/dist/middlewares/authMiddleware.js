@@ -10,7 +10,6 @@ export function authMiddleware(req, res, next) {
         const decoded = jwtService.verifyToken(token);
         // Attach to request object
         req.user = decoded;
-        console.log(decoded);
         next();
     }
     catch (err) {
@@ -21,6 +20,7 @@ export function authMiddleware(req, res, next) {
 // Optional Role Guard Middleware
 export function roleGuard(requiredRole) {
     return (req, res, next) => {
+        console.log(req.user, requiredRole, req.user?.roles?.includes(requiredRole));
         if (!req.user?.roles?.includes(requiredRole)) {
             return res.status(HttpStatus.FORBIDDEN).json({ message: "Forbidden: Insufficient role" });
         }

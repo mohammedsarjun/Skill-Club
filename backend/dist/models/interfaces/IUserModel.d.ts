@@ -16,16 +16,15 @@ export interface IExperience {
     location: string;
     country: string;
     isCurrentRole: boolean;
-    startMonth: number;
+    startMonth: string;
     startYear: number;
-    endMonth?: number;
+    endMonth?: string;
     endYear?: number;
 }
 export interface IEducation {
     school: string;
     degree: string;
     fieldOfStudy: string;
-    isCurrentEducation: boolean;
     startYear: number;
     endYear?: number;
     description: string;
@@ -36,27 +35,33 @@ export interface IFreelancerProfile {
     specialties: string[];
     skills: string[];
     professionalRole: string;
-    experience: IExperience[];
+    experiences: IExperience[];
     education: IEducation[];
     languages: ILanguage[];
     bio: string;
     hourlyRate: number;
-    weeklyHours: number;
-    portfolio: string;
+    portfolio: [];
 }
 export interface IUser extends Document {
     _id: Types.ObjectId;
     firstName: string;
     lastName: string;
+    googleId?: string;
     email: string;
     phone: number;
-    password: string;
+    password?: string;
+    avatar?: string;
     address: IAddress;
     dob: Date;
     isVerified: boolean;
+    isOnboardingCompleted: boolean;
+    isFreelancerBoardingCompleted: boolean;
+    resetPasswordToken?: string;
+    resetPasswordExpires?: Date;
     roles: string[];
     activeRole: string;
     freelancerProfile: IFreelancerProfile;
+    provider: "local" | "google";
     createdAt: Date;
     updatedAt: Date;
 }

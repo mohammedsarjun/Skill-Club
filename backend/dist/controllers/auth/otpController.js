@@ -28,6 +28,7 @@ let OtpController = class OtpController {
                 data: otpResponse,
                 purpose
             });
+            console.log("success");
         }
         catch (error) {
             throw error;

@@ -16,6 +16,9 @@ import { mapCreateUserDtoToUserModel } from "../../mapper/authMapper/auth.mapper
 import bcrypt from "bcryptjs";
 import AppError from "../../utils/AppError.js";
 import { HttpStatus } from "../../enums/http-status.enum.js";
+import { mapUserModelToUserDto } from "../../mapper/userMapper/user.mapper.js";
+import { genRandom } from "../../utils/cryptoGenerator.js";
+import sendEmailOtp from "../../utils/sendOtp.js";
 let AuthService = class AuthService {
     constructor(userRepository) {
         this.userRepository = userRepository;
@@ -52,8 +55,50 @@ let AuthService = class AuthService {
             phone: user.phone,
         };
     }
-    login(userData) {
-        return Promise.resolve();
+    async login(userData) {
+        // Normalize email to lowercase
+        const email = userData.email.toLowerCase();
+        const user = await this.userRepository.findOne({ email, isVerified: true });
+        if (!user) {
+            throw new AppError("User with this email does not exist", HttpStatus.NOT_FOUND);
+        }
+        const isPasswordMatch = await bcrypt.compare(userData.password, user.password);
+        if (!isPasswordMatch) {
+            throw new AppError("Incorrect password", HttpStatus.UNAUTHORIZED);
+        }
+        const dto = mapUserModelToUserDto(user);
+        return dto;
+    }
+    async forgotPassword(email) {
+        // 1. Find the user
+        const user = await this.userRepository.findOne({ email });
+        if (!user) {
+            throw new AppError("Email does not exist", HttpStatus.NOT_FOUND);
+        }
+        // 2. Generate token and expiry
+        const tokenDetail = await genRandom();
+        const token = tokenDetail.token;
+        const expiry = new Date(tokenDetail.expiry);
+        // 3. Update user atomically via repository
+        await this.userRepository.updateResetPassword(user._id, token, expiry);
+        // 4. Send reset link email
+        const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+        await sendEmailOtp(user.email, `Click here to reset your password: ${resetLink}`);
+    }
+    async resetPassword(token, newPassword) {
+        // 1. Find the user by token and expiry
+        console.log(token);
+        const user = await this.userRepository.findByResetToken(token);
+        console.log(user);
+        if (!user) {
+            throw new AppError("Invalid or expired token.", HttpStatus.BAD_REQUEST);
+        }
+        // 2. Hash the new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        // 3. Update password and clear reset token atomically
+        await this.userRepository.updatePassword(user._id, hashedPassword);
+        // 4. Optional: send confirmation email instead of reset link
+        await sendEmailOtp(user.email, "Your password has been successfully reset.");
     }
 };
 AuthService = __decorate([
