@@ -136,8 +136,7 @@ function ChooseRolePage() {
 export default function ChooseRole() {
   return (
 
-    <RoleGuard allowedRoles={["freelancer","client"]}>
       <ChooseRolePage></ChooseRolePage>
-    </RoleGuard>
+
   )
 }

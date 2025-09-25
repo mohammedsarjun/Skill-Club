@@ -43,11 +43,11 @@ interface Field {
 }
 
 interface TableProps {
-  title:string,
+  title: string;
   columns: Column[];
   data: Record<string, any>[]; // array of objects
   filters?: Filter[];
-  addButtonLabel: string;
+  addButtonLabel?: string;
   formFields?: Field[] | undefined;
   handleOpenModal?: () => void;
   handleCloseModal?: () => void;
@@ -77,11 +77,11 @@ const Table: React.FC<TableProps> = ({
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>(
     {}
   );
-console.log(filters)
+  console.log(filters);
   // Filter data based on search + dropdown filters
   const filteredData = data.filter((row) => {
     // Search
-    console.log(row,columns)
+    console.log(row, columns);
     const matchesSearch = columns.some((col) =>
       String(row[col.key]).toLowerCase().includes(search.toLowerCase())
     );
@@ -130,18 +130,18 @@ console.log(filters)
         </div>
 
         {/* Add Button */}
-        <Button
-          content={addButtonLabel}
-          type="button"
-          onClick={handleOpenModal}
-        ></Button>
+        {addButtonLabel && (
+          <Button
+            content={addButtonLabel}
+            type="button"
+            onClick={handleOpenModal}
+          ></Button>
+        )}
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">
-            {title}
-          </h2>
+          <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
         </div>
         <div className="overflow-x-auto">
           {/* Table */}

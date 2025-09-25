@@ -11,6 +11,7 @@ import "../../config/container.js";
 import { HttpStatus } from "../../enums/http-status.enum.js";
 import { UserDto } from "../../dto/userDTO/user.dto.js";
 import { jwtService } from "../../utils/jwt.js";
+
 @injectable()
 export class AuthController implements IAuthController {
   private authService: IAuthService;

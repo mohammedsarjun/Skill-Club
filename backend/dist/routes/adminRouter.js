@@ -7,6 +7,7 @@ import { specialityValidationSchema } from '../utils/validationSchemas/specialit
 import { validate } from '../middlewares/validate.js';
 import { authMiddleware, roleGuard } from '../middlewares/authMiddleware.js';
 import { AdminAuthController } from '../controllers/adminController/adminAuthController.js';
+import { AdminUserController } from '../controllers/adminController/adminUserController.js';
 const adminRouter = express.Router();
 const categoryController = container.resolve(AdminCategoryController);
 const adminAuthController = container.resolve(AdminAuthController);
@@ -20,5 +21,8 @@ const specialityController = container.resolve(AdminSpecialityController);
 adminRouter.post("/speciality", authMiddleware, roleGuard("admin"), validate(specialityValidationSchema), specialityController.addSpeciality.bind(specialityController));
 adminRouter.get("/speciality", authMiddleware, roleGuard("admin"), specialityController.getAllSpeciality.bind(specialityController));
 adminRouter.patch("/speciality", authMiddleware, roleGuard("admin"), specialityController.editSpeciality.bind(specialityController));
+//users
+const adminUserController = container.resolve(AdminUserController);
+adminRouter.get("/users", authMiddleware, roleGuard("admin"), adminUserController.getUserStats.bind(adminUserController));
 export default adminRouter;
 //# sourceMappingURL=adminRouter.js.map

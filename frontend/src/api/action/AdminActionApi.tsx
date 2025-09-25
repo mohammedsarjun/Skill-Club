@@ -97,6 +97,11 @@ const AdminActionApi = {
       return error.response.data;
     }
   },
+
+  getUsers(search:any, page:any, limit:any, filters:any){
+
+  }
+
 };
 
 export default AdminActionApi;

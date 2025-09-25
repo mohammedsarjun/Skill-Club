@@ -17,7 +17,6 @@ export interface LoginData {
 export const authApi = {
   signUp: async (data: SignUpData): Promise<any> => {
     try {
-
       const response = await axiosClient.post(
         authenticationRoutes.userSignUp,
         data
@@ -28,9 +27,8 @@ export const authApi = {
       return error.response.data;
     }
   },
-    login: async (data: LoginData): Promise<any> => {
+  login: async (data: LoginData): Promise<any> => {
     try {
-
       const response = await axiosClient.post(
         authenticationRoutes.userLogin,
         data
@@ -40,65 +38,86 @@ export const authApi = {
     } catch (error: any) {
       return error.response.data;
     }
-    
   },
-  forgotPassword: async (email:string): Promise<any> => {
+  logout: async (): Promise<any> => {
     try {
+      const response = await axiosClient.post(
+        authenticationRoutes.logout,
+      );
 
+      return response.data;
+    } catch (error: any) {
+      return error.response.data;
+    }
+  },
+
+  forgotPassword: async (email: string): Promise<any> => {
+    try {
       const response = await axiosClient.post(
         authenticationRoutes.forgotPassword,
-        {email}
+        { email }
       );
 
       return response.data;
     } catch (error: any) {
       return error.response.data;
     }
-    
-  },  resetPassword: async (resetData:{token:string,password:string}): Promise<any> => {
+  },
+  resetPassword: async (resetData: {
+    token: string;
+    password: string;
+  }): Promise<any> => {
     try {
       const response = await axiosClient.post(
-        authenticationRoutes.resetPassword ,
-        {resetData}
+        authenticationRoutes.resetPassword,
+        { resetData }
       );
 
       return response.data;
     } catch (error: any) {
       return error.response.data;
     }
-    
   },
 
-  createOtp: async (email: string, userId: string | undefined, purpose: string): Promise<any> => {
+  createOtp: async (
+    email: string,
+    userId: string | undefined,
+    purpose: string
+  ): Promise<any> => {
     try {
+      const response = await axiosClient.post(authenticationRoutes.createOtp, {
+        email,
+        purpose,
+      });
 
-      const response = await axiosClient.post(authenticationRoutes.createOtp, { email, purpose });
-
-      sessionStorage.setItem("otpEmail", response.data.data.email)
-      sessionStorage.setItem("otpExpiry", response.data.data.expiresAt)
+      sessionStorage.setItem("otpEmail", response.data.data.email);
+      sessionStorage.setItem("otpExpiry", response.data.data.expiresAt);
       if (userId) {
-        sessionStorage.setItem("userId", userId)
+        sessionStorage.setItem("userId", userId);
       }
-
 
       return response.data;
     } catch (error: any) {
-      console.log(error)
+      console.log(error);
       // return error.response.data;
     }
   },
 
-
-
-  verifyOtp: async (email: string, otp: string,userId?:string): Promise<any> => {
+  verifyOtp: async (
+    email: string,
+    otp: string,
+    userId?: string
+  ): Promise<any> => {
     try {
-      const response = await axiosClient.post(authenticationRoutes.verifyOtp, { email, otp ,userId});
+      const response = await axiosClient.post(authenticationRoutes.verifyOtp, {
+        email,
+        otp,
+        userId,
+      });
 
       return response.data;
     } catch (error: any) {
       return error.response.data;
     }
-  }
-
-
+  },
 };

@@ -6,7 +6,8 @@ const authenticationRoutes = {
     createOtp: "/auth/otp",
     verifyOtp:"/auth/verify-otp",
     forgotPassword:"/auth/forgot-password",
-    resetPassword:"/auth/reset-password"
+    resetPassword:"/auth/reset-password",
+    logout:"/auth/logout"
 
 
 }

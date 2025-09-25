@@ -54,3 +54,11 @@ container.register<IAdminCategoryRepository>("IAdminCategoryRepository",{useClas
 container.register<IAdminSpecialityServices>("IAdminSpecialityServices",{useClass:AdminSpecialityServices})
 container.register<IAdminSpecialityRepository>("IAdminSpecialityRepository",{useClass:AdminSpecialityRepository})
 
+
+//AdminUser
+import { AdminUserServices } from "../services/adminServices/adminUserServices.js";
+import { IAdminUserServices } from "../services/adminServices/interfaces/IAdminUserServices.js";
+
+container.register<IAdminUserServices>("IAdminUserServices",{useClass:AdminUserServices})
+
+

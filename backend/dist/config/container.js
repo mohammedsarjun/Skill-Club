@@ -31,4 +31,7 @@ container.register("IAdminCategoryRepository", { useClass: AdminCategoryReposito
 //Speciality
 container.register("IAdminSpecialityServices", { useClass: AdminSpecialityServices });
 container.register("IAdminSpecialityRepository", { useClass: AdminSpecialityRepository });
+//AdminUser
+import { AdminUserServices } from "../services/adminServices/adminUserServices.js";
+container.register("IAdminUserServices", { useClass: AdminUserServices });
 //# sourceMappingURL=container.js.map
