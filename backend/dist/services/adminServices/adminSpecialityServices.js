@@ -52,7 +52,7 @@ let AdminSpecialityServices = class AdminSpecialityServices {
             name: filterData.search || "",
         });
         // Map to DTO
-        let data = result.map(mapSpecialityModelToSpecialityDto);
+        const data = result.map(mapSpecialityModelToSpecialityDto);
         return {
             data,
             total,

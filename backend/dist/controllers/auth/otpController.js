@@ -20,7 +20,7 @@ let OtpController = class OtpController {
     }
     async createOtp(req, res) {
         try {
-            let { email, purpose } = req.body;
+            const { email, purpose } = req.body;
             const otpResponse = await this.otpServices.createOtp(email, purpose);
             res.status(HttpStatus.CREATED).json({
                 success: true,
@@ -36,7 +36,7 @@ let OtpController = class OtpController {
     }
     async verifyOtp(req, res) {
         try {
-            let { email, otp, userId } = req.body;
+            const { email, otp, userId } = req.body;
             const response = await this.otpServices.verifyOtp(email, otp);
             switch (response.purpose) {
                 case "signup":

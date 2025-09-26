@@ -43,7 +43,7 @@ export class AdminSpecialityController implements IAdminSpecialityController {
     } catch (error) {
       throw error;
     }
-    return Promise.resolve();
+
   }
 
   async getAllSpeciality(req: Request, res: Response): Promise<void> {
@@ -58,6 +58,6 @@ export class AdminSpecialityController implements IAdminSpecialityController {
     } catch (error) {
       throw error;
     }
-    return Promise.resolve();
+
   }
 }

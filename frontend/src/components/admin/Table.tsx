@@ -57,6 +57,7 @@ interface TableProps {
   setSearch: (searchData: any) => void;
   canDelete: boolean;
   handleEditModal: (values: any) => void;
+  viewOnly?: boolean;
 }
 
 const Table: React.FC<TableProps> = ({
@@ -73,6 +74,7 @@ const Table: React.FC<TableProps> = ({
   setSearch,
   canDelete = false,
   handleEditModal,
+  viewOnly = false,
 }) => {
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>(
     {}
@@ -168,28 +170,44 @@ const Table: React.FC<TableProps> = ({
                     {columns.map((col) => (
                       <td key={col.key} className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="bg-emerald-100 rounded-lg p-2 mr-3"></div>
                           <div className="text-sm font-medium text-gray-900">
-                            {row[col.key]}
+                            {Array.isArray(row[col.key])
+                              ? (row[col.key] as string[]).map(
+                                  (role, index) => (
+                                    <button
+                                      key={index}
+                                      className="px-2 py-1 mx-1 rounded-lg bg-blue-500 text-white text-xs"
+                                    >
+                                      {role}
+                                    </button>
+                                  )
+                                )
+                              : row[col.key]}
                           </div>
                         </div>
                       </td>
                     ))}
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                      <button
-                        className="text-emerald-600 hover:text-emerald-900"
-                        onClick={() => handleEditModal(row)} // send whole row for edit
-                      >
-                        <FaEdit />
-                      </button>
+                      {viewOnly ? (
+                        <span className="text-green-600" onClick={handleOpenModal}>View</span>
+                      ) : (
+                        <>
+                          <button
+                            className="text-emerald-600 hover:text-emerald-900"
+                            onClick={() => handleEditModal(row)}
+                          >
+                            <FaEdit />
+                          </button>
 
-                      {canDelete && (
-                        <button
-                          className="text-red-600 hover:text-red-900"
-                          // onClick={() => handleDelete(row.id)} // ✅ send only the id
-                        >
-                          <FaTrashAlt />
-                        </button>
+                          {canDelete && (
+                            <button
+                              className="text-red-600 hover:text-red-900"
+                              // onClick={() => handleDelete(row.id)}
+                            >
+                              <FaTrashAlt />
+                            </button>
+                          )}
+                        </>
                       )}
                     </td>
                   </tr>

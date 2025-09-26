@@ -17,7 +17,7 @@ export class userServices implements IUserServices {
   async markUserVerified(id: string): Promise<void> {
     try {
 
-      const result = await this.userRepository.update(
+      await this.userRepository.update(
         id,
         { $set: { isVerified: true } }
       );

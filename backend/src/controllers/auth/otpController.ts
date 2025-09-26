@@ -19,7 +19,7 @@ export class OtpController implements IOtpController {
     async createOtp(req: Request, res: Response): Promise<void> {
         try {
 
-            let { email, purpose } = req.body;
+            const { email, purpose } = req.body;
 
             const otpResponse = await this.otpServices.createOtp(email, purpose)
             res.status(HttpStatus.CREATED).json({
@@ -39,7 +39,7 @@ export class OtpController implements IOtpController {
 
         try {
 
-            let { email, otp, userId } = req.body;
+            const { email, otp, userId } = req.body;
             const response = await this.otpServices.verifyOtp(email, otp)
 
             switch (response.purpose) {

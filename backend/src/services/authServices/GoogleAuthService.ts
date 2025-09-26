@@ -26,7 +26,7 @@ class GoogleAuthService implements IGoogleAuthService {
     if (!payload) throw new Error("Invalid Google token");
 
     // Check if user exists
-    let user = await this.userRepository.findByEmail(payload.email!);
+    const user = await this.userRepository.findByEmail(payload.email!);
     // // if (!user) {
     // //   // Create user if not exists
     // //   user = await this.userRepository.create({

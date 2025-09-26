@@ -1,6 +1,5 @@
 
   export async function createOtpDigit(length: number = 4): Promise<string> {
-    try {
       const digits = "0123456789";
       let OTP = "";
 
@@ -10,7 +9,4 @@
       }
 
       return OTP;
-    } catch (error) {
-      throw error;
-    }
   }

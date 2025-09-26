@@ -10,21 +10,45 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { injectable, inject } from "tsyringe";
-import "../../config/container.js";
+import { injectable, inject } from 'tsyringe';
+import '../../config/container.js';
+import { HttpStatus } from '../../enums/http-status.enum.js';
+import { mapUserQuery } from '../../mapper/adminMapper/adminUsers.mapper.js';
 let AdminUserController = class AdminUserController {
     constructor(adminUserService) {
         this._adminUserService = adminUserService;
     }
-    getUserStats(req, res) {
-        console.log("Admin User Service is running");
-        console.log(req.body);
-        return Promise.resolve();
+    async getUserStats(req, res) {
+        try {
+            const result = await this._adminUserService.getUserStats();
+            res.status(HttpStatus.OK).json({
+                success: true,
+                message: 'User Stats Fetched Successfully',
+                data: result,
+            });
+        }
+        catch (error) {
+            throw error;
+        }
+    }
+    async getUsers(req, res) {
+        try {
+            const queryDto = mapUserQuery(req.query);
+            const result = await this._adminUserService.getUsers(queryDto);
+            res.status(HttpStatus.OK).json({
+                success: true,
+                message: 'User Fetched Successfully',
+                data: result,
+            });
+        }
+        catch (error) {
+            throw error;
+        }
     }
 };
 AdminUserController = __decorate([
     injectable(),
-    __param(0, inject("IAdminUserServices")),
+    __param(0, inject('IAdminUserServices')),
     __metadata("design:paramtypes", [Object])
 ], AdminUserController);
 export { AdminUserController };

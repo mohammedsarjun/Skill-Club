@@ -44,7 +44,6 @@ let AdminSpecialityController = class AdminSpecialityController {
         catch (error) {
             throw error;
         }
-        return Promise.resolve();
     }
     async getAllSpeciality(req, res) {
         try {
@@ -59,7 +58,6 @@ let AdminSpecialityController = class AdminSpecialityController {
         catch (error) {
             throw error;
         }
-        return Promise.resolve();
     }
 };
 AdminSpecialityController = __decorate([

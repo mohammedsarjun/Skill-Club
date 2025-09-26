@@ -1,11 +1,10 @@
-import { User } from "../models/userModel.js";
-import { IUser } from "../models/interfaces/IUserModel.js"
-import { Model, Document, FilterQuery, UpdateQuery, Types } from "mongoose";
-import BaseRepository from "./baseRepositories/baseRepository.js";
-import { IUserRepository } from "./interfaces/IUserRepository.js";
+import { User } from '../models/userModel.js';
+import { IUser } from '../models/interfaces/IUserModel.js';
+import { Model, Document, FilterQuery, UpdateQuery, Types, PopulateOptions } from 'mongoose';
+import BaseRepository from './baseRepositories/baseRepository.js';
+import { IUserRepository } from './interfaces/IUserRepository.js';
+
 export class UserRepository extends BaseRepository<IUser> implements IUserRepository {
-
-
   constructor() {
     super(User);
   }
@@ -15,7 +14,11 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
     return await this.model.findOne({ email });
   }
 
-  async updateResetPassword(userId: string | Types.ObjectId, token: string, expiry: Date): Promise<IUser | null> {
+  async updateResetPassword(
+    userId: string | Types.ObjectId,
+    token: string,
+    expiry: Date,
+  ): Promise<IUser | null> {
     return await User.findByIdAndUpdate(
       userId,
       {
@@ -24,11 +27,14 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
           resetPasswordExpires: expiry,
         },
       },
-      { new: true } // return the updated document if needed
+      { new: true }, // return the updated document if needed
     );
   }
 
-  async updatePassword(userId: string | Types.ObjectId, hashedPassword: string): Promise<IUser | null> {
+  async updatePassword(
+    userId: string | Types.ObjectId,
+    hashedPassword: string,
+  ): Promise<IUser | null> {
     return await User.findByIdAndUpdate(
       userId,
       {
@@ -36,38 +42,79 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
           password: hashedPassword,
         },
         $unset: {
-          resetPasswordToken: "",
-          resetPasswordExpires: "",
+          resetPasswordToken: '',
+          resetPasswordExpires: '',
         },
       },
-      { new: true }
+      { new: true },
     );
   }
 
   async findByResetToken(token: string) {
     // MongoDB-specific logic stays here
-    console.log(token,"repo")
+    console.log(token, 'repo');
     return await User.findOne({
       resetPasswordToken: token,
       resetPasswordExpires: { $gt: new Date() }, // token not expired
     });
   }
 
-      async addRoleAndCompleteOnboarding(
-        userId: string | Types.ObjectId,
-        role: string
-    ) {
-        const update: any = {
-            $addToSet: { roles: role }, // add role if not exists
-            $set: { activeRole: role, isOnboardingCompleted: true }
-        };
+  async addRoleAndCompleteOnboarding(userId: string | Types.ObjectId, role: string) {
+    const update: any = {
+      $addToSet: { roles: role }, // add role if not exists
+      $set: { activeRole: role, isOnboardingCompleted: true },
+    };
 
-        if (role === "freelancer") {
-            update.$set.isFreelancerBoardingCompleted = true;
-        }
-
-        return await User.findByIdAndUpdate(userId, update, { new: true });
+    if (role === 'freelancer') {
+      update.$set.isFreelancerBoardingCompleted = true;
     }
+
+    return await User.findByIdAndUpdate(userId, update, { new: true });
+  }
+
+
+async  getUsers(
+    filters: { name?: string; roles?: "client"|"freelancer"|undefined },
+    options: { skip: number; limit: number; populate?: {
+        path: string
+        select: string, // only get id and name
+      } },
+  ): Promise<IUser[]|null> {
+
+  const query: any = {};
+
+  if (filters?.name) {
+    query.firstName = { $regex: filters.name, $options: "i" };
+  }else{
+     query.firstName =""
+  }
+
+  if (filters?.roles) {
+    query.roles = { $in: filters.roles };
+  }
+
+
+  // Start the query
+
+ return await User.find({ firstName: { $regex: `${filters.name}`, $options: 'i' } })
+  .skip(options.skip || 0)
+  .limit(options.limit || 10);
+
+  // let mongoQuery = User.find({ firstName: { $regex: `${query.firstName}`, $options: 'i' } });
+
+  // // Apply pagination
+  // if (options?.skip !== undefined) mongoQuery = mongoQuery.skip(options.skip);
+  // if (options?.limit !== undefined) mongoQuery = mongoQuery.limit(options.limit);
+
+  // // Apply population
+  // if (options?.populate) {
+  //   mongoQuery = mongoQuery.populate({ path: "category", select: "_id name" });
+  // }
+
+  // return await mongoQuery.exec();
+}
+
+
 
 
 }

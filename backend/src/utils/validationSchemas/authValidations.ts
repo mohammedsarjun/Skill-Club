@@ -1,4 +1,4 @@
-import { boolean, z } from "zod";
+import { z } from "zod";
 
 // 🔹 Individual field schemas
 export const nameSchema = z

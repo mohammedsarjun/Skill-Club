@@ -20,7 +20,7 @@ let userServices = class userServices {
     }
     async markUserVerified(id) {
         try {
-            const result = await this.userRepository.update(id, { $set: { isVerified: true } });
+            await this.userRepository.update(id, { $set: { isVerified: true } });
         }
         catch (err) {
             // You can throw a custom error class if you have one

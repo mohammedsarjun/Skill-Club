@@ -17,7 +17,6 @@ const AdminActionApi = {
 
   updateCategory: async (data: IcategoryData): Promise<any> => {
     try {
-
       const response = await axiosClient.patch(
         adminEndPoint.adminUpdateCategory,
         data
@@ -26,13 +25,12 @@ const AdminActionApi = {
     } catch (error: any) {
       return error.response.data;
     }
-
   },
   getCategories: async (
     search: string = "",
     page: number = 1,
     limit: number = 10,
-    mode: string = "detailed",
+    mode: string = "detailed"
   ): Promise<any> => {
     try {
       const response = await axiosClient.get(adminEndPoint.adminGetCategories, {
@@ -40,7 +38,7 @@ const AdminActionApi = {
           search,
           page,
           limit,
-          mode
+          mode,
         },
       });
       return response.data;
@@ -48,7 +46,6 @@ const AdminActionApi = {
       return error.response.data;
     }
   },
-
 
   createSpeciality: async (data: IcategoryData): Promise<any> => {
     try {
@@ -63,7 +60,6 @@ const AdminActionApi = {
   },
 
   updateSpeciality: async (data: ISpeaciality): Promise<any> => {
-
     try {
       const response = await axiosClient.patch(
         adminEndPoint.adminUpdateSpeciality,
@@ -73,15 +69,13 @@ const AdminActionApi = {
     } catch (error: any) {
       return error.response.data;
     }
-
   },
-
 
   getSpecialities: async (
     search: string = "",
     page: number = 1,
     limit: number = 10,
-    mode: string = "detailed",
+    mode: string = "detailed"
   ): Promise<any> => {
     try {
       const response = await axiosClient.get(adminEndPoint.adminGetSpeciality, {
@@ -89,7 +83,7 @@ const AdminActionApi = {
           search,
           page,
           limit,
-          mode
+          mode,
         },
       });
       return response.data;
@@ -98,10 +92,32 @@ const AdminActionApi = {
     }
   },
 
-  getUsers(search:any, page:any, limit:any, filters:any){
+  async getUserStats() {
+    try {
+      const response = await axiosClient.get(adminEndPoint.adminGetUserStats);
+      return response.data;
+    } catch (error: any) {
+      return error.response.data;
+    }
+  },
 
-  }
 
+
+  async getUsers(search:string="", page:number=1, limit:number=10, filters:{ role?: string; status?: string }) {
+    try {
+      const response = await axiosClient.get(adminEndPoint.adminUser,{
+        params:{
+          search,
+          page,
+          limit,
+          filters
+        }
+      });
+      return response.data;
+    } catch (error: any) {
+      return error.response.data;
+    }
+  },
 };
 
 export default AdminActionApi;

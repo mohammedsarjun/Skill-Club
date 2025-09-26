@@ -63,6 +63,7 @@ const userSchema = new Schema<IUser>(
     address: addressSchema,
     dob: Date,
     isVerified: { type: Boolean, default: false },
+    isBlocked:{type:Boolean,default:false},
     roles: { type: [String] },
     activeRole: String,
     freelancerProfile: freelancerProfileSchema,

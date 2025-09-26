@@ -79,7 +79,7 @@ export class AdminSpecialityServices implements IAdminSpecialityServices {
     // Map to DTO
 
 
-    let data: SpecialityDto[] = result.map(mapSpecialityModelToSpecialityDto);
+    const data: SpecialityDto[] = result.map(mapSpecialityModelToSpecialityDto);
     return {
       data,
       total,

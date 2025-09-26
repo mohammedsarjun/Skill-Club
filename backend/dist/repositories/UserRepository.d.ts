@@ -1,7 +1,7 @@
-import { IUser } from "../models/interfaces/IUserModel.js";
-import { Document, Types } from "mongoose";
-import BaseRepository from "./baseRepositories/baseRepository.js";
-import { IUserRepository } from "./interfaces/IUserRepository.js";
+import { IUser } from '../models/interfaces/IUserModel.js';
+import { Document, Types } from 'mongoose';
+import BaseRepository from './baseRepositories/baseRepository.js';
+import { IUserRepository } from './interfaces/IUserRepository.js';
 export declare class UserRepository extends BaseRepository<IUser> implements IUserRepository {
     constructor();
     findByEmail(email: string): Promise<IUser | null>;
@@ -17,5 +17,16 @@ export declare class UserRepository extends BaseRepository<IUser> implements IUs
     }> & {
         __v: number;
     }) | null>;
+    getUsers(filters: {
+        name?: string;
+        roles?: "client" | "freelancer" | undefined;
+    }, options: {
+        skip: number;
+        limit: number;
+        populate?: {
+            path: string;
+            select: string;
+        };
+    }): Promise<IUser[] | null>;
 }
 //# sourceMappingURL=UserRepository.d.ts.map

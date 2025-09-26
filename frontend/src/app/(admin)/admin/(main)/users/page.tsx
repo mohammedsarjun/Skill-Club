@@ -10,7 +10,7 @@ interface User {
   id: string;
   name: string;
   email: string;
-  role: "freelancer" | "client" | "admin";
+  role: ("freelancer" | "client" )[];
   status: "active" | "banned";
 }
 
@@ -30,22 +30,47 @@ const UserManagementPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [search, setSearch] = useState("");
-  const [filters, setFilters] = useState<{ role?: string; status?: string }>({});
+  const [filters, setFilters] = useState<{ role?: string; status?: string }>(
+    {}
+  );
+const [stats, setStats] = useState<{
+  totalUsers: number;
+  totalFreelancers: number;
+  totalClients: number;
+}>();
+
+
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editInitialValues, setEditInitialValues] = useState<Record<string, any>>({});
+  const [editInitialValues, setEditInitialValues] = useState<
+    Record<string, any>
+  >({});
 
-  // Fetch users (dummy for now)
-//   useEffect(() => {
-//     async function fetchUsers() {
-//       later you can fetch from API here
-//       const response = await AdminActionApi.getUsers(search, page, limit, filters);
-//       if (response.success) setUsers(response.data.data);
-//       else toast.error(response.message);
-//     }
-//     fetchUsers();
-//   }, [search, page, filters]);
+  // Fetch users
+  useEffect(() => {
+    async function fetchUsers() {
+      console.log("hihi")  
+      const response = await AdminActionApi.getUsers(search, page, limit, filters);
+      console.log(JSON.stringify(response)+"sda")
+      console.log("ihi")
+      if (response.success) setUsers(response.data.data);
+      else toast.error(response.message);
+    }
+    fetchUsers();
+  }, [search, page, filters]);
+
+  useEffect(() => {
+    async function fetchUserStats() {
+      try {
+        const response = await AdminActionApi.getUserStats();
+        setStats(response.data);
+      } catch (err) {
+        console.error("Error fetching stats:", err);
+      }
+    }
+    fetchUserStats();
+  }, []);
 
   const debouncedSetSearch = useMemo(
     () =>
@@ -58,12 +83,12 @@ const UserManagementPage: React.FC = () => {
   const columns: Column[] = [
     { key: "name", label: "Name" },
     { key: "email", label: "Email" },
-    { key: "role", label: "Role" },
+    { key: "roles", label: "Role" },
     { key: "status", label: "Status" },
   ];
 
   const filtersConfig: Filter[] = [
-    { key: "role", label: "Role", options: ["freelancer", "client", "admin"] },
+    { key: "roles", label: "Role", options: ["freelancer", "client", "admin"] },
     { key: "status", label: "Status", options: ["active", "banned"] },
   ];
 
@@ -83,15 +108,15 @@ const UserManagementPage: React.FC = () => {
       <div className="grid grid-cols-3 gap-6 my-6">
         <div className="bg-white shadow rounded-lg p-4 text-center">
           <h3 className="text-lg font-semibold">Total Users</h3>
-          <p className="text-2xl font-bold">0</p>
+          <p className="text-2xl font-bold">{stats?.totalUsers?stats.totalUsers:0}</p>
         </div>
         <div className="bg-white shadow rounded-lg p-4 text-center">
           <h3 className="text-lg font-semibold">Freelancers</h3>
-          <p className="text-2xl font-bold">0</p>
+          <p className="text-2xl font-bold">{stats?.totalFreelancers?stats.totalFreelancers:0}</p>
         </div>
         <div className="bg-white shadow rounded-lg p-4 text-center">
           <h3 className="text-lg font-semibold">Clients</h3>
-          <p className="text-2xl font-bold">0</p>
+          <p className="text-2xl font-bold">{stats?.totalFreelancers?stats.totalFreelancers:0}</p>
         </div>
       </div>
 
@@ -101,14 +126,14 @@ const UserManagementPage: React.FC = () => {
         columns={columns}
         data={users}
         filters={filtersConfig}
-
         handleOpenModal={() => setIsModalOpen(true)}
         page={page}
         setPage={setPage}
         search={search}
         setSearch={debouncedSetSearch}
-        canDelete={true}
+        canDelete={false}
         handleEditModal={handleEditModal}
+        viewOnly={true}
       />
     </div>
   );

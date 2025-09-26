@@ -30,5 +30,6 @@ adminRouter.patch("/speciality",authMiddleware,roleGuard("admin"),specialityCont
 
 //users
 const adminUserController=container.resolve(AdminUserController)
-adminRouter.get("/users",authMiddleware,roleGuard("admin"),adminUserController.getUserStats.bind(adminUserController))
+adminRouter.get("/users-stats",adminUserController.getUserStats.bind(adminUserController))
+adminRouter.get("/users",adminUserController.getUsers.bind(adminUserController))
 export default adminRouter

@@ -1,3 +1,3 @@
 export interface IAdminAuthServices{
-    login(adminData:{email:String,password:string}):void
+    login(adminData:{email:string,password:string}):void
 }

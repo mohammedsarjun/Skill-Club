@@ -1,6 +1,6 @@
 export interface IAdminAuthServices {
     login(adminData: {
-        email: String;
+        email: string;
         password: string;
     }): void;
 }

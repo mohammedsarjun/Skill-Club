@@ -10,18 +10,62 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { injectable, inject } from "tsyringe";
+import { injectable, inject } from 'tsyringe';
+import { mapUserModelDtoToAdminUserDto, mapUserModelDtoToAdminUserStatsDto } from '../../mapper/adminMapper/adminUsers.mapper.js';
 let AdminUserServices = class AdminUserServices {
     constructor(userRepository) {
         this._userRepository = userRepository;
     }
-    getUserStats() {
-        return Promise.resolve();
+    async getUserStats() {
+        const totalUsers = await this._userRepository.count();
+        const totalFreelancers = await this._userRepository.count({ roles: 'freelancer' });
+        const totalClients = await this._userRepository.count({ roles: 'client' });
+        const dto = mapUserModelDtoToAdminUserStatsDto({
+            totalUsers,
+            totalFreelancers,
+            totalClients,
+        });
+        return dto;
+    }
+    async getUsers(filterData) {
+        const page = filterData.page ?? 1;
+        const limit = filterData.limit ?? 10;
+        const skip = (page - 1) * limit;
+        let role;
+        let status;
+        if (filterData?.filters?.role) {
+            role = filterData.filters.role;
+        }
+        if (filterData?.filters?.status) {
+            status = filterData?.filters?.status;
+        }
+        let filter = {};
+        if (filterData?.search) {
+            filter = { name: filterData.search };
+        }
+        if (role) {
+            filter = { role: role };
+        }
+        const result = await this._userRepository.getUsers(filter, {
+            skip,
+            limit,
+        });
+        const total = await this._userRepository.count({
+            name: filterData.search || '',
+        });
+        // Map to DTO
+        const data = result.map(mapUserModelDtoToAdminUserDto);
+        return {
+            data,
+            total,
+            page,
+            limit,
+        };
     }
 };
 AdminUserServices = __decorate([
     injectable(),
-    __param(0, inject("IUserRepository")),
+    __param(0, inject('IUserRepository')),
     __metadata("design:paramtypes", [Object])
 ], AdminUserServices);
 export { AdminUserServices };
