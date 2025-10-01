@@ -1,5 +1,7 @@
-import { UserDto } from "../../dto/userDTO/user.dto.js";
-import { IUser } from "../../models/interfaces/IUserModel.js";
+import { ClientProfileDetailDTO, ClientProfileDto, ClientProfileUpdateResponseDto, UserDto } from '../../dto/userDTO/user.dto.js';
+import { IUser } from '../../models/interfaces/IUserModel.js';
 export declare const mapUserModelToUserDto: (modelData: IUser) => UserDto;
 export declare function mapFreelancerDtoToUserModel(raw: any): Partial<IUser>;
+export declare function mapClientDtoToUserModel(raw: ClientProfileDetailDTO): ClientProfileDto;
+export declare function mapUserModelToClientProfileUpdateResponseDto(raw: IUser): ClientProfileUpdateResponseDto;
 //# sourceMappingURL=user.mapper.d.ts.map

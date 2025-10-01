@@ -116,8 +116,23 @@ export const authApi = {
       });
 
       return response.data;
-    } catch (error: any) {
+    } catch (error: any) { 
       return error.response.data;
     }
+  },  googleLogin: async (idToken: string): Promise<any> => {
+    try {
+      const response = await axiosClient.post(
+        authenticationRoutes.googleLogin,
+        {idToken}
+      );
+
+
+      console.log(response)
+
+      return response.data;
+    } catch (error: any) {
+      return error?.response?.data;
+    }
   },
+  
 };

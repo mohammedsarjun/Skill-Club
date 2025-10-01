@@ -30,7 +30,7 @@ export interface IEducation {
     description: string;
 }
 export interface IFreelancerProfile {
-    logo: string;
+    logo: string | undefined;
     workCategory: string;
     specialties: string[];
     skills: string[];
@@ -42,13 +42,19 @@ export interface IFreelancerProfile {
     hourlyRate: number;
     portfolio: [];
 }
+export interface IClientProfile {
+    companyName: string;
+    logo?: string | undefined;
+    description?: string;
+    website?: string;
+}
 export interface IUser extends Document {
     _id: Types.ObjectId;
     firstName: string;
     lastName: string;
     googleId?: string;
     email: string;
-    phone: number;
+    phone?: number;
     password?: string;
     avatar?: string;
     address: IAddress;
@@ -56,12 +62,12 @@ export interface IUser extends Document {
     isVerified: boolean;
     isBlocked: boolean;
     isOnboardingCompleted: boolean;
-    isFreelancerBoardingCompleted: boolean;
     resetPasswordToken?: string;
     resetPasswordExpires?: Date;
     roles: string[];
     activeRole: string;
     freelancerProfile: IFreelancerProfile;
+    clientProfile: IClientProfile;
     provider: "local" | "google";
     createdAt: Date;
     updatedAt: Date;

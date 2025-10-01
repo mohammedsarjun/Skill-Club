@@ -1,7 +1,7 @@
-import { IOtpController } from "./interfaces/IOtpController.js";
-import { Request, Response } from "express";
-import type { IOtpServices } from "../../services/authServices/interfaces/IOtpService.js";
-import type { IUserServices } from "../../services/userServices/interfaces/IUserServices.js";
+import { IOtpController } from './interfaces/IOtpController.js';
+import { Request, Response } from 'express';
+import type { IOtpServices } from '../../services/authServices/interfaces/IOtpService.js';
+import type { IUserServices } from '../../services/userServices/interfaces/IUserServices.js';
 export declare class OtpController implements IOtpController {
     private otpServices;
     private userServices;

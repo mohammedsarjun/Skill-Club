@@ -25,7 +25,7 @@ const experienceSchema = new Schema<IExperience>({
   startYear: Number,
   endMonth: String,
   endYear: Number
-})
+});
 
 const educationSchema = new Schema<IEducation>({
   school: String,
@@ -34,7 +34,7 @@ const educationSchema = new Schema<IEducation>({
   startYear: Number,
   endYear: Number,
   description: String
-})
+});
 
 const freelancerProfileSchema = new Schema<IFreelancerProfile>({
   logo: String,
@@ -47,8 +47,16 @@ const freelancerProfileSchema = new Schema<IFreelancerProfile>({
   languages: [languageSchema],
   bio: String,
   hourlyRate: Number,
-
   portfolio: [],
+});
+
+// ------------------- Client Profile -------------------
+const clientProfileSchema = new Schema({
+  companyName: { type: String, required: true },
+  logo: String,
+  description: String,
+  website: String,
+  location: String,
 });
 
 const userSchema = new Schema<IUser>(
@@ -57,20 +65,20 @@ const userSchema = new Schema<IUser>(
     lastName: { type: String, required: true },
     googleId: { type: String, required: false },
     email: { type: String, required: true, unique: true },
-    phone: { type: Number, required: true },
+    phone: { type: Number, required: false },
     password: { type: String, required: false },
     avatar: { type: String },
     address: addressSchema,
     dob: Date,
     isVerified: { type: Boolean, default: false },
-    isBlocked:{type:Boolean,default:false},
+    isBlocked: { type: Boolean, default: false },
     roles: { type: [String] },
     activeRole: String,
     freelancerProfile: freelancerProfileSchema,
-    isOnboardingCompleted:{type:Boolean,default:false},
-    isFreelancerBoardingCompleted:{type:Boolean,default:false},
-    resetPasswordToken:{type:String,default:undefined},
-    resetPasswordExpires:{type:Date,default:undefined},
+    clientProfile: clientProfileSchema, // ✅ Added here
+    isOnboardingCompleted: { type: Boolean, default: false },
+    resetPasswordToken: { type: String, default: undefined },
+    resetPasswordExpires: { type: Date, default: undefined },
     provider: { type: String, enum: ["local", "google"], default: "local" },
   },
   { timestamps: true }
@@ -78,4 +86,3 @@ const userSchema = new Schema<IUser>(
 
 // ------------------- Model -------------------
 export const User = mongoose.model<IUser>("User", userSchema);
-

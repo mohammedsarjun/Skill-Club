@@ -44,18 +44,6 @@ export default function OnboardingStepPage() {
   const user = useSelector((state: RootState) => state.auth.user);
 
 
-  useEffect(() => {
-    if (user) {
-      if (user.isFreelancerOnboardingCompleted == true) {
-        if (user.activeRole == "client") {
-          router.replace("/client/profile")
-        } else if (user.activeRole == "freelancer") {
-          router.replace("/freelancer/profile")
-        }
-
-      }
-    }; // redirect logged-in users
-  }, [user, router]);
 
   const freelancerData = useSelector((state: RootState) => state.freelancer);
 

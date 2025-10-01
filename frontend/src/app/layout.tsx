@@ -4,7 +4,6 @@ import Footer from "@/components/common/Footer";
 import { Toaster } from "react-hot-toast";
 import { Providers } from "./providers";
 import "./globals.css";
-import AuthInitializer from "@/components/AuthInitializer";
 import Script from "next/script";
 import { persistor } from "@/store";
 
@@ -20,14 +19,14 @@ export default function Layout({ children }: LayoutProps) {
       <body className="bg-background min-h-screen">
    
         <Providers>
-          <AuthInitializer />
           {children}
-                <Script
+                {/* <Script
           src="https://accounts.google.com/gsi/client"
           strategy="afterInteractive"
-        />
+        /> */}
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
           <Toaster position="top-right" reverseOrder={false} />
-          <Footer />
+
         </Providers>
       </body>
       

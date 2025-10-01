@@ -42,12 +42,20 @@ const freelancerProfileSchema = new Schema({
     hourlyRate: Number,
     portfolio: [],
 });
+// ------------------- Client Profile -------------------
+const clientProfileSchema = new Schema({
+    companyName: { type: String, required: true },
+    logo: String,
+    description: String,
+    website: String,
+    location: String,
+});
 const userSchema = new Schema({
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     googleId: { type: String, required: false },
     email: { type: String, required: true, unique: true },
-    phone: { type: Number, required: true },
+    phone: { type: Number, required: false },
     password: { type: String, required: false },
     avatar: { type: String },
     address: addressSchema,
@@ -57,8 +65,8 @@ const userSchema = new Schema({
     roles: { type: [String] },
     activeRole: String,
     freelancerProfile: freelancerProfileSchema,
+    clientProfile: clientProfileSchema, // ✅ Added here
     isOnboardingCompleted: { type: Boolean, default: false },
-    isFreelancerBoardingCompleted: { type: Boolean, default: false },
     resetPasswordToken: { type: String, default: undefined },
     resetPasswordExpires: { type: Date, default: undefined },
     provider: { type: String, enum: ["local", "google"], default: "local" },

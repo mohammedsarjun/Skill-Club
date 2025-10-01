@@ -10,9 +10,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { inject, injectable } from "tsyringe";
-import { HttpStatus } from "../../enums/http-status.enum.js";
-import { jwtService } from "../../utils/jwt.js";
+import { inject, injectable } from 'tsyringe';
+import { HttpStatus } from '../../enums/http-status.enum.js';
+import { jwtService } from '../../utils/jwt.js';
 let OtpController = class OtpController {
     constructor(otpService, userServices) {
         this.otpServices = otpService;
@@ -24,11 +24,11 @@ let OtpController = class OtpController {
             const otpResponse = await this.otpServices.createOtp(email, purpose);
             res.status(HttpStatus.CREATED).json({
                 success: true,
-                message: "Otp Sent Successfully",
+                message: 'Otp Sent Successfully',
                 data: otpResponse,
-                purpose
+                purpose,
             });
-            console.log("success");
+            console.log('success');
         }
         catch (error) {
             throw error;
@@ -39,35 +39,42 @@ let OtpController = class OtpController {
             const { email, otp, userId } = req.body;
             const response = await this.otpServices.verifyOtp(email, otp);
             switch (response.purpose) {
-                case "signup":
+                case 'signup':
                     await this.userServices.markUserVerified(userId);
                     // 🔹 Create tokens
-                    const payload = { userId: userId, role: null };
-                    const accessToken = jwtService.createToken(payload, "15m");
-                    const refreshToken = jwtService.createToken(payload, "7d");
-                    res.cookie("accessToken", accessToken, {
+                    const payload = {
+                        userId: userId,
+                        roles: null,
+                        activeRole: null,
+                        isOnboardingCompleted: false,
+                        clientProfile: null,
+                        freelancerProfile: null
+                    };
+                    const accessToken = jwtService.createToken(payload, '15m');
+                    const refreshToken = jwtService.createToken(payload, '7d');
+                    res.cookie('accessToken', accessToken, {
                         httpOnly: true,
-                        secure: false, // 🔹 must be false on localhost (no HTTPS)
-                        sameSite: "lax", // 🔹 "strict" blocks cross-site cookies
+                        secure: process.env.NODE_ENV === 'production', // 🔹 must be false on localhost (no HTTPS)
+                        sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
                         maxAge: 15 * 60 * 1000,
                     });
-                    res.cookie("refreshToken", refreshToken, {
+                    res.cookie('refreshToken', refreshToken, {
                         httpOnly: true,
-                        secure: false,
-                        sameSite: "lax",
+                        secure: process.env.NODE_ENV === 'production',
+                        sameSite: 'lax',
                         maxAge: 7 * 24 * 60 * 60 * 1000,
                     });
                     break;
-                case "forgotPassword":
+                case 'forgotPassword':
                     // maybe return a token or flag to allow password reset
                     // await otpService.markOtpUsed(otpRecord.email);
                     break;
                 default:
-                    throw new Error("Unknown OTP purpose");
+                    throw new Error('Unknown OTP purpose');
             }
             res.status(HttpStatus.OK).json({
                 success: true,
-                message: "Otp Verfied Successfully",
+                message: 'Otp Verfied Successfully',
                 data: response,
             });
         }
@@ -78,8 +85,8 @@ let OtpController = class OtpController {
 };
 OtpController = __decorate([
     injectable(),
-    __param(0, inject("IOtpServices")),
-    __param(1, inject("IUserServices")),
+    __param(0, inject('IOtpServices')),
+    __param(1, inject('IUserServices')),
     __metadata("design:paramtypes", [Object, Object])
 ], OtpController);
 export { OtpController };

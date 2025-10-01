@@ -2,11 +2,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface User {
-  userId: string;
-  role: string|null;
-  activeRole:string|null
+  userId:string,
+  roles:string[],
+  activeRole:string,
   isOnboardingCompleted:boolean,
-  isFreelancerOnboardingCompleted:boolean
+  clientProfile?:string|undefined,
+  freelancerProfile?:string|undefined
 }
 
 interface AuthState {
@@ -22,6 +23,7 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     setUser(state, action: PayloadAction<User|null>) {
+      console.log(action.payload)
       state.user = action.payload;
     },
     clearUser(state) {

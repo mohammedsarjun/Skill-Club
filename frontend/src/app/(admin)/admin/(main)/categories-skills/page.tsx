@@ -8,7 +8,7 @@ import { IcategoryData, ISpeaciality } from "@/types/interfaces/admin/IAdmin";
 import toast from "react-hot-toast";
 import { categorySchema, specialitySchema } from "@/utils/validation";
 import { debounce } from "lodash";
-import RoleGuard from "@/components/RoleGaurd";
+
 import AdminRoleGuard from "@/components/AdminRoleGaurd";
 
 interface Category {
@@ -530,9 +530,9 @@ const DynamicManagementPage: React.FC = () => {
 
   export default function DynamicManagement() {
     return (
-       <AdminRoleGuard>
+
         <DynamicManagementPage />
-       </AdminRoleGuard>
+
     );
   }
 

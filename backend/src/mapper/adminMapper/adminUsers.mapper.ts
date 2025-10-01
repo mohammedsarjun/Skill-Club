@@ -14,7 +14,7 @@ export function mapUserQuery(dto: any): GetUserDto {
     search: dto.search || "",
     page: dto.page ? Number(dto.page) : 1,
     limit: dto.limit ? Number(dto.limit) : 10,
-    filters:{role:dto?.filters?.role,status:dto?.filter?.status}
+    filters:{role:dto?.filters?.roles,status:dto?.filters?.status}
   };
 }
 

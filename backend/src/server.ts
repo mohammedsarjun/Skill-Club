@@ -7,6 +7,7 @@ import cookieParser from "cookie-parser";
 import { errorHandler } from "./middlewares/ErrorHandlers.js";
 import AppError from "./utils/AppError.js";
 import sendEmailOtp from "./utils/sendOtp.js";
+import passport from './config/passport.js';
 
 //Importing routes
 import authRouter from './routes/authRouter.js';
@@ -18,6 +19,10 @@ const PORT=process.env.PORT
 
 connectDB()
 const app =express()
+
+
+
+
 
 app.use(express.json())
 app.use(cookieParser());

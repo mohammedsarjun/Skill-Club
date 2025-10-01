@@ -10,8 +10,7 @@ import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "@/store/slices/authSlice";
 import { RootState } from "@/store";
-import AuthGuard from "@/components/AuthGaurd";
-import RoleGuard from "@/components/RoleGaurd";
+
 function ChooseRolePage() {
   const router = useRouter();
   const dispatch = useDispatch()
@@ -19,33 +18,15 @@ function ChooseRolePage() {
   const user = useSelector((state: RootState) => state.auth.user);
 
 
-  useEffect(() => {
-    if (user) {
-      if (user.isOnboardingCompleted == true) {
-        if (user.activeRole == "client") {
-          router.replace("/client/profile")
-        } else if (user.activeRole == "freelancer") {
-          router.replace("/freelancer/profile")
-        }
 
-      }
-    }; // redirect logged-in users
-  }, [user, router]);
   async function handleChoice(role: "freelancer" | "client") {
 
 
 
     if (role == "client") {
-      const response = await userApi.roleSelection(role)
-
-      if (response.success) {
-        dispatch(setUser(response.data))
-        router.push("/client/profile");
-      } else {
-        toast.error(response.message)
-      }
+      router.push("/onboarding/client");
     } else {
-      router.push("/onboarding/freelancer/1");
+      router.push("/onboarding/freelancer/0");
     }
 
 

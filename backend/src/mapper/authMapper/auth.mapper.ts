@@ -24,7 +24,7 @@ export const mapUserModelToGetUserDto = (
     firstName: modelData.firstName,
     lastName: modelData.lastName,
     email: modelData.email,
-    phone: modelData.phone,
+    phone: modelData.phone!,
   };
 };
 

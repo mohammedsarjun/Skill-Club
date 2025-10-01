@@ -7,7 +7,8 @@ const authenticationRoutes = {
     verifyOtp:"/auth/verify-otp",
     forgotPassword:"/auth/forgot-password",
     resetPassword:"/auth/reset-password",
-    logout:"/auth/logout"
+    logout:"/auth/logout",
+    googleLogin:"/auth/google"
 
 
 }

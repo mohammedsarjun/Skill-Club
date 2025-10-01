@@ -105,6 +105,7 @@ const AdminActionApi = {
 
   async getUsers(search:string="", page:number=1, limit:number=10, filters:{ role?: string; status?: string }) {
     try {
+
       const response = await axiosClient.get(adminEndPoint.adminUser,{
         params:{
           search,
@@ -113,6 +114,8 @@ const AdminActionApi = {
           filters
         }
       });
+
+      
       return response.data;
     } catch (error: any) {
       return error.response.data;

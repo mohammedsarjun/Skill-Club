@@ -13,35 +13,36 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 // services/GoogleAuthService.ts
 import { OAuth2Client } from "google-auth-library";
 import { inject, injectable } from "tsyringe";
+import { mapCreateGoogleUserDtoToUserModel } from "../../mapper/authMapper/googleAuth.mapper.js";
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 let GoogleAuthService = class GoogleAuthService {
     constructor(userRepository) {
-        this.userRepository = userRepository;
+        this._userRepository = userRepository;
     }
     async verifyToken(idToken) {
+        // Verify token
         const ticket = await client.verifyIdToken({
             idToken,
-            audience: process.env.GOOGLE_CLIENT_ID,
+            audience: process.env.GOOGLE_CLIENT_ID, // must match your Google client ID
         });
+        // Extract payload
         const payload = ticket.getPayload();
-        if (!payload)
-            throw new Error("Invalid Google token");
-        // Check if user exists
-        const user = await this.userRepository.findByEmail(payload.email);
-        // // if (!user) {
-        // //   // Create user if not exists
-        // //   user = await this.userRepository.create({
-        // //     email: payload.email!,
-        // //     name: payload.name,
-        // //     avatar: payload.picture,
-        // //     googleId: payload.sub,
-        // //   });
-        // // }
-        // // Generate JWT for your app
-        // const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET!, {
-        //   expiresIn: "7d",
-        // });
-        // return { user, token };
+        console.log('Google user payload:', payload);
+        // Example: get user info
+        const { sub, email, given_name, picture, family_name } = payload;
+        let user = await this._userRepository.findOne({ email });
+        if (user) {
+            // ✅ Login flow
+            // issue JWT/session for existing user
+            // res.json({ status: "login", user });
+            console.log("gonna lgin");
+        }
+        else {
+            // ✅ Signup flow
+            const googleUserDto = mapCreateGoogleUserDtoToUserModel({ sub, email: payload?.email, given_name: given_name ? given_name : "", family_name: family_name ? family_name : "", picture: picture ? picture : "" });
+            user = await this._userRepository.create(googleUserDto);
+        }
+        return user;
     }
 };
 GoogleAuthService = __decorate([

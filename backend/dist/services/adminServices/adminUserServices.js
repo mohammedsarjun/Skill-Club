@@ -33,6 +33,7 @@ let AdminUserServices = class AdminUserServices {
         const skip = (page - 1) * limit;
         let role;
         let status;
+        console.log(filterData);
         if (filterData?.filters?.role) {
             role = filterData.filters.role;
         }
@@ -41,10 +42,10 @@ let AdminUserServices = class AdminUserServices {
         }
         let filter = {};
         if (filterData?.search) {
-            filter = { name: filterData.search };
+            filter.name = filterData.search;
         }
         if (role) {
-            filter = { role: role };
+            filter.role = role;
         }
         const result = await this._userRepository.getUsers(filter, {
             skip,

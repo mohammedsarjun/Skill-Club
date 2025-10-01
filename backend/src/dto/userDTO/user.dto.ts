@@ -3,7 +3,8 @@ export interface UserDto{
   roles:string[],
   activeRole:string,
   isOnboardingCompleted:boolean,
-  isFreelancerOnboardingCompleted:boolean
+  clientProfile?:string|undefined,
+  freelancerProfile?:string|undefined
 }
 
 //Freelancer Profile Updatation DTO'S
@@ -55,4 +56,24 @@ export interface FreelancerDTO {
   logo: string;
   address: AddressDTO;
   experiences: ExperienceDTO[];
+}
+
+
+export interface ClientProfileDetailDTO {
+  companyName:string,
+  logo?:string,
+  description?:string,
+  website?:string
+}
+
+export interface ClientProfileDto{
+  clientProfile:ClientProfileDetailDTO
+}
+
+
+export interface ClientProfileUpdateResponseDto{
+   companyName:string,
+  logo?:string,
+  description?:string,
+  website?:string
 }

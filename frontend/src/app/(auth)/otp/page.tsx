@@ -6,6 +6,8 @@ import { authApi } from "@/api/authApi";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import AuthGuard from "@/components/AuthGaurd";
+import { useDispatch } from "react-redux";
+import { setUser } from "@/store/slices/authSlice";
 
 
 function OtpPage() {
@@ -16,7 +18,7 @@ function OtpPage() {
   const route = useRouter();
   const inputRefs = useRef<HTMLInputElement[]>([]);
   const [triggerTimer, setTriggerTimer] = useState<number>(0); // trigger effect when resend
-
+  const dispatch=useDispatch()
   // Timer effect
   useEffect(() => {
     const expiry = sessionStorage.getItem("otpExpiry");
@@ -78,6 +80,7 @@ function OtpPage() {
       toast.success(response.message);
 
       if (response.data.purpose === "signup") {
+        dispatch(setUser(response.data));
         route.push("/onboarding/role");
       } else if (response.data.purpose === "forgotPassword") {
         route.push("/auth/change-password");
@@ -181,8 +184,8 @@ function OtpPage() {
 
 export default function Otp() {
   return (
-    <AuthGuard>
+
       <OtpPage />
-    </AuthGuard>
+
   );
 }

@@ -52,7 +52,7 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
 
   async findByResetToken(token: string) {
     // MongoDB-specific logic stays here
-    console.log(token, 'repo');
+
     return await User.findOne({
       resetPasswordToken: token,
       resetPasswordExpires: { $gt: new Date() }, // token not expired
@@ -65,56 +65,51 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
       $set: { activeRole: role, isOnboardingCompleted: true },
     };
 
-    if (role === 'freelancer') {
-      update.$set.isFreelancerBoardingCompleted = true;
-    }
-
     return await User.findByIdAndUpdate(userId, update, { new: true });
   }
 
+  async getUsers(
+    filters: { name?: string; role?: 'client' | 'freelancer' | undefined },
+    options: {
+      skip: number;
+      limit: number;
+      populate?: {
+        path: string;
+        select: string; // only get id and name
+      };
+    },
+  ): Promise<IUser[] | null> {
+    const query: any = {};
 
-async  getUsers(
-    filters: { name?: string; roles?: "client"|"freelancer"|undefined },
-    options: { skip: number; limit: number; populate?: {
-        path: string
-        select: string, // only get id and name
-      } },
-  ): Promise<IUser[]|null> {
+    if (filters?.name && filters.name.trim() !== '') {
+      query.firstName = { $regex: filters.name, $options: 'i' };
+    }
 
-  const query: any = {};
+    if (filters?.role) {
+      query.roles = filters.role;
+    }
 
-  if (filters?.name) {
-    query.firstName = { $regex: filters.name, $options: "i" };
-  }else{
-     query.firstName =""
+    console.log(query);
+
+    // Start the query
+
+    return await User.find(query)
+      .skip(options.skip || 0)
+      .limit(options.limit || 10);
+
+    // let mongoQuery = User.find({ firstName: { $regex: `${query.firstName}`, $options: 'i' } });
+
+    // // Apply pagination
+    // if (options?.skip !== undefined) mongoQuery = mongoQuery.skip(options.skip);
+    // if (options?.limit !== undefined) mongoQuery = mongoQuery.limit(options.limit);
+
+    // // Apply population
+    // if (options?.populate) {
+    //   mongoQuery = mongoQuery.populate({ path: "category", select: "_id name" });
+    // }
+
+    // return await mongoQuery.exec();
   }
-
-  if (filters?.roles) {
-    query.roles = { $in: filters.roles };
-  }
-
-
-  // Start the query
-
- return await User.find({ firstName: { $regex: `${filters.name}`, $options: 'i' } })
-  .skip(options.skip || 0)
-  .limit(options.limit || 10);
-
-  // let mongoQuery = User.find({ firstName: { $regex: `${query.firstName}`, $options: 'i' } });
-
-  // // Apply pagination
-  // if (options?.skip !== undefined) mongoQuery = mongoQuery.skip(options.skip);
-  // if (options?.limit !== undefined) mongoQuery = mongoQuery.limit(options.limit);
-
-  // // Apply population
-  // if (options?.populate) {
-  //   mongoQuery = mongoQuery.populate({ path: "category", select: "_id name" });
-  // }
-
-  // return await mongoQuery.exec();
-}
-
-
 
 
 }

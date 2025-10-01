@@ -58,6 +58,8 @@ interface TableProps {
   canDelete: boolean;
   handleEditModal: (values: any) => void;
   viewOnly?: boolean;
+  setFilters?:(filterData: any) => void
+  activeFilters?:Record<string, string>
 }
 
 const Table: React.FC<TableProps> = ({
@@ -75,15 +77,22 @@ const Table: React.FC<TableProps> = ({
   canDelete = false,
   handleEditModal,
   viewOnly = false,
+  setFilters,
+  activeFilters
 }) => {
-  const [activeFilters, setActiveFilters] = useState<Record<string, string>>(
-    {}
-  );
-  console.log(filters);
-  // Filter data based on search + dropdown filters
-  const filteredData = data.filter((row) => {
+  // const [activeFilters, setActiveFilters] = useState<Record<string, string>>(
+  //   {}
+  // );
+
+  // Filter data based on search + dropdown filters\
+  console.log(data,"hi")
+
+    let filteredData: Record<string, any>[] =[] ;
+  
+  if(activeFilters){
+  filteredData= data.filter((row) => {
     // Search
-    console.log(row, columns);
+
     const matchesSearch = columns.some((col) =>
       String(row[col.key]).toLowerCase().includes(search.toLowerCase())
     );
@@ -95,6 +104,10 @@ const Table: React.FC<TableProps> = ({
 
     return matchesSearch && matchesFilters;
   });
+
+  }else {
+    filteredData=data
+  }
 
   return (
     <div>
@@ -109,13 +122,13 @@ const Table: React.FC<TableProps> = ({
           ></Input>
 
           {/* Filters */}
-          {filters.map((filter) => (
+          {filters.length&&filters.map((filter) => (
             <select
               key={filter.key}
               className="border px-2 py-1 rounded"
-              value={activeFilters[filter.key] || ""}
+              value={activeFilters?activeFilters[filter.key]: ""}
               onChange={(e) =>
-                setActiveFilters({
+                setFilters!({
                   ...activeFilters,
                   [filter.key]: e.target.value,
                 })
@@ -203,7 +216,7 @@ const Table: React.FC<TableProps> = ({
                             <button
                               className="text-red-600 hover:text-red-900"
                               // onClick={() => handleDelete(row.id)}
-                            >
+                           >
                               <FaTrashAlt />
                             </button>
                           )}
@@ -248,3 +261,4 @@ const Table: React.FC<TableProps> = ({
 };
 
 export default Table;
+ 

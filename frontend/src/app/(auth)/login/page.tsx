@@ -14,6 +14,7 @@ import { LoginData } from "@/api/authApi";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/store/slices/authSlice";
+import GoogleLogin from "@/components/GoogleButton";
 
 function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -62,7 +63,7 @@ function LoginPage() {
     const response = await authApi.login(formData);
 
     if(response.success){
-      console.log(response)
+
       dispatch(setUser(response.data));
       route.push("/client/profile")
     }else{
@@ -90,14 +91,7 @@ function LoginPage() {
       </div>
 
       <div className="signUp bg-white p-6 rounded-lg shadow-lg w-full max-w-md space-y-6">
-        <div
-          className="google-signup flex items-center justify-center gap-2 w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 rounded cursor-pointer"
-          onClick={handleGoogleLogin}
-        >
-          <Image src="/icons/google.png" alt="google" width={20} height={20} />
-          <span>Continue With Google</span>
-        </div>
-
+        <GoogleLogin></GoogleLogin>
         <div className="flex items-center text-gray-400">
           <hr className="flex-grow border-gray-300" />
           <span className="mx-2 text-sm">OR</span>
@@ -162,8 +156,8 @@ function LoginPage() {
 
 export default function Login() {
   return (
-    <AuthGuard>
+
       <LoginPage />
-    </AuthGuard>
+
   );
 }

@@ -16,10 +16,16 @@ export interface IUserRepository extends BaseRepository<IUser> {
     role: string,
   ): Promise<IUser | null>;
   getUsers(
-    filters?: { name?: string; roles?: "client"|"freelancer"|undefined },
-    options?: { skip?: number; limit?: number; populate?: {
-        path: string
-        select: string, // only get id and name
-      } },
-  ): Promise<IUser[]|null>;
+    filters?: { name?: string; roles?: 'client' | 'freelancer' | undefined },
+    options?: {
+      skip?: number;
+      limit?: number;
+      populate?: {
+        path: string;
+        select: string; // only get id and name
+      };
+    },
+  ): Promise<IUser[] | null>;
+
+
 }

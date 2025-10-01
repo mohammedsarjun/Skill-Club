@@ -37,6 +37,8 @@ export class AdminUserServices implements IAdminUserServices {
     let role: "freelancer" | "client" | undefined;
     let status:boolean|undefined
 
+    console.log(filterData)
+
     if(filterData?.filters?.role){
       role=filterData.filters.role
     }
@@ -44,13 +46,15 @@ export class AdminUserServices implements IAdminUserServices {
       status=filterData?.filters?.status
     }
 
-   let filter = {};
+   let filter:{name?:string,role?:string} = {};
     if (filterData?.search) {
-      filter = { name: filterData.search };
+      filter.name=filterData.search ;
     }
     if (role) {
-      filter = { role:role };
+      filter.role=role ;
     }
+
+
 
     const result = await this._userRepository.getUsers(filter, {
       skip,

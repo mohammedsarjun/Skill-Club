@@ -41,7 +41,7 @@ export class AuthService implements IAuthService {
             user.firstName = dto.firstName;
             user.lastName = dto.lastName;
             user.password = await bcrypt.hash(dto.password!, 10);
-            user.phone = dto.phone
+            user.phone = dto.phone!
             user = await this.userRepository.update(user._id.toString(), user);
 
 
@@ -56,7 +56,7 @@ export class AuthService implements IAuthService {
             firstName: user!.firstName,
             lastName: user!.lastName,
             email: user!.email,
-            phone: user!.phone,
+            phone: user!.phone!,
         };
     }
 

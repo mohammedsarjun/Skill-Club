@@ -211,8 +211,8 @@ function SignupPage() {
 // Wrap with AuthGuard
 export default function Signup() {
   return (
-    <AuthGuard>
+
       <SignupPage />
-    </AuthGuard>
+
   );
 }

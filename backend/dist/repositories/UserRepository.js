@@ -29,7 +29,6 @@ export class UserRepository extends BaseRepository {
     }
     async findByResetToken(token) {
         // MongoDB-specific logic stays here
-        console.log(token, 'repo');
         return await User.findOne({
             resetPasswordToken: token,
             resetPasswordExpires: { $gt: new Date() }, // token not expired
@@ -40,24 +39,19 @@ export class UserRepository extends BaseRepository {
             $addToSet: { roles: role }, // add role if not exists
             $set: { activeRole: role, isOnboardingCompleted: true },
         };
-        if (role === 'freelancer') {
-            update.$set.isFreelancerBoardingCompleted = true;
-        }
         return await User.findByIdAndUpdate(userId, update, { new: true });
     }
     async getUsers(filters, options) {
         const query = {};
-        if (filters?.name) {
-            query.firstName = { $regex: filters.name, $options: "i" };
+        if (filters?.name && filters.name.trim() !== '') {
+            query.firstName = { $regex: filters.name, $options: 'i' };
         }
-        else {
-            query.firstName = "";
+        if (filters?.role) {
+            query.roles = filters.role;
         }
-        if (filters?.roles) {
-            query.roles = { $in: filters.roles };
-        }
+        console.log(query);
         // Start the query
-        return await User.find({ firstName: { $regex: `${filters.name}`, $options: 'i' } })
+        return await User.find(query)
             .skip(options.skip || 0)
             .limit(options.limit || 10);
         // let mongoQuery = User.find({ firstName: { $regex: `${query.firstName}`, $options: 'i' } });

@@ -3,7 +3,8 @@ export interface UserDto {
     roles: string[];
     activeRole: string;
     isOnboardingCompleted: boolean;
-    isFreelancerOnboardingCompleted: boolean;
+    clientProfile?: string | undefined;
+    freelancerProfile?: string | undefined;
 }
 export interface AddressDTO {
     country: string;
@@ -52,5 +53,20 @@ export interface FreelancerDTO {
     logo: string;
     address: AddressDTO;
     experiences: ExperienceDTO[];
+}
+export interface ClientProfileDetailDTO {
+    companyName: string;
+    logo?: string;
+    description?: string;
+    website?: string;
+}
+export interface ClientProfileDto {
+    clientProfile: ClientProfileDetailDTO;
+}
+export interface ClientProfileUpdateResponseDto {
+    companyName: string;
+    logo?: string;
+    description?: string;
+    website?: string;
 }
 //# sourceMappingURL=user.dto.d.ts.map

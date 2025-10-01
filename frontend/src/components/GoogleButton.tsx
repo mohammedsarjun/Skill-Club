@@ -2,10 +2,16 @@
 
 import { useEffect } from "react";
 import axios from "axios";
-
+import { useDispatch } from "react-redux";
+import { setUser } from "@/store/slices/authSlice";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { authApi } from "@/api/authApi";
 export default function GoogleLogin() {
+
+  const dispatch =useDispatch()
+  const route=useRouter()
   useEffect(() => {
-    console.log(process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,window.location.origin)
     const interval = setInterval(() => {
       if (typeof window !== "undefined" && (window as any).google) {
         clearInterval(interval);
@@ -30,11 +36,19 @@ export default function GoogleLogin() {
 
   const handleCredentialResponse = async (response: any) => {
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/google", {
-        idToken: response.credential,
-      });
-      console.log("User info:", res.data.user);
-      localStorage.setItem("token", res.data.user.email); // example
+      // Send ID token to backend
+      const res = await authApi.googleLogin(response.credential);
+
+      
+          if(res.success){
+        dispatch(setUser(res.data));
+        route.push("/onboarding/role");
+          }else{
+            toast.error(response.message)
+          }
+
+
+      localStorage.setItem("token", res.data.token); // store JWT for SPA
     } catch (err) {
       console.error(err);
     }

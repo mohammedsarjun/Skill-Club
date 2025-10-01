@@ -10,30 +10,62 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import AppError from "../../utils/AppError.js";
-import { HttpStatus } from "../../enums/http-status.enum.js";
-import { injectable, inject } from "tsyringe";
+import { HttpStatus } from '../../enums/http-status.enum.js';
+import { injectable, inject } from 'tsyringe';
+import { OAuth2Client } from 'google-auth-library';
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+import dotenv from 'dotenv';
+import { jwtService } from '../../utils/jwt.js';
+dotenv.config();
 let GoogleAuthController = class GoogleAuthController {
-    constructor(googleAuthService) {
-        this.googleAuthService = googleAuthService;
+    constructor(googleAuthService, userService) {
+        this._googleAuthService = googleAuthService;
+        this._userService = userService;
     }
     async googleLogin(req, res) {
-        const { idToken } = req.body;
-        if (!idToken)
-            throw new AppError("Token missing", HttpStatus.BAD_REQUEST);
         try {
-            const result = await this.googleAuthService.verifyToken(idToken);
-            res.json(result);
+            const { idToken } = req.body;
+            const user = await this._googleAuthService.verifyToken(idToken);
+            await this._userService.markUserVerified(user._id);
+            // 🔹 Create tokens
+            const payload = {
+                userId: user._id,
+                roles: null,
+                activeRole: null,
+                isOnboardingCompleted: false,
+                clientProfile: null,
+                freelancerProfile: null,
+            };
+            const accessToken = jwtService.createToken(payload, '15m');
+            const refreshToken = jwtService.createToken(payload, '7d');
+            res.cookie('accessToken', accessToken, {
+                httpOnly: true,
+                secure: false, // 🔹 must be false on localhost (no HTTPS)
+                sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
+                maxAge: 15 * 60 * 1000,
+            });
+            res.cookie('refreshToken', refreshToken, {
+                httpOnly: true,
+                secure: false,
+                sameSite: 'lax',
+                maxAge: 7 * 24 * 60 * 60 * 1000,
+            });
+            res.status(HttpStatus.OK).json({
+                success: true,
+                message: 'User Logged In successfully',
+                data: user,
+            });
         }
-        catch (err) {
-            res.status(401).json({ message: err.message });
+        catch (error) {
+            throw error;
         }
     }
 };
 GoogleAuthController = __decorate([
     injectable(),
-    __param(0, inject("IGoogleAuthService")),
-    __metadata("design:paramtypes", [Object])
+    __param(0, inject('IGoogleAuthService')),
+    __param(1, inject('IUserServices')),
+    __metadata("design:paramtypes", [Object, Object])
 ], GoogleAuthController);
 export { GoogleAuthController };
 //# sourceMappingURL=googleAuthController.js.map

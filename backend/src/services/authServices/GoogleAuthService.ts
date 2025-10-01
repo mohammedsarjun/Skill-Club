@@ -4,6 +4,8 @@ import jwt from "jsonwebtoken";
 import { IGoogleAuthService } from "./interfaces/IGoogleAuthService.js";
 import { inject, injectable } from "tsyringe";
 import type { IUserRepository } from "../../repositories/interfaces/IUserRepository.js";
+import { mapCreateUserDtoToUserModel } from "../../mapper/authMapper/auth.mapper.js";
+import { mapCreateGoogleUserDtoToUserModel } from "../../mapper/authMapper/googleAuth.mapper.js";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -11,39 +13,43 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 @injectable()
 class GoogleAuthService implements IGoogleAuthService {
 
-    private userRepository:IUserRepository
+    private _userRepository:IUserRepository
   constructor(@inject("IUserRepository") userRepository:IUserRepository) {
-    this.userRepository=userRepository
+    this._userRepository=userRepository
   }
 
   async verifyToken(idToken: string) {
-    const ticket = await client.verifyIdToken({
-      idToken,
-      audience: process.env.GOOGLE_CLIENT_ID as string,
-    });
+      // Verify token
+      const ticket = await client.verifyIdToken({
+        idToken,
+        audience: process.env.GOOGLE_CLIENT_ID!, // must match your Google client ID
+      });
 
-    const payload = ticket.getPayload();
-    if (!payload) throw new Error("Invalid Google token");
+      // Extract payload
+      const payload = ticket.getPayload();
+      console.log('Google user payload:', payload);
 
-    // Check if user exists
-    const user = await this.userRepository.findByEmail(payload.email!);
-    // // if (!user) {
-    // //   // Create user if not exists
-    // //   user = await this.userRepository.create({
-    // //     email: payload.email!,
-    // //     name: payload.name,
-    // //     avatar: payload.picture,
-    // //     googleId: payload.sub,
-    // //   });
-    // // }
+      // Example: get user info
+    
+      const { sub, email, given_name, picture,family_name } = payload!;
 
-    // // Generate JWT for your app
-    // const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET!, {
-    //   expiresIn: "7d",
-    // });
+      let user = await this._userRepository.findOne({ email });
 
-    // return { user, token };
+  if (user) {
+    // ✅ Login flow
+    // issue JWT/session for existing user
+    // res.json({ status: "login", user });
+    console.log("gonna lgin")
+  } else {
+    // ✅ Signup flow
+    const googleUserDto=  mapCreateGoogleUserDtoToUserModel({sub,email:payload?.email!,given_name:given_name?given_name:"",family_name:family_name?family_name:"",picture:picture?picture:""})
+    user = await this._userRepository.create(googleUserDto);
   }
+
+  return user
+
+}
+
 }
 
 export default GoogleAuthService;

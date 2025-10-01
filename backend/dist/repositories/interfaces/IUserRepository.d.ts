@@ -9,7 +9,7 @@ export interface IUserRepository extends BaseRepository<IUser> {
     addRoleAndCompleteOnboarding(userId: string | Types.ObjectId, role: string): Promise<IUser | null>;
     getUsers(filters?: {
         name?: string;
-        roles?: "client" | "freelancer" | undefined;
+        roles?: 'client' | 'freelancer' | undefined;
     }, options?: {
         skip?: number;
         limit?: number;

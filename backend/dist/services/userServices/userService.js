@@ -10,10 +10,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { injectable, inject } from "tsyringe";
-import AppError from "../../utils/AppError.js";
-import { HttpStatus } from "../../enums/http-status.enum.js";
-import { mapFreelancerDtoToUserModel, mapUserModelToUserDto } from "../../mapper/userMapper/user.mapper.js";
+import { injectable, inject } from 'tsyringe';
+import AppError from '../../utils/AppError.js';
+import { HttpStatus } from '../../enums/http-status.enum.js';
+import { mapFreelancerDtoToUserModel, mapUserModelToClientProfileUpdateResponseDto, mapUserModelToUserDto, } from '../../mapper/userMapper/user.mapper.js';
 let userServices = class userServices {
     constructor(userRepository) {
         this.userRepository = userRepository;
@@ -23,49 +23,82 @@ let userServices = class userServices {
             await this.userRepository.update(id, { $set: { isVerified: true } });
         }
         catch (err) {
-            // You can throw a custom error class if you have one
-            throw new Error(`Failed to verify user: ${err.message}`);
+            throw new AppError(`Failed to verify user: ${err.message}`, HttpStatus.UNAUTHORIZED);
         }
     }
     async selectRole(id, role) {
         const user = await this.userRepository.findById(id);
         if (!user) {
-            throw new AppError("User not found", HttpStatus.NOT_FOUND);
+            throw new AppError('User not found', HttpStatus.NOT_FOUND);
         }
-        // If user already has the role, just return the DTO
         if (user.roles.includes(role)) {
             return mapUserModelToUserDto(user);
         }
-        // Use repository to update roles & onboarding atomically
         const updatedUser = await this.userRepository.addRoleAndCompleteOnboarding(id, role);
         return mapUserModelToUserDto(updatedUser);
     }
     async createFreelancerProfile(id, freelancerData) {
         if (!id) {
-            throw new Error("User ID is required");
+            throw new AppError('User ID is required', HttpStatus.BAD_REQUEST);
         }
         if (!freelancerData || Object.keys(freelancerData).length === 0) {
-            throw new Error("Freelancer data cannot be empty");
+            throw new AppError('Freelancer data cannot be empty', HttpStatus.BAD_REQUEST);
         }
-        // Map DTO to model
         const dto = mapFreelancerDtoToUserModel(freelancerData);
         try {
-            // Update user in the repository
             const updatedUser = await this.userRepository.update(id, dto);
             if (!updatedUser) {
-                throw new Error(`User with id ${id} not found`);
+                throw new AppError(`User with id ${id} not found`, HttpStatus.NOT_FOUND);
             }
             return updatedUser;
         }
         catch (error) {
-            console.error("Failed to create freelancer profile:", error);
-            throw new Error("Failed to create freelancer profile");
+            console.error('Failed to create freelancer profile:', error);
+            throw new AppError('Failed to create freelancer profile', HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+    async createClientProfile(id, clientData) {
+        if (!id) {
+            throw new AppError('User ID is required', HttpStatus.BAD_REQUEST);
+        }
+        try {
+            const updatedUser = await this.userRepository.update(id, clientData);
+            if (!updatedUser) {
+                throw new AppError(`User with id ${id} not found`, HttpStatus.NOT_FOUND);
+            }
+            const dto = mapUserModelToClientProfileUpdateResponseDto(updatedUser);
+            return dto;
+        }
+        catch (error) {
+            throw new AppError('Failed to create client profile', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    async switchRole(id) {
+        const user = await this.userRepository.findById(id);
+        if (!user) {
+            throw new AppError(`User with id ${id} not found`, HttpStatus.NOT_FOUND);
+        }
+        if (user?.roles && user?.roles.length < 2) {
+            throw new AppError(`User Didn't Have Enough Role`, HttpStatus.BAD_REQUEST);
+        }
+        const updatedUser = await this.userRepository.update(id, {
+            activeRole: user.activeRole === 'client' ? 'freelancer' : 'client',
+        });
+        const dto = mapUserModelToUserDto(updatedUser);
+        return dto;
+    }
+    async me(id) {
+        const user = await this.userRepository.findById(id);
+        if (!user) {
+            throw new AppError(`User with id ${id} not found`, HttpStatus.NOT_FOUND);
+        }
+        const dto = mapUserModelToUserDto(user);
+        return dto;
     }
 };
 userServices = __decorate([
     injectable(),
-    __param(0, inject("IUserRepository")),
+    __param(0, inject('IUserRepository')),
     __metadata("design:paramtypes", [Object])
 ], userServices);
 export { userServices };

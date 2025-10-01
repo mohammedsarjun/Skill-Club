@@ -4,17 +4,20 @@ export const mapUserModelToUserDto = (modelData) => {
         roles: modelData.roles,
         activeRole: modelData.activeRole,
         isOnboardingCompleted: modelData.isOnboardingCompleted,
-        isFreelancerOnboardingCompleted: modelData.isFreelancerBoardingCompleted
+        clientProfile: modelData?.clientProfile?.logo,
+        freelancerProfile: modelData?.freelancerProfile?.logo
     };
 };
 // Assuming the DTOs are already imported
 export function mapFreelancerDtoToUserModel(raw) {
     return {
         freelancerProfile: {
-            languages: Array.isArray(raw.languages) ? raw.languages.map((lang) => ({
-                name: lang.name || '',
-                proficiency: lang.proficiency || '',
-            })) : [],
+            languages: Array.isArray(raw.languages)
+                ? raw.languages.map((lang) => ({
+                    name: lang.name || '',
+                    proficiency: lang.proficiency || '',
+                }))
+                : [],
             workCategory: raw.category || '',
             specialties: Array.isArray(raw.specialties) ? raw.specialties : [],
             skills: Array.isArray(raw.skills) ? raw.skills : [],
@@ -44,8 +47,9 @@ export function mapFreelancerDtoToUserModel(raw) {
                     isCurrentRole: exp.currentRole || false,
                 }))
                 : [],
-            portfolio: []
-        }, address: raw.address
+            portfolio: [],
+        },
+        address: raw.address
             ? {
                 country: raw.address.country || '',
                 streetAddress: raw.address.streetAddress || '',
@@ -54,6 +58,24 @@ export function mapFreelancerDtoToUserModel(raw) {
                 zipCode: raw.address.zipCode || 0,
             }
             : { country: '', streetAddress: '', city: '', state: '', zipCode: 0 },
+    };
+}
+export function mapClientDtoToUserModel(raw) {
+    return {
+        clientProfile: {
+            companyName: raw.companyName,
+            logo: raw.logo ?? '',
+            description: raw.description ?? '',
+            website: raw.website ?? '',
+        },
+    };
+}
+export function mapUserModelToClientProfileUpdateResponseDto(raw) {
+    return {
+        companyName: raw.clientProfile.companyName,
+        logo: raw.clientProfile.logo ?? '',
+        description: raw.clientProfile.description ?? '',
+        website: raw.clientProfile.website ?? '',
     };
 }
 //# sourceMappingURL=user.mapper.js.map
