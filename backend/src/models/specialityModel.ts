@@ -4,7 +4,7 @@ import { ISpeciality } from "./interfaces/ISpecialityModel.js";
 import { required } from "zod/mini";
 
 
-const specialitySchema = new Schema({
+const specialitySchema = new Schema<ISpeciality>({
     name: {
         type: String,
         required: true,

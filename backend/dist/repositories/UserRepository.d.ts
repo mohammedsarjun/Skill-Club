@@ -19,7 +19,7 @@ export declare class UserRepository extends BaseRepository<IUser> implements IUs
     }) | null>;
     getUsers(filters: {
         name?: string;
-        role?: 'client' | 'freelancer' | undefined;
+        role?: 'client' | 'freelancer';
     }, options: {
         skip: number;
         limit: number;

@@ -23,7 +23,7 @@ interface Column {
 interface Filter {
   key: string;
   label: string;
-  options: string[];
+  options: Record<string, any>[];
 }
 
 // Field types
@@ -85,29 +85,11 @@ const Table: React.FC<TableProps> = ({
   // );
 
   // Filter data based on search + dropdown filters\
-  console.log(data,"hi")
 
     let filteredData: Record<string, any>[] =[] ;
-  
-  if(activeFilters){
-  filteredData= data.filter((row) => {
-    // Search
 
-    const matchesSearch = columns.some((col) =>
-      String(row[col.key]).toLowerCase().includes(search.toLowerCase())
-    );
-
-    // Filters
-    const matchesFilters = Object.keys(activeFilters).every(
-      (key) => !activeFilters[key] || row[key] === activeFilters[key]
-    );
-
-    return matchesSearch && matchesFilters;
-  });
-
-  }else {
     filteredData=data
-  }
+
 
   return (
     <div>
@@ -126,7 +108,7 @@ const Table: React.FC<TableProps> = ({
             <select
               key={filter.key}
               className="border px-2 py-1 rounded"
-              value={activeFilters?activeFilters[filter.key]: ""}
+        
               onChange={(e) =>
                 setFilters!({
                   ...activeFilters,
@@ -134,10 +116,11 @@ const Table: React.FC<TableProps> = ({
                 })
               }
             >
+             
               <option value="">{filter.label}</option>
               {filter.options.map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
+                <option key={opt.id} value={opt.id}>
+                  {opt.name}
                 </option>
               ))}
             </select>

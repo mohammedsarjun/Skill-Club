@@ -19,7 +19,7 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
     token: string,
     expiry: Date,
   ): Promise<IUser | null> {
-    return await User.findByIdAndUpdate(
+    return await this.model.findByIdAndUpdate(
       userId,
       {
         $set: {
@@ -35,7 +35,7 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
     userId: string | Types.ObjectId,
     hashedPassword: string,
   ): Promise<IUser | null> {
-    return await User.findByIdAndUpdate(
+    return await this.model.findByIdAndUpdate(
       userId,
       {
         $set: {
@@ -53,7 +53,7 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
   async findByResetToken(token: string) {
     // MongoDB-specific logic stays here
 
-    return await User.findOne({
+    return await this.model.findOne({
       resetPasswordToken: token,
       resetPasswordExpires: { $gt: new Date() }, // token not expired
     });
@@ -65,51 +65,36 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
       $set: { activeRole: role, isOnboardingCompleted: true },
     };
 
-    return await User.findByIdAndUpdate(userId, update, { new: true });
+    return await this.model.findByIdAndUpdate(userId, update, { new: true });
   }
 
-  async getUsers(
-    filters: { name?: string; role?: 'client' | 'freelancer' | undefined },
-    options: {
-      skip: number;
-      limit: number;
-      populate?: {
-        path: string;
-        select: string; // only get id and name
-      };
-    },
-  ): Promise<IUser[] | null> {
-    const query: any = {};
+async getUsers(
+  filters: { name?: string; role?: 'client' | 'freelancer' },
+  options: {
+    skip: number;
+    limit: number;
+    populate?: { path: string; select: string };
+  },
+): Promise<IUser[] | null> {
+  const query: Record<string, any> = {};
 
-    if (filters?.name && filters.name.trim() !== '') {
-      query.firstName = { $regex: filters.name, $options: 'i' };
-    }
-
-    if (filters?.role) {
-      query.roles = filters.role;
-    }
-
-    console.log(query);
-
-    // Start the query
-
-    return await User.find(query)
-      .skip(options.skip || 0)
-      .limit(options.limit || 10);
-
-    // let mongoQuery = User.find({ firstName: { $regex: `${query.firstName}`, $options: 'i' } });
-
-    // // Apply pagination
-    // if (options?.skip !== undefined) mongoQuery = mongoQuery.skip(options.skip);
-    // if (options?.limit !== undefined) mongoQuery = mongoQuery.limit(options.limit);
-
-    // // Apply population
-    // if (options?.populate) {
-    //   mongoQuery = mongoQuery.populate({ path: "category", select: "_id name" });
-    // }
-
-    // return await mongoQuery.exec();
+  // Name filter (case-insensitive regex), only if provided and non-empty
+  if (typeof filters?.name === 'string' && filters.name.trim() !== '') {
+    query.firstName = { $regex: filters.name.trim(), $options: 'i' };
   }
 
+  // Role filter (roles is an array in the model), only if provided and non-empty
+  if (typeof filters?.role === 'string' && filters.role.trim() !== '') {
+    query.roles = { $in: [filters.role.trim()] };
+  }
 
+  // Build the query and execute with .exec()
+  let q = this.model.find(query).skip(options.skip).limit(options.limit);
+
+  if (options.populate?.path) {
+    q = q.populate(options.populate.path, options.populate.select ?? '');
+  }
+
+  return await q.exec();
+}
 }

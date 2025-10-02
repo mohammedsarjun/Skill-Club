@@ -1,6 +1,10 @@
 import { axiosClient } from "../axiosClient";
 import adminEndPoint from "@/types/endPoints/adminEndPoints";
-import { IcategoryData, ISpeaciality } from "@/types/interfaces/admin/IAdmin";
+import {
+  IcategoryData,
+  ISkills,
+  ISpeaciality,
+} from "@/types/interfaces/admin/IAdmin";
 
 const AdminActionApi = {
   createCategory: async (data: IcategoryData): Promise<any> => {
@@ -75,14 +79,17 @@ const AdminActionApi = {
     search: string = "",
     page: number = 1,
     limit: number = 10,
+    filter: Record<string, any>,
     mode: string = "detailed"
   ): Promise<any> => {
     try {
+      console.log(filter);
       const response = await axiosClient.get(adminEndPoint.adminGetSpeciality, {
         params: {
           search,
           page,
           limit,
+          filter,
           mode,
         },
       });
@@ -101,26 +108,74 @@ const AdminActionApi = {
     }
   },
 
-
-
-  async getUsers(search:string="", page:number=1, limit:number=10, filters:{ role?: string; status?: string }) {
+  async getUsers(
+    search: string = "",
+    page: number = 1,
+    limit: number = 10,
+    filters: { role?: string; status?: string }
+  ) {
     try {
-
-      const response = await axiosClient.get(adminEndPoint.adminUser,{
-        params:{
+      const response = await axiosClient.get(adminEndPoint.adminUser, {
+        params: {
           search,
           page,
           limit,
-          filters
-        }
+          filters,
+        },
       });
 
-      
       return response.data;
     } catch (error: any) {
       return error.response.data;
     }
   },
+  createSkill: async (data: ISkills): Promise<any> => {
+    try {
+      const response = await axiosClient.post(
+        adminEndPoint.adminCreateSkills,
+        data
+      );
+      return response.data;
+    } catch (error: any) {
+      return error.response.data;
+    }
+  },
+  getSkills: async (
+    search: string = "",
+    page: number = 1,
+    limit: number = 10,
+    // filter: Record<string, any>,
+    mode: string = "detailed"
+  ): Promise<any> => {
+    try {
+
+      const response = await axiosClient.get(adminEndPoint.adminGetSkills, {
+        params: {
+          search,
+          page,
+          limit,
+          // filter,
+          mode,
+        },
+      });
+      console.log(response.data)
+      return response.data;
+    } catch (error: any) {
+      return error.response.data;
+    }
+  },updateSkill: async (data: ISkills): Promise<any> => {
+    try {
+      console.log("update skill clicked")
+      const response = await axiosClient.patch(
+        adminEndPoint.adminUpdateSkill,
+        data
+      );
+      return response.data;
+    } catch (error: any) {
+      return error.response.data;
+    }
+  },
+
 };
 
 export default AdminActionApi;

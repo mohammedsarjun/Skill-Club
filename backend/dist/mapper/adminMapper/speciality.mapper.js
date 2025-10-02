@@ -21,11 +21,11 @@ export function mapSpecialityQuery(dto) {
         search: dto.search || "",
         page: dto.page ? Number(dto.page) : 1,
         limit: dto.limit ? Number(dto.limit) : 10,
+        categoryFilter: dto?.filter?.category ? dto.filter.category : null,
         mode: dto.mode,
     };
 }
 export const mapSpecialityModelToSpecialityDto = (speciality) => {
-    console.log(speciality);
     return {
         id: speciality._id.toString(),
         name: speciality.name,

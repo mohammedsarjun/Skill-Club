@@ -1,0 +1,11 @@
+import { IAdminSkillServices } from './interfaces/IAdminSkillServices.js';
+import type { IAdminSkillRepository } from '../../repositories/adminRepositoies/interfaces/IAdminSkillRepository.js';
+import { GetSkillDto, UpdateSkillDTO } from '../../dto/adminDTO/skill.dto.js';
+export declare class AdminSkillServices implements IAdminSkillServices {
+    private _adminSkillRepository;
+    constructor(adminSkillRepository: IAdminSkillRepository);
+    addSkill(skillData: any): Promise<any>;
+    getSkills(filterData: GetSkillDto): Promise<any>;
+    editSkill(id: string, skilldata: Partial<UpdateSkillDTO>): Promise<any>;
+}
+//# sourceMappingURL=adminSkillServices.d.ts.map

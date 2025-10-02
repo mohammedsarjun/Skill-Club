@@ -46,6 +46,10 @@ import { AdminSpecialityRepository } from "../repositories/adminRepositoies/admi
 import GoogleAuthService from "../services/authServices/GoogleAuthService.js";
 import { IAdminAuthServices } from "../services/adminServices/interfaces/IAdminAuthServices.js";
 import { AdminAuthServices } from "../services/adminServices/adminAuthServices.js";
+import { IAdminSkillServices } from "../services/adminServices/interfaces/IAdminSkillServices.js";
+import { AdminSkillServices } from "../services/adminServices/adminSkillServices.js"
+import { IAdminSkillRepository } from "../repositories/adminRepositoies/interfaces/IAdminSkillRepository.js";
+import { AdminSkillRepository } from "../repositories/adminRepositoies/adminSkillRepository.js";;
 //add category
 container.register<IAdminCategoryServices>("IAdminCategoryServices",{useClass:AdminCategoryServices})
 container.register<IAdminCategoryRepository>("IAdminCategoryRepository",{useClass:AdminCategoryRepository})
@@ -54,10 +58,14 @@ container.register<IAdminCategoryRepository>("IAdminCategoryRepository",{useClas
 container.register<IAdminSpecialityServices>("IAdminSpecialityServices",{useClass:AdminSpecialityServices})
 container.register<IAdminSpecialityRepository>("IAdminSpecialityRepository",{useClass:AdminSpecialityRepository})
 
-
+//Skills
+container.register<IAdminSkillServices>("IAdminSkillServices",{useClass:AdminSkillServices})
+container.register<IAdminSkillRepository>("IAdminSkillRepository",{useClass:AdminSkillRepository})
 //AdminUser
 import { AdminUserServices } from "../services/adminServices/adminUserServices.js";
 import { IAdminUserServices } from "../services/adminServices/interfaces/IAdminUserServices.js";
+
+
 
 container.register<IAdminUserServices>("IAdminUserServices",{useClass:AdminUserServices})
 

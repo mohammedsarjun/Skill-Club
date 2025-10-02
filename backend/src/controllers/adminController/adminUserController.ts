@@ -30,9 +30,11 @@ export class AdminUserController implements IAdminUserController {
 
   async getUsers(req: Request, res: Response): Promise<void> {
     try {
-    
+
       const queryDto: GetUserDto = mapUserQuery(req.query)
+
      const result = await this._adminUserService.getUsers(queryDto);
+
 
       res.status(HttpStatus.OK).json({
         success: true,

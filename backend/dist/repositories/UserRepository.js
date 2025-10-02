@@ -9,7 +9,7 @@ export class UserRepository extends BaseRepository {
         return await this.model.findOne({ email });
     }
     async updateResetPassword(userId, token, expiry) {
-        return await User.findByIdAndUpdate(userId, {
+        return await this.model.findByIdAndUpdate(userId, {
             $set: {
                 resetPasswordToken: token,
                 resetPasswordExpires: expiry,
@@ -17,7 +17,7 @@ export class UserRepository extends BaseRepository {
         }, { new: true });
     }
     async updatePassword(userId, hashedPassword) {
-        return await User.findByIdAndUpdate(userId, {
+        return await this.model.findByIdAndUpdate(userId, {
             $set: {
                 password: hashedPassword,
             },
@@ -29,7 +29,7 @@ export class UserRepository extends BaseRepository {
     }
     async findByResetToken(token) {
         // MongoDB-specific logic stays here
-        return await User.findOne({
+        return await this.model.findOne({
             resetPasswordToken: token,
             resetPasswordExpires: { $gt: new Date() }, // token not expired
         });
@@ -39,30 +39,24 @@ export class UserRepository extends BaseRepository {
             $addToSet: { roles: role }, // add role if not exists
             $set: { activeRole: role, isOnboardingCompleted: true },
         };
-        return await User.findByIdAndUpdate(userId, update, { new: true });
+        return await this.model.findByIdAndUpdate(userId, update, { new: true });
     }
     async getUsers(filters, options) {
         const query = {};
-        if (filters?.name && filters.name.trim() !== '') {
-            query.firstName = { $regex: filters.name, $options: 'i' };
+        // Name filter (case-insensitive regex), only if provided and non-empty
+        if (typeof filters?.name === 'string' && filters.name.trim() !== '') {
+            query.firstName = { $regex: filters.name.trim(), $options: 'i' };
         }
-        if (filters?.role) {
-            query.roles = filters.role;
+        // Role filter (roles is an array in the model), only if provided and non-empty
+        if (typeof filters?.role === 'string' && filters.role.trim() !== '') {
+            query.roles = { $in: [filters.role.trim()] };
         }
-        console.log(query);
-        // Start the query
-        return await User.find(query)
-            .skip(options.skip || 0)
-            .limit(options.limit || 10);
-        // let mongoQuery = User.find({ firstName: { $regex: `${query.firstName}`, $options: 'i' } });
-        // // Apply pagination
-        // if (options?.skip !== undefined) mongoQuery = mongoQuery.skip(options.skip);
-        // if (options?.limit !== undefined) mongoQuery = mongoQuery.limit(options.limit);
-        // // Apply population
-        // if (options?.populate) {
-        //   mongoQuery = mongoQuery.populate({ path: "category", select: "_id name" });
-        // }
-        // return await mongoQuery.exec();
+        // Build the query and execute with .exec()
+        let q = this.model.find(query).skip(options.skip).limit(options.limit);
+        if (options.populate?.path) {
+            q = q.populate(options.populate.path, options.populate.select ?? '');
+        }
+        return await q.exec();
     }
 }
 //# sourceMappingURL=UserRepository.js.map

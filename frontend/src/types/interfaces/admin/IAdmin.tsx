@@ -9,3 +9,10 @@ export interface ISpeaciality{
   category:string,
   status:string
 }
+
+export interface ISkills{
+    _id:string
+    name: string;
+    specialities:string[];
+    status:string;
+}

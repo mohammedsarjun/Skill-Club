@@ -37,7 +37,7 @@ export class AdminUserServices implements IAdminUserServices {
     let role: "freelancer" | "client" | undefined;
     let status:boolean|undefined
 
-    console.log(filterData)
+
 
     if(filterData?.filters?.role){
       role=filterData.filters.role
@@ -67,6 +67,7 @@ export class AdminUserServices implements IAdminUserServices {
     });
 
     // Map to DTO
+    
 
     const data: AdminUserDto[] = result!.map(mapUserModelDtoToAdminUserDto);
     return {

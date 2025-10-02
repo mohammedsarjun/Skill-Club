@@ -33,7 +33,6 @@ let AdminUserServices = class AdminUserServices {
         const skip = (page - 1) * limit;
         let role;
         let status;
-        console.log(filterData);
         if (filterData?.filters?.role) {
             role = filterData.filters.role;
         }

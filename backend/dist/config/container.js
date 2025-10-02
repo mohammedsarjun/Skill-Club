@@ -25,12 +25,18 @@ import { AdminSpecialityServices } from "../services/adminServices/adminSpeciali
 import { AdminSpecialityRepository } from "../repositories/adminRepositoies/adminSpecialityRepository.js";
 import GoogleAuthService from "../services/authServices/GoogleAuthService.js";
 import { AdminAuthServices } from "../services/adminServices/adminAuthServices.js";
+import { AdminSkillServices } from "../services/adminServices/adminSkillServices.js";
+import { AdminSkillRepository } from "../repositories/adminRepositoies/adminSkillRepository.js";
+;
 //add category
 container.register("IAdminCategoryServices", { useClass: AdminCategoryServices });
 container.register("IAdminCategoryRepository", { useClass: AdminCategoryRepository });
 //Speciality
 container.register("IAdminSpecialityServices", { useClass: AdminSpecialityServices });
 container.register("IAdminSpecialityRepository", { useClass: AdminSpecialityRepository });
+//Skills
+container.register("IAdminSkillServices", { useClass: AdminSkillServices });
+container.register("IAdminSkillRepository", { useClass: AdminSkillRepository });
 //AdminUser
 import { AdminUserServices } from "../services/adminServices/adminUserServices.js";
 container.register("IAdminUserServices", { useClass: AdminUserServices });

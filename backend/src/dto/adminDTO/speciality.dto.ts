@@ -1,16 +1,18 @@
 
 //Request Dto
 
+import { Types } from "mongoose";
+
 export interface CreateSpecialityDTO {
   name: string;
-  category:string;
+  category:Types.ObjectId;
   status:string
 }
 
 export interface UpdateSpecialityDTO {
   id:string;
   name?: string;
-  category?:string;
+  category?:Types.ObjectId;
   status?:string;
 }
 
@@ -19,6 +21,7 @@ export interface GetSpecialityDto{
   search?:string;
   page?:number;
   limit?:number;
+  categoryFilter?:string,
   mode:string
 }
 
