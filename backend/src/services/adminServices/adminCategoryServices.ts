@@ -7,8 +7,7 @@ import {
   PaginatedCategoryDto,
   UpdateCategoryDTO,
 } from "../../dto/adminDTO/category.dto.js";
-import { AdminCategoryRepository } from "../../repositories/adminRepositoies/adminCategoryRepository.js";
-import type { IAdminCategoryRepository } from "../../repositories/adminRepositoies/interfaces/IAdminCategoryRepository.js";
+import type { IAdminCategoryRepository } from "../../repositories/adminRepositories/interfaces/IAdminCategoryRepository.js";
 import { injectable, inject } from "tsyringe";
 import AppError from "../../utils/AppError.js";
 import { HttpStatus } from "../../enums/http-status.enum.js";

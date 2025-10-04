@@ -63,9 +63,9 @@ import { adminAuthApi } from "@/api/adminAuthApi";
     const response = await adminAuthApi.login(formData);
 
     if(response.success){
-      console.log(response)
+
       dispatch(setUser(response.data));
-      route.push("/admin/categories-skills")
+      route.replace("/admin/categories-skills")
     }else{
       toast.error(response.message)
     }
@@ -131,8 +131,8 @@ import { adminAuthApi } from "@/api/adminAuthApi";
 
 export default function Login(){
   return(
-    <AuthGuard>
+
     <LoginPage></LoginPage>
-    </AuthGuard>
+
   )
 }

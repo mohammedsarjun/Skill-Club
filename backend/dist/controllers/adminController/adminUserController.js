@@ -35,7 +35,6 @@ let AdminUserController = class AdminUserController {
         try {
             const queryDto = mapUserQuery(req.query);
             const result = await this._adminUserService.getUsers(queryDto);
-            console.log(result.data);
             res.status(HttpStatus.OK).json({
                 success: true,
                 message: 'User Fetched Successfully',

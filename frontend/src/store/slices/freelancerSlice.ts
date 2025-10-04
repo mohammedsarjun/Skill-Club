@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { IFreelancerData } from "@/types/interfaces/store/IFreelancerData";
+import { IFreelancerData } from "@/types/interfaces/IFreelancerData";
 
 const initialState: Partial<IFreelancerData> & { completedSteps?: number } = {};
 

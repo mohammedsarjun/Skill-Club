@@ -9,9 +9,8 @@ import {
   UpdateSpecialityDTO,
 } from '../../dto/adminDTO/speciality.dto.js';
 import { IAdminSpecialityServices } from './interfaces/IAdminSpecialityServices.js';
-import type { IAdminSpecialityRepository } from '../../repositories/adminRepositoies/interfaces/IAdminSpecialityRepository.js';
+import type { IAdminSpecialityRepository } from '../../repositories/adminRepositories/interfaces/IAdminSpecialityRepository.js';
 import {
-  mapCreateSpecialityDtoToSpecialityModel,
   mapSpecialityModelToSpecialityDto,
   mapUpdateSpecialityDtoToSpecialityModel,
 } from '../../mapper/adminMapper/speciality.mapper.js';

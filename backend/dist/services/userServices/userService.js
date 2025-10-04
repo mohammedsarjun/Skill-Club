@@ -13,7 +13,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 import { injectable, inject } from 'tsyringe';
 import AppError from '../../utils/AppError.js';
 import { HttpStatus } from '../../enums/http-status.enum.js';
-import { mapFreelancerDtoToUserModel, mapUserModelToClientProfileUpdateResponseDto, mapUserModelToUserDto, } from '../../mapper/userMapper/user.mapper.js';
+import { mapUserModelToClientProfileUpdateResponseDto, mapUserModelToUserDto, } from '../../mapper/userMapper/user.mapper.js';
 let userServices = class userServices {
     constructor(userRepository) {
         this.userRepository = userRepository;
@@ -44,9 +44,8 @@ let userServices = class userServices {
         if (!freelancerData || Object.keys(freelancerData).length === 0) {
             throw new AppError('Freelancer data cannot be empty', HttpStatus.BAD_REQUEST);
         }
-        const dto = mapFreelancerDtoToUserModel(freelancerData);
         try {
-            const updatedUser = await this.userRepository.update(id, dto);
+            const updatedUser = await this.userRepository.update(id, freelancerData);
             if (!updatedUser) {
                 throw new AppError(`User with id ${id} not found`, HttpStatus.NOT_FOUND);
             }

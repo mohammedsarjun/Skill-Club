@@ -30,23 +30,6 @@ authRouter.post('/reset-password', authController.resetPassword.bind(authControl
 //google login
 authRouter.post('/google', googleAuthController.googleLogin.bind(googleAuthController));
 
-authRouter.post('/logout', (req, res) => {
-  const cookieOptions = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: (process.env.NODE_ENV === 'production' ? 'none' : 'lax') as 'none' | 'lax' | 'strict',
-    path: '/',
-  };
-
-  // Clear both cookies
-  res.clearCookie('accessToken', cookieOptions);
-  res.clearCookie('refreshToken', cookieOptions);
-
-  // Double insurance: explicitly overwrite with expired values
-  res.cookie('accessToken', '', { ...cookieOptions, expires: new Date(0) });
-  res.cookie('refreshToken', '', { ...cookieOptions, expires: new Date(0) });
-
-  return res.status(200).json({ message: 'Logged out successfully' });
-});
+authRouter.post('/logout',authController.logout.bind(authController));
 
 export default authRouter;

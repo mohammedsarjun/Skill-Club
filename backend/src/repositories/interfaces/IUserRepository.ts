@@ -4,6 +4,7 @@ import BaseRepository from '../baseRepositories/baseRepository.js';
 
 export interface IUserRepository extends BaseRepository<IUser> {
   findByEmail(email: string): Promise<IUser | null>;
+  findById(id: string): Promise<IUser | null>;
   updateResetPassword(
     userId: string | Types.ObjectId,
     token: string,
@@ -26,6 +27,6 @@ export interface IUserRepository extends BaseRepository<IUser> {
       };
     },
   ): Promise<IUser[] | null>;
-
-
+  updateClientStatus(userId: string,isBlocked: boolean): Promise<IUser | null>;
+  updateFreelancerStatus(userId: string , isBlocked: boolean): Promise<IUser | null>
 }

@@ -20,7 +20,9 @@ export const mapUserModelToUserDto = (modelData: IUser): UserDto => {
 // Assuming the DTOs are already imported
 
 export function mapFreelancerDtoToUserModel(raw: any): Partial<IUser> {
+
   return {
+    
     freelancerProfile: {
       languages: Array.isArray(raw.languages)
         ? raw.languages.map((lang: any) => ({
@@ -36,7 +38,7 @@ export function mapFreelancerDtoToUserModel(raw: any): Partial<IUser> {
         ? raw.educations.map((edu: any) => ({
             school: edu.school || '',
             degree: edu.degree || '',
-            field: edu.field || '',
+            fieldOfStudy: edu.field || '',
             startYear: edu.startYear || '',
             endYear: edu.endYear || '',
           }))

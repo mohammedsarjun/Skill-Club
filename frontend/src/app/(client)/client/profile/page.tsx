@@ -1,50 +1,66 @@
 "use client";
-import React, { useState, useRef } from "react";
-import { FaBuilding, FaCamera, FaGlobe, FaEdit, FaLock } from "react-icons/fa";
+import React, { useState, useRef, useEffect } from "react";
+import { FaBuilding, FaCamera, FaGlobe, FaEdit } from "react-icons/fa";
 import { uploadToCloudinary } from "@/utils/cloudinary";
-
-interface ClientProfileData {
-  companyName: string;
-  description: string;
-  website: string;
-}
+import { clientActionApi } from "@/api/action/ClientActionApi";
+import toast from "react-hot-toast";
+import { ClientProfileData } from "@/types/interfaces/IClient";
 
 function ClientProfilePage() {
-  const [profileData, setProfileData] = useState<ClientProfileData>({
+  const [profileData, setProfileData] = useState<Partial<ClientProfileData>>({
     companyName: "Tech Solutions Inc.",
     description:
       "We are a leading technology company specializing in innovative software solutions for businesses of all sizes. Our team of expert developers and designers work together to create cutting-edge applications that drive growth and efficiency.",
     website: "https://www.techsolutions.com",
   });
 
-  const [isEditing, setIsEditing] = useState(false);
+  const [originalData, setOriginalData] = useState<ClientProfileData & { logo: string }>({
+    companyName: "",
+    description: "",
+    website: "",
+    logo: "",
+  });
 
-  // Company logo upload state
+  const [isEditing, setIsEditing] = useState(false);
   const [logo, setLogo] = useState<string>(
     "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&dpr=1"
   );
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    async function fetchData() {
+      const response = await clientActionApi.getClientData();
+      if (response.success) {
+        const data = response.data;
+        setProfileData({
+          companyName: data.companyName,
+          description: data.description,
+          website: data.website,
+        });
+        setLogo(data.logo);
+        setOriginalData({
+          companyName: data.companyName,
+          description: data.description,
+          website: data.website,
+          logo: data.logo,
+        });
+      } else {
+        toast.error(response.message);
+      }
+    }
+
+    fetchData();
+  }, []);
+
   const handleInputChange = (field: keyof ClientProfileData, value: string) => {
-    setProfileData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setProfileData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = () => {
-    setIsEditing(false);
-    console.log("Client profile saved:", profileData, "Logo:", logo);
-    // Save profile + logo to backend here
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
   };
 
-  const handleCancel = () => {
-    setIsEditing(false);
-    // Reset logic if needed
-  };
-
-  // Logo upload logic
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -66,8 +82,44 @@ function ClientProfilePage() {
     }
   };
 
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
+  const handleSave = async () => {
+    setIsEditing(false);
+
+    const updatedFields: Partial<ClientProfileData & { logo: string }> = {};
+
+    if (profileData.companyName !== originalData.companyName) updatedFields.companyName = profileData.companyName;
+    if (profileData.description !== originalData.description) updatedFields.description = profileData.description;
+    if (profileData.website !== originalData.website) updatedFields.website = profileData.website;
+    if (logo !== originalData.logo) updatedFields.logo = logo;
+
+    if (Object.keys(updatedFields).length === 0) {
+      toast("No changes to save");
+      return;
+    }
+
+    try {
+
+      const response = await clientActionApi.updateClientData(updatedFields);
+      if (response.success) {
+        toast.success(response.message);
+        setOriginalData({ ...originalData, ...updatedFields });
+      } else {
+        toast.error(response.message);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update profile");
+    }
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setProfileData({
+      companyName: originalData.companyName,
+      description: originalData.description,
+      website: originalData.website,
+    });
+    setLogo(originalData.logo);
   };
 
   return (
@@ -75,9 +127,7 @@ function ClientProfilePage() {
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Client Profile Page
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Client Profile Page</h1>
           <p className="text-gray-600">Manage your company information</p>
         </div>
 
@@ -87,11 +137,7 @@ function ClientProfilePage() {
           <div className="relative bg-gradient-to-r from-green-600 to-green-700 p-8 text-center">
             <div className="relative inline-block">
               <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg">
-                <img
-                  src={logo}
-                  alt="Company Logo"
-                  className="object-cover w-full h-full"
-                />
+                <img src={logo} alt="Company Logo" className="object-cover w-full h-full" />
               </div>
 
               {isEditing && (
@@ -104,26 +150,16 @@ function ClientProfilePage() {
                 </button>
               )}
 
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-              />
+              <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleFileChange} />
             </div>
-            <h2 className="text-2xl font-bold text-white mt-4">
-              {profileData.companyName}
-            </h2>
+            <h2 className="text-2xl font-bold text-white mt-4">{profileData.companyName}</h2>
             <p className="text-white/80">{profileData.website}</p>
           </div>
 
           {/* Form Section */}
           <div className="p-8">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-semibold text-gray-900">
-                Company Information
-              </h3>
+              <h3 className="text-xl font-semibold text-gray-900">Company Information</h3>
               {!isEditing ? (
                 <button
                   onClick={() => setIsEditing(true)}
@@ -135,9 +171,12 @@ function ClientProfilePage() {
                 <div className="flex space-x-2">
                   <button
                     onClick={handleSave}
-                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200 font-medium"
+                    disabled={uploading}
+                    className={`px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200 font-medium ${
+                      uploading ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                   >
-                    Save
+                    {uploading ? "Uploading..." : "Save"}
                   </button>
                   <button
                     onClick={handleCancel}
@@ -152,17 +191,13 @@ function ClientProfilePage() {
             <form className="space-y-6">
               {/* Company Name */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Company Name
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Company Name</label>
                 <div className="relative">
                   <FaBuilding className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <input
                     type="text"
                     value={profileData.companyName}
-                    onChange={(e) =>
-                      handleInputChange("companyName", e.target.value)
-                    }
+                    onChange={(e) => handleInputChange("companyName", e.target.value)}
                     disabled={!isEditing}
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-500"
                     placeholder="Enter company name"
@@ -172,16 +207,12 @@ function ClientProfilePage() {
 
               {/* Description */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
                 <div className="relative">
                   <FaEdit className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
                   <textarea
                     value={profileData.description}
-                    onChange={(e) =>
-                      handleInputChange("description", e.target.value)
-                    }
+                    onChange={(e) => handleInputChange("description", e.target.value)}
                     disabled={!isEditing}
                     rows={4}
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-500 resize-none"
@@ -192,17 +223,13 @@ function ClientProfilePage() {
 
               {/* Website URL */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Website URL
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Website URL</label>
                 <div className="relative">
                   <FaGlobe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <input
                     type="url"
                     value={profileData.website}
-                    onChange={(e) =>
-                      handleInputChange("website", e.target.value)
-                    }
+                    onChange={(e) => handleInputChange("website", e.target.value)}
                     disabled={!isEditing}
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-500"
                     placeholder="https://www.example.com"

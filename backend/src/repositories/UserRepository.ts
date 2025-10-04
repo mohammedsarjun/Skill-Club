@@ -14,6 +14,10 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
     return await this.model.findOne({ email });
   }
 
+  async findById(id: string): Promise<IUser | null> {
+    return await super.findById(id)
+  }
+
   async updateResetPassword(
     userId: string | Types.ObjectId,
     token: string,
@@ -96,5 +100,13 @@ async getUsers(
   }
 
   return await q.exec();
+}
+
+async updateClientStatus(userId:string,isBlocked:boolean): Promise<IUser | null>{
+  return super.update(userId,{isClientBlocked:isBlocked})
+}
+
+async updateFreelancerStatus(userId:string,isBlocked:boolean):Promise<IUser | null>{
+  return super.update(userId,{isFreelancerBlocked:isBlocked})
 }
 }

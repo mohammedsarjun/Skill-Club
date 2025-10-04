@@ -14,7 +14,7 @@ import { injectable, inject } from 'tsyringe';
 import '../../config/container.js';
 import { HttpStatus } from '../../enums/http-status.enum.js';
 import { jwtService } from '../../utils/jwt.js';
-import { mapClientDtoToUserModel, } from '../../mapper/userMapper/user.mapper.js';
+import { mapClientDtoToUserModel, mapFreelancerDtoToUserModel, } from '../../mapper/userMapper/user.mapper.js';
 let UserController = class UserController {
     constructor(userService) {
         this.userService = userService;
@@ -64,7 +64,8 @@ let UserController = class UserController {
     async createFreelancerProfile(req, res) {
         try {
             const userId = req.user?.userId;
-            const user = await this.userService.createFreelancerProfile(userId, req.body);
+            const dto = mapFreelancerDtoToUserModel(req.body);
+            const user = await this.userService.createFreelancerProfile(userId, dto);
             res.status(HttpStatus.OK).json({
                 success: true,
                 message: 'Freelancer Profile Updated Successfully',

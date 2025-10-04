@@ -26,7 +26,7 @@ export function mapFreelancerDtoToUserModel(raw) {
                 ? raw.educations.map((edu) => ({
                     school: edu.school || '',
                     degree: edu.degree || '',
-                    field: edu.field || '',
+                    fieldOfStudy: edu.field || '',
                     startYear: edu.startYear || '',
                     endYear: edu.endYear || '',
                 }))

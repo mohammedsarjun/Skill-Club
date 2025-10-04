@@ -6,6 +6,8 @@ import { inject, injectable } from "tsyringe";
 import type { IUserRepository } from "../../repositories/interfaces/IUserRepository.js";
 import { mapCreateUserDtoToUserModel } from "../../mapper/authMapper/auth.mapper.js";
 import { mapCreateGoogleUserDtoToUserModel } from "../../mapper/authMapper/googleAuth.mapper.js";
+import { mapUserModelToUserDto } from "../../mapper/userMapper/user.mapper.js";
+import { UserDto } from "../../dto/userDTO/user.dto.js";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -18,7 +20,7 @@ class GoogleAuthService implements IGoogleAuthService {
     this._userRepository=userRepository
   }
 
-  async verifyToken(idToken: string) {
+  async verifyToken(idToken: string):Promise<UserDto> {
       // Verify token
       const ticket = await client.verifyIdToken({
         idToken,
@@ -46,7 +48,7 @@ class GoogleAuthService implements IGoogleAuthService {
     user = await this._userRepository.create(googleUserDto);
   }
 
-  return user
+  return mapUserModelToUserDto(user)
 
 }
 

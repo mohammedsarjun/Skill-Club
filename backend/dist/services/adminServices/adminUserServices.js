@@ -11,7 +11,9 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 import { injectable, inject } from 'tsyringe';
-import { mapUserModelDtoToAdminUserDto, mapUserModelDtoToAdminUserStatsDto } from '../../mapper/adminMapper/adminUsers.mapper.js';
+import AppError from '../../utils/AppError.js';
+import { HttpStatus } from '../../enums/http-status.enum.js';
+import { mapUserModelDtoToAdminUserDto, mapUserModelDtoToAdminUserStatsDto, mapUserToUserDetailDto, } from '../../mapper/adminMapper/adminUsers.mapper.js';
 let AdminUserServices = class AdminUserServices {
     constructor(userRepository) {
         this._userRepository = userRepository;
@@ -61,6 +63,42 @@ let AdminUserServices = class AdminUserServices {
             page,
             limit,
         };
+    }
+    async getUserDetail(id) {
+        // 1. Fetch user by ID
+        const user = await this._userRepository.findById(id);
+        if (!user) {
+            throw new AppError(`User with ID ${id} does not exist`, HttpStatus.NOT_FOUND);
+        }
+        // 2. Map user entity to DTO
+        const userDto = mapUserToUserDetailDto(user);
+        // 3. Return the mapped DTO
+        return userDto;
+    }
+    async updateUserStatus(dto) {
+        const { id, role, status } = dto;
+        // 1. Check if user exists
+        const user = await this._userRepository.findById(id);
+        if (!user) {
+            throw new AppError("User with this ID doesn't exist", HttpStatus.NOT_FOUND);
+        }
+        // 2. Validate role
+        if (!user.roles.includes(role)) {
+            throw new AppError(`User does not have the role: ${role}`, HttpStatus.BAD_REQUEST);
+        }
+        // 3. Convert status string → boolean
+        const isBlocked = status.toLowerCase() === "block";
+        // 4. Update status based on role
+        switch (role) {
+            case "client":
+                await this._userRepository.updateClientStatus(id, isBlocked);
+                break;
+            case "freelancer":
+                await this._userRepository.updateFreelancerStatus(id, isBlocked);
+                break;
+            default:
+                throw new AppError("Invalid role provided", HttpStatus.BAD_REQUEST);
+        }
     }
 };
 AdminUserServices = __decorate([

@@ -16,7 +16,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const [checking, setChecking] = useState(true); // verifying user
   const [authorized, setAuthorized] = useState(false); // only render children if true
 
-  const guestRoutes = ["/login", "/signup", "/admin/login", "/otp","/forgot-password","/reset-password"];
+  const guestRoutes = ["/login", "/signup", "/admin/login", "/otp","/forgot-password","/reset-password","/"];
   const onboardingPaths = [
     "/onboarding/role",
     "/onboarding/client",

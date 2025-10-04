@@ -1,0 +1,1 @@
+{"version":3,"file":"IFreelancerController.d.ts","sourceRoot":"","sources":["../../../../src/controllers/freelancer/interfaces/IFreelancerController.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,QAAQ,EAAE,MAAM,SAAS,CAAC;AAE5C,MAAM,WAAW,qBAAqB;IACpC,iBAAiB,CAAC,GAAG,EAAE,OAAO,EAAE,GAAG,EAAE,QAAQ,GAAG,OAAO,CAAC,IAAI,CAAC,CAAC;CAE/D"}

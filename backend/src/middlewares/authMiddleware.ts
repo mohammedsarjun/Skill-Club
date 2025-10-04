@@ -9,7 +9,7 @@ declare module "express-serve-static-core" {
   }
 }
 
-export function authMiddleware(req: Request, res: Response, next: NextFunction) {
+export function  authMiddleware(req: Request, res: Response, next: NextFunction) {
   try {
     const token = req.cookies.accessToken; // or get from headers if you prefer
     if (!token) {
@@ -17,7 +17,7 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
     }
 
     // Verify token
-    const decoded = jwtService.verifyToken<{ userId: string; roles: string[] }>(token);
+    const decoded = jwtService.verifyToken<{ userId: string; roles: string[]; activeRole:string;}>(token);
 
     // Attach to request object
     req.user = decoded;
@@ -31,7 +31,6 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
 // Optional Role Guard Middleware
 export function roleGuard(requiredRole: string) {
   return (req: Request, res: Response, next: NextFunction) => {
-    console.log(req.user,requiredRole,req.user?.roles?.includes(requiredRole))
     if (!req.user?.roles?.includes(requiredRole)) {
       return res.status(HttpStatus.FORBIDDEN).json({ message: "Forbidden: Insufficient role" });
     }

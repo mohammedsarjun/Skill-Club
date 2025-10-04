@@ -1,5 +1,5 @@
 import { IAdminSkillServices } from './interfaces/IAdminSkillServices.js';
-import type { IAdminSkillRepository } from '../../repositories/adminRepositoies/interfaces/IAdminSkillRepository.js';
+import type { IAdminSkillRepository } from '../../repositories/adminRepositories/interfaces/IAdminSkillRepository.js';
 import { GetSkillDto, UpdateSkillDTO } from '../../dto/adminDTO/skill.dto.js';
 export declare class AdminSkillServices implements IAdminSkillServices {
     private _adminSkillRepository;

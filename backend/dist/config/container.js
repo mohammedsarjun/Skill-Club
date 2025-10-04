@@ -20,13 +20,13 @@ container.register("IUserServices", { useClass: userServices });
 container.register("IAdminAuthServices", { useClass: AdminAuthServices });
 //Category and skills
 import { AdminCategoryServices } from "../services/adminServices/adminCategoryServices.js";
-import { AdminCategoryRepository } from "../repositories/adminRepositoies/adminCategoryRepository.js";
+import { AdminCategoryRepository } from "../repositories/adminRepositories/adminCategoryRepository.js";
 import { AdminSpecialityServices } from "../services/adminServices/adminSpecialityServices.js";
-import { AdminSpecialityRepository } from "../repositories/adminRepositoies/adminSpecialityRepository.js";
+import { AdminSpecialityRepository } from "../repositories/adminRepositories/adminSpecialityRepository.js";
 import GoogleAuthService from "../services/authServices/GoogleAuthService.js";
 import { AdminAuthServices } from "../services/adminServices/adminAuthServices.js";
 import { AdminSkillServices } from "../services/adminServices/adminSkillServices.js";
-import { AdminSkillRepository } from "../repositories/adminRepositoies/adminSkillRepository.js";
+import { AdminSkillRepository } from "../repositories/adminRepositories/adminSkillRepository.js";
 ;
 //add category
 container.register("IAdminCategoryServices", { useClass: AdminCategoryServices });
@@ -40,4 +40,12 @@ container.register("IAdminSkillRepository", { useClass: AdminSkillRepository });
 //AdminUser
 import { AdminUserServices } from "../services/adminServices/adminUserServices.js";
 container.register("IAdminUserServices", { useClass: AdminUserServices });
+import { FreelancerRepository } from "../repositories/freelancerRepository.js";
+import { FreelancerService } from "../services/freelancerServices/freelancerServices.js";
+container.register("IFreelancerService", { useClass: FreelancerService });
+container.register("IFreelancerRepository", { useClass: FreelancerRepository });
+import { ClientService } from "../services/clientServices/clientServices.js";
+import { ClientRepository } from "../repositories/clientRepository.js";
+container.register("IClientService", { useClass: ClientService });
+container.register("IClientRepository", { useClass: ClientRepository });
 //# sourceMappingURL=container.js.map

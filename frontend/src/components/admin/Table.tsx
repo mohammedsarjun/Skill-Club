@@ -56,8 +56,9 @@ interface TableProps {
   search: string;
   setSearch: (searchData: any) => void;
   canDelete: boolean;
-  handleEditModal: (values: any) => void;
+  handleEditModal?: (values: any) => void;
   viewOnly?: boolean;
+  handleOpenViewModal?:(row:any)=>void
   setFilters?:(filterData: any) => void
   activeFilters?:Record<string, string>
 }
@@ -77,6 +78,7 @@ const Table: React.FC<TableProps> = ({
   canDelete = false,
   handleEditModal,
   viewOnly = false,
+  handleOpenViewModal,
   setFilters,
   activeFilters
 }) => {
@@ -185,12 +187,12 @@ const Table: React.FC<TableProps> = ({
                     ))}
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                       {viewOnly ? (
-                        <span className="text-green-600" onClick={handleOpenModal}>View</span>
+                        <span className="text-green-600" onClick={()=>handleOpenViewModal?.(row)}>View</span>
                       ) : (
                         <>
                           <button
                             className="text-emerald-600 hover:text-emerald-900"
-                            onClick={() => handleEditModal(row)}
+                            onClick={() => handleEditModal?.(row)}
                           >
                             <FaEdit />
                           </button>

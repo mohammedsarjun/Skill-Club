@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import Table from "@/components/admin/Table";
 import DynamicForm from "@/components/common/Form";
 import AdminActionApi from "@/api/action/AdminActionApi";
-import { IcategoryData, ISpeaciality } from "@/types/interfaces/admin/IAdmin";
+import { IcategoryData, ISpeaciality } from "@/types/interfaces/IAdmin";
 import toast from "react-hot-toast";
 import {
   categorySchema,
@@ -13,7 +13,7 @@ import {
 } from "@/utils/validation";
 import { debounce } from "lodash";
 
-import AdminRoleGuard from "@/components/AdminRoleGaurd";
+
 
 interface Category {
   id: number;

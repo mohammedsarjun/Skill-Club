@@ -2,7 +2,7 @@
 import React from "react";
 import { FaPencilAlt, FaPlus } from "react-icons/fa";
 import Image from "next/image";
-import { IFreelancerData } from "@/types/interfaces/store/IFreelancerData";
+import { IFreelancerData } from "@/types/interfaces/IFreelancerData";
 interface PreviewProfileProps {
     savedData: any;
     onEditPicture: () => void;

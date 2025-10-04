@@ -8,6 +8,9 @@ export class UserRepository extends BaseRepository {
     async findByEmail(email) {
         return await this.model.findOne({ email });
     }
+    async findById(id) {
+        return await super.findById(id);
+    }
     async updateResetPassword(userId, token, expiry) {
         return await this.model.findByIdAndUpdate(userId, {
             $set: {
@@ -57,6 +60,12 @@ export class UserRepository extends BaseRepository {
             q = q.populate(options.populate.path, options.populate.select ?? '');
         }
         return await q.exec();
+    }
+    async updateClientStatus(userId, isBlocked) {
+        return super.update(userId, { isClientBlocked: isBlocked });
+    }
+    async updateFreelancerStatus(userId, isBlocked) {
+        return super.update(userId, { isFreelancerBlocked: isBlocked });
     }
 }
 //# sourceMappingURL=UserRepository.js.map

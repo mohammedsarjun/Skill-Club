@@ -20,10 +20,6 @@ export default function Layout({ children }: LayoutProps) {
    
         <Providers>
           {children}
-                {/* <Script
-          src="https://accounts.google.com/gsi/client"
-          strategy="afterInteractive"
-        /> */}
         <script src="https://accounts.google.com/gsi/client" async defer></script>
           <Toaster position="top-right" reverseOrder={false} />
 

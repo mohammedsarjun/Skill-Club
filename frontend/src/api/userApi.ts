@@ -1,7 +1,7 @@
-import { IFreelancerData } from "@/types/interfaces/store/IFreelancerData";
+import { IFreelancerData } from "@/types/interfaces/IFreelancerData";
 import { axiosClient } from "./axiosClient";
 import userRoutes from "@/types/endPoints/userEndPoints";
-import { IClientProfile } from "@/types/interfaces/user/IUser";
+import { IClientProfile } from "@/types/interfaces/IUser";
 
 export const userApi = {
   roleSelection: async (role: string): Promise<any> => {

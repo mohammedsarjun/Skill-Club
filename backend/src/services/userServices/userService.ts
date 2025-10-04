@@ -46,7 +46,7 @@ export class userServices implements IUserServices {
     return mapUserModelToUserDto(updatedUser!);
   }
 
-  async createFreelancerProfile(id: string, freelancerData: Partial<IUser>): Promise<IUser> {
+  async createFreelancerProfile(id: string, freelancerData: any): Promise<IUser> {
     if (!id) {
       throw new AppError('User ID is required', HttpStatus.BAD_REQUEST);
     }
@@ -55,10 +55,9 @@ export class userServices implements IUserServices {
       throw new AppError('Freelancer data cannot be empty', HttpStatus.BAD_REQUEST);
     }
 
-    const dto = mapFreelancerDtoToUserModel(freelancerData);
 
     try {
-      const updatedUser = await this.userRepository.update(id, dto);
+      const updatedUser = await this.userRepository.update(id, freelancerData);
 
       if (!updatedUser) {
         throw new AppError(`User with id ${id} not found`, HttpStatus.NOT_FOUND);

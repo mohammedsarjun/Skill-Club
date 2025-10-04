@@ -5,6 +5,7 @@ import { IUserRepository } from './interfaces/IUserRepository.js';
 export declare class UserRepository extends BaseRepository<IUser> implements IUserRepository {
     constructor();
     findByEmail(email: string): Promise<IUser | null>;
+    findById(id: string): Promise<IUser | null>;
     updateResetPassword(userId: string | Types.ObjectId, token: string, expiry: Date): Promise<IUser | null>;
     updatePassword(userId: string | Types.ObjectId, hashedPassword: string): Promise<IUser | null>;
     findByResetToken(token: string): Promise<(Document<unknown, {}, IUser, {}, {}> & IUser & Required<{
@@ -28,5 +29,7 @@ export declare class UserRepository extends BaseRepository<IUser> implements IUs
             select: string;
         };
     }): Promise<IUser[] | null>;
+    updateClientStatus(userId: string, isBlocked: boolean): Promise<IUser | null>;
+    updateFreelancerStatus(userId: string, isBlocked: boolean): Promise<IUser | null>;
 }
 //# sourceMappingURL=UserRepository.d.ts.map

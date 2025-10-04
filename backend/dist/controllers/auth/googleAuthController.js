@@ -26,16 +26,9 @@ let GoogleAuthController = class GoogleAuthController {
         try {
             const { idToken } = req.body;
             const user = await this._googleAuthService.verifyToken(idToken);
-            await this._userService.markUserVerified(user._id);
+            await this._userService.markUserVerified(user.userId);
             // 🔹 Create tokens
-            const payload = {
-                userId: user._id,
-                roles: null,
-                activeRole: null,
-                isOnboardingCompleted: false,
-                clientProfile: null,
-                freelancerProfile: null,
-            };
+            const payload = user;
             const accessToken = jwtService.createToken(payload, '15m');
             const refreshToken = jwtService.createToken(payload, '7d');
             res.cookie('accessToken', accessToken, {

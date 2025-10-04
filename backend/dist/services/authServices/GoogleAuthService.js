@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 import { OAuth2Client } from "google-auth-library";
 import { inject, injectable } from "tsyringe";
 import { mapCreateGoogleUserDtoToUserModel } from "../../mapper/authMapper/googleAuth.mapper.js";
+import { mapUserModelToUserDto } from "../../mapper/userMapper/user.mapper.js";
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 let GoogleAuthService = class GoogleAuthService {
     constructor(userRepository) {
@@ -42,7 +43,7 @@ let GoogleAuthService = class GoogleAuthService {
             const googleUserDto = mapCreateGoogleUserDtoToUserModel({ sub, email: payload?.email, given_name: given_name ? given_name : "", family_name: family_name ? family_name : "", picture: picture ? picture : "" });
             user = await this._userRepository.create(googleUserDto);
         }
-        return user;
+        return mapUserModelToUserDto(user);
     }
 };
 GoogleAuthService = __decorate([

@@ -1,7 +1,8 @@
 const adminRouterEndPoints ={
     //auth
     adminLogin:"admin/login",
-
+    me:"admin/me",
+    logout:"admin/logout",
     //category
     adminCreateCategory:"/admin/categories",
     adminGetCategories:"/admin/categories",
@@ -19,7 +20,9 @@ const adminRouterEndPoints ={
 
     //users
     adminGetUserStats:"/admin/users-stats",
-    adminUser:"/admin/users"
+    adminUser:"/admin/users",
+    adminUserDetail:"/admin/user",
+    adminUserStatusUpdate:"/admin/user/updateStatus"
 
 }
 

@@ -30,7 +30,7 @@ export default function FreelancerHeader() {
       dispatch(setUser(response.data));
       router.push("/client/profile");
     } else {
-      toast.error(response.message);
+       router.replace("/onboarding/client")
     }
     // router.push("/freelancer"); // replace with the actual route for switching account
   };

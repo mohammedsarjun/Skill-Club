@@ -3,8 +3,18 @@ import AppError from '../../utils/AppError.js';
 import { HttpStatus } from '../../enums/http-status.enum.js';
 import { IAdminUserServices } from './interfaces/IAdminUserServices.js';
 import type { IUserRepository } from '../../repositories/interfaces/IUserRepository.js';
-import { AdminUserDto, AdminUserStatsDto, GetUserDto } from '../../dto/adminDTO/adminUsers.dto.js';
-import { mapUserModelDtoToAdminUserDto, mapUserModelDtoToAdminUserStatsDto } from '../../mapper/adminMapper/adminUsers.mapper.js';
+import {
+  AdminUserDto,
+  AdminUserStatsDto,
+  GetUserDto,
+  updateUserStatusDto,
+  UserDetailDto,
+} from '../../dto/adminDTO/adminUsers.dto.js';
+import {
+  mapUserModelDtoToAdminUserDto,
+  mapUserModelDtoToAdminUserStatsDto,
+  mapUserToUserDetailDto,
+} from '../../mapper/adminMapper/adminUsers.mapper.js';
 
 @injectable()
 export class AdminUserServices implements IAdminUserServices {
@@ -34,40 +44,34 @@ export class AdminUserServices implements IAdminUserServices {
     const page = filterData.page ?? 1;
     const limit = filterData.limit ?? 10;
     const skip = (page - 1) * limit;
-    let role: "freelancer" | "client" | undefined;
-    let status:boolean|undefined
+    let role: 'freelancer' | 'client' | undefined;
+    let status: boolean | undefined;
 
-
-
-    if(filterData?.filters?.role){
-      role=filterData.filters.role
+    if (filterData?.filters?.role) {
+      role = filterData.filters.role;
     }
-    if(filterData?.filters?.status){
-      status=filterData?.filters?.status
+    if (filterData?.filters?.status) {
+      status = filterData?.filters?.status;
     }
 
-   let filter:{name?:string,role?:string} = {};
+    let filter: { name?: string; role?: string } = {};
     if (filterData?.search) {
-      filter.name=filterData.search ;
+      filter.name = filterData.search;
     }
     if (role) {
-      filter.role=role ;
+      filter.role = role;
     }
-
-
 
     const result = await this._userRepository.getUsers(filter, {
       skip,
       limit,
     });
 
-
     const total = await this._userRepository.count({
       name: filterData.search || '',
     });
 
     // Map to DTO
-    
 
     const data: AdminUserDto[] = result!.map(mapUserModelDtoToAdminUserDto);
     return {
@@ -77,4 +81,49 @@ export class AdminUserServices implements IAdminUserServices {
       limit,
     };
   }
+
+async getUserDetail(id: string): Promise<UserDetailDto> {
+  // 1. Fetch user by ID
+  const user = await this._userRepository.findById(id);
+  if (!user) {
+    throw new AppError(`User with ID ${id} does not exist`, HttpStatus.NOT_FOUND);
+  }
+
+  // 2. Map user entity to DTO
+  const userDto = mapUserToUserDetailDto(user);
+
+  // 3. Return the mapped DTO
+  return userDto;
+}
+async updateUserStatus(dto: updateUserStatusDto): Promise<void> {
+  const { id, role, status } = dto;
+
+  // 1. Check if user exists
+  const user = await this._userRepository.findById(id);
+  if (!user) {
+    throw new AppError("User with this ID doesn't exist", HttpStatus.NOT_FOUND);
+  }
+
+  // 2. Validate role
+  if (!user.roles.includes(role)) {
+    throw new AppError(`User does not have the role: ${role}`, HttpStatus.BAD_REQUEST);
+  }
+
+
+  // 3. Convert status string → boolean
+  const isBlocked = status.toLowerCase() === "block";
+
+  // 4. Update status based on role
+  switch (role) {
+    case "client":
+      await this._userRepository.updateClientStatus(id, isBlocked);
+      break;
+    case "freelancer":
+      await this._userRepository.updateFreelancerStatus(id, isBlocked);
+      break;
+    default:
+      throw new AppError("Invalid role provided", HttpStatus.BAD_REQUEST);
+  }
+}
+
 }

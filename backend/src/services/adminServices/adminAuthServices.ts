@@ -1,6 +1,6 @@
 import { inject, injectable } from "tsyringe";
 import { IAdminAuthServices } from "./interfaces/IAdminAuthServices.js";
-import { email } from "zod";
+
 import AppError from "../../utils/AppError.js";
 import { HttpStatus } from "../../enums/http-status.enum.js";
 

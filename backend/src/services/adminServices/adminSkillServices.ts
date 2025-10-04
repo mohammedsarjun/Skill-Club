@@ -2,7 +2,7 @@ import { injectable, inject } from 'tsyringe';
 import AppError from '../../utils/AppError.js';
 import { HttpStatus } from '../../enums/http-status.enum.js';
 import { IAdminSkillServices } from './interfaces/IAdminSkillServices.js';
-import type { IAdminSkillRepository } from '../../repositories/adminRepositoies/interfaces/IAdminSkillRepository.js';
+import type { IAdminSkillRepository } from '../../repositories/adminRepositories/interfaces/IAdminSkillRepository.js';
 import { mapSkillModelToSkillDto } from '../../mapper/adminMapper/skill.mapper.js';
 import { GetSkillDto, SkillDto, UpdateSkillDTO } from '../../dto/adminDTO/skill.dto.js';
 @injectable()

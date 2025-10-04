@@ -10,10 +10,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { injectable, inject } from "tsyringe";
-import "../../config/container.js";
-import { HttpStatus } from "../../enums/http-status.enum.js";
-import { jwtService } from "../../utils/jwt.js";
+import { injectable, inject } from 'tsyringe';
+import '../../config/container.js';
+import { HttpStatus } from '../../enums/http-status.enum.js';
+import { jwtService } from '../../utils/jwt.js';
 let AuthController = class AuthController {
     constructor(authService, otpService) {
         this.authService = authService;
@@ -24,7 +24,7 @@ let AuthController = class AuthController {
             const user = await this.authService.signup(req.body);
             res.status(HttpStatus.CREATED).json({
                 success: true,
-                message: "User created successfully",
+                message: 'User created successfully',
                 data: user,
             });
         }
@@ -38,28 +38,48 @@ let AuthController = class AuthController {
             // Generate JWT token
             // 🔹 Create tokens
             const payload = user;
-            const accessToken = jwtService.createToken(payload, "15m");
-            const refreshToken = jwtService.createToken(payload, "7d");
-            res.cookie("accessToken", accessToken, {
+            const accessToken = jwtService.createToken(payload, '15m');
+            const refreshToken = jwtService.createToken(payload, '7d');
+            res.cookie('accessToken', accessToken, {
                 httpOnly: true,
                 secure: false, // 🔹 must be false on localhost (no HTTPS)
-                sameSite: "lax", // 🔹 "strict" blocks cross-site cookies
+                sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
                 maxAge: 15 * 60 * 1000,
             });
-            res.cookie("refreshToken", refreshToken, {
+            res.cookie('refreshToken', refreshToken, {
                 httpOnly: true,
                 secure: false,
-                sameSite: "lax",
+                sameSite: 'lax',
                 maxAge: 7 * 24 * 60 * 60 * 1000,
             });
             res.status(HttpStatus.OK).json({
                 success: true,
-                message: "User Logged In successfully",
+                message: 'User Logged In successfully',
                 data: user,
             });
         }
         catch (error) {
             throw error;
+        }
+    }
+    async logout(req, res) {
+        try {
+            const cookieOptions = {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: (process.env.NODE_ENV === 'production' ? 'none' : 'lax'),
+                path: '/',
+            };
+            // Clear both cookies
+            res.clearCookie('accessToken', cookieOptions);
+            res.clearCookie('refreshToken', cookieOptions);
+            // Double insurance: explicitly overwrite with expired values
+            res.cookie('accessToken', '', { ...cookieOptions, expires: new Date(0) });
+            res.cookie('refreshToken', '', { ...cookieOptions, expires: new Date(0) });
+            res.status(200).json({ message: 'Logged out successfully' });
+        }
+        catch (err) {
+            throw err;
         }
     }
     async forgotPassword(req, res) {
@@ -68,7 +88,7 @@ let AuthController = class AuthController {
             const user = await this.authService.forgotPassword(email);
             res.status(HttpStatus.OK).json({
                 success: true,
-                message: "Reset link sent to your email.",
+                message: 'Reset link sent to your email.',
                 data: user,
             });
         }
@@ -82,7 +102,7 @@ let AuthController = class AuthController {
             const user = await this.authService.resetPassword(token, password);
             res.status(HttpStatus.OK).json({
                 success: true,
-                message: "Password Changed Successfully.",
+                message: 'Password Changed Successfully.',
                 data: user,
             });
         }
@@ -93,8 +113,8 @@ let AuthController = class AuthController {
 };
 AuthController = __decorate([
     injectable(),
-    __param(0, inject("IAuthService")),
-    __param(1, inject("IOtpServices")),
+    __param(0, inject('IAuthService')),
+    __param(1, inject('IOtpServices')),
     __metadata("design:paramtypes", [Object, Object])
 ], AuthController);
 export { AuthController };

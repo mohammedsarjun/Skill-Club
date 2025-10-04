@@ -3,6 +3,7 @@ import { IUser } from '../../models/interfaces/IUserModel.js';
 import BaseRepository from '../baseRepositories/baseRepository.js';
 export interface IUserRepository extends BaseRepository<IUser> {
     findByEmail(email: string): Promise<IUser | null>;
+    findById(id: string): Promise<IUser | null>;
     updateResetPassword(userId: string | Types.ObjectId, token: string, expiry: Date): Promise<IUser | null>;
     updatePassword(userId: string | Types.ObjectId, hashedPassword: string): Promise<IUser | null>;
     findByResetToken(token: string): Promise<IUser | null>;
@@ -18,5 +19,7 @@ export interface IUserRepository extends BaseRepository<IUser> {
             select: string;
         };
     }): Promise<IUser[] | null>;
+    updateClientStatus(userId: string, isBlocked: boolean): Promise<IUser | null>;
+    updateFreelancerStatus(userId: string, isBlocked: boolean): Promise<IUser | null>;
 }
 //# sourceMappingURL=IUserRepository.d.ts.map

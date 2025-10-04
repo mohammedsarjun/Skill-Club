@@ -4,11 +4,11 @@ import '../../config/container.js';
 import { HttpStatus } from '../../enums/http-status.enum.js';
 import { IUserController } from './interfaces/IUserController.js';
 import type { IUserServices } from '../../services/userServices/interfaces/IUserServices.js';
-import { UserDto } from '../../dto/userDTO/user.dto.js';
+
 import { jwtService } from '../../utils/jwt.js';
 import {
   mapClientDtoToUserModel,
-  mapUserModelToUserDto,
+  mapFreelancerDtoToUserModel,
 } from '../../mapper/userMapper/user.mapper.js';
 @injectable()
 export class UserController implements IUserController {
@@ -67,7 +67,8 @@ export class UserController implements IUserController {
   async createFreelancerProfile(req: Request, res: Response): Promise<void> {
     try {
       const userId = req.user?.userId;
-      const user = await this.userService.createFreelancerProfile(userId, req.body);
+      const dto=mapFreelancerDtoToUserModel(req.body)
+      const user = await this.userService.createFreelancerProfile(userId, dto);
 
       res.status(HttpStatus.OK).json({
         success: true,

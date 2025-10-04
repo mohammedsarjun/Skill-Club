@@ -8,7 +8,7 @@ export interface GetUserDto {
     page?: number;
     limit?: number;
     filters?: {
-        role: "client" | "freelancer";
+        role: 'client' | 'freelancer';
         status: boolean;
     };
 }
@@ -17,6 +17,33 @@ export interface AdminUserDto {
     name: string;
     email: string;
     roles: string[];
-    status: string;
+}
+export interface FreelancerDetailDto {
+    freelancerLogo: string;
+    professionalRole: string;
+    hourlyRate: string;
+    languages: string[];
+}
+export interface ClientDetailDto {
+    companyName: string;
+    companyLogo: string;
+    website: string;
+    companyDescription: string;
+}
+export interface UserDetailDto {
+    id: string;
+    name: string;
+    email: string;
+    phone: number;
+    roles: string[];
+    isFreelancerBlocked: boolean;
+    isClientBlocked: boolean;
+    freelancerDetail: FreelancerDetailDto | undefined;
+    clientDetail: ClientDetailDto | undefined;
+}
+export interface updateUserStatusDto {
+    id: string;
+    status: 'block' | 'unblock';
+    role: 'client' | 'freelancer';
 }
 //# sourceMappingURL=adminUsers.dto.d.ts.map

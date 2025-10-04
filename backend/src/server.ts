@@ -14,6 +14,8 @@ import authRouter from './routes/authRouter.js';
 import adminRouter from './routes/adminRouter.js';
 import userRouter from './routes/userRouter.js';
 import axios from 'axios';
+import freelancerRouter from './routes/freelancerRouter.js';
+import clientRouter from './routes/clientRouter.js';
 dotenv.config();
 const PORT = process.env.PORT;
 
@@ -36,6 +38,10 @@ app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
 
 app.use('/api/user', userRouter);
+
+app.use('/api/freelancer', freelancerRouter);
+
+app.use('/api/client',clientRouter)
 
 app.use(errorHandler);
 

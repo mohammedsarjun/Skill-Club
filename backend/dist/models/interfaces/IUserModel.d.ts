@@ -60,7 +60,8 @@ export interface IUser extends Document {
     address: IAddress;
     dob: Date;
     isVerified: boolean;
-    isBlocked: boolean;
+    isFreelancerBlocked: boolean;
+    isClientBlocked: boolean;
     isOnboardingCompleted: boolean;
     resetPasswordToken?: string;
     resetPasswordExpires?: Date;

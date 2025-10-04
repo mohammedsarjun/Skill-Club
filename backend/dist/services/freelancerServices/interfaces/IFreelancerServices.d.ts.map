@@ -1,0 +1,1 @@
+{"version":3,"file":"IFreelancerServices.d.ts","sourceRoot":"","sources":["../../../../src/services/freelancerServices/interfaces/IFreelancerServices.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,gBAAgB,EAAE,MAAM,8CAA8C,CAAC;AAEhF,MAAM,WAAW,kBAAkB;IAC/B,iBAAiB,CAAC,EAAE,EAAC,MAAM,GAAG,OAAO,CAAC,gBAAgB,CAAC,CAAA;CAC1D"}

@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { IGoogleAuthController } from './interfaces/IGoogleAuthController.js';
-import AppError from '../../utils/AppError.js';
 import { HttpStatus } from '../../enums/http-status.enum.js';
 import { injectable, inject } from 'tsyringe';
 import type { IGoogleAuthService } from '../../services/authServices/interfaces/IGoogleAuthService.js';
@@ -9,6 +8,7 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 import dotenv from 'dotenv';
 import { jwtService } from '../../utils/jwt.js';
 import type { IUserServices } from '../../services/userServices/interfaces/IUserServices.js';
+import { UserDto } from '../../dto/userDTO/user.dto.js';
 dotenv.config();
 
 @injectable()
@@ -27,18 +27,11 @@ export class GoogleAuthController implements IGoogleAuthController {
     try {
       const { idToken } = req.body;
 
-      const user = await this._googleAuthService.verifyToken(idToken);
-      await this._userService.markUserVerified(user._id);
+      const user:UserDto = await this._googleAuthService.verifyToken(idToken);
+      await this._userService.markUserVerified(user.userId);
 
       // 🔹 Create tokens
-      const payload = {
-        userId: user._id,
-        roles: null,
-        activeRole: null,
-        isOnboardingCompleted: false,
-        clientProfile: null,
-        freelancerProfile: null,
-      };
+      const payload = user;
       const accessToken = jwtService.createToken(payload, '15m');
       const refreshToken = jwtService.createToken(payload, '7d');
 
