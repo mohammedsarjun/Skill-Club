@@ -3,7 +3,7 @@ import { Types } from "mongoose";
 //Request Dto
 export interface CreateSkillDTO {
   name: string;
-  specialties:string[];
+  specialities:Types.ObjectId[];
   status:string
 }
 

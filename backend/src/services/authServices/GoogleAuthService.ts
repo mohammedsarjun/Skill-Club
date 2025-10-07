@@ -29,7 +29,6 @@ class GoogleAuthService implements IGoogleAuthService {
 
       // Extract payload
       const payload = ticket.getPayload();
-      console.log('Google user payload:', payload);
 
       // Example: get user info
     
@@ -41,7 +40,7 @@ class GoogleAuthService implements IGoogleAuthService {
     // ✅ Login flow
     // issue JWT/session for existing user
     // res.json({ status: "login", user });
-    console.log("gonna lgin")
+
   } else {
     // ✅ Signup flow
     const googleUserDto=  mapCreateGoogleUserDtoToUserModel({sub,email:payload?.email!,given_name:given_name?given_name:"",family_name:family_name?family_name:"",picture:picture?picture:""})

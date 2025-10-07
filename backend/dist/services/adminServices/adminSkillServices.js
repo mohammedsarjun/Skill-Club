@@ -13,20 +13,22 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 import { injectable, inject } from 'tsyringe';
 import AppError from '../../utils/AppError.js';
 import { HttpStatus } from '../../enums/http-status.enum.js';
-import { mapSkillModelToSkillDto } from '../../mapper/adminMapper/skill.mapper.js';
+import { mapCreateSkillDtoToSkillModel, mapSkillModelToSkillDto, mapSkillQuery, mapUpdateSkillDtoToSkillModel } from '../../mapper/adminMapper/skill.mapper.js';
+import { ERROR_MESSAGES } from '../../contants/errorConstants.js';
 let AdminSkillServices = class AdminSkillServices {
     constructor(adminSkillRepository) {
         this._adminSkillRepository = adminSkillRepository;
     }
     async addSkill(skillData) {
+        const skillDataDto = mapCreateSkillDtoToSkillModel(skillData);
         const existing = await this._adminSkillRepository.findOne({
-            name: skillData.name,
+            name: skillDataDto.name,
         });
         if (existing) {
             throw new AppError('Skill with this name already exists', HttpStatus.CONFLICT);
         }
         // Create speciality
-        const created = await this._adminSkillRepository.create(skillData);
+        const created = await this._adminSkillRepository.create(skillDataDto);
         // Fetch with category populated
         const populated = await this._adminSkillRepository.findOne({ _id: created._id }, { populate: { path: 'specialities', select: '_id name' } });
         console.log(populated);
@@ -37,20 +39,20 @@ let AdminSkillServices = class AdminSkillServices {
         return result;
     }
     async getSkills(filterData) {
-        const page = filterData.page ?? 1;
-        const limit = filterData.limit ?? 10;
+        const filterDataDto = mapSkillQuery(filterData);
+        const page = filterDataDto.page ?? 1;
+        const limit = filterDataDto.limit ?? 10;
         const skip = (page - 1) * limit;
-        const mode = filterData.mode;
-        console.log(filterData);
+        const mode = filterDataDto.mode;
         const result = await this._adminSkillRepository.findAllWithFilters({
-            search: filterData.search, // just values
+            search: filterDataDto.search, // just values
         }, {
             skip,
             limit,
             populate: { path: 'specialities', select: '_id name' },
         });
         const total = await this._adminSkillRepository.count({
-            name: filterData.search || '',
+            name: filterDataDto.search || '',
         });
         // Map to DTO
         const data = result.map(mapSkillModelToSkillDto);
@@ -63,14 +65,15 @@ let AdminSkillServices = class AdminSkillServices {
     }
     async editSkill(id, skilldata) {
         // Check for duplicate name
-        if (skilldata?.name) {
-            const existing = await this._adminSkillRepository.findOne({ name: skilldata.name });
+        const skillDataDto = mapUpdateSkillDtoToSkillModel(skilldata);
+        if (skillDataDto?.name) {
+            const existing = await this._adminSkillRepository.findOne({ name: skillDataDto.name });
             if (existing && existing._id.toString() !== id) {
-                throw new AppError('Skill with this name already exists', HttpStatus.CONFLICT);
+                throw new AppError(ERROR_MESSAGES.SKILL.ALREADY_EXIST, HttpStatus.CONFLICT);
             }
         }
         // Map DTO to model and update
-        await this._adminSkillRepository.update(id, skilldata);
+        await this._adminSkillRepository.update(id, skillDataDto);
         // ✅ Fetch updated speciality with category populated
         const updatedSkill = await this._adminSkillRepository.findOne({ _id: id }, { populate: { path: 'specialities', select: '_id name' } });
         if (!updatedSkill) {

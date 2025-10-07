@@ -9,6 +9,8 @@ import dotenv from 'dotenv';
 import { jwtService } from '../../utils/jwt.js';
 import type { IUserServices } from '../../services/userServices/interfaces/IUserServices.js';
 import { UserDto } from '../../dto/userDTO/user.dto.js';
+import { jwtConfig } from '../../config/jwt.config.js';
+import { MESSAGES } from '../../contants/contants.js';
 dotenv.config();
 
 @injectable()
@@ -32,29 +34,29 @@ export class GoogleAuthController implements IGoogleAuthController {
 
       // 🔹 Create tokens
       const payload = user;
-      const accessToken = jwtService.createToken(payload, '15m');
-      const refreshToken = jwtService.createToken(payload, '7d');
+      const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
+      const refreshToken = jwtService.createToken(payload, jwtConfig.refreshTokenMaxAge);
 
       res.cookie('accessToken', accessToken, {
         httpOnly: true,
         secure: false, // 🔹 must be false on localhost (no HTTPS)
         sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
-        maxAge: 15 * 60 * 1000,
+        maxAge: jwtConfig.accessTokenMaxAge*1000
       });
 
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: false,
         sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: jwtConfig.refreshTokenMaxAge*1000
       });
 
       res.status(HttpStatus.OK).json({
         success: true,
-        message: 'User Logged In successfully',
+        message: MESSAGES.AUTH.LOGIN_SUCCESS,
         data: user,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       throw error;
     }
   }

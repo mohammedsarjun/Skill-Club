@@ -1,14 +1,15 @@
-import { User } from "../models/userModel.js";
-import BaseRepository from "./baseRepositories/baseRepository.js";
+import { User } from '../models/userModel.js';
+import BaseRepository from './baseRepositories/baseRepository.js';
 export class ClientRepository extends BaseRepository {
     constructor() {
         super(User);
     }
     async getClientById(userId) {
-        return super.findOne({ _id: userId, roles: "client" });
+        return super.findOne({ _id: userId, roles: 'client' });
     }
     async updateClientById(userId, data) {
-        return super.update(userId, data);
+        // return super.update(userId, data);
+        return await this.model.findByIdAndUpdate(userId, { $set: data }, { new: true });
     }
 }
 //# sourceMappingURL=clientRepository.js.map

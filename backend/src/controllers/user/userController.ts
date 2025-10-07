@@ -10,18 +10,19 @@ import {
   mapClientDtoToUserModel,
   mapFreelancerDtoToUserModel,
 } from '../../mapper/userMapper/user.mapper.js';
+import { MESSAGES } from '../../contants/contants.js';
 @injectable()
 export class UserController implements IUserController {
-  private userService: IUserServices;
+  private _userService: IUserServices;
 
   constructor(@inject('IUserServices') userService: IUserServices) {
-    this.userService = userService;
+    this._userService = userService;
   }
   async selectRole(req: Request, res: Response): Promise<void> {
     try {
       const { role } = req.body;
       const userId = req.user?.userId;
-      const user = await this.userService.selectRole(userId, role);
+      const user = await this._userService.selectRole(userId, role);
       // Issue new JWT with updated roles
       const payload = user;
       const accessToken = jwtService.createToken(payload, '15m');
@@ -31,10 +32,10 @@ export class UserController implements IUserController {
 
       res.status(HttpStatus.OK).json({
         success: true,
-        message: 'Role Selected Successfully',
+        message: MESSAGES.USER.ROLE_SELECTED,
         data: user,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       throw error;
     }
   }
@@ -42,7 +43,7 @@ export class UserController implements IUserController {
   async me(req: Request, res: Response): Promise<void> {
     try {
       const userId = req.user?.userId;
-      const user = await this.userService.me(userId!);
+      const user = await this._userService.me(userId!);
       const payload = user;
       const accessToken = jwtService.createToken(payload, '15m');
 
@@ -56,10 +57,10 @@ export class UserController implements IUserController {
 
       res.status(HttpStatus.OK).json({
         success: true,
-        message: 'Role Selected Successfully',
+        message: MESSAGES.USER.VERIFIED,
         data: user,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       throw error;
     }
   }
@@ -68,14 +69,14 @@ export class UserController implements IUserController {
     try {
       const userId = req.user?.userId;
       const dto=mapFreelancerDtoToUserModel(req.body)
-      const user = await this.userService.createFreelancerProfile(userId, dto);
+      const user = await this._userService.createFreelancerProfile(userId, dto);
 
       res.status(HttpStatus.OK).json({
         success: true,
-        message: 'Freelancer Profile Updated Successfully',
+        message: MESSAGES.Freelancer.UPDATED,
         data: user,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       throw error;
     }
   }
@@ -84,14 +85,14 @@ export class UserController implements IUserController {
     try {
       const userId = req.user!.userId;
       const dto = mapClientDtoToUserModel(req.body);
-      const user = await this.userService.createClientProfile(userId, dto);
+      const user = await this._userService.createClientProfile(userId, dto);
 
       res.status(HttpStatus.OK).json({
         success: true,
-        message: 'Client Profile Updated Successfully',
+        message: MESSAGES.CLIENT.UPDATED,
         data: user,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       throw error;
     }
   }
@@ -99,7 +100,7 @@ export class UserController implements IUserController {
   async switchRole(req: Request, res: Response): Promise<void> {
     try {
       const userId = req.user!.userId;
-      const user = await this.userService.switchRole(userId);
+      const user = await this._userService.switchRole(userId);
       const payload = user;
       const accessToken = jwtService.createToken(payload, '15m');
       const refreshToken = jwtService.createToken(payload, '7d');
@@ -120,10 +121,10 @@ export class UserController implements IUserController {
 
       res.status(HttpStatus.OK).json({
         success: true,
-        message: 'Role Switched Successfully',
+        message: MESSAGES.USER.ROLE_SWITCHED,
         data: user,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       throw error;
     }
   }

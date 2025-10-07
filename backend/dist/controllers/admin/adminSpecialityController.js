@@ -10,21 +10,21 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { injectable, inject } from "tsyringe";
-import { mapCreateSpecialityDtoToSpecialityModel, mapSpecialityQuery } from "../../mapper/adminMapper/speciality.mapper.js";
-import "../../config/container.js";
-import { HttpStatus } from "../../enums/http-status.enum.js";
+import { injectable, inject } from 'tsyringe';
+import '../../config/container.js';
+import { HttpStatus } from '../../enums/http-status.enum.js';
+import { MESSAGES } from '../../contants/contants.js';
 let AdminSpecialityController = class AdminSpecialityController {
     constructor(adminSpecialityService) {
-        this.adminSpecialityService = adminSpecialityService;
+        this._adminSpecialityService = adminSpecialityService;
     }
     async addSpeciality(req, res) {
         try {
-            const dto = mapCreateSpecialityDtoToSpecialityModel(req.body);
-            const result = await this.adminSpecialityService.addSpeciality(dto);
+            const specialityDto = req.body;
+            const result = await this._adminSpecialityService.addSpeciality(specialityDto);
             res.status(HttpStatus.CREATED).json({
                 success: true,
-                message: "Speciality created successfully",
+                message: MESSAGES.SPECIALITY.CREATED,
                 data: result,
             });
         }
@@ -34,10 +34,10 @@ let AdminSpecialityController = class AdminSpecialityController {
     }
     async editSpeciality(req, res) {
         try {
-            const result = await this.adminSpecialityService.editSpeciality(req.body);
+            const result = await this._adminSpecialityService.editSpeciality(req.body);
             res.status(HttpStatus.OK).json({
                 success: true,
-                message: "Speciality Updated successfully",
+                message: MESSAGES.SPECIALITY.UPDATED,
                 data: result,
             });
         }
@@ -47,11 +47,18 @@ let AdminSpecialityController = class AdminSpecialityController {
     }
     async getAllSpeciality(req, res) {
         try {
-            const dto = mapSpecialityQuery(req.query);
-            const result = await this.adminSpecialityService.getSpeciality(dto);
+            const filter = req.query?.filter;
+            const dto = {
+                search: typeof req.query.search === 'string' ? req.query.search : '',
+                page: Number(req?.query?.page) || 1,
+                limit: Number(req?.query?.limit) || 10,
+                categoryFilter: filter?.category ? String(filter?.category) : "",
+                mode: typeof req.query.mode === 'string' ? req.query.mode : '',
+            };
+            const result = await this._adminSpecialityService.getSpeciality(dto);
             res.status(HttpStatus.OK).json({
                 success: true,
-                message: "Speciality Fetched successfully",
+                message: MESSAGES.SPECIALITY.FETCH_SUCCESS,
                 data: result,
             });
         }
@@ -62,7 +69,7 @@ let AdminSpecialityController = class AdminSpecialityController {
 };
 AdminSpecialityController = __decorate([
     injectable(),
-    __param(0, inject("IAdminSpecialityServices")),
+    __param(0, inject('IAdminSpecialityServices')),
     __metadata("design:paramtypes", [Object])
 ], AdminSpecialityController);
 export { AdminSpecialityController };

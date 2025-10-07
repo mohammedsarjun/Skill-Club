@@ -28,7 +28,6 @@ let GoogleAuthService = class GoogleAuthService {
         });
         // Extract payload
         const payload = ticket.getPayload();
-        console.log('Google user payload:', payload);
         // Example: get user info
         const { sub, email, given_name, picture, family_name } = payload;
         let user = await this._userRepository.findOne({ email });
@@ -36,7 +35,6 @@ let GoogleAuthService = class GoogleAuthService {
             // ✅ Login flow
             // issue JWT/session for existing user
             // res.json({ status: "login", user });
-            console.log("gonna lgin");
         }
         else {
             // ✅ Signup flow

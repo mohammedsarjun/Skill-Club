@@ -15,6 +15,8 @@ import '../../config/container.js';
 import AppError from '../../utils/AppError.js';
 import { HttpStatus } from '../../enums/http-status.enum.js';
 import { mapClientToDTO } from '../../mapper/clientMapper/client.mapper.js';
+import { flattenObject } from '../../utils/flattenObjects.js';
+import { ERROR_MESSAGES } from '../../contants/errorConstants.js';
 let ClientService = class ClientService {
     constructor(clientRepository) {
         this._clientRepository = clientRepository;
@@ -31,17 +33,17 @@ let ClientService = class ClientService {
             return clientDto;
         }
         catch (error) {
-            console.error(`Error fetching Client data for ID: ${id}`, error);
-            throw new AppError('Failed to fetch Client data', HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new AppError(ERROR_MESSAGES.CLIENT.FETCH_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     async updateClient(id, data) {
         const clientData = await this._clientRepository.getClientById(id);
         if (!clientData || !clientData.clientProfile) {
-            throw new AppError("Client or Client profile doesn't exist", HttpStatus.NOT_FOUND);
+            throw new AppError(ERROR_MESSAGES.CLIENT.NOT_FOUND, HttpStatus.NOT_FOUND);
         }
-        console.log(data);
-        const updatedClient = await this._clientRepository.updateClientById(id, data);
+        const flattedData = flattenObject(data);
+        console.log(flattedData);
+        const updatedClient = await this._clientRepository.updateClientById(id, flattedData);
         if (!updatedClient?.clientProfile) {
             throw new AppError("Updated client profile not found", HttpStatus.INTERNAL_SERVER_ERROR);
         }

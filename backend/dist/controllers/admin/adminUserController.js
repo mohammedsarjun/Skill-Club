@@ -14,6 +14,7 @@ import { injectable, inject } from 'tsyringe';
 import '../../config/container.js';
 import { HttpStatus } from '../../enums/http-status.enum.js';
 import { mapUpdateUserStatusToUserModel, mapUserQuery } from '../../mapper/adminMapper/adminUsers.mapper.js';
+import { MESSAGES } from '../../contants/contants.js';
 let AdminUserController = class AdminUserController {
     constructor(adminUserService) {
         this._adminUserService = adminUserService;
@@ -23,7 +24,7 @@ let AdminUserController = class AdminUserController {
             const result = await this._adminUserService.getUserStats();
             res.status(HttpStatus.OK).json({
                 success: true,
-                message: 'User Stats Fetched Successfully',
+                message: MESSAGES.USER.FETCH_STATS_SUCCESS,
                 data: result,
             });
         }
@@ -37,7 +38,7 @@ let AdminUserController = class AdminUserController {
             const result = await this._adminUserService.getUsers(queryDto);
             res.status(HttpStatus.OK).json({
                 success: true,
-                message: 'User Fetched Successfully',
+                message: MESSAGES.USER.FETCH_SUCCESS,
                 data: result,
             });
         }
@@ -51,7 +52,7 @@ let AdminUserController = class AdminUserController {
             const result = await this._adminUserService.getUserDetail(id);
             res.status(HttpStatus.OK).json({
                 success: true,
-                message: 'User Fetched Successfully',
+                message: MESSAGES.USER.FETCH_SUCCESS,
                 data: result,
             });
         }
@@ -65,7 +66,7 @@ let AdminUserController = class AdminUserController {
             const result = await this._adminUserService.updateUserStatus(dto);
             res.status(HttpStatus.OK).json({
                 success: true,
-                message: 'User Status updated Successfully',
+                message: MESSAGES.USER.UPDATED,
                 data: result,
             });
         }

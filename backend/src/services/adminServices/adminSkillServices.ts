@@ -3,8 +3,9 @@ import AppError from '../../utils/AppError.js';
 import { HttpStatus } from '../../enums/http-status.enum.js';
 import { IAdminSkillServices } from './interfaces/IAdminSkillServices.js';
 import type { IAdminSkillRepository } from '../../repositories/adminRepositories/interfaces/IAdminSkillRepository.js';
-import { mapSkillModelToSkillDto } from '../../mapper/adminMapper/skill.mapper.js';
-import { GetSkillDto, SkillDto, UpdateSkillDTO } from '../../dto/adminDTO/skill.dto.js';
+import { mapCreateSkillDtoToSkillModel, mapSkillModelToSkillDto, mapSkillQuery, mapUpdateSkillDtoToSkillModel } from '../../mapper/adminMapper/skill.mapper.js';
+import { CreateSkillDTO, GetSkillDto, SkillDto, UpdateSkillDTO } from '../../dto/adminDTO/skill.dto.js';
+import { ERROR_MESSAGES } from '../../contants/errorConstants.js';
 @injectable()
 export class AdminSkillServices implements IAdminSkillServices {
   private _adminSkillRepository;
@@ -16,17 +17,19 @@ export class AdminSkillServices implements IAdminSkillServices {
     this._adminSkillRepository = adminSkillRepository;
   }
 
-  async addSkill(skillData: any): Promise<any> {
+  async addSkill(skillData: CreateSkillDTO): Promise<any> {
+    const skillDataDto=mapCreateSkillDtoToSkillModel(skillData)
     const existing = await this._adminSkillRepository.findOne({
-      name: skillData.name,
+      name: skillDataDto.name,
     });
+    
 
     if (existing) {
       throw new AppError('Skill with this name already exists', HttpStatus.CONFLICT);
     }
 
     // Create speciality
-    const created = await this._adminSkillRepository.create(skillData);
+    const created = await this._adminSkillRepository.create(skillDataDto);
 
     // Fetch with category populated
     const populated = await this._adminSkillRepository.findOne(
@@ -44,14 +47,15 @@ export class AdminSkillServices implements IAdminSkillServices {
   }
 
   async getSkills(filterData: GetSkillDto): Promise<any> {
-    const page = filterData.page ?? 1;
-    const limit = filterData.limit ?? 10;
+    const filterDataDto = mapSkillQuery(filterData)
+    const page = filterDataDto.page ?? 1;
+    const limit = filterDataDto.limit ?? 10;
     const skip = (page - 1) * limit;
-    const mode = filterData.mode;
-    console.log(filterData);
+    const mode = filterDataDto.mode;
+
     const result = await this._adminSkillRepository.findAllWithFilters(
       {
-        search: filterData.search, // just values
+        search: filterDataDto.search, // just values
       },
       {
         skip,
@@ -61,7 +65,7 @@ export class AdminSkillServices implements IAdminSkillServices {
     );
 
     const total = await this._adminSkillRepository.count({
-      name: filterData.search || '',
+      name: filterDataDto.search || '',
     });
 
     // Map to DTO
@@ -77,16 +81,17 @@ export class AdminSkillServices implements IAdminSkillServices {
 
   async editSkill(id:string,skilldata: Partial<UpdateSkillDTO>): Promise<any> {
     // Check for duplicate name
-    if (skilldata?.name) {
-      const existing = await this._adminSkillRepository.findOne({ name: skilldata.name });
+     const skillDataDto=mapUpdateSkillDtoToSkillModel(skilldata)
+    if (skillDataDto?.name) {
+      const existing = await this._adminSkillRepository.findOne({ name: skillDataDto.name });
       if (existing && existing._id.toString() !== id) {
-        throw new AppError('Skill with this name already exists', HttpStatus.CONFLICT);
+        throw new AppError(ERROR_MESSAGES.SKILL.ALREADY_EXIST, HttpStatus.CONFLICT);
       }
     }
 
     // Map DTO to model and update
 
-    await this._adminSkillRepository.update(id, skilldata);
+    await this._adminSkillRepository.update(id, skillDataDto);
 
     // ✅ Fetch updated speciality with category populated
     const updatedSkill = await this._adminSkillRepository.findOne(

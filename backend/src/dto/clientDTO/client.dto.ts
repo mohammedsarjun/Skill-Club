@@ -6,8 +6,5 @@ export interface GetClientDTO {
 }
 
 export interface UpdateClientDto{
-    companyName:string,
-    logo:string,
-    description:string,
-    website:string
+    clientProfile:Partial<GetClientDTO>
 }

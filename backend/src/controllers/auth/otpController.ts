@@ -5,23 +5,24 @@ import type { IOtpServices } from '../../services/authServices/interfaces/IOtpSe
 import { HttpStatus } from '../../enums/http-status.enum.js';
 import type { IUserServices } from '../../services/userServices/interfaces/IUserServices.js';
 import { jwtService } from '../../utils/jwt.js';
+import { jwtConfig } from '../../config/jwt.config.js';
 
 @injectable()
 export class OtpController implements IOtpController {
-  private otpServices: IOtpServices;
-  private userServices: IUserServices;
+  private _otpServices: IOtpServices;
+  private _userServices: IUserServices;
   constructor(
     @inject('IOtpServices') otpService: IOtpServices,
     @inject('IUserServices') userServices: IUserServices,
   ) {
-    this.otpServices = otpService;
-    this.userServices = userServices;
+    this._otpServices = otpService;
+    this._userServices = userServices;
   }
   async createOtp(req: Request, res: Response): Promise<void> {
     try {
       const { email, purpose } = req.body;
 
-      const otpResponse = await this.otpServices.createOtp(email, purpose);
+      const otpResponse = await this._otpServices.createOtp(email, purpose);
       res.status(HttpStatus.CREATED).json({
         success: true,
         message: 'Otp Sent Successfully',
@@ -29,7 +30,7 @@ export class OtpController implements IOtpController {
         purpose,
       });
       console.log('success');
-    } catch (error: any) {
+    } catch (error: unknown) {
       throw error;
     }
   }
@@ -37,11 +38,11 @@ export class OtpController implements IOtpController {
   async verifyOtp(req: Request, res: Response): Promise<void> {
     try {
       const { email, otp, userId } = req.body;
-      const response = await this.otpServices.verifyOtp(email, otp);
+      const response = await this._otpServices.verifyOtp(email, otp);
 
       switch (response.purpose) {
         case 'signup':
-          await this.userServices.markUserVerified(userId);
+          await this._userServices.markUserVerified(userId);
 
           // 🔹 Create tokens
           const payload = {
@@ -52,21 +53,21 @@ export class OtpController implements IOtpController {
             clientProfile:null,
             freelancerProfile:null
           };
-          const accessToken = jwtService.createToken(payload, '15m');
-          const refreshToken = jwtService.createToken(payload, '7d');
+          const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
+          const refreshToken = jwtService.createToken(payload, jwtConfig.refreshTokenMaxAge);
 
           res.cookie('accessToken', accessToken, {
             httpOnly: true,
             secure:  process.env.NODE_ENV === 'production', // 🔹 must be false on localhost (no HTTPS)
             sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
-            maxAge: 15 * 60 * 1000,
+            maxAge: jwtConfig.accessTokenMaxAge*1000
           });
 
           res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
             secure:  process.env.NODE_ENV === 'production',
             sameSite: 'lax',
-            maxAge: 7 * 24 * 60 * 60 * 1000,
+            maxAge: jwtConfig.refreshTokenMaxAge*1000
           });
 
           break;
@@ -83,7 +84,7 @@ export class OtpController implements IOtpController {
         message: 'Otp Verfied Successfully',
         data: response,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       throw error;
     }
   }

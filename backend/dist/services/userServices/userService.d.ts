@@ -3,7 +3,7 @@ import type { IUserRepository } from '../../repositories/interfaces/IUserReposit
 import { ClientProfileDto, ClientProfileUpdateResponseDto, UserDto } from '../../dto/userDTO/user.dto.js';
 import { IUser } from '../../models/interfaces/IUserModel.js';
 export declare class userServices implements IUserServices {
-    private userRepository;
+    private _userRepository;
     constructor(userRepository: IUserRepository);
     markUserVerified(id: string): Promise<void>;
     selectRole(id: string | undefined, role: string): Promise<UserDto>;

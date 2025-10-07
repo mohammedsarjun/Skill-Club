@@ -1,12 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "../common/Button";
 import Checkbox from "../common/CheckBox";
-const categories = [
-  { id: "programming", name: "Programming" },
-  { id: "design", name: "Design" },
-  { id: "marketing", name: "Marketing" },
-];
+import { onboardingApi } from "@/api/onboardingApi";
+import toast from "react-hot-toast";
 
 const specialtiesMap: Record<string, { id: string; name: string }[]> = {
   programming: [
@@ -33,6 +30,32 @@ export default function Step2Form({
   onBack: () => void;
   savedData?: any;
 }) {
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>(
+    []
+  );
+  useEffect(() => {
+    async function fetchCategories() {
+      const response = await onboardingApi.getCategories();
+      if (response.success) {
+        setCategories(response.data);
+      } else {
+        toast.error(response.message);
+      }
+
+      const selectedCategoryResponse = await onboardingApi.getSpecialities(
+        selectedCategory
+      );
+      if (selectedCategoryResponse.success) {
+
+        setSpecialties(selectedCategoryResponse.data);
+
+      } else {
+        toast.error(response.message);
+      }
+    }
+
+    fetchCategories();
+  }, []);
   const [selectedCategory, setSelectedCategory] = useState(
     savedData?.category || ""
   );
@@ -40,9 +63,12 @@ export default function Step2Form({
     savedData?.specialties || []
   );
 
-  const specialties = selectedCategory
-    ? specialtiesMap[selectedCategory] || []
-    : [];
+  const [specialties, setSpecialties] = useState<
+    { id: string; name: string }[]
+  >([]);
+  // const specialties = selectedCategory
+  //   ? specialtiesMap[selectedCategory] || []
+  //   : [];
 
   function toggleSpecialty(id: string) {
     if (selectedSpecialties.includes(id)) {
@@ -59,6 +85,16 @@ export default function Step2Form({
 
   function handleNext() {
     onNext({ category: selectedCategory, specialties: selectedSpecialties });
+  }
+
+  async function handleSelectCategory(id: string) {
+    const response = await onboardingApi.getSpecialities(id);
+    if (response.success) {
+      setSelectedCategory(id);
+      setSpecialties(response.data);
+    } else {
+      toast.error(response.message);
+    }
   }
 
   return (
@@ -89,7 +125,8 @@ export default function Step2Form({
                     : "text-gray-800 hover:text-green-600"
                 }`}
                 onClick={() => {
-                  setSelectedCategory(cat.id);
+                  handleSelectCategory(cat.id);
+
                   setSelectedSpecialties([]);
                 }}
               >

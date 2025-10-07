@@ -8,6 +8,7 @@ export interface IAddress {
 }
 export interface ILanguage {
     name: string;
+    enum: ['English', 'Tamil', 'Hindi', 'Spanish'];
     proficiency: string;
 }
 export interface IExperience {

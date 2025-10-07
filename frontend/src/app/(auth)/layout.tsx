@@ -12,12 +12,12 @@ export default function Layout({ children }: LayoutProps) {
 
 
   return (
- <AuthGuard>
+
       <div className="bg-background min-h-screen">
           <AuthHeader />
           {children}
       </div>
- </AuthGuard>
+
     
   );
 }

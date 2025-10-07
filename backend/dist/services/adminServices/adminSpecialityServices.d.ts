@@ -1,8 +1,8 @@
-import { CreateSpecialityDTO, GetSpecialityDto, PaginatedSpecialityDto, UpdateSpecialityDTO } from '../../dto/adminDTO/speciality.dto.js';
+import { CreateSpecialityDTO, GetSpecialityDto, PaginatedSpecialityDto, UpdateSpecialityDTO } from '../../dto/speciality.dto.js';
 import { IAdminSpecialityServices } from './interfaces/IAdminSpecialityServices.js';
 import type { IAdminSpecialityRepository } from '../../repositories/adminRepositories/interfaces/IAdminSpecialityRepository.js';
 export declare class AdminSpecialityServices implements IAdminSpecialityServices {
-    private adminSpecialityRepository;
+    private _adminSpecialityRepository;
     constructor(adminSpecialityRepository: IAdminSpecialityRepository);
     addSpeciality(specialityData: CreateSpecialityDTO): Promise<any>;
     getSpeciality(filterData: GetSpecialityDto): Promise<PaginatedSpecialityDto>;

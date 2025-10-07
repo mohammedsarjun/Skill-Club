@@ -1,7 +1,7 @@
-import { Request, Response } from "express";
-import type { IAdminCategoryController } from "./interfaces/IAdminCategoryController.js";
-import type { IAdminCategoryServices } from "../../services/adminServices/interfaces/IAdminCategoryServices.js";
-import "../../config/container.js";
+import { Request, Response } from 'express';
+import type { IAdminCategoryController } from './interfaces/IAdminCategoryController.js';
+import type { IAdminCategoryServices } from '../../services/adminServices/interfaces/IAdminCategoryServices.js';
+import '../../config/container.js';
 export declare class AdminCategoryController implements IAdminCategoryController {
     private adminCategoryService;
     constructor(adminCategoryService: IAdminCategoryServices);

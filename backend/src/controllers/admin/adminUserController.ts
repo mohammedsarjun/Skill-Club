@@ -7,6 +7,7 @@ import { IAdminUserController } from './interfaces/IAdminUserController.js';
 import type { IAdminUserServices } from '../../services/adminServices/interfaces/IAdminUserServices.js';
 import { AdminUserStatsDto, GetUserDto } from '../../dto/adminDTO/adminUsers.dto.js';
 import { mapUpdateUserStatusToUserModel, mapUserQuery } from '../../mapper/adminMapper/adminUsers.mapper.js';
+import { MESSAGES } from '../../contants/contants.js';
 
 @injectable()
 export class AdminUserController implements IAdminUserController {
@@ -20,10 +21,10 @@ export class AdminUserController implements IAdminUserController {
       const result: AdminUserStatsDto = await this._adminUserService.getUserStats();
       res.status(HttpStatus.OK).json({
         success: true,
-        message: 'User Stats Fetched Successfully',
+        message: MESSAGES.USER.FETCH_STATS_SUCCESS,
         data: result,
       });
-    } catch (error) {
+    } catch (error:unknown) {
       throw error;
     }
   }
@@ -36,10 +37,10 @@ export class AdminUserController implements IAdminUserController {
 
       res.status(HttpStatus.OK).json({
         success: true,
-        message: 'User Fetched Successfully',
+        message: MESSAGES.USER.FETCH_SUCCESS,
         data: result,
       });
-    } catch (error) {
+    } catch (error:unknown) {
       throw error;
     }
   }
@@ -52,10 +53,10 @@ export class AdminUserController implements IAdminUserController {
 
       res.status(HttpStatus.OK).json({
         success: true,
-        message: 'User Fetched Successfully',
+        message: MESSAGES.USER.FETCH_SUCCESS,
         data: result,
       });
-    } catch (error) {
+    } catch (error:unknown) {
       throw error;
     }
   }
@@ -68,10 +69,10 @@ export class AdminUserController implements IAdminUserController {
 
       res.status(HttpStatus.OK).json({
         success: true,
-        message: 'User Status updated Successfully',
+        message: MESSAGES.USER.UPDATED,
         data: result,
       });
-    } catch (error) {
+    } catch (error:unknown) {
       throw error;
     }
   }

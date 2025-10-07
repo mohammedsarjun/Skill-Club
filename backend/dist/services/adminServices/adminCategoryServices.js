@@ -10,22 +10,24 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { injectable, inject } from "tsyringe";
-import AppError from "../../utils/AppError.js";
-import { HttpStatus } from "../../enums/http-status.enum.js";
-import { mapCategoryModelToCategoryDto, mapCategoryModelToCategoryDtoMinimal } from "../../mapper/adminMapper/category.mapper.js";
+import { injectable, inject } from 'tsyringe';
+import AppError from '../../utils/AppError.js';
+import { HttpStatus } from '../../enums/http-status.enum.js';
+import { mapCategoryModelToCategoryDto, mapCategoryModelToCategoryDtoMinimal, mapCategoryQuery, mapCreateCategoryDtoToCategoryModel, mapUpdateCategoryDtoToCategoryModel, } from '../../mapper/category.mapper.js';
+import { ERROR_MESSAGES } from '../../contants/errorConstants.js';
 let AdminCategoryServices = class AdminCategoryServices {
     constructor(adminCategoryRepository) {
-        this.adminCategoryRepository = adminCategoryRepository;
+        this._adminCategoryRepository = adminCategoryRepository;
     }
     async addCategory(categoryData) {
-        const existing = await this.adminCategoryRepository.findOne({
-            name: categoryData.name,
+        const categoryDto = mapCreateCategoryDtoToCategoryModel(categoryData);
+        const existing = await this._adminCategoryRepository.findOne({
+            name: categoryDto.name,
         });
         if (existing) {
-            throw new AppError("Category with this name already exists", HttpStatus.CONFLICT);
+            throw new AppError(ERROR_MESSAGES.CATEGORY.ALREADY_EXIST, HttpStatus.CONFLICT);
         }
-        const result = await this.adminCategoryRepository.create(categoryData);
+        const result = await this._adminCategoryRepository.create(categoryDto);
         return {
             id: result._id,
             name: result.name,
@@ -34,17 +36,18 @@ let AdminCategoryServices = class AdminCategoryServices {
         };
     }
     async getCategory(filterData) {
-        const page = filterData.page ?? 1;
-        const limit = filterData.limit ?? 10;
+        const filterDataDto = mapCategoryQuery(filterData);
+        const page = filterDataDto.page ?? 1;
+        const limit = filterDataDto.limit ?? 10;
         const skip = (page - 1) * limit;
-        const mode = filterData.mode;
-        const result = await this.adminCategoryRepository.findAll({ name: { $regex: filterData.search || "", $options: "i" } }, { skip, limit });
-        const total = await this.adminCategoryRepository.count({
-            name: filterData.search || "",
+        const mode = filterDataDto.mode;
+        const result = await this._adminCategoryRepository.findAll({ name: { $regex: filterDataDto.search || '', $options: 'i' } }, { skip, limit });
+        const total = await this._adminCategoryRepository.count({
+            name: filterDataDto.search || '',
         });
         // Map to DTO
         let data;
-        if (mode == "detailed") {
+        if (mode == 'detailed') {
             data = result.map(mapCategoryModelToCategoryDto);
         }
         else {
@@ -58,15 +61,16 @@ let AdminCategoryServices = class AdminCategoryServices {
         };
     }
     async editCategory(data, id) {
-        if (data.name) {
-            const existing = await this.adminCategoryRepository.findOne({
-                name: data.name,
+        const updateData = mapUpdateCategoryDtoToCategoryModel(data);
+        if (updateData.name) {
+            const existing = await this._adminCategoryRepository.findOne({
+                name: updateData.name,
             });
             if (existing) {
-                throw new AppError("Category with this name already exists", HttpStatus.CONFLICT);
+                throw new AppError(ERROR_MESSAGES.CATEGORY.ALREADY_EXIST, HttpStatus.CONFLICT);
             }
         }
-        const result = await this.adminCategoryRepository.update(id, data);
+        const result = await this._adminCategoryRepository.update(id, updateData);
         return {
             id: result?._id,
             name: result?.name,
@@ -77,7 +81,7 @@ let AdminCategoryServices = class AdminCategoryServices {
 };
 AdminCategoryServices = __decorate([
     injectable(),
-    __param(0, inject("IAdminCategoryRepository")),
+    __param(0, inject('IAdminCategoryRepository')),
     __metadata("design:paramtypes", [Object])
 ], AdminCategoryServices);
 export { AdminCategoryServices };

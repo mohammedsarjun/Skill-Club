@@ -16,6 +16,8 @@ import { OAuth2Client } from 'google-auth-library';
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 import dotenv from 'dotenv';
 import { jwtService } from '../../utils/jwt.js';
+import { jwtConfig } from '../../config/jwt.config.js';
+import { MESSAGES } from '../../contants/contants.js';
 dotenv.config();
 let GoogleAuthController = class GoogleAuthController {
     constructor(googleAuthService, userService) {
@@ -29,23 +31,23 @@ let GoogleAuthController = class GoogleAuthController {
             await this._userService.markUserVerified(user.userId);
             // 🔹 Create tokens
             const payload = user;
-            const accessToken = jwtService.createToken(payload, '15m');
-            const refreshToken = jwtService.createToken(payload, '7d');
+            const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
+            const refreshToken = jwtService.createToken(payload, jwtConfig.refreshTokenMaxAge);
             res.cookie('accessToken', accessToken, {
                 httpOnly: true,
                 secure: false, // 🔹 must be false on localhost (no HTTPS)
                 sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
-                maxAge: 15 * 60 * 1000,
+                maxAge: jwtConfig.accessTokenMaxAge * 1000
             });
             res.cookie('refreshToken', refreshToken, {
                 httpOnly: true,
                 secure: false,
                 sameSite: 'lax',
-                maxAge: 7 * 24 * 60 * 60 * 1000,
+                maxAge: jwtConfig.refreshTokenMaxAge * 1000
             });
             res.status(HttpStatus.OK).json({
                 success: true,
-                message: 'User Logged In successfully',
+                message: MESSAGES.AUTH.LOGIN_SUCCESS,
                 data: user,
             });
         }

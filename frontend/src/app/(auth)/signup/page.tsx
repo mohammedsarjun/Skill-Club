@@ -11,7 +11,7 @@ import { authApi } from "@/api/authApi";
 import { handleSignUpSubmit } from "@/utils/validation";
 import { handleInputChange, handleCheckBox } from "@/utils/formHandlers";
 import toast from "react-hot-toast";
-import AuthGuard from "@/components/AuthGaurd";
+
 import GoogleLogin from "@/components/GoogleButton";
 
 function SignupPage() {
@@ -47,8 +47,8 @@ function SignupPage() {
       }
 
       const response = await authApi.signUp(formData);
-      if (!response.success) {
-        toast.error(response.message);
+      if (!response?.success) {
+        toast.error(response?.message);
         setIsLoading(false);
         return;
       }

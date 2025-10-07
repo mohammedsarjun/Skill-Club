@@ -42,7 +42,7 @@ export default function GoogleLogin() {
       
           if(res.success){
         dispatch(setUser(res.data));
-        route.push("/onboarding/role");
+        route.replace("/onboarding/role");
           }else{
             toast.error(response.message)
           }

@@ -4,8 +4,8 @@ import type { IAuthController } from './interfaces/IAuthController.js';
 import type { IOtpServices } from '../../services/authServices/interfaces/IOtpService.js';
 import '../../config/container.js';
 export declare class AuthController implements IAuthController {
-    private authService;
-    private otpService;
+    private _authService;
+    private _otpService;
     constructor(authService: IAuthService, otpService: IOtpServices);
     signup(req: Request, res: Response): Promise<void>;
     login(req: Request, res: Response): Promise<void>;

@@ -10,7 +10,7 @@ export class FreelancerRepository extends BaseRepository<IUser> implements IFree
   }
 
   async getFreelancerById(userId: string) {
-    console.log(userId)
+
     return this.findOne({ _id: userId, roles: "freelancer" });
   }
 

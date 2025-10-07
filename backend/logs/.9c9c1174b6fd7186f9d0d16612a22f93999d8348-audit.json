@@ -1,0 +1,25 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 30
+    },
+    "auditLog": "D:\\Brototype files\\Skill-Club\\backend\\logs\\.9c9c1174b6fd7186f9d0d16612a22f93999d8348-audit.json",
+    "files": [
+        {
+            "date": 1759561814352,
+            "name": "D:\\Brototype files\\Skill-Club\\backend\\logs\\app-2025-10-04.log",
+            "hash": "772945acc151541acc2681daaf0d5b2fe2cc2011d9c8e8b6fbc2b13cbfa53787"
+        },
+        {
+            "date": 1759733381416,
+            "name": "D:\\Brototype files\\Skill-Club\\backend\\logs\\app-2025-10-06.log",
+            "hash": "c5ae96cee433239b1d8aeb124758c3f9c1977df17451f0d2dd6c54f81dc04b7c"
+        },
+        {
+            "date": 1759810404661,
+            "name": "D:\\Brototype files\\Skill-Club\\backend\\logs\\app-2025-10-07.log",
+            "hash": "a52e1852167762c5f17bc17a998b68e22c6a0e4fd71aa29c79395cca644cbfa3"
+        }
+    ],
+    "hashType": "sha256"
+}

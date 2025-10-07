@@ -1,0 +1,1 @@
+{"version":3,"file":"IUserCategoryController.d.ts","sourceRoot":"","sources":["../../../../src/controllers/user/interfaces/IUserCategoryController.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,QAAQ,EAAE,MAAM,SAAS,CAAC;AAC5C,MAAM,WAAW,uBAAuB;IACtC,cAAc,CAAC,GAAG,EAAE,OAAO,EAAE,GAAG,EAAE,QAAQ,GAAG,OAAO,CAAC,IAAI,CAAC,CAAC;CAC5D"}

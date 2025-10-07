@@ -5,7 +5,6 @@ export class FreelancerRepository extends BaseRepository {
         super(User);
     }
     async getFreelancerById(userId) {
-        console.log(userId);
         return this.findOne({ _id: userId, roles: "freelancer" });
     }
 }

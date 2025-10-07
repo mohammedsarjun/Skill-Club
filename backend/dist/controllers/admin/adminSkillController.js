@@ -13,18 +13,18 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 import { injectable, inject } from 'tsyringe';
 import '../../config/container.js';
 import { HttpStatus } from '../../enums/http-status.enum.js';
-import { mapCreateSkillDtoToSkillModel, mapSkillQuery, mapUpdateSkillDtoToSkillModel, } from '../../mapper/adminMapper/skill.mapper.js';
+import { MESSAGES } from '../../contants/contants.js';
 let AdminSkillController = class AdminSkillController {
     constructor(adminSkillServices) {
         this._adminSkillServices = adminSkillServices;
     }
     async addSkill(req, res) {
         try {
-            const dto = mapCreateSkillDtoToSkillModel(req.body);
-            const result = await this._adminSkillServices.addSkill(dto);
+            const skillDto = req.body;
+            const result = await this._adminSkillServices.addSkill(skillDto);
             res.status(HttpStatus.CREATED).json({
                 success: true,
-                message: 'Skill created successfully',
+                message: MESSAGES.SKILL.CREATED,
                 data: result,
             });
         }
@@ -34,11 +34,17 @@ let AdminSkillController = class AdminSkillController {
     }
     async getSkills(req, res) {
         try {
-            const dto = mapSkillQuery(req.query);
-            const result = await this._adminSkillServices.getSkills(dto);
+            const skillDto = {
+                search: typeof req.query.search === 'string' ? req.query.search : '',
+                page: Number(req?.query?.page) || 1,
+                limit: Number(req?.query?.limit) || 10,
+                mode: typeof req.query.mode === 'string' ? req.query.mode : '',
+            };
+            console.log("hi");
+            const result = await this._adminSkillServices.getSkills(skillDto);
             res.status(HttpStatus.OK).json({
                 success: true,
-                message: 'Skills Fetched successfully',
+                message: MESSAGES.SKILL.FETCH_SUCCESS,
                 data: result,
             });
         }
@@ -48,12 +54,12 @@ let AdminSkillController = class AdminSkillController {
     }
     async editSkill(req, res) {
         try {
-            const dto = mapUpdateSkillDtoToSkillModel(req.body);
+            const skillDto = req.body;
             const { id } = req.body;
-            const result = await this._adminSkillServices.editSkill(id, dto);
+            const result = await this._adminSkillServices.editSkill(id, skillDto);
             res.status(HttpStatus.OK).json({
                 success: true,
-                message: 'Skills Updated successfully',
+                message: MESSAGES.SKILL.UPDATED,
                 data: result,
             });
         }

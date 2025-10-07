@@ -31,7 +31,7 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
           resetPasswordExpires: expiry,
         },
       },
-      { new: true }, // return the updated document if needed
+      { new: true }, 
     );
   }
 
@@ -55,17 +55,17 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
   }
 
   async findByResetToken(token: string) {
-    // MongoDB-specific logic stays here
+
 
     return await this.model.findOne({
       resetPasswordToken: token,
-      resetPasswordExpires: { $gt: new Date() }, // token not expired
+      resetPasswordExpires: { $gt: new Date() }, 
     });
   }
 
   async addRoleAndCompleteOnboarding(userId: string | Types.ObjectId, role: string) {
     const update: any = {
-      $addToSet: { roles: role }, // add role if not exists
+      $addToSet: { roles: role }, 
       $set: { activeRole: role, isOnboardingCompleted: true },
     };
 
@@ -82,17 +82,16 @@ async getUsers(
 ): Promise<IUser[] | null> {
   const query: Record<string, any> = {};
 
-  // Name filter (case-insensitive regex), only if provided and non-empty
+
   if (typeof filters?.name === 'string' && filters.name.trim() !== '') {
     query.firstName = { $regex: filters.name.trim(), $options: 'i' };
   }
 
-  // Role filter (roles is an array in the model), only if provided and non-empty
+
   if (typeof filters?.role === 'string' && filters.role.trim() !== '') {
     query.roles = { $in: [filters.role.trim()] };
   }
 
-  // Build the query and execute with .exec()
   let q = this.model.find(query).skip(options.skip).limit(options.limit);
 
   if (options.populate?.path) {

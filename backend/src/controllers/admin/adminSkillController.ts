@@ -10,6 +10,8 @@ import {
   mapSkillQuery,
   mapUpdateSkillDtoToSkillModel,
 } from '../../mapper/adminMapper/skill.mapper.js';
+import { MESSAGES } from '../../contants/contants.js';
+import { CreateSkillDTO, GetSkillDto, UpdateSkillDTO } from '../../dto/adminDTO/skill.dto.js';
 
 @injectable()
 export class AdminSkillController implements IAdminSkillController {
@@ -24,43 +26,50 @@ export class AdminSkillController implements IAdminSkillController {
 
   async addSkill(req: Request, res: Response): Promise<void> {
     try {
-      const dto = mapCreateSkillDtoToSkillModel(req.body);
-      const result = await this._adminSkillServices.addSkill(dto);
+      const skillDto: CreateSkillDTO = req.body;
+      const result = await this._adminSkillServices.addSkill(skillDto);
       res.status(HttpStatus.CREATED).json({
         success: true,
-        message: 'Skill created successfully',
+        message: MESSAGES.SKILL.CREATED,
         data: result,
       });
-    } catch (error) {
+    } catch (error: unknown) {
       throw error;
     }
   }
 
   async getSkills(req: Request, res: Response): Promise<void> {
     try {
-      const dto = mapSkillQuery(req.query);
-      const result = await this._adminSkillServices.getSkills(dto);
+      const skillDto: GetSkillDto = {
+        search: typeof req.query.search === 'string' ? req.query.search : '',
+        page: Number(req?.query?.page) || 1,
+        limit: Number(req?.query?.limit) || 10,
+        mode: typeof req.query.mode === 'string' ? req.query.mode : '',
+      };
+
+      console.log("hi")
+      const result = await this._adminSkillServices.getSkills(skillDto);
       res.status(HttpStatus.OK).json({
         success: true,
-        message: 'Skills Fetched successfully',
+        message: MESSAGES.SKILL.FETCH_SUCCESS,
         data: result,
       });
-    } catch (error) {
+    } catch (error: unknown) {
       throw error;
     }
   }
 
   async editSkill(req: Request, res: Response): Promise<void> {
     try {
-      const dto = mapUpdateSkillDtoToSkillModel(req.body);
-      const {id}=req.body
-      const result = await this._adminSkillServices.editSkill(id,dto);
+      const skillDto:Partial<UpdateSkillDTO> =req.body;
+      const { id } = req.body;
+      const result = await this._adminSkillServices.editSkill(id, skillDto);
       res.status(HttpStatus.OK).json({
         success: true,
-        message: 'Skills Updated successfully',
+        message: MESSAGES.SKILL.UPDATED,
         data: result,
       });
-    } catch (error) {
+    } catch (error: unknown) {
       throw error;
     }
   }

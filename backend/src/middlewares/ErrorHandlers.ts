@@ -1,6 +1,7 @@
 // middleware/errorHandler.ts
 import { Request, Response, NextFunction } from "express";
 import AppError from "../utils/AppError.js";
+import { appLogger } from "../utils/logger.js";
 
 export const errorHandler = (
   err: Error | AppError,
@@ -8,8 +9,14 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  console.error("❌ Error:", err);
-
+  // Log the error with context
+  appLogger.error("❌ Error:", {
+    message: err.message,
+    stack: err.stack,
+    method: req.method,
+    url: req.originalUrl,
+    ip: req.ip,
+  });
 
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({

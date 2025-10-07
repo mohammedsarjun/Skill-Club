@@ -6,7 +6,8 @@ import { IClientService } from './interfaces/IClientServices.js';
 import type { IClientRepository } from '../../repositories/interfaces/IClientRepository.js';
 import { mapClientToDTO } from '../../mapper/clientMapper/client.mapper.js';
 import { GetClientDTO, UpdateClientDto } from '../../dto/clientDTO/client.dto.js';
-
+import { flattenObject } from '../../utils/flattenObjects.js';
+import { ERROR_MESSAGES } from '../../contants/errorConstants.js';
 @injectable()
 export class ClientService implements IClientService {
   private _clientRepository: IClientRepository;
@@ -28,9 +29,7 @@ export class ClientService implements IClientService {
 
       return clientDto;
     } catch (error) {
-      console.error(`Error fetching Client data for ID: ${id}`, error);
-
-      throw new AppError('Failed to fetch Client data', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new AppError(ERROR_MESSAGES.CLIENT.FETCH_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -44,14 +43,16 @@ export class ClientService implements IClientService {
 
   if (!clientData || !clientData.clientProfile) {
     throw new AppError(
-      "Client or Client profile doesn't exist",
+      ERROR_MESSAGES.CLIENT.NOT_FOUND,
       HttpStatus.NOT_FOUND
     );
   }
 
-  console.log(data)
+  const flattedData=flattenObject(data)
 
-  const updatedClient = await this._clientRepository.updateClientById(id, data);
+  console.log(flattedData)
+
+  const updatedClient = await this._clientRepository.updateClientById(id, flattedData);
 
 
   if (!updatedClient?.clientProfile) {

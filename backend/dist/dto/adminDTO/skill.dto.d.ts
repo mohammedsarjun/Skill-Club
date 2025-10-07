@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 export interface CreateSkillDTO {
     name: string;
-    specialties: string[];
+    specialities: Types.ObjectId[];
     status: string;
 }
 export interface GetSkillDto {

@@ -15,15 +15,16 @@ import '../../config/container.js';
 import { HttpStatus } from '../../enums/http-status.enum.js';
 import { jwtService } from '../../utils/jwt.js';
 import { mapClientDtoToUserModel, mapFreelancerDtoToUserModel, } from '../../mapper/userMapper/user.mapper.js';
+import { MESSAGES } from '../../contants/contants.js';
 let UserController = class UserController {
     constructor(userService) {
-        this.userService = userService;
+        this._userService = userService;
     }
     async selectRole(req, res) {
         try {
             const { role } = req.body;
             const userId = req.user?.userId;
-            const user = await this.userService.selectRole(userId, role);
+            const user = await this._userService.selectRole(userId, role);
             // Issue new JWT with updated roles
             const payload = user;
             const accessToken = jwtService.createToken(payload, '15m');
@@ -31,7 +32,7 @@ let UserController = class UserController {
             res.cookie('accessToken', accessToken, { httpOnly: true, maxAge: 15 * 60 * 1000 });
             res.status(HttpStatus.OK).json({
                 success: true,
-                message: 'Role Selected Successfully',
+                message: MESSAGES.USER.ROLE_SELECTED,
                 data: user,
             });
         }
@@ -42,7 +43,7 @@ let UserController = class UserController {
     async me(req, res) {
         try {
             const userId = req.user?.userId;
-            const user = await this.userService.me(userId);
+            const user = await this._userService.me(userId);
             const payload = user;
             const accessToken = jwtService.createToken(payload, '15m');
             res.cookie('accessToken', accessToken, {
@@ -53,7 +54,7 @@ let UserController = class UserController {
             });
             res.status(HttpStatus.OK).json({
                 success: true,
-                message: 'Role Selected Successfully',
+                message: MESSAGES.USER.VERIFIED,
                 data: user,
             });
         }
@@ -65,10 +66,10 @@ let UserController = class UserController {
         try {
             const userId = req.user?.userId;
             const dto = mapFreelancerDtoToUserModel(req.body);
-            const user = await this.userService.createFreelancerProfile(userId, dto);
+            const user = await this._userService.createFreelancerProfile(userId, dto);
             res.status(HttpStatus.OK).json({
                 success: true,
-                message: 'Freelancer Profile Updated Successfully',
+                message: MESSAGES.Freelancer.UPDATED,
                 data: user,
             });
         }
@@ -80,10 +81,10 @@ let UserController = class UserController {
         try {
             const userId = req.user.userId;
             const dto = mapClientDtoToUserModel(req.body);
-            const user = await this.userService.createClientProfile(userId, dto);
+            const user = await this._userService.createClientProfile(userId, dto);
             res.status(HttpStatus.OK).json({
                 success: true,
-                message: 'Client Profile Updated Successfully',
+                message: MESSAGES.CLIENT.UPDATED,
                 data: user,
             });
         }
@@ -94,7 +95,7 @@ let UserController = class UserController {
     async switchRole(req, res) {
         try {
             const userId = req.user.userId;
-            const user = await this.userService.switchRole(userId);
+            const user = await this._userService.switchRole(userId);
             const payload = user;
             const accessToken = jwtService.createToken(payload, '15m');
             const refreshToken = jwtService.createToken(payload, '7d');
@@ -113,7 +114,7 @@ let UserController = class UserController {
             });
             res.status(HttpStatus.OK).json({
                 success: true,
-                message: 'Role Switched Successfully',
+                message: MESSAGES.USER.ROLE_SWITCHED,
                 data: user,
             });
         }

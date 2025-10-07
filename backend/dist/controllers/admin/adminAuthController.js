@@ -14,6 +14,8 @@ import { injectable, inject } from 'tsyringe';
 import '../../config/container.js';
 import { HttpStatus } from '../../enums/http-status.enum.js';
 import { jwtService } from '../../utils/jwt.js';
+import { jwtConfig } from '../../config/jwt.config.js';
+import { MESSAGES } from '../../contants/contants.js';
 let AdminAuthController = class AdminAuthController {
     constructor(adminAuthServices) {
         this.adminAuthServices = adminAuthServices;
@@ -23,23 +25,23 @@ let AdminAuthController = class AdminAuthController {
             const result = this.adminAuthServices.login(req.body);
             // 🔹 Create tokens
             const payload = { userId: 'admin_1', roles: ['admin'], activeRole: 'admin' };
-            const accessToken = jwtService.createToken(payload, '15m');
-            const refreshToken = jwtService.createToken(payload, '7d');
+            const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
+            const refreshToken = jwtService.createToken(payload, jwtConfig.refreshTokenMaxAge);
             res.cookie('accessToken', accessToken, {
                 httpOnly: true,
                 secure: false, // 🔹 must be false on localhost (no HTTPS)
                 sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
-                maxAge: 15 * 60 * 1000,
+                maxAge: jwtConfig.accessTokenMaxAge * 1000,
             });
             res.cookie('refreshToken', refreshToken, {
                 httpOnly: true,
                 secure: false,
                 sameSite: 'lax',
-                maxAge: 7 * 24 * 60 * 60 * 1000,
+                maxAge: jwtConfig.refreshTokenMaxAge * 1000,
             });
             res.status(HttpStatus.OK).json({
                 success: true,
-                message: 'Admin Logged In Successfully',
+                message: MESSAGES.AUTH.LOGIN_SUCCESS,
                 data: payload,
             });
         }
@@ -61,7 +63,7 @@ let AdminAuthController = class AdminAuthController {
             // Double insurance: explicitly overwrite with expired values
             res.cookie('accessToken', '', { ...cookieOptions, expires: new Date(0) });
             res.cookie('refreshToken', '', { ...cookieOptions, expires: new Date(0) });
-            res.status(200).json({ message: 'Logged out successfully' });
+            res.status(HttpStatus.OK).json({ message: MESSAGES.AUTH.LOGOUT_SUCCESS });
         }
         catch (err) {
             throw err;
@@ -71,7 +73,7 @@ let AdminAuthController = class AdminAuthController {
         try {
             res.status(HttpStatus.OK).json({
                 success: true,
-                message: 'Admin Verified',
+                message: MESSAGES.ADMIN.VERIFIED,
                 data: req.user,
             });
         }

@@ -5,6 +5,8 @@ import '../../config/container.js';
 import { HttpStatus } from '../../enums/http-status.enum.js';
 import type { IAdminAuthServices } from '../../services/adminServices/interfaces/IAdminAuthServices.js';
 import { jwtService } from '../../utils/jwt.js';
+import { jwtConfig } from '../../config/jwt.config.js';
+import { MESSAGES } from '../../contants/contants.js';
 
 @injectable()
 export class AdminAuthController implements IAdminAuthController {
@@ -23,29 +25,29 @@ export class AdminAuthController implements IAdminAuthController {
 
       // 🔹 Create tokens
       const payload = { userId: 'admin_1', roles: ['admin'], activeRole: 'admin' };
-      const accessToken = jwtService.createToken(payload, '15m');
-      const refreshToken = jwtService.createToken(payload, '7d');
+      const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
+      const refreshToken = jwtService.createToken(payload, jwtConfig.refreshTokenMaxAge);
 
       res.cookie('accessToken', accessToken, {
         httpOnly: true,
         secure: false, // 🔹 must be false on localhost (no HTTPS)
         sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
-        maxAge: 15 * 60 * 1000,
+        maxAge: jwtConfig.accessTokenMaxAge * 1000,
       });
 
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: false,
         sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: jwtConfig.refreshTokenMaxAge * 1000,
       });
 
       res.status(HttpStatus.OK).json({
         success: true,
-        message: 'Admin Logged In Successfully',
+        message: MESSAGES.AUTH.LOGIN_SUCCESS,
         data: payload,
       });
-    } catch (error) {
+    } catch (error:unknown) {
       throw error;
     }
   }
@@ -70,8 +72,8 @@ export class AdminAuthController implements IAdminAuthController {
       res.cookie('accessToken', '', { ...cookieOptions, expires: new Date(0) });
       res.cookie('refreshToken', '', { ...cookieOptions, expires: new Date(0) });
 
-      res.status(200).json({ message: 'Logged out successfully' });
-    } catch (err) {
+      res.status(HttpStatus.OK).json({ message: MESSAGES.AUTH.LOGOUT_SUCCESS });
+    } catch (err:unknown) {
       throw err;
     }
   }
@@ -80,10 +82,10 @@ export class AdminAuthController implements IAdminAuthController {
     try {
       res.status(HttpStatus.OK).json({
         success: true,
-        message: 'Admin Verified',
+        message: MESSAGES.ADMIN.VERIFIED,
         data: req.user,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       throw error;
     }
   }

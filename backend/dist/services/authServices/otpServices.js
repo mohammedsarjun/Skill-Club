@@ -10,54 +10,55 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { injectable, inject } from "tsyringe";
-import sendEmailOtp from "../../utils/sendOtp.js";
-import { createOtpDigit } from "../../utils/otpGenerator.js";
-import bcrypt from "bcryptjs";
-import { HttpStatus } from "../../enums/http-status.enum.js";
-import AppError from "../../utils/AppError.js";
-import { mapOtpModelToGetOtpDto } from "../../mapper/authMapper/otp.mapper.js";
+import { injectable, inject } from 'tsyringe';
+import sendEmailOtp from '../../utils/sendOtp.js';
+import { createOtpDigit } from '../../utils/otpGenerator.js';
+import bcrypt from 'bcryptjs';
+import { HttpStatus } from '../../enums/http-status.enum.js';
+import AppError from '../../utils/AppError.js';
+import { mapOtpModelToGetOtpDto } from '../../mapper/authMapper/otp.mapper.js';
+import { ERROR_MESSAGES } from '../../contants/errorConstants.js';
 let OtpService = class OtpService {
     constructor(otpRepository, userRepository) {
-        this.otpRepository = otpRepository;
-        this.userRepository = userRepository;
+        this._otpRepository = otpRepository;
+        this._userRepository = userRepository;
     }
     async createOtp(email, purpose) {
-        const user = await this.userRepository.findOne({ email });
+        const user = await this._userRepository.findOne({ email });
         if (!user) {
-            throw new AppError("User with this email does not exist", HttpStatus.NOT_FOUND);
+            throw new AppError(ERROR_MESSAGES.AUTH.NOT_FOUND, HttpStatus.NOT_FOUND);
         }
         const otpPlain = await createOtpDigit();
         const otp = await bcrypt.hash(otpPlain, 10);
-        const existingOtp = await this.otpRepository.findOne({ email });
+        const existingOtp = await this._otpRepository.findOne({ email });
         if (existingOtp) {
-            await this.otpRepository.deleteByEmail(email);
+            await this._otpRepository.deleteByEmail(email);
         }
         const expiresAt = new Date(Date.now() + 70 * 1000);
-        const response = await this.otpRepository.create({ email, purpose, otp, expiresAt });
+        const response = await this._otpRepository.create({ email, purpose, otp, expiresAt });
         const mappedRespone = mapOtpModelToGetOtpDto(response);
         await sendEmailOtp(email, otpPlain);
         return mappedRespone;
     }
     async verifyOtp(email, otp) {
-        const otpData = await this.otpRepository.findByEmail(email);
+        const otpData = await this._otpRepository.findByEmail(email);
         if (!otpData) {
-            throw new AppError("OTP for this email does not exist", HttpStatus.NOT_FOUND);
+            throw new AppError(ERROR_MESSAGES.AUTH.NOT_FOUND, HttpStatus.NOT_FOUND);
         }
         if (otpData.expiresAt < new Date()) {
-            throw new AppError("OTP has expired", HttpStatus.GONE);
+            throw new AppError(ERROR_MESSAGES.OTP.EXPIRED, HttpStatus.GONE);
         }
         const isMatched = await bcrypt.compare(otp, otpData.otp);
         if (!isMatched) {
-            throw new AppError("Entered OTP is incorrect", HttpStatus.UNAUTHORIZED);
+            throw new AppError(ERROR_MESSAGES.OTP.INCORRECT_OTP, HttpStatus.UNAUTHORIZED);
         }
         const purpose = otpData.purpose;
-        await this.otpRepository.deleteByEmail(email);
+        await this._otpRepository.deleteByEmail(email);
         return { purpose };
     }
     async findOtp(email) {
         try {
-            const response = await this.otpRepository.findByEmail(email);
+            const response = await this._otpRepository.findByEmail(email);
             return response;
         }
         catch (error) {
@@ -66,7 +67,7 @@ let OtpService = class OtpService {
     }
     async deleteOtp(email) {
         try {
-            const response = await this.otpRepository.deleteByEmail(email);
+            const response = await this._otpRepository.deleteByEmail(email);
             return response;
         }
         catch (error) {
@@ -76,8 +77,8 @@ let OtpService = class OtpService {
 };
 OtpService = __decorate([
     injectable(),
-    __param(0, inject("IOtpRepository")),
-    __param(1, inject("IUserRepository")),
+    __param(0, inject('IOtpRepository')),
+    __param(1, inject('IUserRepository')),
     __metadata("design:paramtypes", [Object, Object])
 ], OtpService);
 export { OtpService };

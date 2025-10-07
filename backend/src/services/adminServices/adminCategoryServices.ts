@@ -1,4 +1,4 @@
-import { IAdminCategoryServices } from "./interfaces/IAdminCategoryServices.js";
+import { IAdminCategoryServices } from './interfaces/IAdminCategoryServices.js';
 import {
   CategoryDto,
   CategoryDtoMinimal,
@@ -6,35 +6,41 @@ import {
   GetCategoryDto,
   PaginatedCategoryDto,
   UpdateCategoryDTO,
-} from "../../dto/adminDTO/category.dto.js";
-import type { IAdminCategoryRepository } from "../../repositories/adminRepositories/interfaces/IAdminCategoryRepository.js";
-import { injectable, inject } from "tsyringe";
-import AppError from "../../utils/AppError.js";
-import { HttpStatus } from "../../enums/http-status.enum.js";
-import { mapCategoryModelToCategoryDto, mapCategoryModelToCategoryDtoMinimal } from "../../mapper/adminMapper/category.mapper.js";
+} from '../../dto/category.dto.js';
+import type { IAdminCategoryRepository } from '../../repositories/adminRepositories/interfaces/IAdminCategoryRepository.js';
+import { injectable, inject } from 'tsyringe';
+import AppError from '../../utils/AppError.js';
+import { HttpStatus } from '../../enums/http-status.enum.js';
+import {
+  mapCategoryModelToCategoryDto,
+  mapCategoryModelToCategoryDtoMinimal,
+  mapCategoryQuery,
+  mapCreateCategoryDtoToCategoryModel,
+  mapUpdateCategoryDtoToCategoryModel,
+} from '../../mapper/category.mapper.js';
+import { ERROR_MESSAGES } from '../../contants/errorConstants.js';
+
 @injectable()
 export class AdminCategoryServices implements IAdminCategoryServices {
-  private adminCategoryRepository;
+  private _adminCategoryRepository;
 
   constructor(
-    @inject("IAdminCategoryRepository")
-    adminCategoryRepository: IAdminCategoryRepository
+    @inject('IAdminCategoryRepository')
+    adminCategoryRepository: IAdminCategoryRepository,
   ) {
-    this.adminCategoryRepository = adminCategoryRepository;
+    this._adminCategoryRepository = adminCategoryRepository;
   }
   async addCategory(categoryData: CreateCategoryDTO): Promise<any> {
-    const existing = await this.adminCategoryRepository.findOne({
-      name: categoryData.name,
+    const categoryDto = mapCreateCategoryDtoToCategoryModel(categoryData);
+    const existing = await this._adminCategoryRepository.findOne({
+      name: categoryDto.name,
     });
 
     if (existing) {
-      throw new AppError(
-        "Category with this name already exists",
-        HttpStatus.CONFLICT
-      );
+      throw new AppError(ERROR_MESSAGES.CATEGORY.ALREADY_EXIST, HttpStatus.CONFLICT);
     }
 
-    const result = await this.adminCategoryRepository.create(categoryData);
+    const result = await this._adminCategoryRepository.create(categoryDto);
 
     return {
       id: result._id,
@@ -45,31 +51,29 @@ export class AdminCategoryServices implements IAdminCategoryServices {
   }
 
   async getCategory(filterData: GetCategoryDto): Promise<PaginatedCategoryDto> {
-    const page = filterData.page ?? 1;
-    const limit = filterData.limit ?? 10;
+    const filterDataDto = mapCategoryQuery(filterData)
+    const page = filterDataDto.page ?? 1;
+    const limit = filterDataDto.limit ?? 10;
     const skip = (page - 1) * limit;
-    const mode=filterData.mode
+    const mode = filterDataDto.mode;
 
-    const result = await this.adminCategoryRepository.findAll(
-      { name: { $regex: filterData.search || "", $options: "i" } },
-      { skip, limit }
+    const result = await this._adminCategoryRepository.findAll(
+      { name: { $regex: filterDataDto.search || '', $options: 'i' } },
+      { skip, limit },
     );
 
-    const total = await this.adminCategoryRepository.count({
-      name: filterData.search || "",
+    const total = await this._adminCategoryRepository.count({
+      name: filterDataDto.search || '',
     });
 
     // Map to DTO
-    let data:CategoryDto[] | CategoryDtoMinimal[];
+    let data: CategoryDto[] | CategoryDtoMinimal[];
 
-    if(mode=="detailed"){
-    data= result.map(mapCategoryModelToCategoryDto);
-    }else{
-    data= result.map(mapCategoryModelToCategoryDtoMinimal);
+    if (mode == 'detailed') {
+      data = result.map(mapCategoryModelToCategoryDto);
+    } else {
+      data = result.map(mapCategoryModelToCategoryDtoMinimal);
     }
-
-    
-
 
     return {
       data,
@@ -79,25 +83,18 @@ export class AdminCategoryServices implements IAdminCategoryServices {
     };
   }
 
-  async editCategory(
-    data: Partial<UpdateCategoryDTO>,
-    id: string
-  ): Promise<any> {
-
-    if (data.name) {
-      const existing = await this.adminCategoryRepository.findOne({
-        name: data.name,
+  async editCategory(data: Partial<UpdateCategoryDTO>, id: string): Promise<any> {
+    const updateData = mapUpdateCategoryDtoToCategoryModel(data);
+    if (updateData.name) {
+      const existing = await this._adminCategoryRepository.findOne({
+        name: updateData.name,
       });
       if (existing) {
-        throw new AppError(
-          "Category with this name already exists",
-          HttpStatus.CONFLICT
-        );
+        throw new AppError(ERROR_MESSAGES.CATEGORY.ALREADY_EXIST, HttpStatus.CONFLICT);
       }
     }
 
-
-    const result = await this.adminCategoryRepository.update(id, data);
+    const result = await this._adminCategoryRepository.update(id, updateData);
 
     return {
       id: result?._id,

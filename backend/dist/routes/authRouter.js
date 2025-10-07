@@ -5,6 +5,7 @@ import { validate } from '../middlewares/validate.js';
 import { loginSchema, signupSchema, verifyOtpSchema, } from '../utils/validationSchemas/authValidations.js';
 import { OtpController } from '../controllers/auth/otpController.js';
 import { GoogleAuthController } from '../controllers/auth/googleAuthController.js';
+import { jwtService } from '../utils/jwt.js';
 const authRouter = express.Router();
 const authController = container.resolve(AuthController);
 const otpController = container.resolve(OtpController);
@@ -18,5 +19,26 @@ authRouter.post('/reset-password', authController.resetPassword.bind(authControl
 //google login
 authRouter.post('/google', googleAuthController.googleLogin.bind(googleAuthController));
 authRouter.post('/logout', authController.logout.bind(authController));
+authRouter.post('/refresh-token', (req, res) => {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken)
+        return res.sendStatus(401);
+    try {
+        const decoded = jwtService.verifyToken(refreshToken);
+        const { iat, exp, nbf, ...payload } = decoded;
+        console.log(payload);
+        const newAccessToken = jwtService.createToken(payload, '15m');
+        res.cookie('accessToken', newAccessToken, {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'lax',
+            maxAge: 15 * 60 * 1000,
+        });
+        res.json({ message: 'Access token refreshed' });
+    }
+    catch (err) {
+        res.sendStatus(403);
+    }
+});
 export default authRouter;
 //# sourceMappingURL=authRouter.js.map

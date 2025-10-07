@@ -10,6 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 import { injectable } from "tsyringe";
 import AppError from "../../utils/AppError.js";
 import { HttpStatus } from "../../enums/http-status.enum.js";
+import { ERROR_MESSAGES } from "../../contants/errorConstants.js";
 let AdminAuthServices = class AdminAuthServices {
     constructor() {
     }
@@ -17,7 +18,7 @@ let AdminAuthServices = class AdminAuthServices {
         const adminEmail = process.env.ADMIN_EMAIL;
         const adminPassword = process.env.ADMIN_PASSWORD;
         if (adminEmail != adminData?.email || adminPassword != adminData?.password)
-            throw new AppError("Incorrect email or password", HttpStatus.UNAUTHORIZED);
+            throw new AppError(ERROR_MESSAGES.AUTH.INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED);
     }
 };
 AdminAuthServices = __decorate([

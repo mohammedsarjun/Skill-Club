@@ -1,5 +1,8 @@
 import { container } from "tsyringe";
-//Week 1
+import { CategoryRepository } from "../repositories/categoryRepository.js";
+import { SpecialityRepository } from "../repositories/specialityRepository.js";
+container.register("ICategoryRepository", { useClass: CategoryRepository });
+container.register("ISpecialityRepository", { useClass: SpecialityRepository });
 //Auth
 import { AuthService } from "../services/authServices/AuthService.js";
 import { OtpService } from "../services/authServices/otpServices.js";
@@ -48,4 +51,8 @@ import { ClientService } from "../services/clientServices/clientServices.js";
 import { ClientRepository } from "../repositories/clientRepository.js";
 container.register("IClientService", { useClass: ClientService });
 container.register("IClientRepository", { useClass: ClientRepository });
+import { userCategoryServices } from "../services/userServices/userCategoryService.js";
+import { userSpecialityServices } from "../services/userServices/userSpecialityServices.js";
+container.register("IUserCategoryServices", { useClass: userCategoryServices });
+container.register("IUserSpecialityServices", { useClass: userSpecialityServices });
 //# sourceMappingURL=container.js.map

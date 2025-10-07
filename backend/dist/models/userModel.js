@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema } from 'mongoose';
 // ------------------- Schemas -------------------
 const addressSchema = new Schema({
     country: String,
@@ -8,8 +8,16 @@ const addressSchema = new Schema({
     zipCode: String,
 });
 const languageSchema = new Schema({
-    name: String,
-    proficiency: String,
+    name: {
+        type: String,
+        enum: ['English', 'Tamil', 'Hindi', 'Spanish'],
+        required: true
+    },
+    proficiency: {
+        type: String,
+        enum: ['Conversational', 'Fluent'],
+        required: true
+    }
 });
 const experienceSchema = new Schema({
     company: String,
@@ -19,7 +27,7 @@ const experienceSchema = new Schema({
     startMonth: String,
     startYear: Number,
     endMonth: String,
-    endYear: Number
+    endYear: Number,
 });
 const educationSchema = new Schema({
     school: String,
@@ -27,7 +35,7 @@ const educationSchema = new Schema({
     fieldOfStudy: String,
     startYear: Number,
     endYear: Number,
-    description: String
+    description: String,
 });
 const freelancerProfileSchema = new Schema({
     logo: String,
@@ -70,8 +78,8 @@ const userSchema = new Schema({
     isOnboardingCompleted: { type: Boolean, default: false },
     resetPasswordToken: { type: String, default: undefined },
     resetPasswordExpires: { type: Date, default: undefined },
-    provider: { type: String, enum: ["local", "google"], default: "local" },
+    provider: { type: String, enum: ['local', 'google'], default: 'local' },
 }, { timestamps: true });
 // ------------------- Model -------------------
-export const User = mongoose.model("User", userSchema);
+export const User = mongoose.model('User', userSchema);
 //# sourceMappingURL=userModel.js.map

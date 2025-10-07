@@ -58,9 +58,9 @@ interface TableProps {
   canDelete: boolean;
   handleEditModal?: (values: any) => void;
   viewOnly?: boolean;
-  handleOpenViewModal?:(row:any)=>void
-  setFilters?:(filterData: any) => void
-  activeFilters?:Record<string, string>
+  handleOpenViewModal?: (row: any) => void;
+  setFilters?: (filterData: any) => void;
+  activeFilters?: Record<string, string>;
 }
 
 const Table: React.FC<TableProps> = ({
@@ -80,7 +80,7 @@ const Table: React.FC<TableProps> = ({
   viewOnly = false,
   handleOpenViewModal,
   setFilters,
-  activeFilters
+  activeFilters,
 }) => {
   // const [activeFilters, setActiveFilters] = useState<Record<string, string>>(
   //   {}
@@ -88,10 +88,9 @@ const Table: React.FC<TableProps> = ({
 
   // Filter data based on search + dropdown filters\
 
-    let filteredData: Record<string, any>[] =[] ;
+  let filteredData: Record<string, any>[] = [];
 
-    filteredData=data
-
+  filteredData = data;
 
   return (
     <div>
@@ -106,27 +105,26 @@ const Table: React.FC<TableProps> = ({
           ></Input>
 
           {/* Filters */}
-          {filters.length&&filters.map((filter) => (
-            <select
-              key={filter.key}
-              className="border px-2 py-1 rounded"
-        
-              onChange={(e) =>
-                setFilters!({
-                  ...activeFilters,
-                  [filter.key]: e.target.value,
-                })
-              }
-            >
-             
-              <option value="">{filter.label}</option>
-              {filter.options.map((opt) => (
-                <option key={opt.id} value={opt.id}>
-                  {opt.name}
-                </option>
-              ))}
-            </select>
-          ))}
+          {filters.length > 0 &&
+            filters.map((filter) => (
+              <select
+                key={filter.key}
+                className="border px-2 py-1 rounded"
+                onChange={(e) =>
+                  setFilters!({
+                    ...activeFilters,
+                    [filter.key]: e.target.value,
+                  })
+                }
+              >
+                <option value="">{filter.label}</option>
+                {filter.options.map((opt) => (
+                  <option key={opt.id} value={opt.id}>
+                    {opt.name}
+                  </option>
+                ))}
+              </select>
+            ))}
         </div>
 
         {/* Add Button */}
@@ -187,7 +185,12 @@ const Table: React.FC<TableProps> = ({
                     ))}
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                       {viewOnly ? (
-                        <span className="text-green-600" onClick={()=>handleOpenViewModal?.(row)}>View</span>
+                        <span
+                          className="text-green-600"
+                          onClick={() => handleOpenViewModal?.(row)}
+                        >
+                          View
+                        </span>
                       ) : (
                         <>
                           <button
@@ -201,7 +204,7 @@ const Table: React.FC<TableProps> = ({
                             <button
                               className="text-red-600 hover:text-red-900"
                               // onClick={() => handleDelete(row.id)}
-                           >
+                            >
                               <FaTrashAlt />
                             </button>
                           )}
@@ -246,4 +249,3 @@ const Table: React.FC<TableProps> = ({
 };
 
 export default Table;
- 

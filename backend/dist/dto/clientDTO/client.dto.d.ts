@@ -5,9 +5,6 @@ export interface GetClientDTO {
     website?: string;
 }
 export interface UpdateClientDto {
-    companyName: string;
-    logo: string;
-    description: string;
-    website: string;
+    clientProfile: Partial<GetClientDTO>;
 }
 //# sourceMappingURL=client.dto.d.ts.map

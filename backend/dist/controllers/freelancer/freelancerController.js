@@ -13,6 +13,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 import { injectable, inject } from 'tsyringe';
 import '../../config/container.js';
 import { HttpStatus } from '../../enums/http-status.enum.js';
+import { MESSAGES } from '../../contants/contants.js';
 let FreelancerController = class FreelancerController {
     constructor(freelancerService) {
         this._freelancerService = freelancerService;
@@ -21,10 +22,9 @@ let FreelancerController = class FreelancerController {
         try {
             const userId = req.user?.userId;
             const result = await this._freelancerService.getFreelancerData(userId);
-            console.log(result);
             res.status(HttpStatus.OK).json({
                 success: true,
-                message: 'Freelancer Data Fetched Successfully',
+                message: MESSAGES.Freelancer.FETCH_SUCCESS,
                 data: result,
             });
         }

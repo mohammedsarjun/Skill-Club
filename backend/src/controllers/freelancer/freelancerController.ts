@@ -5,6 +5,7 @@ import { HttpStatus } from '../../enums/http-status.enum.js';
 import { IFreelancerController } from './interfaces/IFreelancerController.js';
 import type { IFreelancerService } from '../../services/freelancerServices/interfaces/IFreelancerServices.js';
 import { GetFreelancerDTO } from '../../dto/freelancerDTO/freelancer.dto.js';
+import { MESSAGES } from '../../contants/contants.js';
 
 @injectable()
 export class FreelancerController implements IFreelancerController {
@@ -17,13 +18,13 @@ export class FreelancerController implements IFreelancerController {
     try {
         const userId=req.user?.userId
       const result:GetFreelancerDTO = await this._freelancerService.getFreelancerData(userId!);
-      console.log(result)
+
       res.status(HttpStatus.OK).json({
         success: true,
-        message: 'Freelancer Data Fetched Successfully',
+        message: MESSAGES.Freelancer.FETCH_SUCCESS,
         data: result,
       });
-    } catch (error) {
+    } catch (error:unknown) {
       throw error;
     }
   }

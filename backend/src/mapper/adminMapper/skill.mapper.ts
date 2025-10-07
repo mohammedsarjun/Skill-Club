@@ -5,10 +5,10 @@ import { ISkill } from "../../models/interfaces/ISkillModel.js";
 
 export const mapCreateSkillDtoToSkillModel = (
   dto: CreateSkillDTO
-): Pick<ISkill, "name" | "specialities" | "status"> => {
+): CreateSkillDTO => {
   return {
     name: dto.name,
-    specialities:dto.specialties.map(id => new Types.ObjectId(id)),
+    specialities:dto.specialities.map(id => new Types.ObjectId(id)),
     status: dto.status,
   };
 };

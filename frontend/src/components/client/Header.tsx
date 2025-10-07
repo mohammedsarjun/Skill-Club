@@ -35,6 +35,13 @@ export default function ClientHeader() {
     // router.push("/freelancer"); // replace with the actual route for switching account
   };
 
+  
+  const handleOpenAccountSettings = async () => {
+
+      router.replace("/account/settings")
+  };
+
+
   return (
     <div className="header bg-secondary h-18 flex items-center justify-between px-4">
       {/* Logo */}
@@ -57,6 +64,14 @@ export default function ClientHeader() {
               onClick={() => router.push("/client/profile")}
             >
               Profile
+            </a>
+
+               <a
+              href="#"
+              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              onClick={handleOpenAccountSettings}
+            >
+              Account Settings
             </a>
             <a
               href="#"

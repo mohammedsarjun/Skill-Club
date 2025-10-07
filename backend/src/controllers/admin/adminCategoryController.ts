@@ -1,37 +1,38 @@
-import { Request, Response } from "express";
-import type { IAdminCategoryController } from "./interfaces/IAdminCategoryController.js";
-import { injectable, inject } from "tsyringe";
-import type { IAdminCategoryServices } from "../../services/adminServices/interfaces/IAdminCategoryServices.js";
-import "../../config/container.js";
-import { UpdateCategoryDTO } from "../../dto/adminDTO/category.dto.js";
+import { Request, Response } from 'express';
+import type { IAdminCategoryController } from './interfaces/IAdminCategoryController.js';
+import { injectable, inject } from 'tsyringe';
+import type { IAdminCategoryServices } from '../../services/adminServices/interfaces/IAdminCategoryServices.js';
+import '../../config/container.js';
+import { CreateCategoryDTO, GetCategoryDto, UpdateCategoryDTO } from '../../dto/category.dto.js';
 import {
   mapCreateCategoryDtoToCategoryModel,
   mapCategoryQuery,
   mapUpdateCategoryDtoToCategoryModel,
-} from "../../mapper/adminMapper/category.mapper.js";
-import { HttpStatus } from "../../enums/http-status.enum.js";
+} from '../../mapper/category.mapper.js';
+import { HttpStatus } from '../../enums/http-status.enum.js';
+import { MESSAGES } from '../../contants/contants.js';
 
 @injectable()
 export class AdminCategoryController implements IAdminCategoryController {
   private adminCategoryService: IAdminCategoryServices;
 
   constructor(
-    @inject("IAdminCategoryServices")
-    adminCategoryService: IAdminCategoryServices
+    @inject('IAdminCategoryServices')
+    adminCategoryService: IAdminCategoryServices,
   ) {
     this.adminCategoryService = adminCategoryService;
   }
 
   async addCategory(req: Request, res: Response): Promise<void> {
     try {
-      const dto = mapCreateCategoryDtoToCategoryModel(req.body);
-      const result = await this.adminCategoryService.addCategory(dto);
+      const categoryDto: CreateCategoryDTO = req.body;
+      const result = await this.adminCategoryService.addCategory(categoryDto);
       res.status(HttpStatus.CREATED).json({
         success: true,
-        message: "Category created successfully",
+        message: MESSAGES.CATEGORY.CREATED,
         data: result,
       });
-    } catch (error) {
+    } catch (error: unknown) {
       throw error;
     }
   }
@@ -39,19 +40,15 @@ export class AdminCategoryController implements IAdminCategoryController {
   async editCategory(req: Request, res: Response): Promise<void> {
     try {
       const dto: UpdateCategoryDTO = req.body;
-      const updateData = mapUpdateCategoryDtoToCategoryModel(dto);
 
-      const result = await this.adminCategoryService.editCategory(
-        updateData,
-        dto.id
-      );
+      const result = await this.adminCategoryService.editCategory(dto, dto.id);
 
       res.status(HttpStatus.OK).json({
         success: true,
-        message: "Category Edited successfully",
+        message: MESSAGES.CATEGORY.UPDATED,
         data: result,
       });
-    } catch (error) {
+    } catch (error: unknown) {
       throw error;
     }
   }
@@ -66,14 +63,19 @@ export class AdminCategoryController implements IAdminCategoryController {
 
   async getAllCategory(req: Request, res: Response): Promise<void> {
     try {
-      const dto = mapCategoryQuery(req.query);
+      const dto:GetCategoryDto ={
+        search: typeof req.query.search === "string" ? req.query.search : "",
+        page:Number(req?.query?.page)||1,
+        limit:Number(req?.query?.limit)||10,
+        mode: typeof req.query.mode === "string" ? req.query.mode : ""
+      }
       const result = await this.adminCategoryService.getCategory(dto);
       res.status(HttpStatus.OK).json({
         success: true,
-        message: "Data Fetched successfully",
+        message: MESSAGES.CATEGORY.FETCH_SUCCESS,
         data: result,
       });
-    } catch (error) {
+    } catch (error: unknown) {
       throw error;
     }
   }

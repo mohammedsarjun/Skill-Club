@@ -2,7 +2,7 @@ import { Types } from "mongoose";
 export const mapCreateSkillDtoToSkillModel = (dto) => {
     return {
         name: dto.name,
-        specialities: dto.specialties.map(id => new Types.ObjectId(id)),
+        specialities: dto.specialities.map(id => new Types.ObjectId(id)),
         status: dto.status,
     };
 };

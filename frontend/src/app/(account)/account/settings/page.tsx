@@ -1,15 +1,15 @@
 "use client";
 import Image from "next/image";
 import React, { useState, useRef } from "react";
-import { 
-  FaUser, 
-  FaCamera, 
-  FaPhone, 
-  FaEnvelope, 
-  FaCalendar, 
-  FaLock 
+import {
+  FaUser,
+  FaCamera,
+  FaPhone,
+  FaEnvelope,
+  FaCalendar,
+  FaLock,
 } from "react-icons/fa";
-import { uploadToCloudinary } from "@/utils/cloudinary"; // ✅ same util you used
+import { uploadToCloudinary } from "@/utils/cloudinary";
 
 interface ProfileData {
   firstName: string;
@@ -29,8 +29,6 @@ function ProfilePage() {
   });
 
   const [isEditing, setIsEditing] = useState(false);
-
-  // Avatar upload state
   const [avatar, setAvatar] = useState<string>("/images/site logo.png");
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -45,20 +43,17 @@ function ProfilePage() {
   const handleSave = () => {
     setIsEditing(false);
     console.log("Profile saved:", profileData, "Avatar:", avatar);
-    // Save profile + avatar to backend here
+    // Save profile to backend
   };
 
   const handleCancel = () => {
     setIsEditing(false);
-    // Reset logic if needed
+    // Optionally reset state
   };
 
-  // Avatar upload logic
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-
-      // Show temporary preview
       const previewUrl = URL.createObjectURL(file);
       setAvatar(previewUrl);
 
@@ -79,6 +74,10 @@ function ProfilePage() {
     fileInputRef.current?.click();
   };
 
+  const handleEmailChange = () => {
+    alert("Redirect to secure email change & verification flow.");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4">
       <div className="max-w-2xl mx-auto">
@@ -90,7 +89,7 @@ function ProfilePage() {
 
         {/* Profile Card */}
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-          {/* Avatar Section
+          {/* Avatar Section */}
           <div className="relative bg-gradient-to-r from-primary to-primary-dark p-8 text-center">
             <div className="relative inline-block">
               <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg">
@@ -123,7 +122,7 @@ function ProfilePage() {
               {profileData.firstName} {profileData.lastName}
             </h2>
             <p className="text-white/80">{profileData.email}</p>
-          </div> */}
+          </div>
 
           {/* Form Section */}
           <div className="p-8">
@@ -189,20 +188,27 @@ function ProfilePage() {
                 </div>
               </div>
 
-              {/* Email */}
+              {/* Email - Separate Flow */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Email Address
                 </label>
-                <div className="relative">
-                  <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="email"
-                    value={profileData.email}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
-                    disabled={!isEditing}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-500"
-                  />
+                <div className="flex items-center space-x-4">
+                  <div className="relative flex-1">
+                    <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                      type="email"
+                      value={profileData.email}
+                      disabled
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+                    />
+                  </div>
+                  <button
+                    onClick={handleEmailChange}
+                    className="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors duration-200 font-medium"
+                  >
+                    Change Email
+                  </button>
                 </div>
               </div>
 
@@ -223,7 +229,7 @@ function ProfilePage() {
                 </div>
               </div>
 
-              {/* Date of Birth */}
+              {/* DOB */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Date of Birth
@@ -241,7 +247,7 @@ function ProfilePage() {
               </div>
             </form>
 
-            {/* Change Password Section */}
+            {/* Password */}
             <div className="mt-8 pt-8 border-t border-gray-200">
               <h4 className="text-lg font-semibold text-gray-900 mb-4">Security</h4>
               <button className="flex items-center space-x-3 w-full md:w-auto px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors duration-200 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">

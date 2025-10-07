@@ -229,7 +229,7 @@ const DynamicManagementPage: React.FC = () => {
         { key: "description", label: "Description" },
       ];
       data = categoriesData;
-      filters = [];
+      
       addButtonLabel = "Add Category";
       formFields = [
         { name: "name", type: "text", placeholder: "Enter category name" },

@@ -12,10 +12,19 @@ import adminRouter from './routes/adminRouter.js';
 import userRouter from './routes/userRouter.js';
 import freelancerRouter from './routes/freelancerRouter.js';
 import clientRouter from './routes/clientRouter.js';
+import morgan from "morgan";
+import { appLogger, accessLogStream } from "./utils/logger.js";
 dotenv.config();
 const PORT = process.env.PORT;
 connectDB();
 const app = express();
+// HTTP request logging
+if (process.env.NODE_ENV === "production") {
+    app.use(morgan("combined", { stream: accessLogStream }));
+}
+else {
+    app.use(morgan("dev"));
+}
 app.set("query parser", (str) => qs.parse(str));
 app.use(express.json());
 app.use(cookieParser());
@@ -30,6 +39,6 @@ app.use('/api/freelancer', freelancerRouter);
 app.use('/api/client', clientRouter);
 app.use(errorHandler);
 app.listen(PORT, () => {
-    console.log('Server is Running On Port : ', PORT);
+    appLogger.info(`Server is running on port: ${PORT}`);
 });
 //# sourceMappingURL=server.js.map

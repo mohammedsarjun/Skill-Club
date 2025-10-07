@@ -11,8 +11,8 @@ export const mapClientToDTO = (clientData: IClientProfile): GetClientDTO => {
 };
 
 
-export const mapUpdateClientDtoToClientModel = (clientData: UpdateClientDto): Partial<UpdateClientDto> => {
-    const dtoObj:Partial<UpdateClientDto>={}
+export const mapUpdateClientDtoToClientModel = (clientData: GetClientDTO): UpdateClientDto => {
+    const dtoObj:Partial<GetClientDTO>={}
 
     if(clientData.companyName){
         dtoObj.companyName=clientData.companyName
@@ -29,5 +29,5 @@ export const mapUpdateClientDtoToClientModel = (clientData: UpdateClientDto): Pa
     if(clientData.website){
         dtoObj.website=clientData.website
     }
-  return dtoObj;
+  return {clientProfile:dtoObj};
 };

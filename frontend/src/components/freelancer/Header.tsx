@@ -13,11 +13,15 @@ export default function FreelancerHeader() {
   const router = useRouter();
   const dispatch = useDispatch();
 
+  const handleOpenAccountSettings = async () => {
+    router.replace("/account/settings");
+  };
+
   const handleLogout = async () => {
     try {
       await authApi.logout();
       dispatch(setUser(null));
-      router.push("/login");
+      router.replace("/login");
     } catch (err) {
       console.error("Logout failed", err);
     }
@@ -30,7 +34,7 @@ export default function FreelancerHeader() {
       dispatch(setUser(response.data));
       router.push("/client/profile");
     } else {
-       router.replace("/onboarding/client")
+      router.replace("/onboarding/client");
     }
     // router.push("/freelancer"); // replace with the actual route for switching account
   };
@@ -57,6 +61,13 @@ export default function FreelancerHeader() {
               onClick={() => router.push("/client/profile")}
             >
               Profile
+            </a>
+            <a
+              href="#"
+              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              onClick={handleOpenAccountSettings}
+            >
+              Account Settings
             </a>
             <a
               href="#"

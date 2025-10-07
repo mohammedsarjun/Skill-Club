@@ -24,7 +24,7 @@ export class ClientController implements IClientController {
         message: 'Client Data Fetched Successfully',
         data: result,
       });
-    } catch (error) {
+    } catch (error:unknown) {
       throw error;
     }
   }
@@ -39,7 +39,7 @@ export class ClientController implements IClientController {
         message: 'Client Data Updated Successfully',
         data: result,
       });
-    } catch (error) {
+    } catch (error:unknown) {
       throw error;
     }
   }

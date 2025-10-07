@@ -7,39 +7,42 @@ import {
   PaginatedSpecialityDto,
   SpecialityDto,
   UpdateSpecialityDTO,
-} from '../../dto/adminDTO/speciality.dto.js';
+} from '../../dto/speciality.dto.js';
 import { IAdminSpecialityServices } from './interfaces/IAdminSpecialityServices.js';
 import type { IAdminSpecialityRepository } from '../../repositories/adminRepositories/interfaces/IAdminSpecialityRepository.js';
 import {
+  mapCreateSpecialityDtoToSpecialityModel,
   mapSpecialityModelToSpecialityDto,
   mapUpdateSpecialityDtoToSpecialityModel,
-} from '../../mapper/adminMapper/speciality.mapper.js';
+} from '../../mapper/speciality.mapper.js';
+import { ERROR_MESSAGES } from '../../contants/errorConstants.js';
 
 @injectable()
 export class AdminSpecialityServices implements IAdminSpecialityServices {
-  private adminSpecialityRepository;
+  private _adminSpecialityRepository;
 
   constructor(
     @inject('IAdminSpecialityRepository')
     adminSpecialityRepository: IAdminSpecialityRepository,
   ) {
-    this.adminSpecialityRepository = adminSpecialityRepository;
+    this._adminSpecialityRepository = adminSpecialityRepository;
   }
 
   async addSpeciality(specialityData: CreateSpecialityDTO): Promise<any> {
-    const existing = await this.adminSpecialityRepository.findOne({
-      name: specialityData.name,
+    const specialityDataDto= mapCreateSpecialityDtoToSpecialityModel(specialityData)
+    const existing = await this._adminSpecialityRepository.findOne({
+      name: specialityDataDto.name,
     });
 
     if (existing) {
-      throw new AppError('Speciality with this name already exists', HttpStatus.CONFLICT);
+      throw new AppError(ERROR_MESSAGES.SPECIALITY.ALREADY_EXIST, HttpStatus.CONFLICT);
     }
 
     // Create speciality
-    const created = await this.adminSpecialityRepository.create(specialityData);
+    const created = await this._adminSpecialityRepository.create(specialityDataDto);
 
     // Fetch with category populated
-    const populated = await this.adminSpecialityRepository.findOne(
+    const populated = await this._adminSpecialityRepository.findOne(
       { _id: created._id },
       { populate: { path: 'category', select: '_id name' } },
     );
@@ -58,7 +61,7 @@ export class AdminSpecialityServices implements IAdminSpecialityServices {
     const categoryFilter = filterData.categoryFilter;
     const mode = filterData.mode;
     console.log(categoryFilter);
-    const result = await this.adminSpecialityRepository.findAllWithFilters(
+    const result = await this._adminSpecialityRepository.findAllWithFilters(
       {
         search: filterData.search, // just values
         category: filterData.categoryFilter, // just values
@@ -73,7 +76,7 @@ export class AdminSpecialityServices implements IAdminSpecialityServices {
       },
     );
 
-    const total = await this.adminSpecialityRepository.count({
+    const total = await this._adminSpecialityRepository.count({
       name: filterData.search || '',
     });
 
@@ -92,18 +95,18 @@ export class AdminSpecialityServices implements IAdminSpecialityServices {
   async editSpeciality(specialityData: UpdateSpecialityDTO): Promise<any> {
     // Check for duplicate name
     if (specialityData?.name) {
-      const existing = await this.adminSpecialityRepository.findOne({ name: specialityData.name });
+      const existing = await this._adminSpecialityRepository.findOne({ name: specialityData.name });
       if (existing && existing._id.toString() !== specialityData.id) {
-        throw new AppError('Speciality with this name already exists', HttpStatus.CONFLICT);
+        throw new AppError(ERROR_MESSAGES.SPECIALITY.ALREADY_EXIST, HttpStatus.CONFLICT);
       }
     }
 
     // Map DTO to model and update
     const dto = mapUpdateSpecialityDtoToSpecialityModel(specialityData);
-    await this.adminSpecialityRepository.update(specialityData.id, dto);
+    await this._adminSpecialityRepository.update(specialityData.id, dto);
 
     // ✅ Fetch updated speciality with category populated
-    const updatedSpeciality = await this.adminSpecialityRepository.findOne(
+    const updatedSpeciality = await this._adminSpecialityRepository.findOne(
       { _id: specialityData.id },
       { populate: { path: 'category', select: '_id name' } },
     );

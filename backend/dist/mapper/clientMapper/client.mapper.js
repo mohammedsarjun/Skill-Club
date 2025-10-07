@@ -20,6 +20,6 @@ export const mapUpdateClientDtoToClientModel = (clientData) => {
     if (clientData.website) {
         dtoObj.website = clientData.website;
     }
-    return dtoObj;
+    return { clientProfile: dtoObj };
 };
 //# sourceMappingURL=client.mapper.js.map

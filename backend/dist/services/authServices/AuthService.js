@@ -19,19 +19,20 @@ import { HttpStatus } from "../../enums/http-status.enum.js";
 import { mapUserModelToUserDto } from "../../mapper/userMapper/user.mapper.js";
 import { genRandom } from "../../utils/cryptoGenerator.js";
 import sendEmailOtp from "../../utils/sendOtp.js";
+import { ERROR_MESSAGES } from "../../contants/errorConstants.js";
 let AuthService = class AuthService {
     constructor(userRepository) {
-        this.userRepository = userRepository;
+        this._userRepository = userRepository;
     }
     async signup(userData) {
         const dto = mapCreateUserDtoToUserModel(userData);
         // Check if a verified user exists
-        const verifiedUser = await this.userRepository.findOne({ email: dto.email, isVerified: true });
+        const verifiedUser = await this._userRepository.findOne({ email: dto.email, isVerified: true });
         if (verifiedUser) {
-            throw new AppError("Email or phone number already exists", HttpStatus.CONFLICT);
+            throw new AppError(ERROR_MESSAGES.AUTH.ALREADY_EXIST, HttpStatus.CONFLICT);
         }
         // Check if an unverified user exists
-        let user = await this.userRepository.findOne({
+        let user = await this._userRepository.findOne({
             email: dto.email, isVerified: false
         });
         if (user) {
@@ -40,12 +41,12 @@ let AuthService = class AuthService {
             user.lastName = dto.lastName;
             user.password = await bcrypt.hash(dto.password, 10);
             user.phone = dto.phone;
-            user = await this.userRepository.update(user._id.toString(), user);
+            user = await this._userRepository.update(user._id.toString(), user);
         }
         else {
             // Create a new user
             dto.password = await bcrypt.hash(dto.password, 10);
-            user = await this.userRepository.create(dto);
+            user = await this._userRepository.create(dto);
         }
         return {
             id: user._id.toString(),
@@ -58,29 +59,29 @@ let AuthService = class AuthService {
     async login(userData) {
         // Normalize email to lowercase
         const email = userData.email.toLowerCase();
-        const user = await this.userRepository.findOne({ email, isVerified: true });
+        const user = await this._userRepository.findOne({ email, isVerified: true });
         if (!user) {
-            throw new AppError("User with this email does not exist", HttpStatus.NOT_FOUND);
+            throw new AppError(ERROR_MESSAGES.AUTH.ALREADY_EXIST, HttpStatus.NOT_FOUND);
         }
         const isPasswordMatch = await bcrypt.compare(userData.password, user.password);
         if (!isPasswordMatch) {
-            throw new AppError("Incorrect password", HttpStatus.UNAUTHORIZED);
+            throw new AppError(ERROR_MESSAGES.AUTH.INCORRECT_PASSWORD, HttpStatus.UNAUTHORIZED);
         }
         const dto = mapUserModelToUserDto(user);
         return dto;
     }
     async forgotPassword(email) {
         // 1. Find the user
-        const user = await this.userRepository.findOne({ email });
+        const user = await this._userRepository.findOne({ email });
         if (!user) {
-            throw new AppError("Email does not exist", HttpStatus.NOT_FOUND);
+            throw new AppError(ERROR_MESSAGES.AUTH.NOT_FOUND, HttpStatus.NOT_FOUND);
         }
         // 2. Generate token and expiry
         const tokenDetail = await genRandom();
         const token = tokenDetail.token;
         const expiry = new Date(tokenDetail.expiry);
         // 3. Update user atomically via repository
-        await this.userRepository.updateResetPassword(user._id, token, expiry);
+        await this._userRepository.updateResetPassword(user._id, token, expiry);
         // 4. Send reset link email
         const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
         await sendEmailOtp(user.email, `Click here to reset your password: ${resetLink}`);
@@ -88,15 +89,15 @@ let AuthService = class AuthService {
     async resetPassword(token, newPassword) {
         // 1. Find the user by token and expiry
         console.log(token);
-        const user = await this.userRepository.findByResetToken(token);
+        const user = await this._userRepository.findByResetToken(token);
         console.log(user);
         if (!user) {
-            throw new AppError("Invalid or expired token.", HttpStatus.BAD_REQUEST);
+            throw new AppError(ERROR_MESSAGES.TOKEN.INVALID_TOKEN, HttpStatus.BAD_REQUEST);
         }
         // 2. Hash the new password
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         // 3. Update password and clear reset token atomically
-        await this.userRepository.updatePassword(user._id, hashedPassword);
+        await this._userRepository.updatePassword(user._id, hashedPassword);
         // 4. Optional: send confirmation email instead of reset link
         await sendEmailOtp(user.email, "Your password has been successfully reset.");
     }

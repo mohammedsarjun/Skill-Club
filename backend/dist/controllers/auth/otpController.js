@@ -13,15 +13,16 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 import { inject, injectable } from 'tsyringe';
 import { HttpStatus } from '../../enums/http-status.enum.js';
 import { jwtService } from '../../utils/jwt.js';
+import { jwtConfig } from '../../config/jwt.config.js';
 let OtpController = class OtpController {
     constructor(otpService, userServices) {
-        this.otpServices = otpService;
-        this.userServices = userServices;
+        this._otpServices = otpService;
+        this._userServices = userServices;
     }
     async createOtp(req, res) {
         try {
             const { email, purpose } = req.body;
-            const otpResponse = await this.otpServices.createOtp(email, purpose);
+            const otpResponse = await this._otpServices.createOtp(email, purpose);
             res.status(HttpStatus.CREATED).json({
                 success: true,
                 message: 'Otp Sent Successfully',
@@ -37,10 +38,10 @@ let OtpController = class OtpController {
     async verifyOtp(req, res) {
         try {
             const { email, otp, userId } = req.body;
-            const response = await this.otpServices.verifyOtp(email, otp);
+            const response = await this._otpServices.verifyOtp(email, otp);
             switch (response.purpose) {
                 case 'signup':
-                    await this.userServices.markUserVerified(userId);
+                    await this._userServices.markUserVerified(userId);
                     // 🔹 Create tokens
                     const payload = {
                         userId: userId,
@@ -50,19 +51,19 @@ let OtpController = class OtpController {
                         clientProfile: null,
                         freelancerProfile: null
                     };
-                    const accessToken = jwtService.createToken(payload, '15m');
-                    const refreshToken = jwtService.createToken(payload, '7d');
+                    const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
+                    const refreshToken = jwtService.createToken(payload, jwtConfig.refreshTokenMaxAge);
                     res.cookie('accessToken', accessToken, {
                         httpOnly: true,
                         secure: process.env.NODE_ENV === 'production', // 🔹 must be false on localhost (no HTTPS)
                         sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
-                        maxAge: 15 * 60 * 1000,
+                        maxAge: jwtConfig.accessTokenMaxAge * 1000
                     });
                     res.cookie('refreshToken', refreshToken, {
                         httpOnly: true,
                         secure: process.env.NODE_ENV === 'production',
                         sameSite: 'lax',
-                        maxAge: 7 * 24 * 60 * 60 * 1000,
+                        maxAge: jwtConfig.refreshTokenMaxAge * 1000
                     });
                     break;
                 case 'forgotPassword':

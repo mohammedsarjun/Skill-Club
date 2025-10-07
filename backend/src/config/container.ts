@@ -3,6 +3,15 @@ import { container } from "tsyringe";
 
 //Week 1
 
+
+//category,speacility,skills Repository
+import { ICategoryRepository } from "../repositories/interfaces/ICategoryRepository.js";
+import { CategoryRepository } from "../repositories/categoryRepository.js"
+import { ISpecialityRepository } from "../repositories/interfaces/ISpecialityRepository.js";
+import { SpecialityRepository } from "../repositories/specialityRepository.js";
+container.register<ICategoryRepository>("ICategoryRepository",{useClass:CategoryRepository})
+container.register<ISpecialityRepository>("ISpecialityRepository",{useClass:SpecialityRepository})
+
 //Auth
 import { AuthService } from "../services/authServices/AuthService.js";
 import type { IAuthService } from "../services/authServices/interfaces/IAuthService.js";
@@ -85,5 +94,18 @@ import { IClientService } from "../services/clientServices/interfaces/IClientSer
 import { ClientService } from "../services/clientServices/clientServices.js";
 import { IClientRepository } from "../repositories/interfaces/IClientRepository.js";
 import { ClientRepository } from "../repositories/clientRepository.js";
+
+
+
 container.register<IClientService>("IClientService",{useClass:ClientService})
 container.register<IClientRepository>("IClientRepository",{useClass:ClientRepository})
+
+//user category ,speciality,skills
+import { IUserCategoryServices } from "../services/userServices/interfaces/IUserCategoryService.js";
+import { userCategoryServices } from "../services/userServices/userCategoryService.js";
+import { IUserSpecialityServices } from "../services/userServices/interfaces/IUserSpecialityServices.js";
+import { userSpecialityServices } from "../services/userServices/userSpecialityServices.js";
+
+container.register<IUserCategoryServices>("IUserCategoryServices",{useClass:userCategoryServices})
+container.register<IUserSpecialityServices>("IUserSpecialityServices",{useClass:userSpecialityServices})
+

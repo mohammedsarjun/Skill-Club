@@ -6,6 +6,7 @@ import { IFreelancerService } from "./interfaces/IFreelancerServices.js";
 import type{ IFreelancerRepository } from "../../repositories/interfaces/IFreelancerRepository.js";
 import { mapFreelancerToDTO } from "../../mapper/freelancerMapper/freelancer.mapper.js";
 import { GetFreelancerDTO } from "../../dto/freelancerDTO/freelancer.dto.js";
+import { ERROR_MESSAGES } from "../../contants/errorConstants.js";
 
 @injectable()
 export class FreelancerService implements IFreelancerService {
@@ -20,7 +21,7 @@ export class FreelancerService implements IFreelancerService {
 
     if (!freelancerData || !freelancerData.freelancerProfile) {
       // More explicit error if the profile itself is missing
-      throw new AppError("Freelancer or freelancer profile doesn't exist", HttpStatus.NOT_FOUND);
+      throw new AppError(ERROR_MESSAGES.FREELANCER.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
     // Map the profile to DTO safely
@@ -28,9 +29,9 @@ export class FreelancerService implements IFreelancerService {
 
     return freelancerDto;
   } catch (error) {
-    console.error(`Error fetching freelancer data for ID: ${id}`, error);
+
     // You can throw a generic server error if needed
-    throw new AppError("Failed to fetch freelancer data", HttpStatus.INTERNAL_SERVER_ERROR);
+    throw new AppError(ERROR_MESSAGES.FREELANCER.FETCH_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }
 
