@@ -8,7 +8,6 @@ export const mapUserModelToUserDto = (modelData) => {
         freelancerProfile: modelData?.freelancerProfile?.logo
     };
 };
-// Assuming the DTOs are already imported
 export function mapFreelancerDtoToUserModel(raw) {
     return {
         freelancerProfile: {
@@ -20,7 +19,7 @@ export function mapFreelancerDtoToUserModel(raw) {
                 : [],
             workCategory: raw.category || '',
             specialties: Array.isArray(raw.specialties) ? raw.specialties : [],
-            skills: Array.isArray(raw.skills) ? raw.skills : [],
+            skills: Array.isArray(raw.skills) ? raw.skills.map((skill) => skill.value) : [],
             professionalRole: raw.professionalRole || '',
             education: Array.isArray(raw.educations)
                 ? raw.educations.map((edu) => ({

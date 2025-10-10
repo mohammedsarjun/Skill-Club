@@ -1,0 +1,1 @@
+{"version":3,"file":"ISkillRepository.d.ts","sourceRoot":"","sources":["../../../src/repositories/interfaces/ISkillRepository.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,MAAM,EAAE,MAAM,wCAAwC,CAAC;AAChE,OAAO,cAAc,MAAM,uCAAuC,CAAC;AAGnE,MAAM,WAAW,gBAAiB,SAAQ,cAAc,CAAC,MAAM,CAAC;IAC5D,kBAAkB,CAAC,YAAY,EAAC,MAAM,EAAE,GAAE,OAAO,CAAC,MAAM,EAAE,GAAC,IAAI,CAAC,CAAA;CACnE"}

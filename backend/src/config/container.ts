@@ -9,9 +9,14 @@ import { ICategoryRepository } from "../repositories/interfaces/ICategoryReposit
 import { CategoryRepository } from "../repositories/categoryRepository.js"
 import { ISpecialityRepository } from "../repositories/interfaces/ISpecialityRepository.js";
 import { SpecialityRepository } from "../repositories/specialityRepository.js";
+import { ISkillRepository } from "../repositories/interfaces/ISkillRepository.js";
+import { SkillRepository } from "../repositories/skillRepository.js";
+import { IPortfolioRepository } from "../repositories/interfaces/IPortfolioRespository.js";
+import { PortfolioRepository } from "../repositories/portfolioRepository.js";
 container.register<ICategoryRepository>("ICategoryRepository",{useClass:CategoryRepository})
 container.register<ISpecialityRepository>("ISpecialityRepository",{useClass:SpecialityRepository})
-
+container.register<ISkillRepository>("ISkillRepository",{useClass:SkillRepository})
+container.register<IPortfolioRepository>("IPortfolioRepository",{useClass:PortfolioRepository})
 //Auth
 import { AuthService } from "../services/authServices/AuthService.js";
 import type { IAuthService } from "../services/authServices/interfaces/IAuthService.js";
@@ -105,7 +110,12 @@ import { IUserCategoryServices } from "../services/userServices/interfaces/IUser
 import { userCategoryServices } from "../services/userServices/userCategoryService.js";
 import { IUserSpecialityServices } from "../services/userServices/interfaces/IUserSpecialityServices.js";
 import { userSpecialityServices } from "../services/userServices/userSpecialityServices.js";
+import { IUserSkillServices } from "../services/userServices/interfaces/IUserSkillService.js";
+import { UserSkillServices } from "../services/userServices/userSkillService.js";
+
+
 
 container.register<IUserCategoryServices>("IUserCategoryServices",{useClass:userCategoryServices})
 container.register<IUserSpecialityServices>("IUserSpecialityServices",{useClass:userSpecialityServices})
+container.register<IUserSkillServices>("IUserSkillServices",{useClass:UserSkillServices})
 

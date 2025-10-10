@@ -7,5 +7,8 @@ export class FreelancerRepository extends BaseRepository {
     async getFreelancerById(userId) {
         return this.findOne({ _id: userId, roles: "freelancer" });
     }
+    async addLanguageToFreelancerProfile(userId, language) {
+        return this.update(userId, { $push: { "freelancerProfile.languages": language } });
+    }
 }
 //# sourceMappingURL=freelancerRepository.js.map

@@ -10,37 +10,81 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { injectable, inject } from "tsyringe";
-import "../../config/container.js";
-import AppError from "../../utils/AppError.js";
-import { HttpStatus } from "../../enums/http-status.enum.js";
-import { mapFreelancerToDTO } from "../../mapper/freelancerMapper/freelancer.mapper.js";
-import { ERROR_MESSAGES } from "../../contants/errorConstants.js";
+import { injectable, inject } from 'tsyringe';
+import '../../config/container.js';
+import AppError from '../../utils/AppError.js';
+import { HttpStatus } from '../../enums/http-status.enum.js';
+import { mapFreelancerToDTO, mapUpdateLanguageDtoToLanguage, mapUpdateLanguageToDTO, } from '../../mapper/freelancer.mapper.js';
+import { ERROR_MESSAGES } from '../../contants/errorConstants.js';
+import { mapCreatePortfolioDtoToPortfolio, mapPortfolioToPortfolioDto, } from '../../mapper/portfolio.mapper.js';
 let FreelancerService = class FreelancerService {
-    constructor(freelancerRepository) {
+    constructor(freelancerRepository, portfolioRepository) {
         this._freelancerRepository = freelancerRepository;
+        this._portfolioRepository = portfolioRepository;
     }
     async getFreelancerData(id) {
         try {
             const freelancerData = await this._freelancerRepository.getFreelancerById(id);
             if (!freelancerData || !freelancerData.freelancerProfile) {
-                // More explicit error if the profile itself is missing
                 throw new AppError(ERROR_MESSAGES.FREELANCER.NOT_FOUND, HttpStatus.NOT_FOUND);
             }
-            // Map the profile to DTO safely
             const freelancerDto = mapFreelancerToDTO(freelancerData);
             return freelancerDto;
         }
         catch (error) {
-            // You can throw a generic server error if needed
             throw new AppError(ERROR_MESSAGES.FREELANCER.FETCH_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+    async updateFreelancerLanguage(id, updateData) {
+        const freelancerData = await this._freelancerRepository.getFreelancerById(id);
+        if (!freelancerData?.freelancerProfile) {
+            throw new AppError(ERROR_MESSAGES.FREELANCER.NOT_FOUND, HttpStatus.NOT_FOUND);
+        }
+        const { freelancerProfile } = freelancerData;
+        const languageNameArr = freelancerProfile.languages.map((lang) => lang.name);
+        if (updateData?.name && languageNameArr.includes(updateData?.name)) {
+            throw new AppError('You already have this language added.', HttpStatus.CONFLICT);
+        }
+        if (freelancerProfile.languages.length >= 3) {
+            throw new AppError('You can only have 3 languages.', HttpStatus.CONFLICT);
+        }
+        const dto = mapUpdateLanguageDtoToLanguage(updateData);
+        const result = await this._freelancerRepository.addLanguageToFreelancerProfile(id, dto);
+        return { languages: mapUpdateLanguageToDTO(result) };
+    }
+    async createPortfolio(id, portfolioData) {
+        const freelancerData = await this._freelancerRepository.getFreelancerById(id);
+        if (!freelancerData || !freelancerData.freelancerProfile) {
+            throw new AppError(ERROR_MESSAGES.FREELANCER.NOT_FOUND, HttpStatus.NOT_FOUND);
+        }
+        const dto = mapCreatePortfolioDtoToPortfolio(id, portfolioData);
+        const result = await this._portfolioRepository.createPortfolio(dto);
+    }
+    async getPortfolio(id) {
+        const userId = id;
+        const freelancerData = await this._freelancerRepository.getFreelancerById(userId);
+        if (!freelancerData || !freelancerData.freelancerProfile) {
+            throw new AppError(ERROR_MESSAGES.FREELANCER.NOT_FOUND, HttpStatus.NOT_FOUND);
+        }
+        const result = await this._portfolioRepository.getPortfolio(userId);
+        const dto = result ? result.map(mapPortfolioToPortfolioDto) : null;
+        return dto;
+    }
+    async getPortfolioDetail(freelancerId, portfolioId) {
+        const freelancerData = await this._freelancerRepository.getFreelancerById(freelancerId);
+        if (!freelancerData || !freelancerData.freelancerProfile) {
+            throw new AppError(ERROR_MESSAGES.FREELANCER.NOT_FOUND, HttpStatus.NOT_FOUND);
+        }
+        const result = await this._portfolioRepository.getPortfolioDetail(freelancerId, portfolioId);
+        const dto = result ? mapPortfolioToPortfolioDto(result) : null;
+        return dto;
     }
 };
 FreelancerService = __decorate([
     injectable(),
-    __param(0, inject("IFreelancerRepository")),
-    __metadata("design:paramtypes", [Object])
+    __param(0, inject('IFreelancerRepository')),
+    __param(1, inject('IPortfolioRepository')),
+    __metadata("design:paramtypes", [Object, Object])
 ], FreelancerService);
 export { FreelancerService };
 //# sourceMappingURL=freelancerServices.js.map

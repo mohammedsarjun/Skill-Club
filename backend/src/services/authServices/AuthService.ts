@@ -68,7 +68,7 @@ export class AuthService implements IAuthService {
         const user = await this._userRepository.findOne({ email, isVerified: true });
 
         if (!user) {
-            throw new AppError(ERROR_MESSAGES.AUTH.ALREADY_EXIST, HttpStatus.NOT_FOUND);
+            throw new AppError(ERROR_MESSAGES.AUTH.NOT_FOUND, HttpStatus.NOT_FOUND);
         }
 
         const isPasswordMatch = await bcrypt.compare(userData.password, user.password!);

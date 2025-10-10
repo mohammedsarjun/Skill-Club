@@ -63,5 +63,8 @@ export class UserRepository extends BaseRepository {
     async updateFreelancerStatus(userId, isBlocked) {
         return super.update(userId, { isFreelancerBlocked: isBlocked });
     }
+    async createFreelancerProfile(userId, freelancerData) {
+        return super.update(userId, freelancerData);
+    }
 }
 //# sourceMappingURL=UserRepository.js.map

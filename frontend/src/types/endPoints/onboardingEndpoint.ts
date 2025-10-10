@@ -2,7 +2,8 @@ const onboardingRoutes = {
 
     //userRoutes
     getcategories : "/user/categories",
-    getSpecialities:"/user/specialities"
+    getSpecialities:"/user/specialities",
+    getSuggestedSkills:"/user/suggest-skill"
 
 }
 

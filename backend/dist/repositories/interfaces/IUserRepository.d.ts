@@ -21,5 +21,6 @@ export interface IUserRepository extends BaseRepository<IUser> {
     }): Promise<IUser[] | null>;
     updateClientStatus(userId: string, isBlocked: boolean): Promise<IUser | null>;
     updateFreelancerStatus(userId: string, isBlocked: boolean): Promise<IUser | null>;
+    createFreelancerProfile(userId: string, freelancerData: Partial<IUser>): Promise<IUser | null>;
 }
 //# sourceMappingURL=IUserRepository.d.ts.map

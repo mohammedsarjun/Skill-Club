@@ -7,7 +7,7 @@ export declare class userServices implements IUserServices {
     constructor(userRepository: IUserRepository);
     markUserVerified(id: string): Promise<void>;
     selectRole(id: string | undefined, role: string): Promise<UserDto>;
-    createFreelancerProfile(id: string, freelancerData: any): Promise<IUser>;
+    createFreelancerProfile(id: string, freelancerData: Partial<IUser>): Promise<IUser>;
     createClientProfile(id: string, clientData: ClientProfileDto): Promise<ClientProfileUpdateResponseDto>;
     switchRole(id: string): Promise<UserDto>;
     me(id: string): Promise<UserDto>;

@@ -17,8 +17,6 @@ export const mapUserModelToUserDto = (modelData: IUser): UserDto => {
   };
 };
 
-// Assuming the DTOs are already imported
-
 export function mapFreelancerDtoToUserModel(raw: any): Partial<IUser> {
 
   return {
@@ -32,7 +30,7 @@ export function mapFreelancerDtoToUserModel(raw: any): Partial<IUser> {
         : [],
       workCategory: raw.category || '',
       specialties: Array.isArray(raw.specialties) ? raw.specialties : [],
-      skills: Array.isArray(raw.skills) ? raw.skills : [],
+      skills: Array.isArray(raw.skills) ? raw.skills.map((skill:{value:string,name:string})=>skill.value) : [],
       professionalRole: raw.professionalRole || '',
       education: Array.isArray(raw.educations)
         ? raw.educations.map((edu: any) => ({

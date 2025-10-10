@@ -1,5 +1,5 @@
-import { IFreelancerProfile, IExperience, IEducation, ILanguage, IUser } from "../../models/interfaces/IUserModel.js";
-import { GetFreelancerDTO, ExperienceDTO, EducationDTO, LanguageDTO } from "../../dto/freelancerDTO/freelancer.dto.js";
+import { IExperience, IEducation, ILanguage, IUser } from "../models/interfaces/IUserModel.js";
+import { GetFreelancerDTO, ExperienceDTO, EducationDTO, LanguageDTO, UpdateLanguageDTO } from "../dto/freelancer.dto.js";
 
 // Mapper function
 export const mapFreelancerToDTO = (user: Partial<IUser>): GetFreelancerDTO => {
@@ -46,7 +46,18 @@ const mapEducationToDTO = (edu: IEducation): EducationDTO => ({
 });
 
 // Language mapper
-const mapLanguageToDTO = (lang: ILanguage): LanguageDTO => ({
+export const mapLanguageToDTO = (lang: ILanguage): LanguageDTO => ({
+  name: lang.name,
+  proficiency: lang.proficiency
+});
+
+//response
+export const mapUpdateLanguageToDTO = (user: IUser): UpdateLanguageDTO[] => {
+  return user.freelancerProfile.languages;
+};
+
+// request
+export const mapUpdateLanguageDtoToLanguage = (lang: ILanguage): LanguageDTO => ({
   name: lang.name,
   proficiency: lang.proficiency
 });

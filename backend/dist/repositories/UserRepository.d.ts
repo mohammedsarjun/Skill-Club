@@ -31,5 +31,6 @@ export declare class UserRepository extends BaseRepository<IUser> implements IUs
     }): Promise<IUser[] | null>;
     updateClientStatus(userId: string, isBlocked: boolean): Promise<IUser | null>;
     updateFreelancerStatus(userId: string, isBlocked: boolean): Promise<IUser | null>;
+    createFreelancerProfile(userId: string, freelancerData: Partial<IUser>): Promise<IUser | null>;
 }
 //# sourceMappingURL=UserRepository.d.ts.map

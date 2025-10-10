@@ -26,7 +26,7 @@ export default function AdminAuthGuard({ children }: { children: React.ReactNode
         // fetch user if not already in redux
         if (!user) {
           const response = await adminAuthApi.me();
-          console.log(response)
+
           if (response.success) {
             dispatch(setUser(response.data));
             currentUser = response.data;

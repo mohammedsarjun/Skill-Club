@@ -17,7 +17,6 @@ let userSpecialityServices = class userSpecialityServices {
         this._specialityRepository = specialityRepository;
     }
     async getSpecialities(categoryId) {
-        console.log(categoryId);
         const result = await this._specialityRepository.getSpeciality(categoryId);
         // Map to DTO
         const dtoData = result

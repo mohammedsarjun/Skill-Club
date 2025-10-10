@@ -36,6 +36,7 @@ const AdminActionApi = {
     limit: number = 10,
     mode: string = "detailed"
   ): Promise<any> => {
+
     try {
       const response = await axiosClient.get(adminEndPoint.adminGetCategories, {
         params: {

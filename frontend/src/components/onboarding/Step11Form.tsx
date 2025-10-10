@@ -9,8 +9,10 @@ interface PreviewProfileProps {
     onEditField: (field: "professionalRole" | "bio" | "hourlyRate" | "skills" | "workHistory" | "education" | "languages") => void;
     onSubmit:()=>void
 }
+import { useRouter } from "next/navigation";
 
 const PreviewProfile: React.FC<PreviewProfileProps> = ({ savedData, onEditPicture, onEditField,onSubmit }) => {
+    const route=useRouter()
     return (
         <div className="p-6 space-y-6 font-sans">
             {/* Header */}
@@ -59,7 +61,7 @@ const PreviewProfile: React.FC<PreviewProfileProps> = ({ savedData, onEditPictur
                                     onClick={onEditPicture}
                                     className="absolute bottom-4 right-4 border border-green-500 text-green-500 p-1.5 rounded-full hover:bg-green-50 flex items-center justify-center"
                                 >
-                                    <FaPencilAlt size={24} />
+                                    <FaPencilAlt size={24} onClick={()=>route.push("/onboarding/freelancer/9")}/>
                                 </button>
                             </div>
 
@@ -77,7 +79,7 @@ const PreviewProfile: React.FC<PreviewProfileProps> = ({ savedData, onEditPictur
                             <div className="flex  items-center p-2">
                                 <p className="text-gray-800 font-semibold text-xl mr-4">{savedData.professionalRole || "Professional Role"}</p>
                                 <button
-                                    onClick={() => onEditField("professionalRole")}
+                                    onClick={()=>route.push("/onboarding/freelancer/3")}
                                     className="border border-green-500 text-green-500 p-1 rounded-full hover:bg-green-100"
                                 >
                                     <FaPencilAlt size={24} />
@@ -88,7 +90,7 @@ const PreviewProfile: React.FC<PreviewProfileProps> = ({ savedData, onEditPictur
                             <div className="flex p-2 break-all">
                                 <p className="text-gray-800 flex-1 word-break">{savedData.bio || "Bio"}</p>
                                 <button
-                                    onClick={() => onEditField("bio")}
+                                    onClick={()=>route.push("/onboarding/freelancer/7")}
                                     className="border border-green-500 text-green-500 p-1 rounded-full hover:bg-green-100 self-start ml-4"
                                 >
                                     <FaPencilAlt size={24} />
@@ -102,8 +104,9 @@ const PreviewProfile: React.FC<PreviewProfileProps> = ({ savedData, onEditPictur
                                     <p className="text-gray-800 ">Hourly Rate</p>
                                 </div>
                                 <button
-                                    onClick={() => onEditField("hourlyRate")}
+                                    onClick={() => route.push("/onboarding/freelancer/8")}
                                     className="border border-green-500 text-green-500 p-1 rounded-full hover:bg-green-100 self-start ml-4"
+                                
                                 >
                                     <FaPencilAlt size={24} />
                                 </button>
@@ -117,7 +120,7 @@ const PreviewProfile: React.FC<PreviewProfileProps> = ({ savedData, onEditPictur
                         <div className="flex justify-between items-center">
                             <h3 className="font-semibold text-lg">Skills</h3>
                             <button
-                                onClick={() => onEditField("skills")}
+                                onClick={()=>route.push("/onboarding/freelancer/2")}
                                 className="border border-green-500 text-green-500 p-1 rounded-full hover:bg-green-100"
                             >
                                 <FaPencilAlt size={24} />
@@ -126,12 +129,12 @@ const PreviewProfile: React.FC<PreviewProfileProps> = ({ savedData, onEditPictur
 
                         <div className="flex flex-wrap gap-2">
                             {savedData.skills && savedData.skills.length > 0 ? (
-                                savedData.skills.map((skill: string, index: number) => (
+                                savedData.skills.map((skill: {value:string,label:string}, index: number) => (
                                     <span
                                         key={index}
                                         className="bg-white text-gray-800 px-3 py-1 rounded-full text-sm"
                                     >
-                                        {skill}
+                                        {skill.label}
                                     </span>
                                 ))
                             ) : (
@@ -148,7 +151,7 @@ const PreviewProfile: React.FC<PreviewProfileProps> = ({ savedData, onEditPictur
                         <div className="flex justify-between items-center">
                             <h3 className="font-semibold text-lg">Work History</h3>
                             <button
-                                onClick={() => onEditField("workHistory")}
+                                onClick={()=>route.push("/onboarding/freelancer/4")}
                                 className="border border-green-500 text-green-500 p-1 rounded-full hover:bg-green-100"
                             >
                                 <FaPlus size={20} />
@@ -175,7 +178,7 @@ const PreviewProfile: React.FC<PreviewProfileProps> = ({ savedData, onEditPictur
                                             </p>
 
                                             <button
-                                                onClick={() => onEditField("workHistory")}
+                                                onClick={()=>route.push("/onboarding/freelancer/4")}
                                                 className="border border-green-500 text-green-500 p-1 rounded-full hover:bg-green-100"
                                             >
                                                 <FaPencilAlt size={20} />
@@ -197,7 +200,7 @@ const PreviewProfile: React.FC<PreviewProfileProps> = ({ savedData, onEditPictur
                         <div className="flex justify-between items-center">
                             <h3 className="font-semibold text-lg">Education</h3>
                             <button
-                                onClick={() => onEditField("education")}
+                                onClick={()=>route.push("/onboarding/freelancer/5")}
                                 className="border border-green-500 text-green-500 p-1 rounded-full hover:bg-green-100"
                             >
                                 <FaPlus size={20} />
@@ -221,7 +224,7 @@ const PreviewProfile: React.FC<PreviewProfileProps> = ({ savedData, onEditPictur
 
                                             {/* Edit button */}
                                             <button
-                                                onClick={() => onEditField("education")}
+                                                onClick={()=>route.push("/onboarding/freelancer/5")}
                                                 className="border border-green-500 text-green-500 p-1 rounded-full hover:bg-green-100"
                                             >
                                                 <FaPencilAlt size={20} />
@@ -255,7 +258,7 @@ const PreviewProfile: React.FC<PreviewProfileProps> = ({ savedData, onEditPictur
                         <div className="flex justify-between items-center ">
                             <h3 className="font-semibold text-lg me-3">Languages</h3>
                             <button
-                                onClick={() => onEditField("languages")}
+                                onClick={()=>route.push("/onboarding/freelancer/6")}
                                 className="border border-green-500 text-green-500 p-1 rounded-full hover:bg-green-100"
                             >
                                 <FaPencilAlt size={24} />

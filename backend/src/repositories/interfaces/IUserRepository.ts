@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { IUser } from '../../models/interfaces/IUserModel.js';
+import { IFreelancerProfile, IUser } from '../../models/interfaces/IUserModel.js';
 import BaseRepository from '../baseRepositories/baseRepository.js';
 
 export interface IUserRepository extends BaseRepository<IUser> {
@@ -29,4 +29,5 @@ export interface IUserRepository extends BaseRepository<IUser> {
   ): Promise<IUser[] | null>;
   updateClientStatus(userId: string,isBlocked: boolean): Promise<IUser | null>;
   updateFreelancerStatus(userId: string , isBlocked: boolean): Promise<IUser | null>
+  createFreelancerProfile(userId:string,freelancerData:Partial<IUser>):Promise<IUser|null>
 }

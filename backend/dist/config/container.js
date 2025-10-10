@@ -1,8 +1,12 @@
 import { container } from "tsyringe";
 import { CategoryRepository } from "../repositories/categoryRepository.js";
 import { SpecialityRepository } from "../repositories/specialityRepository.js";
+import { SkillRepository } from "../repositories/skillRepository.js";
+import { PortfolioRepository } from "../repositories/portfolioRepository.js";
 container.register("ICategoryRepository", { useClass: CategoryRepository });
 container.register("ISpecialityRepository", { useClass: SpecialityRepository });
+container.register("ISkillRepository", { useClass: SkillRepository });
+container.register("IPortfolioRepository", { useClass: PortfolioRepository });
 //Auth
 import { AuthService } from "../services/authServices/AuthService.js";
 import { OtpService } from "../services/authServices/otpServices.js";
@@ -53,6 +57,8 @@ container.register("IClientService", { useClass: ClientService });
 container.register("IClientRepository", { useClass: ClientRepository });
 import { userCategoryServices } from "../services/userServices/userCategoryService.js";
 import { userSpecialityServices } from "../services/userServices/userSpecialityServices.js";
+import { UserSkillServices } from "../services/userServices/userSkillService.js";
 container.register("IUserCategoryServices", { useClass: userCategoryServices });
 container.register("IUserSpecialityServices", { useClass: userSpecialityServices });
+container.register("IUserSkillServices", { useClass: UserSkillServices });
 //# sourceMappingURL=container.js.map

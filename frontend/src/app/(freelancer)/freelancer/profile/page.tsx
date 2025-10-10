@@ -4,6 +4,15 @@ import { freelancerActionApi } from "@/api/action/FreelancerActionApi";
 import React, { JSX, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import {
+  addressSchema,
+  descriptionSchema,
+  educationSchema,
+  hourlyRateSchema,
+  languageProficiencySchema,
+  professionalRoleSchema,
+  workExperienceSchema,
+} from "@/utils/validation";
+import {
   FaEdit,
   FaPlus,
   FaMapMarkerAlt,
@@ -17,6 +26,38 @@ import {
   FaTimes,
 } from "react-icons/fa";
 import Image from "next/image";
+import DynamicFormModal from "@/components/common/Form";
+
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import PortfolioModal from "@/components/freelancer/PortfolioModal";
+import { IPortfolio } from "@/types/interfaces/IFreelancer";
+
+const dummyProjects = [
+  {
+    title: "Personal Portfolio Website",
+    image: "https://via.placeholder.com/400x250?text=Portfolio+Website",
+    technologies: ["React", "TailwindCSS", "TypeScript"],
+  },
+  {
+    title: "E-commerce Dashboard",
+    image: "https://via.placeholder.com/400x250?text=E-commerce+Dashboard",
+    technologies: ["Next.js", "MongoDB", "Express"],
+  },
+  {
+    title: "Chat Application",
+    image: "https://via.placeholder.com/400x250?text=Chat+App",
+    technologies: ["Socket.io", "Node.js", "React"],
+  },
+  {
+    title: "Fitness Tracker",
+    image: "https://via.placeholder.com/400x250?text=Fitness+Tracker",
+    technologies: ["React Native", "Firebase"],
+  },
+];
 
 interface Education {
   degree: string;
@@ -49,19 +90,6 @@ interface ModalData {
   description?: string;
 }
 
-type ModalType =
-  | "name"
-  | "location"
-  | "role"
-  | "hourlyRate"
-  | "description"
-  | "language"
-  | "education"
-  | "portfolio"
-  | "work"
-  | "skill"
-  | "";
-
 function FreelancerProfilePage(): JSX.Element {
   useEffect(() => {
     async function fetchData() {
@@ -71,9 +99,7 @@ function FreelancerProfilePage(): JSX.Element {
         setHourlyRate(`${response.data.hourlyRate}/hour`);
         setDescription(response.data.bio);
         setRole(response.data.professionalRole);
-        const responseLanguage = response.data.languages.map(
-          (lang: any) => `${lang.name} (${lang.proficiency})`
-        );
+        const responseLanguage = response.data.languages;
         setLanguages(responseLanguage);
         const responseEducation = response.data.education.map((edu: any) => ({
           degree: `${edu.degree} of ${edu.fieldOfStudy}`,
@@ -94,17 +120,46 @@ function FreelancerProfilePage(): JSX.Element {
         );
         setWorkHistory(responseWorkHistory);
         setName(response.data.name);
-        setLocation(
-          `${response.data.address.country},${response.data.address.city}`
-        );
+        setCountry(response.data.address.country);
+        setCity(response.data.address.city);
+
         setLogo(response.data.logo);
       } else {
         toast.error(response.message);
+      }
+
+      const portfolioResponse = await freelancerActionApi.getPortFolio();
+
+      if (portfolioResponse.success) {
+        setPortfolio(portfolioResponse.data);
+      } else {
+        toast.error(portfolioResponse.message);
       }
     }
 
     fetchData();
   }, []);
+
+  const [isPortfolioModalOpen, setIsPortfolioModalOpen] = useState(false);
+  const [isOpenEditModal, setIsEditOpenModal] = useState(false);
+  const [activeModal, setActiveModal] = useState("");
+  const [isEditModal, setIsEditModal] = useState(false);
+  const [isOpenModal, setIsOpenModal] = useState(false);
+  const years = Array.from({ length: 50 }, (_, i) => 2025 - i);
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
 
   const [skills, setSkills] = useState<string[]>([
     "React",
@@ -114,21 +169,22 @@ function FreelancerProfilePage(): JSX.Element {
     "AWS",
     "MongoDB",
   ]);
-  const [languages, setLanguages] = useState<string[]>([
-    "English (Native)",
-    "Spanish (Fluent)",
-    "French (Intermediate)",
-  ]);
+  const [languages, setLanguages] = useState<
+    { name: string; proficiency: string }[]
+  >([]);
   const [name, setName] = useState<string>("Sarah Mitchell");
-  const [location, setLocation] = useState<string>("San Francisco, CA");
+  const [country, setCountry] = useState<string>("");
+  const [city, setCity] = useState<string>("");
+
   const [role, setRole] = useState<string>("Full Stack Developer");
   const [hourlyRate, setHourlyRate] = useState<string>("$85/hour");
   const [description, setDescription] = useState<string>("");
   const [logo, setLogo] = useState<string>("");
   const [education, setEducation] = useState<Education[]>([]);
-
-  const [portfolio, setPortfolio] = useState<Portfolio[] | null>(null);
-
+  const [portfolio, setPortfolio] =
+    useState<
+      { id: string; title: string; video: string; technologies: string[] }[]
+    >();
   const [workHistory, setWorkHistory] = useState<WorkHistory[]>([
     {
       title: "Senior Full Stack Developer",
@@ -148,443 +204,106 @@ function FreelancerProfilePage(): JSX.Element {
     },
   ]);
 
-  const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const [modalType, setModalType] = useState<ModalType>("");
-  const [modalData, setModalData] = useState<ModalData>({});
-  const [editIndex, setEditIndex] = useState<number | null>(null);
+  const [editInitialValues, setEditInitialValues] = useState<
+    Record<string, any>
+  >({});
 
-  const openModal = (
-    type: ModalType,
-    data: ModalData = {},
-    index: number | null = null
-  ): void => {
-    setModalType(type);
-    setModalData(data);
-    setEditIndex(index);
-    setModalOpen(true);
-  };
+  const [portfolioDetail,setPortfolioDetail]=useState<IPortfolio>()
 
-  const closeModal = (): void => {
-    setModalOpen(false);
-    setModalType("");
-    setModalData({});
-    setEditIndex(null);
-  };
-
-  const handleInputChange = (field: string, value: string): void => {
-    setModalData({ ...modalData, [field]: value });
-  };
-
-  const handleSave = (): void => {
-    switch (modalType) {
-      case "name":
-        if (modalData.value) setName(modalData.value);
-        break;
-      case "location":
-        if (modalData.value) setLocation(modalData.value);
-        break;
-      case "role":
-        if (modalData.value) setRole(modalData.value);
-        break;
-      case "hourlyRate":
-        if (modalData.value) setHourlyRate(modalData.value);
-        break;
-      case "description":
-        if (modalData.value) setDescription(modalData.value);
-        break;
-      case "language":
-        if (modalData.value) {
-          if (editIndex !== null) {
-            const updated = [...languages];
-            updated[editIndex] = modalData.value;
-            setLanguages(updated);
-          } else {
-            setLanguages([...languages, modalData.value]);
-          }
-        }
-        break;
-      case "education":
-        if (modalData.degree && modalData.institution && modalData.period) {
-          if (editIndex !== null) {
-            const updated = [...education];
-            updated[editIndex] = {
-              degree: modalData.degree,
-              institution: modalData.institution,
-              period: modalData.period,
-            };
-            setEducation(updated);
-          } else {
-            setEducation([
-              ...education,
-              {
-                degree: modalData.degree,
-                institution: modalData.institution,
-                period: modalData.period,
-              },
-            ]);
-          }
-        }
-        break;
-      case "portfolio":
-        if (modalData.title && modalData.tech) {
-          if (editIndex !== null) {
-            const updated = [...portfolio!];
-            updated[editIndex] = {
-              ...updated[editIndex],
-              title: modalData.title,
-              tech: modalData.tech,
-            };
-            setPortfolio(updated);
-          } else {
-            const colors: string[] = [
-              "green",
-              "blue",
-              "purple",
-              "orange",
-              "pink",
-            ];
-            setPortfolio([
-              ...portfolio!,
-              {
-                title: modalData.title,
-                tech: modalData.tech,
-                color: colors[Math.floor(Math.random() * colors.length)],
-              },
-            ]);
-          }
-        }
-        break;
-      case "work":
-        if (
-          modalData.title &&
-          modalData.company &&
-          modalData.period &&
-          modalData.description
-        ) {
-          if (editIndex !== null) {
-            const updated = [...workHistory];
-            updated[editIndex] = {
-              ...updated[editIndex],
-              title: modalData.title,
-              company: modalData.company,
-              period: modalData.period,
-              description: modalData.description,
-            };
-            setWorkHistory(updated);
-          } else {
-            const colors: string[] = [
-              "green",
-              "blue",
-              "purple",
-              "orange",
-              "pink",
-            ];
-            setWorkHistory([
-              ...workHistory,
-              {
-                title: modalData.title,
-                company: modalData.company,
-                period: modalData.period,
-                description: modalData.description,
-                color: colors[Math.floor(Math.random() * colors.length)],
-              },
-            ]);
-          }
-        }
-        break;
-      case "skill":
-        if (modalData.value) {
-          if (editIndex !== null) {
-            const updated = [...skills];
-            updated[editIndex] = modalData.value;
-            setSkills(updated);
-          } else {
-            setSkills([...skills, modalData.value]);
-          }
-        }
-        break;
-      default:
-        break;
+  function handleOpenEditModal(
+    name: string,
+    populateData?: Record<string, any>,
+    docId?: string,
+    arrId?: string | number
+  ) {
+    setActiveModal(name);
+    if (name === "location") {
+      setEditInitialValues({
+        country: location,
+      });
+    } else if (name == "language") {
+      // setEditInitialValues({
+      //   language: populateData?.language,
+      //   proficiency: populateData?.proficiency,
+      // });
     }
-    closeModal();
-  };
+    setIsEditOpenModal(true);
+  }
 
-  const getModalTitle = (): string => {
-    const typeMap: Record<string, string> = {
-      name: "Name",
-      location: "Location",
-      role: "Role",
-      hourlyRate: "Hourly Rate",
-      description: "Description",
-      language: "Language",
-      education: "Education",
-      portfolio: "Portfolio",
-      work: "Work History",
-      skill: "Skill",
-    };
-    return typeMap[modalType] || "";
-  };
+  function handleOpenModal(name: string) {
+    setActiveModal(name);
+    setIsOpenModal(true);
+  }
 
+  function onEditSubmit(submitData: string, mode: string) {
+    console.log(submitData);
+  }
+
+  async function onSubmit(submitData: Record<string, any>, mode: string) {
+    if (activeModal == "language") {
+      const response = await freelancerActionApi.updateFreelancerData(
+        submitData
+      );
+
+      if (response.success) {
+        console.log(response);
+        setLanguages((lang) => response.data.languages);
+      } else {
+        toast.error(response.message);
+      }
+    }
+  }
+
+  async function handleOpenPortfolioModal(id: string) {
+    const response = await freelancerActionApi.getPortfolioDetails(id);
+
+    if (response.success) {
+      setIsPortfolioModalOpen(true);
+      setPortfolioDetail(response.data)
+      console.log(response);
+    } else {
+      toast.error(response.message);
+    }
+  }
+  async function handleClosePortfolioModal() {
+    setIsPortfolioModalOpen(false);
+  }
   return (
     <div className="min-h-screen bg-gray-50">
-      {modalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">
-                  {editIndex !== null ? "Edit" : "Add"} {getModalTitle()}
-                </h2>
-                <button
-                  onClick={closeModal}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <FaTimes className="w-6 h-6" />
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                {(modalType === "name" ||
-                  modalType === "location" ||
-                  modalType === "role" ||
-                  modalType === "hourlyRate" ||
-                  modalType === "language" ||
-                  modalType === "skill") && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {modalType === "name" && "Full Name"}
-                      {modalType === "location" && "Location"}
-                      {modalType === "role" && "Role"}
-                      {modalType === "hourlyRate" && "Hourly Rate"}
-                      {modalType === "language" && "Language"}
-                      {modalType === "skill" && "Skill"}
-                    </label>
-                    <input
-                      type="text"
-                      value={modalData.value || ""}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        handleInputChange("value", e.target.value)
-                      }
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
-                      placeholder={`Enter ${modalType}`}
-                    />
-                  </div>
-                )}
-
-                {modalType === "description" && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Description
-                    </label>
-                    <textarea
-                      value={modalData.value || ""}
-                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                        handleInputChange("value", e.target.value)
-                      }
-                      rows={6}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none resize-none"
-                      placeholder="Enter description"
-                    />
-                  </div>
-                )}
-
-                {modalType === "education" && (
-                  <>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Degree/Certification
-                      </label>
-                      <input
-                        type="text"
-                        value={modalData.degree || ""}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          handleInputChange("degree", e.target.value)
-                        }
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
-                        placeholder="e.g., Bachelor of Computer Science"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Institution
-                      </label>
-                      <input
-                        type="text"
-                        value={modalData.institution || ""}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          handleInputChange("institution", e.target.value)
-                        }
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
-                        placeholder="e.g., Stanford University"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Period
-                      </label>
-                      <input
-                        type="text"
-                        value={modalData.period || ""}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          handleInputChange("period", e.target.value)
-                        }
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
-                        placeholder="e.g., 2018 - 2022"
-                      />
-                    </div>
-                  </>
-                )}
-
-                {modalType === "portfolio" && (
-                  <>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Project Title
-                      </label>
-                      <input
-                        type="text"
-                        value={modalData.title || ""}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          handleInputChange("title", e.target.value)
-                        }
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
-                        placeholder="e.g., E-commerce Platform"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Technologies
-                      </label>
-                      <input
-                        type="text"
-                        value={modalData.tech || ""}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          handleInputChange("tech", e.target.value)
-                        }
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
-                        placeholder="e.g., React, Node.js, MongoDB"
-                      />
-                    </div>
-                  </>
-                )}
-
-                {modalType === "work" && (
-                  <>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Job Title
-                      </label>
-                      <input
-                        type="text"
-                        value={modalData.title || ""}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          handleInputChange("title", e.target.value)
-                        }
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
-                        placeholder="e.g., Senior Full Stack Developer"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Company
-                      </label>
-                      <input
-                        type="text"
-                        value={modalData.company || ""}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          handleInputChange("company", e.target.value)
-                        }
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
-                        placeholder="e.g., TechCorp Solutions"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Period
-                      </label>
-                      <input
-                        type="text"
-                        value={modalData.period || ""}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          handleInputChange("period", e.target.value)
-                        }
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
-                        placeholder="e.g., 2022 - Present"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Description
-                      </label>
-                      <textarea
-                        value={modalData.description || ""}
-                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                          handleInputChange("description", e.target.value)
-                        }
-                        rows={4}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none resize-none"
-                        placeholder="Describe your responsibilities and achievements"
-                      />
-                    </div>
-                  </>
-                )}
-              </div>
-
-              <div className="flex items-center space-x-3 mt-6">
-                <button
-                  onClick={handleSave}
-                  className="flex-1 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
-                >
-                  Save
-                </button>
-                <button
-                  onClick={closeModal}
-                  className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
+      <PortfolioModal portfolio={portfolioDetail!} isOpen={isPortfolioModalOpen} onClose={handleClosePortfolioModal}></PortfolioModal>
       <div className="bg-white shadow-sm">
         <div className="max-w-6xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-6">
-           {logo ? (
-  <div className="w-16 h-16 rounded-full overflow-hidden shadow-lg">
-    <Image
-      src={logo}
-      alt="userLogo"
-      width={64}
-      height={64}
-      className="w-full h-full object-cover"
-    />
-  </div>
-) : (
-  <div className="w-16 h-16 bg-gradient-to-br from-green-600 to-green-700 rounded-full flex items-center justify-center shadow-lg">
-    <FaUser className="w-8 h-8 text-white" />
-  </div>
-)}
+              {logo ? (
+                <div className="w-16 h-16 rounded-full overflow-hidden shadow-lg">
+                  <Image
+                    src={logo}
+                    alt="userLogo"
+                    width={64}
+                    height={64}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="w-16 h-16 bg-gradient-to-br from-green-600 to-green-700 rounded-full flex items-center justify-center shadow-lg">
+                  <FaUser className="w-8 h-8 text-white" />
+                </div>
+              )}
 
               <div>
                 <div className="flex items-center space-x-2">
                   <h1 className="text-3xl font-bold text-gray-900">{name}</h1>
-                  <button
-                    onClick={() => openModal("name", { value: name })}
-                    className="text-gray-400 hover:text-green-600"
-                  >
+                  <button className="text-gray-400 hover:text-green-600">
                     <FaEdit className="w-4 h-4" />
                   </button>
                 </div>
 
                 <div className="flex items-center text-gray-600 mt-1">
                   <FaMapMarkerAlt className="w-4 h-4 mr-2" />
-                  <span className="text-lg">{location}</span>
+                  <span className="text-lg">{`${country},${city}`}</span>
                   <button
-                    onClick={() => openModal("location", { value: location })}
+                    onClick={() => handleOpenEditModal("location")}
                     className="ml-2 text-gray-400 hover:text-green-600"
                   >
                     <FaEdit className="w-3 h-3" />
@@ -608,31 +327,43 @@ function FreelancerProfilePage(): JSX.Element {
                   </h3>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => openModal("language", { value: "" })}
-                    className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                  >
-                    <FaPlus className="w-4 h-4" />
+                  <button className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors">
+                    <FaPlus
+                      className="w-4 h-4"
+                      onClick={() => handleOpenModal("language")}
+                    />
                   </button>
                 </div>
               </div>
               <div className="space-y-3">
-                {languages.map((language: string, index: number) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                  >
-                    <span className="text-gray-700">{language}</span>
-                    <button
-                      onClick={() =>
-                        openModal("language", { value: language }, index)
-                      }
-                      className="text-gray-400 hover:text-green-600"
+                {languages.map(
+                  (
+                    language: { name: string; proficiency: string },
+                    index: number
+                  ) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                     >
-                      <FaEdit className="w-3 h-3" />
-                    </button>
-                  </div>
-                ))}
+                      <span className="text-gray-700">
+                        {language.name} ({language.proficiency})
+                      </span>
+                      <button
+                        className="text-gray-400 hover:text-green-600"
+                        onClick={() =>
+                          handleOpenEditModal(
+                            "language",
+                            language,
+                            language.name,
+                            index
+                          )
+                        }
+                      >
+                        <FaEdit className="w-3 h-3" />
+                      </button>
+                    </div>
+                  )
+                )}
               </div>
             </div>
 
@@ -646,14 +377,8 @@ function FreelancerProfilePage(): JSX.Element {
                 </div>
                 <div className="flex items-center space-x-2">
                   <button
-                    onClick={() =>
-                      openModal("education", {
-                        degree: "",
-                        institution: "",
-                        period: "",
-                      })
-                    }
                     className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                    onClick={() => handleOpenModal("education")}
                   >
                     <FaPlus className="w-4 h-4" />
                   </button>
@@ -666,10 +391,10 @@ function FreelancerProfilePage(): JSX.Element {
                     className="border-l-4 border-green-600 pl-4 py-2 relative group"
                   >
                     <button
-                      onClick={() => openModal("education", edu, index)}
-                      className="absolute -right-2 top-2 text-gray-400 hover:text-green-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute right-2 top-0 text-gray-400 hover:text-green-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => handleOpenEditModal("education")}
                     >
-                      <FaEdit className="w-3 h-3" />
+                      <FaEdit className="w-4 h-4" />
                     </button>
                     <h4 className="font-semibold text-gray-900">
                       {edu.degree}
@@ -692,11 +417,11 @@ function FreelancerProfilePage(): JSX.Element {
                       Professional Role
                     </h3>
                   </div>
-                  <button
-                    onClick={() => openModal("role", { value: role })}
-                    className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                  >
-                    <FaEdit className="w-4 h-4" />
+                  <button className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors">
+                    <FaEdit
+                      className="w-4 h-4"
+                      onClick={() => handleOpenEditModal("professionalRole")}
+                    />
                   </button>
                 </div>
                 <p className="text-xl font-medium text-green-600">{role}</p>
@@ -711,10 +436,8 @@ function FreelancerProfilePage(): JSX.Element {
                     </h3>
                   </div>
                   <button
-                    onClick={() =>
-                      openModal("hourlyRate", { value: hourlyRate })
-                    }
                     className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                    onClick={() => handleOpenEditModal("hourlyRate")}
                   >
                     <FaEdit className="w-4 h-4" />
                   </button>
@@ -734,10 +457,8 @@ function FreelancerProfilePage(): JSX.Element {
                   </h3>
                 </div>
                 <button
-                  onClick={() =>
-                    openModal("description", { value: description })
-                  }
                   className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                  onClick={() => handleOpenEditModal("description")}
                 >
                   <FaEdit className="w-4 h-4" />
                 </button>
@@ -746,58 +467,60 @@ function FreelancerProfilePage(): JSX.Element {
                 {description}
               </p>
             </div>
-
-            {portfolio && (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-2">
-                    <FaBriefcase className="w-5 h-5 text-green-600" />
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      Portfolio
-                    </h3>
-                  </div>
-                  <button
-                    onClick={() =>
-                      openModal("portfolio", { title: "", tech: "" })
-                    }
-                    className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                  >
-                    <FaPlus className="w-4 h-4" />
-                  </button>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-2">
+                  <FaBriefcase className="w-5 h-5 text-green-600" />
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Portfolio
+                  </h3>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {portfolio.map((proj: Portfolio, index: number) => (
-                    <div
-                      key={index}
-                      className="border border-gray-200 rounded-lg p-4 hover:border-green-300 hover:shadow-md transition-all cursor-pointer relative group"
-                    >
-                      <button
-                        onClick={() =>
-                          openModal(
-                            "portfolio",
-                            { title: proj.title, tech: proj.tech },
-                            index
-                          )
-                        }
-                        className="absolute top-2 right-2 p-1.5 text-gray-400 hover:text-green-600 hover:bg-white rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <FaEdit className="w-3 h-3" />
-                      </button>
-                      <div
-                        className={`w-full h-32 bg-gradient-to-br from-${proj.color}-100 to-${proj.color}-200 rounded-lg mb-3 flex items-center justify-center`}
-                      >
-                        <FaCode className={`w-8 h-8 text-${proj.color}-600`} />
-                      </div>
-                      <h4 className="font-semibold text-gray-900">
-                        {proj.title}
-                      </h4>
-                      <p className="text-sm text-gray-600 mt-1">{proj.tech}</p>
-                    </div>
-                  ))}
-                </div>
+                <button className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors">
+                  <FaPlus className="w-4 h-4" />
+                </button>
               </div>
-            )}
 
+              {/* Swiper (1 Project per Swipe) */}
+              <Swiper
+                modules={[Navigation, Pagination]}
+                spaceBetween={20}
+                slidesPerView={1}
+                navigation
+                pagination={{ clickable: true }}
+                className="w-full"
+              >
+                {portfolio &&
+                  portfolio.map((proj, index) => (
+                    <SwiperSlide key={index}>
+                      <div
+                        className="border border-gray-200 rounded-xl p-4 hover:border-green-300 hover:shadow-md transition-all cursor-pointer bg-white"
+                        onClick={() => handleOpenPortfolioModal(proj.id)}
+                      >
+                        <video
+                          src={proj.video}
+                          controls
+                          className="w-full h-56 object-cover rounded-lg mb-4"
+                        />
+                        <h4 className="font-semibold text-gray-900 text-lg">
+                          {proj.title}
+                        </h4>
+
+                        <div className="flex flex-wrap gap-2 mt-3">
+                          {proj.technologies.map((tech, i) => (
+                            <span
+                              key={i}
+                              className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium"
+                            >
+                              {tech}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </SwiperSlide>
+                  ))}
+              </Swiper>
+            </div>
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
@@ -807,15 +530,8 @@ function FreelancerProfilePage(): JSX.Element {
                   </h3>
                 </div>
                 <button
-                  onClick={() =>
-                    openModal("work", {
-                      title: "",
-                      company: "",
-                      period: "",
-                      description: "",
-                    })
-                  }
                   className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                  onClick={() => handleOpenModal("workHistory")}
                 >
                   <FaPlus className="w-4 h-4" />
                 </button>
@@ -824,8 +540,8 @@ function FreelancerProfilePage(): JSX.Element {
                 {workHistory.map((work: WorkHistory, index: number) => (
                   <div key={index} className="flex space-x-4 relative group">
                     <button
-                      onClick={() => openModal("work", work, index)}
                       className="absolute -right-2 top-0 text-gray-400 hover:text-green-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => handleOpenEditModal("workHistory")}
                     >
                       <FaEdit className="w-4 h-4" />
                     </button>
@@ -864,8 +580,8 @@ function FreelancerProfilePage(): JSX.Element {
                   </h3>
                 </div>
                 <button
-                  onClick={() => openModal("skill", { value: "" })}
                   className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                  onClick={() => handleOpenModal("skill")}
                 >
                   <FaPlus className="w-4 h-4" />
                 </button>
@@ -874,10 +590,18 @@ function FreelancerProfilePage(): JSX.Element {
                 {skills.map((skill: string, index: number) => (
                   <span
                     key={index}
-                    onClick={() => openModal("skill", { value: skill }, index)}
-                    className="px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-medium hover:bg-green-200 transition-colors cursor-pointer"
+                    className="flex items-center px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium hover:bg-green-200 transition-colors cursor-pointer"
                   >
                     {skill}
+                    <FaTimes
+                      className="ml-2 text-green-700 hover:text-red-500"
+                      onClick={(e) => {
+                        e.stopPropagation(); // prevent parent click if needed
+                        // remove the skill from array
+                        const newSkills = skills.filter((_, i) => i !== index);
+                        setSkills(newSkills);
+                      }}
+                    />
                   </span>
                 ))}
               </div>
@@ -885,6 +609,438 @@ function FreelancerProfilePage(): JSX.Element {
           </div>
         </div>
       </div>
+
+      {isOpenEditModal && (
+        <DynamicFormModal
+          title={
+            activeModal == "location"
+              ? "Edit location"
+              : activeModal == "language"
+              ? "Edit Language"
+              : activeModal == "professionalRole"
+              ? "Edit Professional Role"
+              : activeModal == "hourlyRate"
+              ? "Edit Hourly Rate"
+              : activeModal == "description"
+              ? "Edit Description"
+              : activeModal == "education"
+              ? "Edit Education"
+              : activeModal == "workHistory"
+              ? "Edit Work History"
+              : "Edit Work History"
+          }
+          fields={
+            activeModal === "location"
+              ? [
+                  {
+                    name: "country",
+                    type: "select",
+                    options: [
+                      { label: "India", value: "india" },
+                      { label: "USA", value: "usa" },
+                      { label: "UK", value: "uk" },
+                    ],
+                    label: "Country",
+                  },
+                  {
+                    name: "address",
+                    type: "text",
+                    label: "Address",
+                    placeholder: "Enter Your Address",
+                  },
+                  {
+                    name: "city",
+                    type: "text",
+                    label: "City",
+                    placeholder: "Enter Your City",
+                  },
+                  {
+                    name: "state",
+                    type: "text",
+                    label: "State",
+                    placeholder: "Enter Your City",
+                  },
+                  {
+                    name: "zip",
+                    type: "number",
+                    label: "Zip",
+                    placeholder: "Enter Your Zip",
+                  },
+                ]
+              : activeModal == "language"
+              ? [
+                  {
+                    name: "language",
+                    type: "select",
+                    options: [
+                      { label: "Hindi", value: "hindi" },
+                      { label: "Tamil", value: "tamil" },
+                      { label: "Spanish", value: "spanish" },
+                    ],
+                    label: "Language",
+                  },
+                  {
+                    name: "proficiency",
+                    type: "select",
+                    options: [
+                      { label: "Fluent", value: "fluent" },
+                      { label: "Conversational", value: "conversational" },
+                    ],
+                    label: "Proficiency",
+                  },
+                ]
+              : activeModal == "professionalRole"
+              ? [
+                  {
+                    name: "professionalRole",
+                    type: "text",
+                    label: "Professional Role",
+                    placeholder: "Enter Your Professional Role",
+                  },
+                ]
+              : activeModal == "hourlyRate"
+              ? [
+                  {
+                    name: "hourlyRate",
+                    type: "number",
+                    label: "Hourly Rate",
+                    placeholder: "Enter Your Hourly Rate",
+                  },
+                ]
+              : activeModal == "description"
+              ? [
+                  {
+                    name: "description",
+                    type: "text",
+                    label: "Description",
+                    placeholder: "Enter Your Description",
+                  },
+                ]
+              : activeModal == "education"
+              ? [
+                  {
+                    name: "school",
+                    type: "text",
+                    label: "School",
+                    placeholder: "Enter Your School",
+                  },
+                  {
+                    name: "degree",
+                    type: "text",
+                    label: "Degree",
+                    placeholder: "Enter Your Degree",
+                  },
+                  {
+                    name: "field",
+                    type: "text",
+                    label: "Field Of Study",
+                    placeholder: "Enter Field of study",
+                  },
+                  {
+                    name: "startYear",
+                    type: "select",
+                    label: "Start Year",
+                    options: years.map((year) => ({
+                      label: year,
+                      value: year,
+                    })) as [],
+                  },
+                  {
+                    name: "endYear",
+                    type: "select",
+                    label: "End Year",
+                    options: years.map((year) => ({
+                      label: year,
+                      value: year,
+                    })) as [],
+                  },
+                ]
+              : activeModal == "workHistory"
+              ? [
+                  {
+                    name: "title",
+                    type: "text",
+                    label: "Title",
+                    placeholder: "Enter Your Work Title",
+                  },
+                  {
+                    name: "companyName",
+                    type: "text",
+                    label: "Company Name",
+                    placeholder: "Enter Company Name",
+                  },
+                  {
+                    name: "location",
+                    type: "text",
+                    label: "Location",
+                    placeholder: "Enter Company Location",
+                  },
+                  {
+                    name: "country",
+                    type: "text",
+                    label: "Country",
+                    placeholder: "Enter Company Country",
+                  },
+
+                  {
+                    name: "startMonth",
+                    type: "select",
+                    options: months.map((m) => ({
+                      label: m,
+                      value: m,
+                    })),
+                    label: "Start Month",
+                    group: "startRow",
+                  },
+                  {
+                    name: "startYear",
+                    type: "select",
+                    options: years.map((year) => ({
+                      label: year,
+                      value: year,
+                    })),
+                    label: "Start Year",
+                    group: "startRow",
+                  },
+
+                  {
+                    name: "endMonth",
+                    type: "select",
+                    options: months.map((m) => ({
+                      label: m,
+                      value: m,
+                    })),
+                    label: "End Month",
+                    group: "endRow",
+                  },
+                  {
+                    name: "endYear",
+                    type: "select",
+                    options: years.map((year) => ({
+                      label: year,
+                      value: year,
+                    })),
+                    label: "End Year",
+                    group: "endRow",
+                  },
+                  {
+                    name: "isCurrentRole",
+                    type: "checkbox",
+                    label: "I am currently working in this role",
+                  },
+                ]
+              : []
+          }
+          onSubmit={onEditSubmit}
+          onClose={() => setIsEditOpenModal(false)}
+          initialValues={editInitialValues}
+          mode="update"
+          validationSchema={
+            activeModal == "address"
+              ? addressSchema
+              : activeModal == "language"
+              ? languageProficiencySchema
+              : activeModal == "professionalRole"
+              ? professionalRoleSchema
+              : activeModal == "hourlyRate"
+              ? hourlyRateSchema
+              : activeModal == "description"
+              ? descriptionSchema
+              : activeModal == "education"
+              ? educationSchema
+              : activeModal == "workHistory"
+              ? workExperienceSchema
+              : workExperienceSchema
+          }
+          layout={activeModal == "workHistory" ? "horizontal" : "vertical"}
+        />
+      )}
+
+      {/* create modal */}
+      {isOpenModal && (
+        <DynamicFormModal
+          title={
+            activeModal == "language"
+              ? "Add Language"
+              : activeModal == "education"
+              ? "Add Education"
+              : activeModal == "workHistory"
+              ? "Add Work History"
+              : activeModal == "skill"
+              ? "Add Skill"
+              : ""
+          }
+          fields={
+            activeModal == "language"
+              ? [
+                  {
+                    name: "name",
+                    type: "select",
+                    options: [
+                      { label: "Hindi", value: "hindi" },
+                      { label: "Tamil", value: "tamil" },
+                      { label: "Spanish", value: "spanish" },
+                    ],
+                    label: "Language",
+                  },
+                  {
+                    name: "proficiency",
+                    type: "select",
+                    options: [
+                      { label: "Fluent", value: "fluent" },
+                      { label: "Conversational", value: "conversational" },
+                    ],
+                    label: "Proficiency",
+                  },
+                ]
+              : activeModal == "education"
+              ? [
+                  {
+                    name: "school",
+                    type: "text",
+                    label: "School",
+                    placeholder: "Enter Your School",
+                  },
+                  {
+                    name: "degree",
+                    type: "text",
+                    label: "Degree",
+                    placeholder: "Enter Your Degree",
+                  },
+                  {
+                    name: "field",
+                    type: "text",
+                    label: "Field Of Study",
+                    placeholder: "Enter Field of study",
+                  },
+                  {
+                    name: "startYear",
+                    type: "select",
+                    label: "Start Year",
+                    options: years.map((year) => ({
+                      label: year,
+                      value: year,
+                    })) as [],
+                  },
+                  {
+                    name: "endYear",
+                    type: "select",
+                    label: "End Year",
+                    options: years.map((year) => ({
+                      label: year,
+                      value: year,
+                    })) as [],
+                  },
+                ]
+              : activeModal == "workHistory"
+              ? [
+                  {
+                    name: "title",
+                    type: "text",
+                    label: "Title",
+                    placeholder: "Enter Your Work Title",
+                  },
+                  {
+                    name: "companyName",
+                    type: "text",
+                    label: "Company Name",
+                    placeholder: "Enter Company Name",
+                  },
+                  {
+                    name: "location",
+                    type: "text",
+                    label: "Location",
+                    placeholder: "Enter Company Location",
+                  },
+                  {
+                    name: "country",
+                    type: "text",
+                    label: "Country",
+                    placeholder: "Enter Company Country",
+                  },
+
+                  {
+                    name: "startMonth",
+                    type: "select",
+                    options: months.map((m) => ({
+                      label: m,
+                      value: m,
+                    })),
+                    label: "Start Month",
+                    group: "startRow",
+                  },
+                  {
+                    name: "startYear",
+                    type: "select",
+                    options: years.map((year) => ({
+                      label: year,
+                      value: year,
+                    })),
+                    label: "Start Year",
+                    group: "startRow",
+                  },
+
+                  {
+                    name: "endMonth",
+                    type: "select",
+                    options: months.map((m) => ({
+                      label: m,
+                      value: m,
+                    })),
+                    label: "End Month",
+                    group: "endRow",
+                  },
+                  {
+                    name: "endYear",
+                    type: "select",
+                    options: years.map((year) => ({
+                      label: year,
+                      value: year,
+                    })),
+                    label: "End Year",
+                    group: "endRow",
+                  },
+                  {
+                    name: "isCurrentRole",
+                    type: "checkbox",
+                    label: "I am currently working in this role",
+                  },
+                ]
+              : activeModal == "skill"
+              ? [
+                  {
+                    name: "skill",
+                    type: "text",
+                    label: "Skills",
+                    placeholder: "Enter your Skill",
+                  },
+                ]
+              : []
+          }
+          onSubmit={onSubmit}
+          onClose={() => setIsOpenModal(false)}
+          initialValues={editInitialValues}
+          mode="create"
+          validationSchema={
+            activeModal == "address"
+              ? addressSchema
+              : activeModal == "language"
+              ? languageProficiencySchema
+              : activeModal == "professionalRole"
+              ? professionalRoleSchema
+              : activeModal == "hourlyRate"
+              ? hourlyRateSchema
+              : activeModal == "description"
+              ? descriptionSchema
+              : activeModal == "education"
+              ? educationSchema
+              : activeModal == "workHistory"
+              ? workExperienceSchema
+              : workExperienceSchema
+          }
+          layout={activeModal == "workHistory" ? "horizontal" : "vertical"}
+        />
+      )}
     </div>
   );
 }

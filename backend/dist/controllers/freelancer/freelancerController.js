@@ -32,6 +32,63 @@ let FreelancerController = class FreelancerController {
             throw error;
         }
     }
+    async updateFreelancerLanguage(req, res) {
+        try {
+            const userId = req.user?.userId;
+            const result = await this._freelancerService.updateFreelancerLanguage(userId, req.body);
+            res.status(HttpStatus.OK).json({
+                success: true,
+                message: MESSAGES.Freelancer.UPDATED,
+                data: result,
+            });
+        }
+        catch (error) {
+            throw error;
+        }
+    }
+    async createPortfolio(req, res) {
+        try {
+            const userId = req.user?.userId;
+            const portfolioData = req.body.portfolioData;
+            const result = await this._freelancerService.createPortfolio(userId, portfolioData);
+            res.status(HttpStatus.OK).json({
+                success: true,
+                message: 'Portfolio Created',
+            });
+        }
+        catch (error) {
+            throw error;
+        }
+    }
+    async getPortfolio(req, res) {
+        try {
+            const userId = req.user?.userId;
+            const result = await this._freelancerService.getPortfolio(userId);
+            res.status(HttpStatus.OK).json({
+                success: true,
+                message: 'Portfolio Fetched Succcessfully',
+                data: result,
+            });
+        }
+        catch (error) {
+            throw error;
+        }
+    }
+    async getPortfolioDetail(req, res) {
+        try {
+            const userId = req.user?.userId;
+            const { portfolioId } = req.query;
+            const result = await this._freelancerService.getPortfolioDetail(userId, portfolioId);
+            res.status(HttpStatus.OK).json({
+                success: true,
+                message: 'Portfolio Fetched Succcessfully',
+                data: result,
+            });
+        }
+        catch (error) {
+            throw error;
+        }
+    }
 };
 FreelancerController = __decorate([
     injectable(),

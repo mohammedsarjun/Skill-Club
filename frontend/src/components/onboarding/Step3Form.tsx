@@ -1,49 +1,63 @@
 import React, { useState, useEffect } from "react";
 import { FaTimes } from "react-icons/fa";
 import Button from "../common/Button";
+import { onboardingApi } from "@/api/onboardingApi";
+import toast from "react-hot-toast";
 
 interface StepThreeProps {
   onBack: () => void;
-  onNext: (data: { skills: string[] }) => void;
-  savedData?: { skills?: string[] }; // ✅ receive saved data
+  onNext: (data: { skills: { value: string; label: string }[] }) => void;
+  savedData?: any;
 }
 
-export default function StepThreeForm({ onBack, onNext, savedData }: StepThreeProps) {
-  const [skills, setSkills] = useState<string[]>([]);
+export default function StepThreeForm({
+  onBack,
+  onNext,
+  savedData,
+}: StepThreeProps) {
+  const [skills, setSkills] = useState<{ value: string; label: string }[]>([
+    { value: "javaScript", label: "JavaScript" },
+  ]);
   const [input, setInput] = useState("");
-
-  const suggestedSkills = [
-    "JavaScript",
-    "React",
-    "Node.js",
-    "UI/UX",
-    "Python",
-    "Django",
-    "SQL",
-    "MongoDB",
-    "HTML",
-    "CSS",
-    "TypeScript",
-  ];
+  const [suggestedSkills, setSuggestedSkills] = useState([
+    { value: "javaScript", label: "JavaScript" },
+  ]);
 
   // ✅ Load saved skills if available
   useEffect(() => {
     if (savedData?.skills) {
       setSkills(savedData.skills);
     }
+
+    async function fetchSuggestedSkills() {
+      const response = await onboardingApi.getSuggestedSkills(
+        savedData.specialties
+      );
+
+      if (response.success) {
+        setSuggestedSkills(response.data);
+      } else {
+        toast.error(response.message);
+      }
+    }
+
+    fetchSuggestedSkills();
   }, [savedData]);
 
   const MAX_SKILLS = 15;
-
-  const addSkill = (value: string) => {
-    if (value && !skills.includes(value) && skills.length < MAX_SKILLS) {
-      setSkills((prev) => [...prev, value]);
+  const addSkill = (skill: { value: string; label: string }) => {
+    if (
+      skill.value &&
+      !skills.some((s) => s.value === skill.value) &&
+      skills.length < MAX_SKILLS
+    ) {
+      setSkills((prev) => [...prev, skill]);
     }
     setInput("");
   };
 
-  const removeSkill = (value: string) => {
-    setSkills((prev) => prev.filter((skill) => skill !== value));
+  const removeSkill = (value: { value: string; label: string }) => {
+    setSkills((prev) => prev.filter((skill) => skill.value !== value.value));
   };
 
   function handleNext() {
@@ -68,7 +82,9 @@ export default function StepThreeForm({ onBack, onNext, savedData }: StepThreePr
       </p>
 
       {/* Input field */}
-      <label className="block text-gray-700 mb-2 font-medium">Your skills</label>
+      <label className="block text-gray-700 mb-2 font-medium">
+        Your skills
+      </label>
       <input
         type="text"
         className="w-full border rounded-lg px-4 py-2 mb-3 focus:ring-2 focus:ring-blue-400 focus:outline-none"
@@ -78,7 +94,7 @@ export default function StepThreeForm({ onBack, onNext, savedData }: StepThreePr
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             e.preventDefault();
-            addSkill(input.trim());
+            addSkill({ value: input.trim(), label: input.trim() });
           }
         }}
         disabled={skills.length >= MAX_SKILLS}
@@ -88,10 +104,10 @@ export default function StepThreeForm({ onBack, onNext, savedData }: StepThreePr
       <div className="flex flex-wrap gap-2 mb-2">
         {skills.map((skill) => (
           <span
-            key={skill}
+            key={skill.value}
             className="flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
           >
-            {skill}
+            {skill.label}
             <FaTimes
               className="ml-2 cursor-pointer hover:text-red-500"
               onClick={() => removeSkill(skill)}
@@ -107,20 +123,25 @@ export default function StepThreeForm({ onBack, onNext, savedData }: StepThreePr
       {/* Suggested skills */}
       <p className="text-gray-700 mb-2 font-medium">Suggested skills</p>
       <div className="flex flex-wrap gap-2 mb-8">
-        {suggestedSkills.map((s) => (
-          <button
-            key={s}
-            className={`px-3 py-1 rounded-full border text-sm transition ${
-              skills.includes(s)
-                ? "bg-blue-600 text-white border-blue-600"
-                : "bg-gray-100 text-gray-700 hover:bg-blue-100"
-            }`}
-            onClick={() => addSkill(s)}
-            disabled={skills.length >= MAX_SKILLS && !skills.includes(s)}
-          >
-            {s}
-          </button>
-        ))}
+        {suggestedSkills.map((s) => {
+          const isSelected = skills.some((skill) => skill.value === s.value);
+          const isDisabled = skills.length >= MAX_SKILLS && !isSelected;
+
+          return (
+            <button
+              key={s.value}
+              className={`px-3 py-1 rounded-full border text-sm transition ${
+                isSelected
+                  ? "bg-blue-600 text-white border-blue-600"
+                  : "bg-gray-100 text-gray-700 hover:bg-blue-100"
+              }`}
+              onClick={() => addSkill({ value: s.value, label: s.label })}
+              disabled={isDisabled}
+            >
+              {s.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Navigation Buttons */}

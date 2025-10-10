@@ -1,3 +1,4 @@
+
 import { useState, ChangeEvent, FormEvent } from "react";
 import { FaTimes } from "react-icons/fa";
 import Input from "./Input";
@@ -8,7 +9,7 @@ import React from "react";
 type FieldType = "text" | "number" | "textarea" | "checkbox" | "select";
 
 interface SelectOption {
-  label: string;
+  label: string|number;
   value: string | number;
 }
 
@@ -19,6 +20,7 @@ interface Field {
   label?: string;
   options?: SelectOption[];
   hidden?: boolean;
+  group?: string; // ✅ for side-by-side fields
 }
 
 interface DynamicFormProps {
@@ -29,6 +31,7 @@ interface DynamicFormProps {
   onClose: () => void;
   validationSchema?: ZodSchema;
   title?: string;
+  layout?: "vertical" | "horizontal"; // ✅ NEW prop
 }
 
 const DynamicFormModal: React.FC<DynamicFormProps> = ({
@@ -39,6 +42,7 @@ const DynamicFormModal: React.FC<DynamicFormProps> = ({
   onClose,
   title,
   validationSchema,
+  layout = "vertical", // ✅ default
 }) => {
   const [formData, setFormData] = useState<Record<string, any>>({
     ...initialValues,
@@ -48,7 +52,6 @@ const DynamicFormModal: React.FC<DynamicFormProps> = ({
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    
     const { name, type, value } = e.target;
 
     let fieldValue: any;
@@ -57,7 +60,6 @@ const DynamicFormModal: React.FC<DynamicFormProps> = ({
       const target = e.target as HTMLInputElement;
 
       if (fields?.find((f) => f.name === name)?.options) {
-        // Multiple checkboxes
         const currentArray = Array.isArray(formData[name])
           ? formData[name]
           : [];
@@ -67,7 +69,6 @@ const DynamicFormModal: React.FC<DynamicFormProps> = ({
           fieldValue = currentArray.filter((v) => v !== target.value);
         }
       } else {
-        // Single checkbox
         fieldValue = target.checked;
       }
     } else {
@@ -79,7 +80,6 @@ const DynamicFormModal: React.FC<DynamicFormProps> = ({
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     if (validationSchema) {
       try {
         validationSchema.parse(formData);
@@ -98,7 +98,7 @@ const DynamicFormModal: React.FC<DynamicFormProps> = ({
     }
 
     let submitData: Record<string, any> = formData;
-    
+
     if (mode === "update") {
       submitData = Object.keys(formData).reduce((acc, key) => {
         if (formData[key] !== initialValues[key]) acc[key] = formData[key];
@@ -107,14 +107,28 @@ const DynamicFormModal: React.FC<DynamicFormProps> = ({
       submitData.id = initialValues.id;
     }
 
-
     onSubmit(submitData, mode);
     onClose();
   };
 
+  // ✅ Group fields by 'group'
+  const groupedFields: Record<string, Field[]> = {};
+  fields.forEach((field) => {
+    const groupName = field.group || field.name;
+    if (!groupedFields[groupName]) groupedFields[groupName] = [];
+    groupedFields[groupName].push(field);
+  });
+
+  // ✅ Layout style
+  const containerWidth =
+    layout === "horizontal" ? "max-w-5xl" : "max-w-lg"; // widen form in horizontal mode
+  const formFlex = layout === "horizontal" ? "flex-wrap" : "flex-col";
+
   return (
     <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-      <div className="bg-secondary rounded-xl shadow-lg w-11/12 max-w-lg p-6 relative">
+      <div
+        className={`bg-secondary rounded-xl shadow-lg w-11/12 ${containerWidth} p-6 relative`}
+      >
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
@@ -126,131 +140,141 @@ const DynamicFormModal: React.FC<DynamicFormProps> = ({
           {title ? title : mode === "create" ? "Create Item" : "Update Item"}
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {fields.map((field) => {
-            switch (field.type) {
-              case "text":
-              case "number":
-                return (
-                  <Input
-                    key={field.name}
-                    type={field.type}
-                    name={field.name}
-                    value={formData[field.name] || ""}
-                    placeholder={field.placeholder}
-                    onChange={handleChange}
-                    error={errors[field.name]}
-                    hidden={field.hidden}
-                  />
-                );
+        <form
+          onSubmit={handleSubmit}
+          className={`space-y-4 ${layout === "horizontal" ? "grid grid-cols-2 gap-4" : ""}`}
+        >
+          {Object.values(groupedFields).map((group, i) => (
+            <div
+              key={i}
+              className={`flex ${group.length > 1 ? "gap-4" : "flex-col"} ${formFlex}`}
+            >
+              {group.map((field) => {
+                switch (field.type) {
+                  case "text":
+                  case "number":
+                    return (
+                      <div key={field.name} className="flex-1">
+                        <p className="text-black">{field.label}</p>
+                        <Input
+                          key={field.name}
+                          type={field.type}
+                          name={field.name}
+                          value={formData[field.name] || ""}
+                          placeholder={field.placeholder}
+                          onChange={handleChange}
+                          error={errors[field.name]}
+                          hidden={field.hidden}
+                        />
+                      </div>
+                    );
 
-              case "textarea":
-                return (
-                  <div key={field.name}>
-                    <p className="text-black">{field.label}</p>
-                    <textarea
-                      name={field.name}
-                      value={formData[field.name] || ""}
-                      placeholder={field.placeholder}
-                      onChange={handleChange}
-                      className="w-full mb-1 px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                    {errors[field.name] && (
-                      <p className="text-red-500 text-sm">
-                        {errors[field.name]}
-                      </p>
-                    )}
-                  </div>
-                );
+                  case "textarea":
+                    return (
+                      <div key={field.name} className="flex-1">
+                        <p className="text-black">{field.label}</p>
+                        <textarea
+                          name={field.name}
+                          value={formData[field.name] || ""}
+                          placeholder={field.placeholder}
+                          onChange={handleChange}
+                          className="w-full mb-1 px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        />
+                        {errors[field.name] && (
+                          <p className="text-red-500 text-sm">
+                            {errors[field.name]}
+                          </p>
+                        )}
+                      </div>
+                    );
 
-              case "checkbox":
-                return (
-                  <div key={field.name} className="space-y-1">
-                    {field.options ? (
-                      field.options.map((opt) => {
-                        // Ensure formData[field.name] is an array for multiple checkboxes
-
-                        const valueArray = Array.isArray(formData[field.name])
-                          ? formData[field.name]
-                          : [];
-        
-
-                        const isChecked = valueArray.includes(opt.value);
-
-                        return (
-                          <label
-                            key={opt.value}
-                            className="flex items-center space-x-2 text-black"
-                          >
+                  case "checkbox":
+                    return (
+                      <div key={field.name} className="space-y-1 flex-1">
+                        {field.options ? (
+                          field.options.map((opt) => {
+                            const valueArray = Array.isArray(formData[field.name])
+                              ? formData[field.name]
+                              : [];
+                            const isChecked = valueArray.includes(opt.value);
+                            return (
+                              <label
+                                key={opt.value}
+                                className="flex items-center space-x-2 text-black"
+                              >
+                                <input
+                                  type="checkbox"
+                                  name={field.name}
+                                  value={opt.value}
+                                  checked={isChecked}
+                                  onChange={handleChange}
+                                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                />
+                                <span>{opt.label}</span>
+                              </label>
+                            );
+                          })
+                        ) : (
+                          <label className="flex items-center space-x-2 text-black">
                             <input
                               type="checkbox"
                               name={field.name}
-                              value={opt.value}
-                              checked={isChecked}
+                              checked={!!formData[field.name]}
                               onChange={handleChange}
                               className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                             />
-                            <span>{opt.label}</span>
+                            <span>{field.label}</span>
                           </label>
-                        );
-                      })
-                    ) : (
-                      <label className="flex items-center space-x-2 text-black">
-                        <input
-                          type="checkbox"
+                        )}
+                        {errors[field.name] && (
+                          <p className="text-red-500 text-sm">
+                            {errors[field.name]}
+                          </p>
+                        )}
+                      </div>
+                    );
+
+                  case "select":
+                    return (
+                      <div key={field.name} className="flex-1">
+                        <p className="text-black">{field.label}</p>
+                        <select
                           name={field.name}
-                          checked={!!formData[field.name]}
+                          value={formData[field.name] || ""}
                           onChange={handleChange}
-                          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                        />
-                        <span>{field.label}</span>
-                      </label>
-                    )}
-                    {errors[field.name] && (
-                      <p className="text-red-500 text-sm">
-                        {errors[field.name]}
-                      </p>
-                    )}
-                  </div>
-                );
+                          className="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        >
+                          <option value="" disabled>
+                            Select {field.label}
+                          </option>
+                          {field.options?.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
+                        {errors[field.name] && (
+                          <p className="text-red-500 text-sm">
+                            {errors[field.name]}
+                          </p>
+                        )}
+                      </div>
+                    );
 
-              case "select":
-                return (
-                  <div key={field.name}>
-                    <p className="text-black">{field.label}</p>
-                    <select
-                      name={field.name}
-                      value={formData[field.name] || ""}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    >
-                      <option value="" disabled>
-                        Select {field.label}
-                      </option>
-                      {field.options?.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
-                    {errors[field.name] && (
-                      <p className="text-red-500 text-sm">
-                        {errors[field.name]}
-                      </p>
-                    )}
-                  </div>
-                );
+                  default:
+                    return null;
+                }
+              })}
+            </div>
+          ))}
 
-              default:
-                return null;
-            }
-          })}
-
-          <Button
-            className="w-full"
-            content={mode === "create" ? "Create" : "Update"}
-            type="submit"
-          />
+          <div className={`${layout === "horizontal" ? "col-span-2" : ""}`}>
+            <Button
+              className="w-full"
+              content={mode === "create" ? "Create" : "Update"}
+              type="submit"
+            />
+          </div>
         </form>
       </div>
     </div>

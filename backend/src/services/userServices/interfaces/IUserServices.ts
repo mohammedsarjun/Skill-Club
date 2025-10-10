@@ -1,5 +1,5 @@
 import { ClientProfileDto, ClientProfileUpdateResponseDto, UserDto } from "../../../dto/userDTO/user.dto.js";
-import { IUser } from "../../../models/interfaces/IUserModel.js";
+import {  IUser } from "../../../models/interfaces/IUserModel.js";
 
 export interface IUserServices{
     markUserVerified(email:string):Promise<void>;

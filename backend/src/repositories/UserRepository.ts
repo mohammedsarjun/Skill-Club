@@ -1,5 +1,5 @@
 import { User } from '../models/userModel.js';
-import { IUser } from '../models/interfaces/IUserModel.js';
+import { IFreelancerProfile, IUser } from '../models/interfaces/IUserModel.js';
 import { Model, Document, FilterQuery, UpdateQuery, Types, PopulateOptions } from 'mongoose';
 import BaseRepository from './baseRepositories/baseRepository.js';
 import { IUserRepository } from './interfaces/IUserRepository.js';
@@ -107,5 +107,9 @@ async updateClientStatus(userId:string,isBlocked:boolean): Promise<IUser | null>
 
 async updateFreelancerStatus(userId:string,isBlocked:boolean):Promise<IUser | null>{
   return super.update(userId,{isFreelancerBlocked:isBlocked})
+}
+
+async createFreelancerProfile(userId: string, freelancerData: Partial<IUser>): Promise<IUser | null> {
+  return super.update(userId,freelancerData)
 }
 }

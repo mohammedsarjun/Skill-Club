@@ -5,15 +5,9 @@ import Button from "../common/Button";
 import { z } from "zod";
 import { useDispatch } from "react-redux";
 import { updateFreelancerData } from "@/store/slices/freelancerSlice"; // adjust path
-
+import { educationSchema } from "@/utils/validation";
 // Zod schema for education
-const educationSchema = z.object({
-  school: z.string().min(2, "School is required"),
-  degree: z.string().min(2, "Degree is required"),
-  field: z.string().min(2, "Field is required"),
-  startYear: z.string().min(4, "Start year is required"),
-  endYear: z.string().min(4, "End year is required"),
-});
+
 
 interface StepSixProps {
   onBack: () => void;

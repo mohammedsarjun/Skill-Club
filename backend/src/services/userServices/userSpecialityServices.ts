@@ -13,7 +13,6 @@ export class userSpecialityServices implements IUserSpecialityServices {
   }
 
   async getSpecialities(categoryId:string): Promise<SpecialityDtoMinimal[] | null> {
-    console.log(categoryId)
        const result = await this._specialityRepository.getSpeciality(categoryId);
           // Map to DTO
       

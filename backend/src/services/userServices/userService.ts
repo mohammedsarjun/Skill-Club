@@ -4,17 +4,15 @@ import type { IUserRepository } from '../../repositories/interfaces/IUserReposit
 import AppError from '../../utils/AppError.js';
 import { HttpStatus } from '../../enums/http-status.enum.js';
 import {
-  mapFreelancerDtoToUserModel,
   mapUserModelToClientProfileUpdateResponseDto,
   mapUserModelToUserDto,
 } from '../../mapper/userMapper/user.mapper.js';
 import {
-  ClientProfileDetailDTO,
   ClientProfileDto,
   ClientProfileUpdateResponseDto,
   UserDto,
 } from '../../dto/userDTO/user.dto.js';
-import { IUser } from '../../models/interfaces/IUserModel.js';
+import { IFreelancerProfile, IUser } from '../../models/interfaces/IUserModel.js';
 import { ERROR_MESSAGES } from '../../contants/errorConstants.js';
 
 @injectable()
@@ -47,7 +45,10 @@ export class userServices implements IUserServices {
     return mapUserModelToUserDto(updatedUser!);
   }
 
-  async createFreelancerProfile(id: string, freelancerData: any): Promise<IUser> {
+  async createFreelancerProfile(
+    id: string,
+    freelancerData: Partial<IUser>,
+  ): Promise<IUser> {
     if (!id) {
       throw new AppError(ERROR_MESSAGES.USER.ID_REQUIRED, HttpStatus.BAD_REQUEST);
     }
@@ -56,16 +57,16 @@ export class userServices implements IUserServices {
       throw new AppError('Freelancer data cannot be empty', HttpStatus.BAD_REQUEST);
     }
 
-
     try {
-      const updatedUser = await this._userRepository.update(id, freelancerData);
-
+      const updatedUser = await this._userRepository.createFreelancerProfile(id, freelancerData);
+      console.log(updatedUser);
       if (!updatedUser) {
         throw new AppError(ERROR_MESSAGES.USER.NOT_FOUND, HttpStatus.NOT_FOUND);
       }
 
       return updatedUser;
     } catch (error: any) {
+      console.log(error)
       throw new AppError(ERROR_MESSAGES.FREELANCER.FAILED_CREATE, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -107,20 +108,20 @@ export class userServices implements IUserServices {
       activeRole: user.activeRole === 'client' ? 'freelancer' : 'client',
     });
 
-    const dto =mapUserModelToUserDto(updatedUser!)
+    const dto = mapUserModelToUserDto(updatedUser!);
 
-    return dto
+    return dto;
   }
 
   async me(id: string): Promise<UserDto> {
-    const user=await this._userRepository.findById(id);
+    const user = await this._userRepository.findById(id);
 
-      if (!user) {
+    if (!user) {
       throw new AppError(ERROR_MESSAGES.USER.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
-    const dto =mapUserModelToUserDto(user)
+    const dto = mapUserModelToUserDto(user);
 
-    return dto
+    return dto;
   }
 }

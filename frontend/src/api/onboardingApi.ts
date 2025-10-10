@@ -18,4 +18,13 @@ export const onboardingApi = {
       return error.response.data;
     }
   },
+  getSuggestedSkills:async (specialities:string[]):Promise<any>=>{
+    try {
+
+      const response = await axiosClient.get(onboardingRoutes.getSuggestedSkills,{params:{specialities}});
+      return response.data;
+    } catch (error: any) {
+      return error.response.data;
+    }
+  }
 };

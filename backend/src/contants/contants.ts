@@ -50,5 +50,7 @@ export const MESSAGES = {
     UPDATED: 'Speciality Edited successfully',
     FETCH_SUCCESS: 'Speciality data fetched successfully',
   },
+
+  
  
 };

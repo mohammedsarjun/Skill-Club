@@ -46,13 +46,15 @@ let userServices = class userServices {
             throw new AppError('Freelancer data cannot be empty', HttpStatus.BAD_REQUEST);
         }
         try {
-            const updatedUser = await this._userRepository.update(id, freelancerData);
+            const updatedUser = await this._userRepository.createFreelancerProfile(id, freelancerData);
+            console.log(updatedUser);
             if (!updatedUser) {
                 throw new AppError(ERROR_MESSAGES.USER.NOT_FOUND, HttpStatus.NOT_FOUND);
             }
             return updatedUser;
         }
         catch (error) {
+            console.log(error);
             throw new AppError(ERROR_MESSAGES.FREELANCER.FAILED_CREATE, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
