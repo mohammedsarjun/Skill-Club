@@ -16,19 +16,14 @@ export class UserCategoryController implements IUserCategoryController {
   }
 
   async getAllCategory(req: Request, res: Response): Promise<void> {
-    try {
-      const categories:CategoryDtoMinimal[]|null = await this._userCategoryService.getAllCategories();
 
-    
+      const categories:CategoryDtoMinimal[]|null = await this._userCategoryService.getAllCategories();
 
       res.status(HttpStatus.OK).json({
         success: true,
         message: MESSAGES.CATEGORY.FETCH_SUCCESS,
         data: categories,
       });
-    } catch (error: unknown) {
-      throw error;
-    }
   }
 
 

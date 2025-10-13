@@ -17,6 +17,7 @@ container.register<ICategoryRepository>("ICategoryRepository",{useClass:Category
 container.register<ISpecialityRepository>("ISpecialityRepository",{useClass:SpecialityRepository})
 container.register<ISkillRepository>("ISkillRepository",{useClass:SkillRepository})
 container.register<IPortfolioRepository>("IPortfolioRepository",{useClass:PortfolioRepository})
+container.register<IActionVerificationRepository>("IActionVerificationRepository",{useClass:ActionVerificationRepository})
 //Auth
 import { AuthService } from "../services/authServices/AuthService.js";
 import type { IAuthService } from "../services/authServices/interfaces/IAuthService.js";
@@ -112,6 +113,8 @@ import { IUserSpecialityServices } from "../services/userServices/interfaces/IUs
 import { userSpecialityServices } from "../services/userServices/userSpecialityServices.js";
 import { IUserSkillServices } from "../services/userServices/interfaces/IUserSkillService.js";
 import { UserSkillServices } from "../services/userServices/userSkillService.js";
+import { IActionVerificationRepository } from "../repositories/interfaces/IActionVerificationRepository.js";
+import { ActionVerificationRepository } from "../repositories/actionVerificationRepository.js";
 
 
 

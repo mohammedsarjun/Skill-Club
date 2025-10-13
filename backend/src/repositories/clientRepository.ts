@@ -15,7 +15,6 @@ export class ClientRepository extends BaseRepository<IUser> implements IClientRe
   }
 
   async updateClientById(userId: string, data: UpdateClientDto): Promise<IUser | null> {
-    // return super.update(userId, data);
 
     return await this.model.findByIdAndUpdate(userId, { $set: data }, { new: true });
   }

@@ -4,22 +4,45 @@ import type { IUserRepository } from '../../repositories/interfaces/IUserReposit
 import AppError from '../../utils/AppError.js';
 import { HttpStatus } from '../../enums/http-status.enum.js';
 import {
+  mapClientDtoToUserModel,
+  mapFreelancerDtoToUserModel,
+  mapUserModelToAddressDto,
   mapUserModelToClientProfileUpdateResponseDto,
   mapUserModelToUserDto,
-} from '../../mapper/userMapper/user.mapper.js';
+  mapUserModelToUserProfileDto,
+} from '../../mapper/user.mapper.js';
 import {
-  ClientProfileDto,
+  AddressDTO,
+  ClientProfileDetailDTO,
   ClientProfileUpdateResponseDto,
   UserDto,
+  UserProfileDto,
 } from '../../dto/userDTO/user.dto.js';
-import { IFreelancerProfile, IUser } from '../../models/interfaces/IUserModel.js';
+import { IUser } from '../../models/interfaces/IUserModel.js';
 import { ERROR_MESSAGES } from '../../contants/errorConstants.js';
+import { mapActionVerificationToCreateActionVerification } from '../../mapper/actionVerification.mapper.js';
+import type { IActionVerificationRepository } from '../../repositories/interfaces/IActionVerificationRepository.js';
 
 @injectable()
 export class userServices implements IUserServices {
   private _userRepository: IUserRepository;
-  constructor(@inject('IUserRepository') userRepository: IUserRepository) {
+  private _actionVerificationRepository: IActionVerificationRepository;
+  constructor(
+    @inject('IUserRepository') userRepository: IUserRepository,
+    @inject('IActionVerificationRepository')
+    actionVerificationRepository: IActionVerificationRepository,
+  ) {
     this._userRepository = userRepository;
+    this._actionVerificationRepository = actionVerificationRepository;
+  }
+
+  async getProfile(userId: string): Promise<UserProfileDto> {
+    const user = await this._userRepository.findById(userId);
+    if (!user) {
+      throw new AppError(ERROR_MESSAGES.USER.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+
+    return mapUserModelToUserProfileDto(user);
   }
 
   async markUserVerified(id: string): Promise<void> {
@@ -45,20 +68,19 @@ export class userServices implements IUserServices {
     return mapUserModelToUserDto(updatedUser!);
   }
 
-  async createFreelancerProfile(
-    id: string,
-    freelancerData: Partial<IUser>,
-  ): Promise<IUser> {
+  async createFreelancerProfile(id: string, freelancerData: Partial<IUser>): Promise<IUser> {
+
+          const dto = mapFreelancerDtoToUserModel(freelancerData);
     if (!id) {
       throw new AppError(ERROR_MESSAGES.USER.ID_REQUIRED, HttpStatus.BAD_REQUEST);
     }
 
-    if (!freelancerData || Object.keys(freelancerData).length === 0) {
+    if (!dto || Object.keys(dto).length === 0) {
       throw new AppError('Freelancer data cannot be empty', HttpStatus.BAD_REQUEST);
     }
 
     try {
-      const updatedUser = await this._userRepository.createFreelancerProfile(id, freelancerData);
+      const updatedUser = await this._userRepository.createFreelancerProfile(id, dto);
       console.log(updatedUser);
       if (!updatedUser) {
         throw new AppError(ERROR_MESSAGES.USER.NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -66,28 +88,31 @@ export class userServices implements IUserServices {
 
       return updatedUser;
     } catch (error: any) {
-      console.log(error)
+      console.log(error);
       throw new AppError(ERROR_MESSAGES.FREELANCER.FAILED_CREATE, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   async createClientProfile(
     id: string,
-    clientData: ClientProfileDto,
+    clientData: ClientProfileDetailDTO,
   ): Promise<ClientProfileUpdateResponseDto> {
+
+   
     if (!id) {
       throw new AppError(ERROR_MESSAGES.USER.ID_REQUIRED, HttpStatus.BAD_REQUEST);
     }
 
     try {
-      const updatedUser = await this._userRepository.update(id, clientData);
+      const clientdto = mapClientDtoToUserModel(clientData) 
+      const updatedUser = await this._userRepository.update(id, clientdto);
 
       if (!updatedUser) {
         throw new AppError(ERROR_MESSAGES.USER.NOT_FOUND, HttpStatus.NOT_FOUND);
       }
 
-      const dto = mapUserModelToClientProfileUpdateResponseDto(updatedUser);
-      return dto;
+      const clientResponseDto = mapUserModelToClientProfileUpdateResponseDto(updatedUser);
+      return clientResponseDto;
     } catch (error) {
       throw new AppError(ERROR_MESSAGES.CLIENT.FAILED_CREATE, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -123,5 +148,33 @@ export class userServices implements IUserServices {
     const dto = mapUserModelToUserDto(user);
 
     return dto;
+  }
+
+  async getAddress(userId: string): Promise<AddressDTO | null> {
+    const user = await this._userRepository.findById(userId);
+    if (!user) {
+      throw new AppError(ERROR_MESSAGES.USER.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+
+    if (!user.address) {
+      return null;
+    }
+
+    return mapUserModelToAddressDto(user);
+  }
+
+  async createActionVerification(
+    userId: string,
+    actionType:"emailChange" | "passwordReset" | "phoneUpdate" ,
+    actionData: Record<string, any>,
+  ): Promise<void> {
+    const user = await this._userRepository.findById(userId);
+    if (!user) {
+      throw new AppError(ERROR_MESSAGES.USER.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+
+    const dto = mapActionVerificationToCreateActionVerification({ userId, actionType, actionData });
+
+    this._actionVerificationRepository.createActionVerificaion(dto)
   }
 }

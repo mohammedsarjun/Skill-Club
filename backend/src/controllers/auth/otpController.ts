@@ -19,7 +19,7 @@ export class OtpController implements IOtpController {
     this._userServices = userServices;
   }
   async createOtp(req: Request, res: Response): Promise<void> {
-    try {
+
       const { email, purpose } = req.body;
 
       const otpResponse = await this._otpServices.createOtp(email, purpose);
@@ -30,13 +30,11 @@ export class OtpController implements IOtpController {
         purpose,
       });
       console.log('success');
-    } catch (error: unknown) {
-      throw error;
-    }
+
   }
 
   async verifyOtp(req: Request, res: Response): Promise<void> {
-    try {
+
       const { email, otp, userId } = req.body;
       const response = await this._otpServices.verifyOtp(email, otp);
 
@@ -57,14 +55,14 @@ export class OtpController implements IOtpController {
           const refreshToken = jwtService.createToken(payload, jwtConfig.refreshTokenMaxAge);
 
           res.cookie('accessToken', accessToken, {
-            httpOnly: true,
+            httpOnly: process.env.NODE_ENV === 'production',
             secure:  process.env.NODE_ENV === 'production', // 🔹 must be false on localhost (no HTTPS)
             sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
             maxAge: jwtConfig.accessTokenMaxAge*1000
           });
 
           res.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
+            httpOnly: process.env.NODE_ENV === 'production',
             secure:  process.env.NODE_ENV === 'production',
             sameSite: 'lax',
             maxAge: jwtConfig.refreshTokenMaxAge*1000
@@ -84,8 +82,5 @@ export class OtpController implements IOtpController {
         message: 'Otp Verfied Successfully',
         data: response,
       });
-    } catch (error: unknown) {
-      throw error;
-    }
   }
 }

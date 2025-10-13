@@ -1,10 +1,6 @@
 import { injectable, inject } from 'tsyringe';
-import AppError from '../../utils/AppError.js';
-
 import { IUserSkillServices } from './interfaces/IUserSkillService.js';
 import type { ISkillRepository } from '../../repositories/interfaces/ISkillRepository.js';
-import { SkillDto } from '../../dto/adminDTO/skill.dto.js';
-import { mapSkillModelToSkillDto } from '../../mapper/adminMapper/skill.mapper.js';
 import { ResSkillDtoMinimal } from '../../dto/skill.dto.js';
 import { mapSkillModelToSpecialityDtoMinimal } from '../../mapper/skill.mappper.js';
 

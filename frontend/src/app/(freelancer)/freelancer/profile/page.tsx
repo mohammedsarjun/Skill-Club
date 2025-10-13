@@ -2,6 +2,7 @@
 
 import { freelancerActionApi } from "@/api/action/FreelancerActionApi";
 import React, { JSX, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import {
   addressSchema,
@@ -14,6 +15,7 @@ import {
 } from "@/utils/validation";
 import {
   FaEdit,
+  FaTrash,
   FaPlus,
   FaMapMarkerAlt,
   FaUser,
@@ -24,6 +26,7 @@ import {
   FaFileAlt,
   FaHistory,
   FaTimes,
+  FaExclamationTriangle,
 } from "react-icons/fa";
 import Image from "next/image";
 import DynamicFormModal from "@/components/common/Form";
@@ -35,6 +38,11 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import PortfolioModal from "@/components/freelancer/PortfolioModal";
 import { IPortfolio } from "@/types/interfaces/IFreelancer";
+
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+
+const MySwal = withReactContent(Swal);
 
 const dummyProjects = [
   {
@@ -145,6 +153,7 @@ function FreelancerProfilePage(): JSX.Element {
   const [activeModal, setActiveModal] = useState("");
   const [isEditModal, setIsEditModal] = useState(false);
   const [isOpenModal, setIsOpenModal] = useState(false);
+  const router = useRouter();
   const years = Array.from({ length: 50 }, (_, i) => 2025 - i);
   const months = [
     "January",
@@ -208,7 +217,7 @@ function FreelancerProfilePage(): JSX.Element {
     Record<string, any>
   >({});
 
-  const [portfolioDetail,setPortfolioDetail]=useState<IPortfolio>()
+  const [portfolioDetail, setPortfolioDetail] = useState<IPortfolio>();
 
   function handleOpenEditModal(
     name: string,
@@ -235,23 +244,34 @@ function FreelancerProfilePage(): JSX.Element {
     setIsOpenModal(true);
   }
 
-  function onEditSubmit(submitData: string, mode: string) {
-    console.log(submitData);
-  }
+  async function onEditSubmit(submitData:  Record<string, any>, mode: string) {
 
-  async function onSubmit(submitData: Record<string, any>, mode: string) {
-    if (activeModal == "language") {
-      const response = await freelancerActionApi.updateFreelancerData(
+    if (activeModal == "description") {
+      const response = await freelancerActionApi.updateFreelancerDescription(
         submitData
       );
 
       if (response.success) {
-        console.log(response);
-        setLanguages((lang) => response.data.languages);
+        setDescription(response.data)
+        
       } else {
         toast.error(response.message);
       }
     }
+  }
+
+  async function onSubmit(submitData: Record<string, any>, mode: string) {
+    if (activeModal == "language") {
+      const response = await freelancerActionApi.updateFreelancerLanguage(
+        submitData
+      );
+
+      if (response.success) {
+        setLanguages((lang) => response.data.languages);
+      } else {
+        toast.error(response.message);
+      }
+    } 
   }
 
   async function handleOpenPortfolioModal(id: string) {
@@ -259,7 +279,7 @@ function FreelancerProfilePage(): JSX.Element {
 
     if (response.success) {
       setIsPortfolioModalOpen(true);
-      setPortfolioDetail(response.data)
+      setPortfolioDetail(response.data);
       console.log(response);
     } else {
       toast.error(response.message);
@@ -268,9 +288,38 @@ function FreelancerProfilePage(): JSX.Element {
   async function handleClosePortfolioModal() {
     setIsPortfolioModalOpen(false);
   }
+
+  async function removeLangugage(language: string, index: number) {
+    const result = await MySwal.fire({
+      title: "Delete Language?",
+      text: "This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "No",
+    });
+
+    if (result.isConfirmed) {
+      const response = await freelancerActionApi.deleteFreelancerLanguage(
+        language
+      );
+
+      if (response.success) {
+        setLanguages((prevLangs: { name: string; proficiency: string }[]) => {
+          return prevLangs.filter((_, ind) => ind !== index);
+        });
+      } else {
+        toast.error(response.message);
+      }
+    }
+  }
   return (
     <div className="min-h-screen bg-gray-50">
-      <PortfolioModal portfolio={portfolioDetail!} isOpen={isPortfolioModalOpen} onClose={handleClosePortfolioModal}></PortfolioModal>
+      <PortfolioModal
+        portfolio={portfolioDetail!}
+        isOpen={isPortfolioModalOpen}
+        onClose={handleClosePortfolioModal}
+      ></PortfolioModal>
       <div className="bg-white shadow-sm">
         <div className="max-w-6xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
@@ -294,9 +343,6 @@ function FreelancerProfilePage(): JSX.Element {
               <div>
                 <div className="flex items-center space-x-2">
                   <h1 className="text-3xl font-bold text-gray-900">{name}</h1>
-                  <button className="text-gray-400 hover:text-green-600">
-                    <FaEdit className="w-4 h-4" />
-                  </button>
                 </div>
 
                 <div className="flex items-center text-gray-600 mt-1">
@@ -305,9 +351,7 @@ function FreelancerProfilePage(): JSX.Element {
                   <button
                     onClick={() => handleOpenEditModal("location")}
                     className="ml-2 text-gray-400 hover:text-green-600"
-                  >
-                    <FaEdit className="w-3 h-3" />
-                  </button>
+                  ></button>
                 </div>
               </div>
             </div>
@@ -350,16 +394,9 @@ function FreelancerProfilePage(): JSX.Element {
                       </span>
                       <button
                         className="text-gray-400 hover:text-green-600"
-                        onClick={() =>
-                          handleOpenEditModal(
-                            "language",
-                            language,
-                            language.name,
-                            index
-                          )
-                        }
+                        onClick={() => removeLangugage(language.name, index)}
                       >
-                        <FaEdit className="w-3 h-3" />
+                        <FaTrash className="w-3 h-3" />
                       </button>
                     </div>
                   )
@@ -476,7 +513,10 @@ function FreelancerProfilePage(): JSX.Element {
                     Portfolio
                   </h3>
                 </div>
-                <button className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors">
+                <button
+                  onClick={() => router.push("/freelancer/portfolio")}
+                  className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                >
                   <FaPlus className="w-4 h-4" />
                 </button>
               </div>

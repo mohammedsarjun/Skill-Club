@@ -1,6 +1,6 @@
 import { User } from '../models/userModel.js';
-import { IFreelancerProfile, IUser } from '../models/interfaces/IUserModel.js';
-import { Model, Document, FilterQuery, UpdateQuery, Types, PopulateOptions } from 'mongoose';
+import { IUser } from '../models/interfaces/IUserModel.js';
+import { Types } from 'mongoose';
 import BaseRepository from './baseRepositories/baseRepository.js';
 import { IUserRepository } from './interfaces/IUserRepository.js';
 
@@ -64,7 +64,7 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
   }
 
   async addRoleAndCompleteOnboarding(userId: string | Types.ObjectId, role: string) {
-    const update: any = {
+    const update = {
       $addToSet: { roles: role }, 
       $set: { activeRole: role, isOnboardingCompleted: true },
     };

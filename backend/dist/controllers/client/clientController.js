@@ -19,33 +19,23 @@ let ClientController = class ClientController {
         this._clientService = clientService;
     }
     async getClientData(req, res) {
-        try {
-            const userId = req.user?.userId;
-            const result = await this._clientService.getClientData(userId);
-            res.status(HttpStatus.OK).json({
-                success: true,
-                message: 'Client Data Fetched Successfully',
-                data: result,
-            });
-        }
-        catch (error) {
-            throw error;
-        }
+        const userId = req.user?.userId;
+        const result = await this._clientService.getClientData(userId);
+        res.status(HttpStatus.OK).json({
+            success: true,
+            message: 'Client Data Fetched Successfully',
+            data: result,
+        });
     }
     async updateClient(req, res) {
-        try {
-            const userId = req.user?.userId;
-            const dto = mapUpdateClientDtoToClientModel(req.body);
-            const result = await this._clientService.updateClient(userId, dto);
-            res.status(HttpStatus.OK).json({
-                success: true,
-                message: 'Client Data Updated Successfully',
-                data: result,
-            });
-        }
-        catch (error) {
-            throw error;
-        }
+        const userId = req.user?.userId;
+        const dto = mapUpdateClientDtoToClientModel(req.body);
+        const result = await this._clientService.updateClient(userId, dto);
+        res.status(HttpStatus.OK).json({
+            success: true,
+            message: 'Client Data Updated Successfully',
+            data: result,
+        });
     }
 };
 ClientController = __decorate([

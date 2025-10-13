@@ -20,18 +20,18 @@ export class AdminAuthController implements IAdminAuthController {
   }
 
   async login(req: Request, res: Response): Promise<void> {
-    try {
+
       const result = this.adminAuthServices.login(req.body);
 
-      // 🔹 Create tokens
+
       const payload = { userId: 'admin_1', roles: ['admin'], activeRole: 'admin' };
       const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
       const refreshToken = jwtService.createToken(payload, jwtConfig.refreshTokenMaxAge);
 
       res.cookie('accessToken', accessToken, {
         httpOnly: true,
-        secure: false, // 🔹 must be false on localhost (no HTTPS)
-        sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
+        secure: false, 
+        sameSite: 'lax', 
         maxAge: jwtConfig.accessTokenMaxAge * 1000,
       });
 
@@ -47,13 +47,10 @@ export class AdminAuthController implements IAdminAuthController {
         message: MESSAGES.AUTH.LOGIN_SUCCESS,
         data: payload,
       });
-    } catch (error:unknown) {
-      throw error;
-    }
+
   }
 
   async logout(req: Request, res: Response): Promise<void> {
-    try {
       const cookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -73,20 +70,14 @@ export class AdminAuthController implements IAdminAuthController {
       res.cookie('refreshToken', '', { ...cookieOptions, expires: new Date(0) });
 
       res.status(HttpStatus.OK).json({ message: MESSAGES.AUTH.LOGOUT_SUCCESS });
-    } catch (err:unknown) {
-      throw err;
-    }
+
   }
 
   async me(req: Request, res: Response): Promise<void> {
-    try {
       res.status(HttpStatus.OK).json({
         success: true,
         message: MESSAGES.ADMIN.VERIFIED,
         data: req.user,
       });
-    } catch (error: unknown) {
-      throw error;
-    }
   }
 }

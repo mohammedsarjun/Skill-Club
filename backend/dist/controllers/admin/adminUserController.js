@@ -13,66 +13,45 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 import { injectable, inject } from 'tsyringe';
 import '../../config/container.js';
 import { HttpStatus } from '../../enums/http-status.enum.js';
-import { mapUpdateUserStatusToUserModel, mapUserQuery } from '../../mapper/adminMapper/adminUsers.mapper.js';
+import { mapUserQuery } from '../../mapper/adminMapper/adminUsers.mapper.js';
 import { MESSAGES } from '../../contants/contants.js';
 let AdminUserController = class AdminUserController {
     constructor(adminUserService) {
         this._adminUserService = adminUserService;
     }
     async getUserStats(req, res) {
-        try {
-            const result = await this._adminUserService.getUserStats();
-            res.status(HttpStatus.OK).json({
-                success: true,
-                message: MESSAGES.USER.FETCH_STATS_SUCCESS,
-                data: result,
-            });
-        }
-        catch (error) {
-            throw error;
-        }
+        const result = await this._adminUserService.getUserStats();
+        res.status(HttpStatus.OK).json({
+            success: true,
+            message: MESSAGES.USER.FETCH_STATS_SUCCESS,
+            data: result,
+        });
     }
     async getUsers(req, res) {
-        try {
-            const queryDto = mapUserQuery(req.query);
-            const result = await this._adminUserService.getUsers(queryDto);
-            res.status(HttpStatus.OK).json({
-                success: true,
-                message: MESSAGES.USER.FETCH_SUCCESS,
-                data: result,
-            });
-        }
-        catch (error) {
-            throw error;
-        }
+        const queryDto = mapUserQuery(req.query);
+        const result = await this._adminUserService.getUsers(queryDto);
+        res.status(HttpStatus.OK).json({
+            success: true,
+            message: MESSAGES.USER.FETCH_SUCCESS,
+            data: result,
+        });
     }
     async getUserDetail(req, res) {
-        try {
-            const { id } = req.query;
-            const result = await this._adminUserService.getUserDetail(id);
-            res.status(HttpStatus.OK).json({
-                success: true,
-                message: MESSAGES.USER.FETCH_SUCCESS,
-                data: result,
-            });
-        }
-        catch (error) {
-            throw error;
-        }
+        const { id } = req.query;
+        const result = await this._adminUserService.getUserDetail(id);
+        res.status(HttpStatus.OK).json({
+            success: true,
+            message: MESSAGES.USER.FETCH_SUCCESS,
+            data: result,
+        });
     }
     async updateUserStatus(req, res) {
-        try {
-            const dto = mapUpdateUserStatusToUserModel(req.body);
-            const result = await this._adminUserService.updateUserStatus(dto);
-            res.status(HttpStatus.OK).json({
-                success: true,
-                message: MESSAGES.USER.UPDATED,
-                data: result,
-            });
-        }
-        catch (error) {
-            throw error;
-        }
+        const result = await this._adminUserService.updateUserStatus(req.body);
+        res.status(HttpStatus.OK).json({
+            success: true,
+            message: MESSAGES.USER.UPDATED,
+            data: result,
+        });
     }
 };
 AdminUserController = __decorate([

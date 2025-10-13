@@ -19,17 +19,12 @@ let UserCategoryController = class UserCategoryController {
         this._userCategoryService = userCategoryService;
     }
     async getAllCategory(req, res) {
-        try {
-            const categories = await this._userCategoryService.getAllCategories();
-            res.status(HttpStatus.OK).json({
-                success: true,
-                message: MESSAGES.CATEGORY.FETCH_SUCCESS,
-                data: categories,
-            });
-        }
-        catch (error) {
-            throw error;
-        }
+        const categories = await this._userCategoryService.getAllCategories();
+        res.status(HttpStatus.OK).json({
+            success: true,
+            message: MESSAGES.CATEGORY.FETCH_SUCCESS,
+            data: categories,
+        });
     }
 };
 UserCategoryController = __decorate([

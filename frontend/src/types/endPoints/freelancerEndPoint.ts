@@ -1,10 +1,14 @@
 const freelancerRouterEndPoints ={
     //me
     me:"/freelancer/me",
-    updateProfile:"/freelancer/profile/language",
+    updateLanguage:"/freelancer/profile/language",
+    deleteLanguage:"/freelancer/profile/language",
+    updateDescription:"/freelancer/profile/description",
+    updateProfessionalRole:"/freelancer/profile/professionalRole",
     createPortfolio:"/freelancer/portfolio",
     getPortfolio:"/freelancer/portfolio",
-    getPortfolioDetails:"/freelancer/portfolio/detail"
+    getPortfolioDetails:"/freelancer/portfolio/detail",
+
 
 }
 

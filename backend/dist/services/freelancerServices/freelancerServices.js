@@ -42,15 +42,39 @@ let FreelancerService = class FreelancerService {
         }
         const { freelancerProfile } = freelancerData;
         const languageNameArr = freelancerProfile.languages.map((lang) => lang.name);
-        if (updateData?.name && languageNameArr.includes(updateData?.name)) {
+        if (updateData?.language?.name && languageNameArr.includes(updateData?.language?.name)) {
             throw new AppError('You already have this language added.', HttpStatus.CONFLICT);
         }
         if (freelancerProfile.languages.length >= 3) {
             throw new AppError('You can only have 3 languages.', HttpStatus.CONFLICT);
         }
-        const dto = mapUpdateLanguageDtoToLanguage(updateData);
+        const dto = mapUpdateLanguageDtoToLanguage(updateData?.language);
         const result = await this._freelancerRepository.addLanguageToFreelancerProfile(id, dto);
         return { languages: mapUpdateLanguageToDTO(result) };
+    }
+    async deleteFreelancerLanguage(id, languageData) {
+        const freelancerData = await this._freelancerRepository.getFreelancerById(id);
+        if (!freelancerData?.freelancerProfile) {
+            throw new AppError(ERROR_MESSAGES.FREELANCER.NOT_FOUND, HttpStatus.NOT_FOUND);
+        }
+        const { freelancerProfile } = freelancerData;
+        const languageNameArr = freelancerProfile.languages.map((lang) => lang.name);
+        if (!languageData && !languageNameArr.includes(languageData)) {
+            throw new AppError('Language Not Found', HttpStatus.NOT_FOUND);
+        }
+        if (languageData == 'English') {
+            throw new AppError('You cannot delete English because it is the default language.', HttpStatus.BAD_REQUEST);
+        }
+        await this._freelancerRepository.deleteLanguageFromFreelancerProfile(id, languageData);
+    }
+    async updateFreelancerDescription(freelancerId, descriptionData) {
+        const freelancerData = await this._freelancerRepository.getFreelancerById(freelancerId);
+        if (!freelancerData?.freelancerProfile) {
+            throw new AppError(ERROR_MESSAGES.FREELANCER.NOT_FOUND, HttpStatus.NOT_FOUND);
+        }
+        const user = await this._freelancerRepository.updateFreelancerProfile(freelancerId, { "freelancerProfile.bio": descriptionData.description });
+        const bio = user?.freelancerProfile?.bio || null;
+        return bio;
     }
     async createPortfolio(id, portfolioData) {
         const freelancerData = await this._freelancerRepository.getFreelancerById(id);

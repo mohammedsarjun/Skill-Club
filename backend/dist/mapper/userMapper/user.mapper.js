@@ -8,6 +8,15 @@ export const mapUserModelToUserDto = (modelData) => {
         freelancerProfile: modelData?.freelancerProfile?.logo
     };
 };
+export const mapUserModelToUserProfileDto = (modelData) => {
+    return {
+        firstName: modelData.firstName || "",
+        lastName: modelData.lastName || "",
+        email: modelData.email || "",
+        phone: modelData.phone || 0,
+        dob: modelData.dob || undefined
+    };
+};
 export function mapFreelancerDtoToUserModel(raw) {
     return {
         freelancerProfile: {

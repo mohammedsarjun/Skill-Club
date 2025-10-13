@@ -4,5 +4,6 @@ export interface IAdminUserServices{
     getUserStats():Promise<any>
     getUsers(dto:GetUserDto):Promise<any>
     getUserDetail(id:string):Promise<any>
-    updateUserStatus(dto:updateUserStatusDto):Promise<any>
+    updateUserStatus(userData:updateUserStatusDto):Promise<any>
+
 }

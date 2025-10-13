@@ -1,7 +1,7 @@
 
-import mongoose, { Model, Document, Schema } from "mongoose";
+import mongoose, { Model, Schema } from "mongoose";
 import { ISpeciality } from "./interfaces/ISpecialityModel.js";
-import { required } from "zod/mini";
+
 
 
 const specialitySchema = new Schema<ISpeciality>({

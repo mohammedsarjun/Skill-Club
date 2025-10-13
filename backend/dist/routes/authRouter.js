@@ -6,6 +6,7 @@ import { loginSchema, signupSchema, verifyOtpSchema, } from '../utils/validation
 import { OtpController } from '../controllers/auth/otpController.js';
 import { GoogleAuthController } from '../controllers/auth/googleAuthController.js';
 import { jwtService } from '../utils/jwt.js';
+import { authMiddleware } from '../middlewares/authMiddleware.js';
 const authRouter = express.Router();
 const authController = container.resolve(AuthController);
 const otpController = container.resolve(OtpController);
@@ -16,6 +17,8 @@ authRouter.post('/otp', otpController.createOtp.bind(otpController));
 authRouter.post('/verify-otp', validate(verifyOtpSchema), otpController.verifyOtp.bind(otpController));
 authRouter.post('/forgot-password', authController.forgotPassword.bind(authController));
 authRouter.post('/reset-password', authController.resetPassword.bind(authController));
+authRouter.post('/verify-password', authMiddleware, authController.verifyPassword.bind(authController));
+authRouter.post("/action-verification", authMiddleware, authController.createActionVerification.bind(authController));
 //google login
 authRouter.post('/google', googleAuthController.googleLogin.bind(googleAuthController));
 authRouter.post('/logout', authController.logout.bind(authController));

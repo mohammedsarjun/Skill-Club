@@ -22,93 +22,86 @@ let AuthController = class AuthController {
         this._otpService = otpService;
     }
     async signup(req, res) {
-        try {
-            const user = await this._authService.signup(req.body);
-            console.log("successfully created");
-            res.status(HttpStatus.CREATED).json({
-                success: true,
-                message: MESSAGES.USER.CREATED,
-                data: user,
-            });
-        }
-        catch (error) {
-            throw error;
-        }
+        const user = await this._authService.signup(req.body);
+        console.log('successfully created');
+        res.status(HttpStatus.CREATED).json({
+            success: true,
+            message: MESSAGES.USER.CREATED,
+            data: user,
+        });
     }
     async login(req, res) {
-        try {
-            const user = await this._authService.login(req.body);
-            // Generate JWT token
-            // 🔹 Create tokens
-            const payload = user;
-            const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
-            const refreshToken = jwtService.createToken(payload, jwtConfig.refreshTokenMaxAge);
-            res.cookie('accessToken', accessToken, {
-                httpOnly: true,
-                secure: false, // 🔹 must be false on localhost (no HTTPS)
-                sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
-                maxAge: jwtConfig.accessTokenMaxAge * 1000
-            });
-            res.cookie('refreshToken', refreshToken, {
-                httpOnly: true,
-                secure: false,
-                sameSite: 'lax',
-                maxAge: jwtConfig.refreshTokenMaxAge
-            });
-            res.status(HttpStatus.OK).json({
-                message: MESSAGES.AUTH.LOGIN_SUCCESS,
-                success: true,
-                data: user,
-            });
-        }
-        catch (error) {
-            throw error;
-        }
+        const user = await this._authService.login(req.body);
+        // Generate JWT token
+        // 🔹 Create tokens
+        const payload = user;
+        const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
+        const refreshToken = jwtService.createToken(payload, jwtConfig.refreshTokenMaxAge);
+        res.cookie('accessToken', accessToken, {
+            httpOnly: process.env.NODE_ENV === 'production',
+            secure: process.env.NODE_ENV === 'production', // 🔹 must be false on localhost (no HTTPS)
+            sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
+            maxAge: jwtConfig.accessTokenMaxAge * 1000,
+        });
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: process.env.NODE_ENV === 'production',
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: jwtConfig.refreshTokenMaxAge,
+        });
+        res.status(HttpStatus.OK).json({
+            message: MESSAGES.AUTH.LOGIN_SUCCESS,
+            success: true,
+            data: user,
+        });
     }
     async logout(req, res) {
-        try {
-            const cookieOptions = {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: (process.env.NODE_ENV === 'production' ? 'none' : 'lax'),
-                path: '/',
-            };
-            // Clear both cookies
-            res.clearCookie('accessToken', cookieOptions);
-            res.clearCookie('refreshToken', cookieOptions);
-            res.status(HttpStatus.OK).json({ message: MESSAGES.AUTH.LOGOUT_SUCCESS });
-        }
-        catch (err) {
-            throw err;
-        }
+        const cookieOptions = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: (process.env.NODE_ENV === 'production' ? 'none' : 'lax'),
+            path: '/',
+        };
+        // Clear both cookies
+        res.clearCookie('accessToken', cookieOptions);
+        res.clearCookie('refreshToken', cookieOptions);
+        res.status(HttpStatus.OK).json({ message: MESSAGES.AUTH.LOGOUT_SUCCESS });
     }
     async forgotPassword(req, res) {
-        try {
-            const { email } = req.body;
-            const user = await this._authService.forgotPassword(email);
-            res.status(HttpStatus.OK).json({
-                success: true,
-                message: MESSAGES.AUTH.RESET_LINK_SENT,
-                data: user,
-            });
-        }
-        catch (error) {
-            throw error;
-        }
+        const { email } = req.body;
+        const user = await this._authService.forgotPassword(email);
+        res.status(HttpStatus.OK).json({
+            success: true,
+            message: MESSAGES.AUTH.RESET_LINK_SENT,
+            data: user,
+        });
     }
     async resetPassword(req, res) {
-        try {
-            const { token, password } = req.body.resetData;
-            const user = await this._authService.resetPassword(token, password);
-            res.status(HttpStatus.OK).json({
-                success: true,
-                message: MESSAGES.AUTH.PASSWORD_CHANGED,
-                data: user,
-            });
-        }
-        catch (error) {
-            throw error;
-        }
+        const { token, password } = req.body.resetData;
+        const user = await this._authService.resetPassword(token, password);
+        res.status(HttpStatus.OK).json({
+            success: true,
+            message: MESSAGES.AUTH.PASSWORD_CHANGED,
+            data: user,
+        });
+    }
+    async verifyPassword(req, res) {
+        const userId = req.user?.userId;
+        const { password } = req.body;
+        await this._authService.verifyPassword(userId, password);
+        res.status(HttpStatus.OK).json({
+            success: true,
+            message: MESSAGES.AUTH.PASSWORD_VERIFIED,
+        });
+    }
+    async createActionVerification(req, res) {
+        const userId = req.user?.userId;
+        const { password } = req.body;
+        await this._authService.verifyPassword(userId, password);
+        res.status(HttpStatus.OK).json({
+            success: true,
+            message: MESSAGES.AUTH.PASSWORD_VERIFIED,
+        });
     }
 };
 AuthController = __decorate([

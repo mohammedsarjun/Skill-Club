@@ -2,14 +2,8 @@ import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import { IAdminSkillController } from './interfaces/IAdminSkillController.js';
 import '../../config/container.js';
-
 import { HttpStatus } from '../../enums/http-status.enum.js';
 import type { IAdminSkillServices } from '../../services/adminServices/interfaces/IAdminSkillServices.js';
-import {
-  mapCreateSkillDtoToSkillModel,
-  mapSkillQuery,
-  mapUpdateSkillDtoToSkillModel,
-} from '../../mapper/adminMapper/skill.mapper.js';
 import { MESSAGES } from '../../contants/contants.js';
 import { CreateSkillDTO, GetSkillDto, UpdateSkillDTO } from '../../dto/adminDTO/skill.dto.js';
 
@@ -25,43 +19,33 @@ export class AdminSkillController implements IAdminSkillController {
   }
 
   async addSkill(req: Request, res: Response): Promise<void> {
-    try {
-      const skillDto: CreateSkillDTO = req.body;
-      const result = await this._adminSkillServices.addSkill(skillDto);
-      res.status(HttpStatus.CREATED).json({
-        success: true,
-        message: MESSAGES.SKILL.CREATED,
-        data: result,
-      });
-    } catch (error: unknown) {
-      throw error;
-    }
+    const skillDto: CreateSkillDTO = req.body;
+    const result = await this._adminSkillServices.addSkill(skillDto);
+    res.status(HttpStatus.CREATED).json({
+      success: true,
+      message: MESSAGES.SKILL.CREATED,
+      data: result,
+    });
   }
 
   async getSkills(req: Request, res: Response): Promise<void> {
-    try {
-      const skillDto: GetSkillDto = {
-        search: typeof req.query.search === 'string' ? req.query.search : '',
-        page: Number(req?.query?.page) || 1,
-        limit: Number(req?.query?.limit) || 10,
-        mode: typeof req.query.mode === 'string' ? req.query.mode : '',
-      };
+    const skillDto: GetSkillDto = {
+      search: typeof req.query.search === 'string' ? req.query.search : '',
+      page: Number(req?.query?.page) || 1,
+      limit: Number(req?.query?.limit) || 10,
+      mode: typeof req.query.mode === 'string' ? req.query.mode : '',
+    };
 
-      console.log("hi")
-      const result = await this._adminSkillServices.getSkills(skillDto);
-      res.status(HttpStatus.OK).json({
-        success: true,
-        message: MESSAGES.SKILL.FETCH_SUCCESS,
-        data: result,
-      });
-    } catch (error: unknown) {
-      throw error;
-    }
+    const result = await this._adminSkillServices.getSkills(skillDto);
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: MESSAGES.SKILL.FETCH_SUCCESS,
+      data: result,
+    });
   }
 
   async editSkill(req: Request, res: Response): Promise<void> {
-    try {
-      const skillDto:Partial<UpdateSkillDTO> =req.body;
+      const skillDto: Partial<UpdateSkillDTO> = req.body;
       const { id } = req.body;
       const result = await this._adminSkillServices.editSkill(id, skillDto);
       res.status(HttpStatus.OK).json({
@@ -69,8 +53,5 @@ export class AdminSkillController implements IAdminSkillController {
         message: MESSAGES.SKILL.UPDATED,
         data: result,
       });
-    } catch (error: unknown) {
-      throw error;
-    }
   }
 }

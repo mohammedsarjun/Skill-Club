@@ -16,7 +16,6 @@ export class UserSkillController implements IUserSkillController {
   }
 
   async getSuggestedSkills(req: Request, res: Response): Promise<void> {
-    try {
 
       const { specialities } = req.query;
       const skills:ResSkillDtoMinimal[]|null = await this._userSkillService.getSuggestedSkills(specialities as string[]);
@@ -26,8 +25,6 @@ export class UserSkillController implements IUserSkillController {
         message: MESSAGES.SKILL.FETCH_SUCCESS,
         data: skills,
       });
-    } catch (error: unknown) {
-      throw error;
-    }
+
   }
 }

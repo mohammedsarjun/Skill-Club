@@ -12,6 +12,7 @@ import {
 import { OtpController } from '../controllers/auth/otpController.js';
 import { GoogleAuthController } from '../controllers/auth/googleAuthController.js';
 import { jwtService } from '../utils/jwt.js';
+import { authMiddleware } from '../middlewares/authMiddleware.js';
 const authRouter = express.Router();
 
 const authController = container.resolve(AuthController);
@@ -27,6 +28,12 @@ authRouter.post(
 );
 authRouter.post('/forgot-password', authController.forgotPassword.bind(authController));
 authRouter.post('/reset-password', authController.resetPassword.bind(authController));
+authRouter.post(
+  '/verify-password',
+  authMiddleware,
+  authController.verifyPassword.bind(authController),
+);
+authRouter.post("/action-verification",authMiddleware,authController.createActionVerification.bind(authController))
 
 //google login
 authRouter.post('/google', googleAuthController.googleLogin.bind(googleAuthController));
@@ -40,8 +47,8 @@ authRouter.post('/refresh-token', (req, res) => {
   try {
     const decoded = jwtService.verifyToken(refreshToken);
 
-        const { iat, exp, nbf, ...payload } = decoded;
-        console.log(payload)
+    const { iat, exp, nbf, ...payload } = decoded;
+    console.log(payload);
     const newAccessToken = jwtService.createToken(payload, '15m');
 
     res.cookie('accessToken', newAccessToken, {

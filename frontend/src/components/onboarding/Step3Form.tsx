@@ -15,9 +15,7 @@ export default function StepThreeForm({
   onNext,
   savedData,
 }: StepThreeProps) {
-  const [skills, setSkills] = useState<{ value: string; label: string }[]>([
-    { value: "javaScript", label: "JavaScript" },
-  ]);
+  const [skills, setSkills] = useState<{ value: string; label: string }[]>([]);
   const [input, setInput] = useState("");
   const [suggestedSkills, setSuggestedSkills] = useState([
     { value: "javaScript", label: "JavaScript" },

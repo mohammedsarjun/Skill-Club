@@ -14,7 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 import { OAuth2Client } from "google-auth-library";
 import { inject, injectable } from "tsyringe";
 import { mapCreateGoogleUserDtoToUserModel } from "../../mapper/authMapper/googleAuth.mapper.js";
-import { mapUserModelToUserDto } from "../../mapper/userMapper/user.mapper.js";
+import { mapUserModelToUserDto } from "../../mapper/user.mapper.js";
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 let GoogleAuthService = class GoogleAuthService {
     constructor(userRepository) {

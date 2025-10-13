@@ -12,6 +12,7 @@ type InputProps = {
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void
   name?: string;
   hidden?:boolean
+  disabled?:boolean
 };
 
 export default function Input({
@@ -26,6 +27,7 @@ export default function Input({
   onBlur,
   name = "",
   hidden,
+  disabled=false
 
 }: InputProps) {
   const [showPassword, setShowPassword] = useState(false);
@@ -42,6 +44,7 @@ export default function Input({
           onChange={onChange}
           onBlur={onBlur}
           name={name}
+          disabled={disabled}
           className={`
             ${fullWidth ? "w-full" : "w-auto"}
             ${rounded ? "rounded" : ""}

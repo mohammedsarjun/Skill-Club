@@ -7,6 +7,7 @@ export const MESSAGES = {
     UNAUTHORIZED: 'You are not authorized to access this resource',
     RESET_LINK_SENT: 'Reset link sent to your email.',
     PASSWORD_CHANGED: 'Password Changed Successfully',
+    PASSWORD_VERIFIED:"Password Verfied Successfully"
   },
   Freelancer: {
     UPDATED: 'Freelancer updated successfully',

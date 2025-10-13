@@ -1,12 +1,17 @@
 // utils/flattenObject.ts
 export function flattenObject(obj, parent = "", res = {}) {
-    for (let key in obj) {
+    for (const key in obj) {
+        if (!Object.prototype.hasOwnProperty.call(obj, key))
+            continue;
         const propName = parent ? `${parent}.${key}` : key;
-        if (typeof obj[key] === "object" && obj[key] !== null && !Array.isArray(obj[key])) {
-            flattenObject(obj[key], propName, res);
+        const value = obj[key];
+        if (typeof value === "object" &&
+            value !== null &&
+            !Array.isArray(value)) {
+            flattenObject(value, propName, res);
         }
         else {
-            res[propName] = obj[key];
+            res[propName] = value;
         }
     }
     return res;

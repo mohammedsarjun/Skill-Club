@@ -11,6 +11,8 @@ const freelancerController = container.resolve(FreelancerController)
 
 freelancerRouter.get("/me",authMiddleware,roleGuard("freelancer"),freelancerController.getFreelancerData.bind(freelancerController))
 freelancerRouter.patch("/profile/language",authMiddleware,roleGuard("freelancer"),freelancerController.updateFreelancerLanguage.bind(freelancerController))
+freelancerRouter.delete("/profile/language",authMiddleware,roleGuard("freelancer"),freelancerController.deleteFreelancerLanguage.bind(freelancerController))
+freelancerRouter.patch("/profile/description",authMiddleware,roleGuard("freelancer"),freelancerController.updateFreelancerDescription.bind(freelancerController))
 freelancerRouter.post("/portfolio",authMiddleware,roleGuard("freelancer"),validate(portfolioSchema),freelancerController.createPortfolio.bind(freelancerController))
 freelancerRouter.get("/portfolio",authMiddleware,roleGuard("freelancer"),freelancerController.getPortfolio.bind(freelancerController))
 freelancerRouter.get("/portfolio/detail",authMiddleware,roleGuard("freelancer"),freelancerController.getPortfolioDetail.bind(freelancerController))

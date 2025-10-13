@@ -1,5 +1,4 @@
 import { injectable, inject } from 'tsyringe';
-import AppError from '../../utils/AppError.js';
 import { IUserCategoryServices } from './interfaces/IUserCategoryService.js';
 import type { ICategoryRepository } from '../../repositories/interfaces/ICategoryRepository.js';
 import { CategoryDtoMinimal } from '../../dto/category.dto.js';

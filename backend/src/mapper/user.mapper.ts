@@ -1,10 +1,12 @@
 import {
+  AddressDTO,
   ClientProfileDetailDTO,
   ClientProfileDto,
   ClientProfileUpdateResponseDto,
   UserDto,
-} from '../../dto/userDTO/user.dto.js';
-import { IUser } from '../../models/interfaces/IUserModel.js';
+  UserProfileDto,
+} from '../dto/userDTO/user.dto.js';
+import { IUser } from '../models/interfaces/IUserModel.js';
 
 export const mapUserModelToUserDto = (modelData: IUser): UserDto => {
   return {
@@ -13,7 +15,21 @@ export const mapUserModelToUserDto = (modelData: IUser): UserDto => {
     activeRole: modelData.activeRole,
     isOnboardingCompleted: modelData.isOnboardingCompleted,
     clientProfile:modelData?.clientProfile?.logo,
-    freelancerProfile:modelData?.freelancerProfile?.logo
+    freelancerProfile:modelData?.freelancerProfile?.logo,
+    isClientBlocked:modelData?.isClientBlocked,
+    isFreelancerBlocked:modelData?.isFreelancerBlocked
+  };
+};
+
+
+
+export const mapUserModelToUserProfileDto = (modelData: IUser): UserProfileDto => {
+  return {
+    firstName:modelData.firstName||"",
+    lastName:modelData.lastName||"",
+    email:modelData.email||"",
+    phone:modelData.phone||0,
+    dob:modelData.dob||undefined
   };
 };
 
@@ -90,5 +106,16 @@ export function mapUserModelToClientProfileUpdateResponseDto(
       logo: raw.clientProfile.logo ?? '',
       description: raw.clientProfile.description ?? '',
       website: raw.clientProfile.website ?? '',
+  };
+}
+
+
+export  function mapUserModelToAddressDto(raw:IUser):AddressDTO{
+   return {
+      country: raw?.address?.country,
+      state:raw?.address?.state,
+      streetAddress:raw?.address?.streetAddress,
+      city:raw?.address?.city,
+      zipCode:raw?.address?.zipCode
   };
 }

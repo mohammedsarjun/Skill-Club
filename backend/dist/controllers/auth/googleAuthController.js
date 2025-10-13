@@ -25,35 +25,30 @@ let GoogleAuthController = class GoogleAuthController {
         this._userService = userService;
     }
     async googleLogin(req, res) {
-        try {
-            const { idToken } = req.body;
-            const user = await this._googleAuthService.verifyToken(idToken);
-            await this._userService.markUserVerified(user.userId);
-            // 🔹 Create tokens
-            const payload = user;
-            const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
-            const refreshToken = jwtService.createToken(payload, jwtConfig.refreshTokenMaxAge);
-            res.cookie('accessToken', accessToken, {
-                httpOnly: true,
-                secure: false, // 🔹 must be false on localhost (no HTTPS)
-                sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
-                maxAge: jwtConfig.accessTokenMaxAge * 1000
-            });
-            res.cookie('refreshToken', refreshToken, {
-                httpOnly: true,
-                secure: false,
-                sameSite: 'lax',
-                maxAge: jwtConfig.refreshTokenMaxAge * 1000
-            });
-            res.status(HttpStatus.OK).json({
-                success: true,
-                message: MESSAGES.AUTH.LOGIN_SUCCESS,
-                data: user,
-            });
-        }
-        catch (error) {
-            throw error;
-        }
+        const { idToken } = req.body;
+        const user = await this._googleAuthService.verifyToken(idToken);
+        await this._userService.markUserVerified(user.userId);
+        // 🔹 Create tokens
+        const payload = user;
+        const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
+        const refreshToken = jwtService.createToken(payload, jwtConfig.refreshTokenMaxAge);
+        res.cookie('accessToken', accessToken, {
+            httpOnly: process.env.NODE_ENV === 'production',
+            secure: process.env.NODE_ENV === 'production', // 🔹 must be false on localhost (no HTTPS)
+            sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
+            maxAge: jwtConfig.accessTokenMaxAge * 1000
+        });
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: process.env.NODE_ENV === 'production',
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: jwtConfig.refreshTokenMaxAge * 1000
+        });
+        res.status(HttpStatus.OK).json({
+            success: true,
+            message: MESSAGES.AUTH.LOGIN_SUCCESS,
+            data: user,
+        });
     }
 };
 GoogleAuthController = __decorate([

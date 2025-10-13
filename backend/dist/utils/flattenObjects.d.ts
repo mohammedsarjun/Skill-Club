@@ -1,2 +1,2 @@
-export declare function flattenObject(obj: any, parent?: string, res?: any): any;
+export declare function flattenObject(obj: Record<string, unknown>, parent?: string, res?: Record<string, unknown>): Record<string, unknown>;
 //# sourceMappingURL=flattenObjects.d.ts.map

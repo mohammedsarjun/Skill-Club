@@ -19,18 +19,13 @@ let UserSkillController = class UserSkillController {
         this._userSkillService = userSkillService;
     }
     async getSuggestedSkills(req, res) {
-        try {
-            const { specialities } = req.query;
-            const skills = await this._userSkillService.getSuggestedSkills(specialities);
-            res.status(HttpStatus.OK).json({
-                success: true,
-                message: MESSAGES.SKILL.FETCH_SUCCESS,
-                data: skills,
-            });
-        }
-        catch (error) {
-            throw error;
-        }
+        const { specialities } = req.query;
+        const skills = await this._userSkillService.getSuggestedSkills(specialities);
+        res.status(HttpStatus.OK).json({
+            success: true,
+            message: MESSAGES.SKILL.FETCH_SUCCESS,
+            data: skills,
+        });
     }
 };
 UserSkillController = __decorate([

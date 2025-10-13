@@ -26,7 +26,7 @@ export class GoogleAuthController implements IGoogleAuthController {
   }
 
   async googleLogin(req: Request, res: Response): Promise<void> {
-    try {
+  
       const { idToken } = req.body;
 
       const user:UserDto = await this._googleAuthService.verifyToken(idToken);
@@ -38,15 +38,15 @@ export class GoogleAuthController implements IGoogleAuthController {
       const refreshToken = jwtService.createToken(payload, jwtConfig.refreshTokenMaxAge);
 
       res.cookie('accessToken', accessToken, {
-        httpOnly: true,
-        secure: false, // 🔹 must be false on localhost (no HTTPS)
+        httpOnly: process.env.NODE_ENV === 'production',
+        secure: process.env.NODE_ENV === 'production', // 🔹 must be false on localhost (no HTTPS)
         sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
         maxAge: jwtConfig.accessTokenMaxAge*1000
       });
 
       res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: false,
+        httpOnly: process.env.NODE_ENV === 'production',
+        secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         maxAge: jwtConfig.refreshTokenMaxAge*1000
       });
@@ -56,8 +56,6 @@ export class GoogleAuthController implements IGoogleAuthController {
         message: MESSAGES.AUTH.LOGIN_SUCCESS,
         data: user,
       });
-    } catch (error: unknown) {
-      throw error;
-    }
+
   }
 }

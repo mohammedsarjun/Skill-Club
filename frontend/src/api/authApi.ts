@@ -41,9 +41,7 @@ export const authApi = {
   },
   logout: async (): Promise<any> => {
     try {
-      const response = await axiosClient.post(
-        authenticationRoutes.logout,
-      );
+      const response = await axiosClient.post(authenticationRoutes.logout);
 
       return response.data;
     } catch (error: any) {
@@ -116,23 +114,33 @@ export const authApi = {
       });
 
       return response.data;
-    } catch (error: any) { 
+    } catch (error: any) {
       return error.response.data;
     }
-  },  googleLogin: async (idToken: string): Promise<any> => {
+  },
+  googleLogin: async (idToken: string): Promise<any> => {
     try {
       const response = await axiosClient.post(
         authenticationRoutes.googleLogin,
-        {idToken}
+        { idToken }
       );
-
-
-      console.log(response)
 
       return response.data;
     } catch (error: any) {
       return error?.response?.data;
     }
   },
-  
+
+  verifyPassword: async (password:string): Promise<any> => {
+    try {
+      const response = await axiosClient.post(
+        authenticationRoutes.verifyPassword,
+        { password }
+      );
+
+      return response.data;
+    } catch (error: any) {
+      return error?.response?.data;
+    }
+  },
 };

@@ -21,65 +21,49 @@ let AdminAuthController = class AdminAuthController {
         this.adminAuthServices = adminAuthServices;
     }
     async login(req, res) {
-        try {
-            const result = this.adminAuthServices.login(req.body);
-            // 🔹 Create tokens
-            const payload = { userId: 'admin_1', roles: ['admin'], activeRole: 'admin' };
-            const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
-            const refreshToken = jwtService.createToken(payload, jwtConfig.refreshTokenMaxAge);
-            res.cookie('accessToken', accessToken, {
-                httpOnly: true,
-                secure: false, // 🔹 must be false on localhost (no HTTPS)
-                sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
-                maxAge: jwtConfig.accessTokenMaxAge * 1000,
-            });
-            res.cookie('refreshToken', refreshToken, {
-                httpOnly: true,
-                secure: false,
-                sameSite: 'lax',
-                maxAge: jwtConfig.refreshTokenMaxAge * 1000,
-            });
-            res.status(HttpStatus.OK).json({
-                success: true,
-                message: MESSAGES.AUTH.LOGIN_SUCCESS,
-                data: payload,
-            });
-        }
-        catch (error) {
-            throw error;
-        }
+        const result = this.adminAuthServices.login(req.body);
+        const payload = { userId: 'admin_1', roles: ['admin'], activeRole: 'admin' };
+        const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
+        const refreshToken = jwtService.createToken(payload, jwtConfig.refreshTokenMaxAge);
+        res.cookie('accessToken', accessToken, {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'lax',
+            maxAge: jwtConfig.accessTokenMaxAge * 1000,
+        });
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'lax',
+            maxAge: jwtConfig.refreshTokenMaxAge * 1000,
+        });
+        res.status(HttpStatus.OK).json({
+            success: true,
+            message: MESSAGES.AUTH.LOGIN_SUCCESS,
+            data: payload,
+        });
     }
     async logout(req, res) {
-        try {
-            const cookieOptions = {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: (process.env.NODE_ENV === 'production' ? 'none' : 'lax'),
-                path: '/',
-            };
-            // Clear both cookies
-            res.clearCookie('accessToken', cookieOptions);
-            res.clearCookie('refreshToken', cookieOptions);
-            // Double insurance: explicitly overwrite with expired values
-            res.cookie('accessToken', '', { ...cookieOptions, expires: new Date(0) });
-            res.cookie('refreshToken', '', { ...cookieOptions, expires: new Date(0) });
-            res.status(HttpStatus.OK).json({ message: MESSAGES.AUTH.LOGOUT_SUCCESS });
-        }
-        catch (err) {
-            throw err;
-        }
+        const cookieOptions = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: (process.env.NODE_ENV === 'production' ? 'none' : 'lax'),
+            path: '/',
+        };
+        // Clear both cookies
+        res.clearCookie('accessToken', cookieOptions);
+        res.clearCookie('refreshToken', cookieOptions);
+        // Double insurance: explicitly overwrite with expired values
+        res.cookie('accessToken', '', { ...cookieOptions, expires: new Date(0) });
+        res.cookie('refreshToken', '', { ...cookieOptions, expires: new Date(0) });
+        res.status(HttpStatus.OK).json({ message: MESSAGES.AUTH.LOGOUT_SUCCESS });
     }
     async me(req, res) {
-        try {
-            res.status(HttpStatus.OK).json({
-                success: true,
-                message: MESSAGES.ADMIN.VERIFIED,
-                data: req.user,
-            });
-        }
-        catch (error) {
-            throw error;
-        }
+        res.status(HttpStatus.OK).json({
+            success: true,
+            message: MESSAGES.ADMIN.VERIFIED,
+            data: req.user,
+        });
     }
 };
 AdminAuthController = __decorate([

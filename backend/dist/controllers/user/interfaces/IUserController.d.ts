@@ -5,5 +5,8 @@ export interface IUserController {
     createFreelancerProfile(req: Request, res: Response): Promise<void>;
     createClientProfile(req: Request, res: Response): Promise<void>;
     switchRole(req: Request, res: Response): Promise<void>;
+    getProfile(req: Request, res: Response): Promise<void>;
+    getAddress(req: Request, res: Response): Promise<void>;
+    createActionVerification(req: Request, res: Response): Promise<void>;
 }
 //# sourceMappingURL=IUserController.d.ts.map

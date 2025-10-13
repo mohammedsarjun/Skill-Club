@@ -19,53 +19,37 @@ let AdminSkillController = class AdminSkillController {
         this._adminSkillServices = adminSkillServices;
     }
     async addSkill(req, res) {
-        try {
-            const skillDto = req.body;
-            const result = await this._adminSkillServices.addSkill(skillDto);
-            res.status(HttpStatus.CREATED).json({
-                success: true,
-                message: MESSAGES.SKILL.CREATED,
-                data: result,
-            });
-        }
-        catch (error) {
-            throw error;
-        }
+        const skillDto = req.body;
+        const result = await this._adminSkillServices.addSkill(skillDto);
+        res.status(HttpStatus.CREATED).json({
+            success: true,
+            message: MESSAGES.SKILL.CREATED,
+            data: result,
+        });
     }
     async getSkills(req, res) {
-        try {
-            const skillDto = {
-                search: typeof req.query.search === 'string' ? req.query.search : '',
-                page: Number(req?.query?.page) || 1,
-                limit: Number(req?.query?.limit) || 10,
-                mode: typeof req.query.mode === 'string' ? req.query.mode : '',
-            };
-            console.log("hi");
-            const result = await this._adminSkillServices.getSkills(skillDto);
-            res.status(HttpStatus.OK).json({
-                success: true,
-                message: MESSAGES.SKILL.FETCH_SUCCESS,
-                data: result,
-            });
-        }
-        catch (error) {
-            throw error;
-        }
+        const skillDto = {
+            search: typeof req.query.search === 'string' ? req.query.search : '',
+            page: Number(req?.query?.page) || 1,
+            limit: Number(req?.query?.limit) || 10,
+            mode: typeof req.query.mode === 'string' ? req.query.mode : '',
+        };
+        const result = await this._adminSkillServices.getSkills(skillDto);
+        res.status(HttpStatus.OK).json({
+            success: true,
+            message: MESSAGES.SKILL.FETCH_SUCCESS,
+            data: result,
+        });
     }
     async editSkill(req, res) {
-        try {
-            const skillDto = req.body;
-            const { id } = req.body;
-            const result = await this._adminSkillServices.editSkill(id, skillDto);
-            res.status(HttpStatus.OK).json({
-                success: true,
-                message: MESSAGES.SKILL.UPDATED,
-                data: result,
-            });
-        }
-        catch (error) {
-            throw error;
-        }
+        const skillDto = req.body;
+        const { id } = req.body;
+        const result = await this._adminSkillServices.editSkill(id, skillDto);
+        res.status(HttpStatus.OK).json({
+            success: true,
+            message: MESSAGES.SKILL.UPDATED,
+            data: result,
+        });
     }
 };
 AdminSkillController = __decorate([

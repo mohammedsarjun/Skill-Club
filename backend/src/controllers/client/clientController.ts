@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import '../../config/container.js';
 import { HttpStatus } from '../../enums/http-status.enum.js';
-
 import { IClientController } from './interfaces/IClientController.js';
 import type { IClientService } from '../../services/clientServices/interfaces/IClientServices.js';
 import { GetClientDTO, UpdateClientDto } from '../../dto/clientDTO/client.dto.js';
@@ -16,7 +15,7 @@ export class ClientController implements IClientController {
   }
 
   async getClientData(req: Request, res: Response): Promise<void> {
-    try {
+
       const userId = req.user?.userId;
       const result: GetClientDTO = await this._clientService.getClientData(userId!);
       res.status(HttpStatus.OK).json({
@@ -24,13 +23,11 @@ export class ClientController implements IClientController {
         message: 'Client Data Fetched Successfully',
         data: result,
       });
-    } catch (error:unknown) {
-      throw error;
-    }
+
   }
 
   async updateClient(req: Request, res: Response): Promise<void> {
-    try {
+
       const userId = req.user?.userId;
       const dto=mapUpdateClientDtoToClientModel(req.body)
       const result: GetClientDTO = await this._clientService.updateClient(userId!,dto);
@@ -39,8 +36,5 @@ export class ClientController implements IClientController {
         message: 'Client Data Updated Successfully',
         data: result,
       });
-    } catch (error:unknown) {
-      throw error;
-    }
   }
 }

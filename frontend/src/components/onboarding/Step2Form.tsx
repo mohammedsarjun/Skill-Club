@@ -36,9 +36,11 @@ export default function Step2Form({
   useEffect(() => {
     async function fetchCategories() {
       const response = await onboardingApi.getCategories();
+      console.log(response)
       if (response.success) {
         setCategories(response.data);
       } else {
+
         toast.error(response.message);
       }
 
@@ -50,7 +52,7 @@ export default function Step2Form({
         setSpecialties(selectedCategoryResponse.data);
 
       } else {
-        toast.error(response.message);
+        // toast.error(response.message);
       }
     }
 

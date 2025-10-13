@@ -62,4 +62,22 @@ export const userApi = {
       return error?.response?.data;
     }
   },
+
+  getProfile: async (): Promise<any> => {
+    try {
+      const response = await axiosClient.get(userRoutes.getProfile);
+      return response?.data;
+    } catch (error: any) {
+      return error?.response?.data;
+    }
+  },
+
+   getAddress: async (): Promise<any> => {
+    try {
+      const response = await axiosClient.get(userRoutes.getAddress);
+      return response?.data;
+    } catch (error: any) {
+      return error?.response?.data;
+    }
+  },
 };

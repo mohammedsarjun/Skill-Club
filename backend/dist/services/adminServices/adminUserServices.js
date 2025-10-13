@@ -13,7 +13,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 import { injectable, inject } from 'tsyringe';
 import AppError from '../../utils/AppError.js';
 import { HttpStatus } from '../../enums/http-status.enum.js';
-import { mapUserModelDtoToAdminUserDto, mapUserModelDtoToAdminUserStatsDto, mapUserToUserDetailDto, } from '../../mapper/adminMapper/adminUsers.mapper.js';
+import { mapUpdateUserStatusToUserModel, mapUserModelDtoToAdminUserDto, mapUserModelDtoToAdminUserStatsDto, mapUserToUserDetailDto, } from '../../mapper/adminMapper/adminUsers.mapper.js';
 let AdminUserServices = class AdminUserServices {
     constructor(userRepository) {
         this._userRepository = userRepository;
@@ -75,7 +75,8 @@ let AdminUserServices = class AdminUserServices {
         // 3. Return the mapped DTO
         return userDto;
     }
-    async updateUserStatus(dto) {
+    async updateUserStatus(userData) {
+        const dto = mapUpdateUserStatusToUserModel(userData);
         const { id, role, status } = dto;
         // 1. Check if user exists
         const user = await this._userRepository.findById(id);

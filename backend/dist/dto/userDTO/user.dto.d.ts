@@ -5,6 +5,15 @@ export interface UserDto {
     isOnboardingCompleted: boolean;
     clientProfile?: string | undefined;
     freelancerProfile?: string | undefined;
+    isFreelancerBlocked: boolean;
+    isClientBlocked: boolean;
+}
+export interface UserProfileDto {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: number;
+    dob: Date;
 }
 export interface AddressDTO {
     country: string;

@@ -268,3 +268,8 @@ export const portfolioSchema = z.object({
   images: z.array(z.instanceof(File).optional()),
   video: z.instanceof(File, { message: "Video is required" }),
 });
+
+export const changeEmailSchema = z.object({
+  newEmail: z.string().email("Invalid email format"),
+  password: z.string().trim().nonempty("Invalid Password"),
+});

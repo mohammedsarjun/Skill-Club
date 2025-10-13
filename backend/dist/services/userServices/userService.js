@@ -13,11 +13,20 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 import { injectable, inject } from 'tsyringe';
 import AppError from '../../utils/AppError.js';
 import { HttpStatus } from '../../enums/http-status.enum.js';
-import { mapUserModelToClientProfileUpdateResponseDto, mapUserModelToUserDto, } from '../../mapper/userMapper/user.mapper.js';
+import { mapClientDtoToUserModel, mapFreelancerDtoToUserModel, mapUserModelToAddressDto, mapUserModelToClientProfileUpdateResponseDto, mapUserModelToUserDto, mapUserModelToUserProfileDto, } from '../../mapper/user.mapper.js';
 import { ERROR_MESSAGES } from '../../contants/errorConstants.js';
+import { mapActionVerificationToCreateActionVerification } from '../../mapper/actionVerification.mapper.js';
 let userServices = class userServices {
-    constructor(userRepository) {
+    constructor(userRepository, actionVerificationRepository) {
         this._userRepository = userRepository;
+        this._actionVerificationRepository = actionVerificationRepository;
+    }
+    async getProfile(userId) {
+        const user = await this._userRepository.findById(userId);
+        if (!user) {
+            throw new AppError(ERROR_MESSAGES.USER.NOT_FOUND, HttpStatus.NOT_FOUND);
+        }
+        return mapUserModelToUserProfileDto(user);
     }
     async markUserVerified(id) {
         try {
@@ -39,14 +48,15 @@ let userServices = class userServices {
         return mapUserModelToUserDto(updatedUser);
     }
     async createFreelancerProfile(id, freelancerData) {
+        const dto = mapFreelancerDtoToUserModel(freelancerData);
         if (!id) {
             throw new AppError(ERROR_MESSAGES.USER.ID_REQUIRED, HttpStatus.BAD_REQUEST);
         }
-        if (!freelancerData || Object.keys(freelancerData).length === 0) {
+        if (!dto || Object.keys(dto).length === 0) {
             throw new AppError('Freelancer data cannot be empty', HttpStatus.BAD_REQUEST);
         }
         try {
-            const updatedUser = await this._userRepository.createFreelancerProfile(id, freelancerData);
+            const updatedUser = await this._userRepository.createFreelancerProfile(id, dto);
             console.log(updatedUser);
             if (!updatedUser) {
                 throw new AppError(ERROR_MESSAGES.USER.NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -63,12 +73,13 @@ let userServices = class userServices {
             throw new AppError(ERROR_MESSAGES.USER.ID_REQUIRED, HttpStatus.BAD_REQUEST);
         }
         try {
-            const updatedUser = await this._userRepository.update(id, clientData);
+            const clientdto = mapClientDtoToUserModel(clientData);
+            const updatedUser = await this._userRepository.update(id, clientdto);
             if (!updatedUser) {
                 throw new AppError(ERROR_MESSAGES.USER.NOT_FOUND, HttpStatus.NOT_FOUND);
             }
-            const dto = mapUserModelToClientProfileUpdateResponseDto(updatedUser);
-            return dto;
+            const clientResponseDto = mapUserModelToClientProfileUpdateResponseDto(updatedUser);
+            return clientResponseDto;
         }
         catch (error) {
             throw new AppError(ERROR_MESSAGES.CLIENT.FAILED_CREATE, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -96,11 +107,30 @@ let userServices = class userServices {
         const dto = mapUserModelToUserDto(user);
         return dto;
     }
+    async getAddress(userId) {
+        const user = await this._userRepository.findById(userId);
+        if (!user) {
+            throw new AppError(ERROR_MESSAGES.USER.NOT_FOUND, HttpStatus.NOT_FOUND);
+        }
+        if (!user.address) {
+            return null;
+        }
+        return mapUserModelToAddressDto(user);
+    }
+    async createActionVerification(userId, actionType, actionData) {
+        const user = await this._userRepository.findById(userId);
+        if (!user) {
+            throw new AppError(ERROR_MESSAGES.USER.NOT_FOUND, HttpStatus.NOT_FOUND);
+        }
+        const dto = mapActionVerificationToCreateActionVerification({ userId, actionType, actionData });
+        this._actionVerificationRepository.createActionVerificaion(dto);
+    }
 };
 userServices = __decorate([
     injectable(),
     __param(0, inject('IUserRepository')),
-    __metadata("design:paramtypes", [Object])
+    __param(1, inject('IActionVerificationRepository')),
+    __metadata("design:paramtypes", [Object, Object])
 ], userServices);
 export { userServices };
 //# sourceMappingURL=userService.js.map

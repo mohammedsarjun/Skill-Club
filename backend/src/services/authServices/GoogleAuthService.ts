@@ -1,12 +1,10 @@
 // services/GoogleAuthService.ts
 import { OAuth2Client } from "google-auth-library";
-import jwt from "jsonwebtoken";
 import { IGoogleAuthService } from "./interfaces/IGoogleAuthService.js";
 import { inject, injectable } from "tsyringe";
 import type { IUserRepository } from "../../repositories/interfaces/IUserRepository.js";
-import { mapCreateUserDtoToUserModel } from "../../mapper/authMapper/auth.mapper.js";
 import { mapCreateGoogleUserDtoToUserModel } from "../../mapper/authMapper/googleAuth.mapper.js";
-import { mapUserModelToUserDto } from "../../mapper/userMapper/user.mapper.js";
+import { mapUserModelToUserDto } from "../../mapper/user.mapper.js";
 import { UserDto } from "../../dto/userDTO/user.dto.js";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);

@@ -1,10 +1,22 @@
-export interface UserDto{
-  userId:string,
-  roles:string[],
-  activeRole:string,
-  isOnboardingCompleted:boolean,
-  clientProfile?:string|undefined,
-  freelancerProfile?:string|undefined
+import { string } from 'zod';
+
+export interface UserDto {
+  userId: string;
+  roles: string[];
+  activeRole: string;
+  isOnboardingCompleted: boolean;
+  clientProfile?: string | undefined;
+  freelancerProfile?: string | undefined;
+  isFreelancerBlocked: boolean;
+  isClientBlocked: boolean;
+}
+
+export interface UserProfileDto {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: number;
+  dob: Date;
 }
 
 //Freelancer Profile Updatation DTO'S
@@ -58,22 +70,20 @@ export interface FreelancerDTO {
   experiences: ExperienceDTO[];
 }
 
-
 export interface ClientProfileDetailDTO {
-  companyName:string,
-  logo?:string,
-  description?:string,
-  website?:string
+  companyName: string;
+  logo?: string;
+  description?: string;
+  website?: string;
 }
 
-export interface ClientProfileDto{
-  clientProfile:ClientProfileDetailDTO
+export interface ClientProfileDto {
+  clientProfile: ClientProfileDetailDTO;
 }
 
-
-export interface ClientProfileUpdateResponseDto{
-   companyName:string,
-  logo?:string,
-  description?:string,
-  website?:string
+export interface ClientProfileUpdateResponseDto {
+  companyName: string;
+  logo?: string;
+  description?: string;
+  website?: string;
 }

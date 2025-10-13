@@ -10,16 +10,16 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { injectable, inject } from "tsyringe";
-import "../../config/container.js";
-import { mapCreateUserDtoToUserModel } from "../../mapper/authMapper/auth.mapper.js";
-import bcrypt from "bcryptjs";
-import AppError from "../../utils/AppError.js";
-import { HttpStatus } from "../../enums/http-status.enum.js";
-import { mapUserModelToUserDto } from "../../mapper/userMapper/user.mapper.js";
-import { genRandom } from "../../utils/cryptoGenerator.js";
-import sendEmailOtp from "../../utils/sendOtp.js";
-import { ERROR_MESSAGES } from "../../contants/errorConstants.js";
+import { injectable, inject } from 'tsyringe';
+import '../../config/container.js';
+import { mapCreateUserDtoToUserModel } from '../../mapper/authMapper/auth.mapper.js';
+import bcrypt from 'bcryptjs';
+import AppError from '../../utils/AppError.js';
+import { HttpStatus } from '../../enums/http-status.enum.js';
+import { mapUserModelToUserDto } from '../../mapper/user.mapper.js';
+import { genRandom } from '../../utils/cryptoGenerator.js';
+import sendEmailOtp from '../../utils/sendOtp.js';
+import { ERROR_MESSAGES } from '../../contants/errorConstants.js';
 let AuthService = class AuthService {
     constructor(userRepository) {
         this._userRepository = userRepository;
@@ -33,7 +33,8 @@ let AuthService = class AuthService {
         }
         // Check if an unverified user exists
         let user = await this._userRepository.findOne({
-            email: dto.email, isVerified: false
+            email: dto.email,
+            isVerified: false,
         });
         if (user) {
             // Update existing unverified user with new info
@@ -71,40 +72,43 @@ let AuthService = class AuthService {
         return dto;
     }
     async forgotPassword(email) {
-        // 1. Find the user
         const user = await this._userRepository.findOne({ email });
         if (!user) {
             throw new AppError(ERROR_MESSAGES.AUTH.NOT_FOUND, HttpStatus.NOT_FOUND);
         }
-        // 2. Generate token and expiry
         const tokenDetail = await genRandom();
         const token = tokenDetail.token;
         const expiry = new Date(tokenDetail.expiry);
-        // 3. Update user atomically via repository
         await this._userRepository.updateResetPassword(user._id, token, expiry);
-        // 4. Send reset link email
         const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
         await sendEmailOtp(user.email, `Click here to reset your password: ${resetLink}`);
     }
     async resetPassword(token, newPassword) {
-        // 1. Find the user by token and expiry
-        console.log(token);
         const user = await this._userRepository.findByResetToken(token);
-        console.log(user);
         if (!user) {
             throw new AppError(ERROR_MESSAGES.TOKEN.INVALID_TOKEN, HttpStatus.BAD_REQUEST);
         }
-        // 2. Hash the new password
         const hashedPassword = await bcrypt.hash(newPassword, 10);
-        // 3. Update password and clear reset token atomically
         await this._userRepository.updatePassword(user._id, hashedPassword);
-        // 4. Optional: send confirmation email instead of reset link
-        await sendEmailOtp(user.email, "Your password has been successfully reset.");
+        await sendEmailOtp(user.email, 'Your password has been successfully reset.');
+    }
+    async verifyPassword(userId, password) {
+        const user = await this._userRepository.findById(userId);
+        if (!user) {
+            throw new AppError(ERROR_MESSAGES.USER.NOT_FOUND, HttpStatus.NOT_FOUND);
+        }
+        if (!user.password && user.googleId) {
+            throw new AppError('Password verification is not applicable for Google-authenticated users.', HttpStatus.BAD_REQUEST);
+        }
+        const isPasswordMatched = await bcrypt.compare(password, user.password);
+        if (!isPasswordMatched) {
+            throw new AppError(ERROR_MESSAGES.AUTH.INCORRECT_PASSWORD, HttpStatus.UNAUTHORIZED);
+        }
     }
 };
 AuthService = __decorate([
     injectable(),
-    __param(0, inject("IUserRepository")),
+    __param(0, inject('IUserRepository')),
     __metadata("design:paramtypes", [Object])
 ], AuthService);
 export { AuthService };

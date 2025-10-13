@@ -7,6 +7,6 @@ export declare class AdminUserServices implements IAdminUserServices {
     getUserStats(): Promise<any>;
     getUsers(filterData: GetUserDto): Promise<any>;
     getUserDetail(id: string): Promise<UserDetailDto>;
-    updateUserStatus(dto: updateUserStatusDto): Promise<void>;
+    updateUserStatus(userData: updateUserStatusDto): Promise<void>;
 }
 //# sourceMappingURL=adminUserServices.d.ts.map

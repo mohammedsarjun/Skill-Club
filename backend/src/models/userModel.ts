@@ -1,8 +1,7 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 import {
   IUser,
   IAddress,
-  ILanguage,
   IFreelancerProfile,
   IExperience,
   IEducation,

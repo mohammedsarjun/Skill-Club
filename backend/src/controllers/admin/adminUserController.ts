@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import '../../config/container.js';
 import { HttpStatus } from '../../enums/http-status.enum.js';
-import { jwtService } from '../../utils/jwt.js';
 import { IAdminUserController } from './interfaces/IAdminUserController.js';
 import type { IAdminUserServices } from '../../services/adminServices/interfaces/IAdminUserServices.js';
 import { AdminUserStatsDto, GetUserDto } from '../../dto/adminDTO/adminUsers.dto.js';
@@ -17,20 +16,17 @@ export class AdminUserController implements IAdminUserController {
   }
 
   async getUserStats(req: Request, res: Response): Promise<void> {
-    try {
+   
       const result: AdminUserStatsDto = await this._adminUserService.getUserStats();
       res.status(HttpStatus.OK).json({
         success: true,
         message: MESSAGES.USER.FETCH_STATS_SUCCESS,
         data: result,
       });
-    } catch (error:unknown) {
-      throw error;
-    }
+
   }
 
   async getUsers(req: Request, res: Response): Promise<void> {
-    try {
       const queryDto: GetUserDto = mapUserQuery(req.query);
 
       const result = await this._adminUserService.getUsers(queryDto);
@@ -40,13 +36,11 @@ export class AdminUserController implements IAdminUserController {
         message: MESSAGES.USER.FETCH_SUCCESS,
         data: result,
       });
-    } catch (error:unknown) {
-      throw error;
-    }
+
   }
 
   async getUserDetail(req: Request, res: Response): Promise<void> {
-    try {
+
       const { id } = req.query;
 
       const result = await this._adminUserService.getUserDetail(id as string);
@@ -56,24 +50,17 @@ export class AdminUserController implements IAdminUserController {
         message: MESSAGES.USER.FETCH_SUCCESS,
         data: result,
       });
-    } catch (error:unknown) {
-      throw error;
-    }
+
   }
 
   async updateUserStatus(req: Request, res: Response): Promise<void> {
-    try {
 
-      const dto=mapUpdateUserStatusToUserModel(req.body)
-      const result = await this._adminUserService.updateUserStatus(dto);
-
+      const result = await this._adminUserService.updateUserStatus(req.body);
       res.status(HttpStatus.OK).json({
         success: true,
         message: MESSAGES.USER.UPDATED,
         data: result,
       });
-    } catch (error:unknown) {
-      throw error;
-    }
+
   }
 }

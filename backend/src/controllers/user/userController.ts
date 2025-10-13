@@ -6,10 +6,7 @@ import { IUserController } from './interfaces/IUserController.js';
 import type { IUserServices } from '../../services/userServices/interfaces/IUserServices.js';
 
 import { jwtService } from '../../utils/jwt.js';
-import {
-  mapClientDtoToUserModel,
-  mapFreelancerDtoToUserModel,
-} from '../../mapper/userMapper/user.mapper.js';
+import { mapClientDtoToUserModel, mapFreelancerDtoToUserModel } from '../../mapper/user.mapper.js';
 import { MESSAGES } from '../../contants/contants.js';
 @injectable()
 export class UserController implements IUserController {
@@ -19,113 +16,130 @@ export class UserController implements IUserController {
     this._userService = userService;
   }
   async selectRole(req: Request, res: Response): Promise<void> {
-    try {
-      const { role } = req.body;
-      const userId = req.user?.userId;
-      const user = await this._userService.selectRole(userId, role);
-      // Issue new JWT with updated roles
-      const payload = user;
-      const accessToken = jwtService.createToken(payload, '15m');
-      const refreshToken = jwtService.createToken(payload, '7d');
+    const { role } = req.body;
+    const userId = req.user?.userId;
+    const user = await this._userService.selectRole(userId, role);
+    // Issue new JWT with updated roles
+    const payload = user;
+    const accessToken = jwtService.createToken(payload, '15m');
+    const refreshToken = jwtService.createToken(payload, '7d');
 
-      res.cookie('accessToken', accessToken, { httpOnly: true, maxAge: 15 * 60 * 1000 });
+    res.cookie('accessToken', accessToken, {
+      httpOnly: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 15 * 60 * 1000,
+    });
 
-      res.status(HttpStatus.OK).json({
-        success: true,
-        message: MESSAGES.USER.ROLE_SELECTED,
-        data: user,
-      });
-    } catch (error: unknown) {
-      throw error;
-    }
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: MESSAGES.USER.ROLE_SELECTED,
+      data: user,
+    });
   }
 
   async me(req: Request, res: Response): Promise<void> {
-    try {
-      const userId = req.user?.userId;
-      const user = await this._userService.me(userId!);
-      const payload = user;
-      const accessToken = jwtService.createToken(payload, '15m');
+    const userId = req.user?.userId;
+    const user = await this._userService.me(userId!);
+    const payload = user;
+    const accessToken = jwtService.createToken(payload, '15m');
 
+    res.cookie('accessToken', accessToken, {
+      httpOnly: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === 'production', // 🔹 must be false on localhost (no HTTPS)
+      sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
+      maxAge: 15 * 60 * 1000,
+    });
 
-      res.cookie('accessToken', accessToken, {
-        httpOnly: true,
-        secure:  process.env.NODE_ENV === 'production', // 🔹 must be false on localhost (no HTTPS)
-        sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
-        maxAge: 15 * 60 * 1000,
-      });
-
-      res.status(HttpStatus.OK).json({
-        success: true,
-        message: MESSAGES.USER.VERIFIED,
-        data: user,
-      });
-    } catch (error: unknown) {
-      throw error;
-    }
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: MESSAGES.USER.VERIFIED,
+      data: user,
+    });
   }
 
   async createFreelancerProfile(req: Request, res: Response): Promise<void> {
-    try {
-      const userId = req.user?.userId;
-      const dto=mapFreelancerDtoToUserModel(req.body)
-      const user = await this._userService.createFreelancerProfile(userId, dto);
+    const userId = req.user?.userId;
 
-      res.status(HttpStatus.OK).json({
-        success: true,
-        message: MESSAGES.Freelancer.UPDATED,
-        data: user,
-      });
-    } catch (error: unknown) {
-      throw error;
-    }
+    const user = await this._userService.createFreelancerProfile(userId, req.body);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: MESSAGES.Freelancer.UPDATED,
+      data: user,
+    });
   }
 
   async createClientProfile(req: Request, res: Response): Promise<void> {
-    try {
-      const userId = req.user!.userId;
-      const dto = mapClientDtoToUserModel(req.body);
-      const user = await this._userService.createClientProfile(userId, dto);
+    const userId = req.user!.userId;
 
-      res.status(HttpStatus.OK).json({
-        success: true,
-        message: MESSAGES.CLIENT.UPDATED,
-        data: user,
-      });
-    } catch (error: unknown) {
-      throw error;
-    }
+    const user = await this._userService.createClientProfile(userId, req.body);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: MESSAGES.CLIENT.UPDATED,
+      data: user,
+    });
   }
 
   async switchRole(req: Request, res: Response): Promise<void> {
-    try {
-      const userId = req.user!.userId;
-      const user = await this._userService.switchRole(userId);
-      const payload = user;
-      const accessToken = jwtService.createToken(payload, '15m');
-      const refreshToken = jwtService.createToken(payload, '7d');
-      console.log(user)
-      res.cookie('accessToken', accessToken, {
-        httpOnly: true,
-        secure:  process.env.NODE_ENV === 'production', // 🔹 must be false on localhost (no HTTPS)
-        sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
-        maxAge: 15 * 60 * 1000,
-      });
+    const userId = req.user!.userId;
+    const user = await this._userService.switchRole(userId);
+    const payload = user;
+    const accessToken = jwtService.createToken(payload, '15m');
+    const refreshToken = jwtService.createToken(payload, '7d');
+    res.cookie('accessToken', accessToken, {
+      httpOnly: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === 'production', // 🔹 must be false on localhost (no HTTPS)
+      sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
+      maxAge: 15 * 60 * 1000,
+    });
 
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure:  process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      });
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
-      res.status(HttpStatus.OK).json({
-        success: true,
-        message: MESSAGES.USER.ROLE_SWITCHED,
-        data: user,
-      });
-    } catch (error: unknown) {
-      throw error;
-    }
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: MESSAGES.USER.ROLE_SWITCHED,
+      data: user,
+    });
+  }
+
+  async getProfile(req: Request, res: Response): Promise<void> {
+    const userId = req.user?.userId;
+    const user = await this._userService.getProfile(userId as string);
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: MESSAGES.USER.FETCH_SUCCESS,
+      data: user,
+    });
+  }
+
+  async getAddress(req: Request, res: Response): Promise<void> {
+    const userId = req.user?.userId;
+    const user = await this._userService.getAddress(userId as string);
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'User Address Fetched Successfully',
+      data: user,
+    });
+  }
+
+  async createActionVerification(req: Request, res: Response): Promise<void> {
+    const userId = req.user?.userId;
+    const { actionType, actionData } = req.body;
+    const user = await this._userService.createActionVerification(
+      userId as string,
+      actionType,
+      actionData,
+    );
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'User Address Fetched Successfully',
+      data: user,
+    });
   }
 }

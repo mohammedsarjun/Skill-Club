@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import AuthGuard from "@/components/AuthGaurd";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/store/slices/authSlice";
+import { userApi } from "@/api/userApi";
 
 
 function OtpPage() {
@@ -76,18 +77,32 @@ function OtpPage() {
   
     const response = await authApi.verifyOtp(email!, otpValue,userId!);
 
-    if (response.success) {
-      toast.success(response.message);
+try {
+  if (!response.success) {
+    return toast.error(response.message);
+  }
 
-      if (response.data.purpose === "signup") {
-        dispatch(setUser(response.data));
-        route.push("/onboarding/role");
-      } else if (response.data.purpose === "forgotPassword") {
-        route.push("/auth/change-password");
-      }
-    } else {
-      toast.error(response.message);
+  toast.success(response.message);
+
+  const { purpose } = response.data;
+
+  if (purpose === "signup") {
+    const hydrateStateResponse = await userApi.me();
+
+    if (!hydrateStateResponse.success) {
+      return toast.error(hydrateStateResponse.message);
     }
+
+    dispatch(setUser(hydrateStateResponse.data));
+    route.push("/onboarding/role");
+  } else if (purpose === "forgotPassword") {
+    route.push("/auth/change-password");
+  }
+} catch (error: unknown) {
+  console.error("An error occurred:", error);
+  toast.error("Something went wrong. Please try again.");
+}
+
   };
 
   const handleResend = async () => {

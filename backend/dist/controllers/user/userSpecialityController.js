@@ -19,18 +19,13 @@ let UserSpecialityController = class UserSpecialityController {
         this._userSpecialityService = userSpecialityService;
     }
     async getSpecialities(req, res) {
-        try {
-            const { categoryId } = req.query;
-            const specialities = await this._userSpecialityService.getSpecialities(categoryId);
-            res.status(HttpStatus.OK).json({
-                success: true,
-                message: MESSAGES.SPECIALITY.FETCH_SUCCESS,
-                data: specialities,
-            });
-        }
-        catch (error) {
-            throw error;
-        }
+        const { categoryId } = req.query;
+        const specialities = await this._userSpecialityService.getSpecialities(categoryId);
+        res.status(HttpStatus.OK).json({
+            success: true,
+            message: MESSAGES.SPECIALITY.FETCH_SUCCESS,
+            data: specialities,
+        });
     }
 };
 UserSpecialityController = __decorate([

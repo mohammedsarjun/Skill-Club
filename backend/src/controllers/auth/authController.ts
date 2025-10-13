@@ -11,7 +11,6 @@ import { jwtService } from '../../utils/jwt.js';
 import { jwtConfig } from '../../config/jwt.config.js';
 import { MESSAGES } from '../../contants/contants.js';
 
-
 @injectable()
 export class AuthController implements IAuthController {
   private _authService: IAuthService;
@@ -24,21 +23,18 @@ export class AuthController implements IAuthController {
     this._otpService = otpService;
   }
   async signup(req: Request, res: Response): Promise<void> {
-    try {
+ 
       const user: GetUserDto = await this._authService.signup(req.body);
-      console.log("successfully created")
+      console.log('successfully created');
       res.status(HttpStatus.CREATED).json({
         success: true,
         message: MESSAGES.USER.CREATED,
         data: user,
       });
-    } catch (error: unknown) {
-      throw error;
-    }
+
   }
 
   async login(req: Request, res: Response): Promise<void> {
-    try {
       const user: UserDto = await this._authService.login(req.body);
 
       // Generate JWT token
@@ -48,17 +44,17 @@ export class AuthController implements IAuthController {
       const refreshToken = jwtService.createToken(payload, jwtConfig.refreshTokenMaxAge);
 
       res.cookie('accessToken', accessToken, {
-        httpOnly: true,
-        secure: false, // 🔹 must be false on localhost (no HTTPS)
+        httpOnly: process.env.NODE_ENV === 'production',
+        secure: process.env.NODE_ENV === 'production', // 🔹 must be false on localhost (no HTTPS)
         sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
-        maxAge: jwtConfig.accessTokenMaxAge*1000
+        maxAge: jwtConfig.accessTokenMaxAge * 1000,
       });
 
       res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: false,
+        httpOnly: process.env.NODE_ENV === 'production',
+        secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        maxAge: jwtConfig.refreshTokenMaxAge
+        maxAge: jwtConfig.refreshTokenMaxAge,
       });
 
       res.status(HttpStatus.OK).json({
@@ -66,38 +62,28 @@ export class AuthController implements IAuthController {
         success: true,
         data: user,
       });
-    } catch (error: unknown) {
-      throw error;
-    }
+  
   }
 
   async logout(req: Request, res: Response): Promise<void> {
-    try{
       const cookieOptions = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: (process.env.NODE_ENV === 'production' ? 'none' : 'lax') as
-        | 'none'
-        | 'lax'
-        | 'strict',
-      path: '/',
-    };
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: (process.env.NODE_ENV === 'production' ? 'none' : 'lax') as
+          | 'none'
+          | 'lax'
+          | 'strict',
+        path: '/',
+      };
 
-    // Clear both cookies
-    res.clearCookie('accessToken', cookieOptions);
-    res.clearCookie('refreshToken', cookieOptions);
+      // Clear both cookies
+      res.clearCookie('accessToken', cookieOptions);
+      res.clearCookie('refreshToken', cookieOptions);
 
-  
-
-    res.status(HttpStatus.OK).json({ message: MESSAGES.AUTH.LOGOUT_SUCCESS });
-    }catch(err:unknown){
-      throw err
-    }
-   
+      res.status(HttpStatus.OK).json({ message: MESSAGES.AUTH.LOGOUT_SUCCESS });
   }
 
   async forgotPassword(req: Request, res: Response): Promise<void> {
-    try {
       const { email } = req.body;
       const user = await this._authService.forgotPassword(email);
       res.status(HttpStatus.OK).json({
@@ -105,13 +91,10 @@ export class AuthController implements IAuthController {
         message: MESSAGES.AUTH.RESET_LINK_SENT,
         data: user,
       });
-    } catch (error: unknown) {
-      throw error;
-    }
+
   }
 
   async resetPassword(req: Request, res: Response): Promise<void> {
-    try {
       const { token, password } = req.body.resetData;
 
       const user = await this._authService.resetPassword(token, password);
@@ -120,8 +103,33 @@ export class AuthController implements IAuthController {
         message: MESSAGES.AUTH.PASSWORD_CHANGED,
         data: user,
       });
-    } catch (error: unknown) {
-      throw error;
-    }
+
+  }
+
+  async verifyPassword(req: Request, res: Response): Promise<void> {
+      const userId = req.user?.userId;
+      const { password } = req.body;
+
+      await this._authService.verifyPassword(userId as string, password);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: MESSAGES.AUTH.PASSWORD_VERIFIED,
+      });
+
+  }
+
+  async createActionVerification(req: Request, res: Response): Promise<void> {
+
+      const userId = req.user?.userId;
+      const { password } = req.body;
+
+      await this._authService.verifyPassword(userId as string, password);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: MESSAGES.AUTH.PASSWORD_VERIFIED,
+      });
+
   }
 }

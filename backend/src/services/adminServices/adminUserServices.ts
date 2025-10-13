@@ -11,6 +11,7 @@ import {
   UserDetailDto,
 } from '../../dto/adminDTO/adminUsers.dto.js';
 import {
+  mapUpdateUserStatusToUserModel,
   mapUserModelDtoToAdminUserDto,
   mapUserModelDtoToAdminUserStatsDto,
   mapUserToUserDetailDto,
@@ -95,7 +96,9 @@ async getUserDetail(id: string): Promise<UserDetailDto> {
   // 3. Return the mapped DTO
   return userDto;
 }
-async updateUserStatus(dto: updateUserStatusDto): Promise<void> {
+async updateUserStatus(userData: updateUserStatusDto): Promise<void> {
+
+  const dto=mapUpdateUserStatusToUserModel(userData) 
   const { id, role, status } = dto;
 
   // 1. Check if user exists

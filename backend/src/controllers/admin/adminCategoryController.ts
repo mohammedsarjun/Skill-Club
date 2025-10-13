@@ -4,11 +4,6 @@ import { injectable, inject } from 'tsyringe';
 import type { IAdminCategoryServices } from '../../services/adminServices/interfaces/IAdminCategoryServices.js';
 import '../../config/container.js';
 import { CreateCategoryDTO, GetCategoryDto, UpdateCategoryDTO } from '../../dto/category.dto.js';
-import {
-  mapCreateCategoryDtoToCategoryModel,
-  mapCategoryQuery,
-  mapUpdateCategoryDtoToCategoryModel,
-} from '../../mapper/category.mapper.js';
 import { HttpStatus } from '../../enums/http-status.enum.js';
 import { MESSAGES } from '../../contants/contants.js';
 
@@ -24,7 +19,6 @@ export class AdminCategoryController implements IAdminCategoryController {
   }
 
   async addCategory(req: Request, res: Response): Promise<void> {
-    try {
       const categoryDto: CreateCategoryDTO = req.body;
       const result = await this.adminCategoryService.addCategory(categoryDto);
       res.status(HttpStatus.CREATED).json({
@@ -32,13 +26,9 @@ export class AdminCategoryController implements IAdminCategoryController {
         message: MESSAGES.CATEGORY.CREATED,
         data: result,
       });
-    } catch (error: unknown) {
-      throw error;
-    }
   }
 
   async editCategory(req: Request, res: Response): Promise<void> {
-    try {
       const dto: UpdateCategoryDTO = req.body;
 
       const result = await this.adminCategoryService.editCategory(dto, dto.id);
@@ -48,9 +38,6 @@ export class AdminCategoryController implements IAdminCategoryController {
         message: MESSAGES.CATEGORY.UPDATED,
         data: result,
       });
-    } catch (error: unknown) {
-      throw error;
-    }
   }
 
   listOrUnlistCategory(req: Request, res: Response): Promise<void> {
@@ -62,7 +49,6 @@ export class AdminCategoryController implements IAdminCategoryController {
   }
 
   async getAllCategory(req: Request, res: Response): Promise<void> {
-    try {
       const dto:GetCategoryDto ={
         search: typeof req.query.search === "string" ? req.query.search : "",
         page:Number(req?.query?.page)||1,
@@ -75,8 +61,5 @@ export class AdminCategoryController implements IAdminCategoryController {
         message: MESSAGES.CATEGORY.FETCH_SUCCESS,
         data: result,
       });
-    } catch (error: unknown) {
-      throw error;
-    }
   }
 }

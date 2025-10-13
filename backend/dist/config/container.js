@@ -7,6 +7,7 @@ container.register("ICategoryRepository", { useClass: CategoryRepository });
 container.register("ISpecialityRepository", { useClass: SpecialityRepository });
 container.register("ISkillRepository", { useClass: SkillRepository });
 container.register("IPortfolioRepository", { useClass: PortfolioRepository });
+container.register("IActionVerificationRepository", { useClass: ActionVerificationRepository });
 //Auth
 import { AuthService } from "../services/authServices/AuthService.js";
 import { OtpService } from "../services/authServices/otpServices.js";
@@ -58,6 +59,7 @@ container.register("IClientRepository", { useClass: ClientRepository });
 import { userCategoryServices } from "../services/userServices/userCategoryService.js";
 import { userSpecialityServices } from "../services/userServices/userSpecialityServices.js";
 import { UserSkillServices } from "../services/userServices/userSkillService.js";
+import { ActionVerificationRepository } from "../repositories/actionVerificationRepository.js";
 container.register("IUserCategoryServices", { useClass: userCategoryServices });
 container.register("IUserSpecialityServices", { useClass: userSpecialityServices });
 container.register("IUserSkillServices", { useClass: UserSkillServices });

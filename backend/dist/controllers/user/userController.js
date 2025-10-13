@@ -14,113 +14,116 @@ import { injectable, inject } from 'tsyringe';
 import '../../config/container.js';
 import { HttpStatus } from '../../enums/http-status.enum.js';
 import { jwtService } from '../../utils/jwt.js';
-import { mapClientDtoToUserModel, mapFreelancerDtoToUserModel, } from '../../mapper/userMapper/user.mapper.js';
 import { MESSAGES } from '../../contants/contants.js';
 let UserController = class UserController {
     constructor(userService) {
         this._userService = userService;
     }
     async selectRole(req, res) {
-        try {
-            const { role } = req.body;
-            const userId = req.user?.userId;
-            const user = await this._userService.selectRole(userId, role);
-            // Issue new JWT with updated roles
-            const payload = user;
-            const accessToken = jwtService.createToken(payload, '15m');
-            const refreshToken = jwtService.createToken(payload, '7d');
-            res.cookie('accessToken', accessToken, { httpOnly: true, maxAge: 15 * 60 * 1000 });
-            res.status(HttpStatus.OK).json({
-                success: true,
-                message: MESSAGES.USER.ROLE_SELECTED,
-                data: user,
-            });
-        }
-        catch (error) {
-            throw error;
-        }
+        const { role } = req.body;
+        const userId = req.user?.userId;
+        const user = await this._userService.selectRole(userId, role);
+        // Issue new JWT with updated roles
+        const payload = user;
+        const accessToken = jwtService.createToken(payload, '15m');
+        const refreshToken = jwtService.createToken(payload, '7d');
+        res.cookie('accessToken', accessToken, {
+            httpOnly: process.env.NODE_ENV === 'production',
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 15 * 60 * 1000,
+        });
+        res.status(HttpStatus.OK).json({
+            success: true,
+            message: MESSAGES.USER.ROLE_SELECTED,
+            data: user,
+        });
     }
     async me(req, res) {
-        try {
-            const userId = req.user?.userId;
-            const user = await this._userService.me(userId);
-            const payload = user;
-            const accessToken = jwtService.createToken(payload, '15m');
-            res.cookie('accessToken', accessToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production', // 🔹 must be false on localhost (no HTTPS)
-                sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
-                maxAge: 15 * 60 * 1000,
-            });
-            res.status(HttpStatus.OK).json({
-                success: true,
-                message: MESSAGES.USER.VERIFIED,
-                data: user,
-            });
-        }
-        catch (error) {
-            throw error;
-        }
+        const userId = req.user?.userId;
+        const user = await this._userService.me(userId);
+        const payload = user;
+        const accessToken = jwtService.createToken(payload, '15m');
+        res.cookie('accessToken', accessToken, {
+            httpOnly: process.env.NODE_ENV === 'production',
+            secure: process.env.NODE_ENV === 'production', // 🔹 must be false on localhost (no HTTPS)
+            sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
+            maxAge: 15 * 60 * 1000,
+        });
+        res.status(HttpStatus.OK).json({
+            success: true,
+            message: MESSAGES.USER.VERIFIED,
+            data: user,
+        });
     }
     async createFreelancerProfile(req, res) {
-        try {
-            const userId = req.user?.userId;
-            const dto = mapFreelancerDtoToUserModel(req.body);
-            const user = await this._userService.createFreelancerProfile(userId, dto);
-            res.status(HttpStatus.OK).json({
-                success: true,
-                message: MESSAGES.Freelancer.UPDATED,
-                data: user,
-            });
-        }
-        catch (error) {
-            throw error;
-        }
+        const userId = req.user?.userId;
+        const user = await this._userService.createFreelancerProfile(userId, req.body);
+        res.status(HttpStatus.OK).json({
+            success: true,
+            message: MESSAGES.Freelancer.UPDATED,
+            data: user,
+        });
     }
     async createClientProfile(req, res) {
-        try {
-            const userId = req.user.userId;
-            const dto = mapClientDtoToUserModel(req.body);
-            const user = await this._userService.createClientProfile(userId, dto);
-            res.status(HttpStatus.OK).json({
-                success: true,
-                message: MESSAGES.CLIENT.UPDATED,
-                data: user,
-            });
-        }
-        catch (error) {
-            throw error;
-        }
+        const userId = req.user.userId;
+        const user = await this._userService.createClientProfile(userId, req.body);
+        res.status(HttpStatus.OK).json({
+            success: true,
+            message: MESSAGES.CLIENT.UPDATED,
+            data: user,
+        });
     }
     async switchRole(req, res) {
-        try {
-            const userId = req.user.userId;
-            const user = await this._userService.switchRole(userId);
-            const payload = user;
-            const accessToken = jwtService.createToken(payload, '15m');
-            const refreshToken = jwtService.createToken(payload, '7d');
-            console.log(user);
-            res.cookie('accessToken', accessToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production', // 🔹 must be false on localhost (no HTTPS)
-                sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
-                maxAge: 15 * 60 * 1000,
-            });
-            res.cookie('refreshToken', refreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'lax',
-                maxAge: 7 * 24 * 60 * 60 * 1000,
-            });
-            res.status(HttpStatus.OK).json({
-                success: true,
-                message: MESSAGES.USER.ROLE_SWITCHED,
-                data: user,
-            });
-        }
-        catch (error) {
-            throw error;
-        }
+        const userId = req.user.userId;
+        const user = await this._userService.switchRole(userId);
+        const payload = user;
+        const accessToken = jwtService.createToken(payload, '15m');
+        const refreshToken = jwtService.createToken(payload, '7d');
+        res.cookie('accessToken', accessToken, {
+            httpOnly: process.env.NODE_ENV === 'production',
+            secure: process.env.NODE_ENV === 'production', // 🔹 must be false on localhost (no HTTPS)
+            sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
+            maxAge: 15 * 60 * 1000,
+        });
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: process.env.NODE_ENV === 'production',
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+        res.status(HttpStatus.OK).json({
+            success: true,
+            message: MESSAGES.USER.ROLE_SWITCHED,
+            data: user,
+        });
+    }
+    async getProfile(req, res) {
+        const userId = req.user?.userId;
+        const user = await this._userService.getProfile(userId);
+        res.status(HttpStatus.OK).json({
+            success: true,
+            message: MESSAGES.USER.FETCH_SUCCESS,
+            data: user,
+        });
+    }
+    async getAddress(req, res) {
+        const userId = req.user?.userId;
+        const user = await this._userService.getAddress(userId);
+        res.status(HttpStatus.OK).json({
+            success: true,
+            message: 'User Address Fetched Successfully',
+            data: user,
+        });
+    }
+    async createActionVerification(req, res) {
+        const userId = req.user?.userId;
+        const { actionType, actionData } = req.body;
+        const user = await this._userService.createActionVerification(userId, actionType, actionData);
+        res.status(HttpStatus.OK).json({
+            success: true,
+            message: 'User Address Fetched Successfully',
+            data: user,
+        });
     }
 };
 UserController = __decorate([

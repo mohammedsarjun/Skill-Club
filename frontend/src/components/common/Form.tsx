@@ -29,7 +29,7 @@ interface DynamicFormProps {
   onSubmit: (data: any, mode: string) => void;
   mode?: "create" | "update";
   onClose: () => void;
-  validationSchema?: ZodSchema;
+  validationSchema?: ZodSchema|null;
   title?: string;
   layout?: "vertical" | "horizontal"; // ✅ NEW prop
 }

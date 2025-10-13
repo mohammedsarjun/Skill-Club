@@ -7,6 +7,7 @@ export declare const MESSAGES: {
         UNAUTHORIZED: string;
         RESET_LINK_SENT: string;
         PASSWORD_CHANGED: string;
+        PASSWORD_VERIFIED: string;
     };
     Freelancer: {
         UPDATED: string;

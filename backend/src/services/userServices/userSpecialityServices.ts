@@ -1,5 +1,4 @@
 import { injectable, inject } from 'tsyringe';
-import AppError from '../../utils/AppError.js';
 import { IUserSpecialityServices } from './interfaces/IUserSpecialityServices.js';
 import type { ISpecialityRepository } from '../../repositories/interfaces/ISpecialityRepository.js';
 import { SpecialityDtoMinimal } from '../../dto/speciality.dto.js';

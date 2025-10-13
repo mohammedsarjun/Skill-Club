@@ -18,28 +18,27 @@ import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import { setUser } from "@/store/slices/authSlice";
 import { adminAuthApi } from "@/api/adminAuthApi";
+import VerifyAuthAdmin from "@/components/verifyAdmin";
 type LayoutProps = {
   children: ReactNode;
 };
 
-
-
 function AdminLayout({ children }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname(); // ✅ get current path
-  const dispatch=useDispatch()
-  const router=useRouter()
+  const dispatch = useDispatch();
+  const router = useRouter();
 
-    const handleLogout = async () => {
-      try {
-        await adminAuthApi.logout();
-        dispatch(setUser(null));
-        router.push("/admin/login");
-      } catch (err) {
-        console.error("Logout failed", err);
-      }
-    };
-  
+  const handleLogout = async () => {
+    try {
+      await adminAuthApi.logout();
+      dispatch(setUser(null));
+      router.push("/admin/login");
+    } catch (err) {
+      console.error("Logout failed", err);
+    }
+  };
+
   // Helper function to style active link
   const linkClasses = (path: string) =>
     `group flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
@@ -81,7 +80,7 @@ function AdminLayout({ children }: LayoutProps) {
             <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
               <div className="py-2">
                 <a
-                onClick={handleLogout}
+                  onClick={handleLogout}
                   href="#"
                   className="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                 >
@@ -173,8 +172,8 @@ function AdminLayout({ children }: LayoutProps) {
 
 export default function AdminPageLayout({ children }: LayoutProps) {
   return (
-    <AdminAuthGuard>
+    <VerifyAuthAdmin>
       <AdminLayout>{children}</AdminLayout>
-    </AdminAuthGuard>
+    </VerifyAuthAdmin>
   );
 }

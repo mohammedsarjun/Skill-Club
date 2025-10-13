@@ -1,7 +1,7 @@
 import AppError from "../utils/AppError.js";
 import { appLogger } from "../utils/logger.js";
+import { HttpStatus } from "../enums/http-status.enum.js";
 export const errorHandler = (err, req, res, next) => {
-    // Log the error with context
     appLogger.error("❌ Error:", {
         message: err.message,
         stack: err.stack,
@@ -16,7 +16,7 @@ export const errorHandler = (err, req, res, next) => {
         });
     }
     // For unexpected errors
-    res.status(500).json({
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Something went wrong on the server.",
         error: err.message,
