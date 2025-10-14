@@ -183,113 +183,238 @@ const UserManagementPage: React.FC = () => {
       />
 
       {/* View Modal */}
-      {isModalOpen && viewUser && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-3/4 max-w-2xl p-6 shadow-lg relative">
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 font-bold"
-            >
-              X
-            </button>
+ {isModalOpen && viewUser && (
+  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-xl w-full max-w-3xl shadow-2xl relative max-h-[90vh] overflow-hidden flex flex-col">
+      {/* Header */}
+      <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-gray-800">User Details</h2>
+        <button
+          onClick={() => setIsModalOpen(false)}
+          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
 
-            {/* Tabs */}
-            <div className="flex border-b mb-4">
-              <button
-                className={`px-4 py-2 ${activeTab === "overview" ? "border-b-2 border-blue-500 font-semibold" : ""}`}
-                onClick={() => setActiveTab("overview")}
-              >
-                Overview
-              </button>
+      {/* Tabs */}
+      <div className="flex border-b border-gray-200 px-6 bg-gray-50">
+        <button
+          className={`px-6 py-3 font-medium transition-colors relative ${
+            activeTab === "overview"
+              ? "text-blue-600 border-b-2 border-blue-600"
+              : "text-gray-600 hover:text-gray-800"
+          }`}
+          onClick={() => setActiveTab("overview")}
+        >
+          Overview
+        </button>
 
-              {viewUser.clientDetail && (
-                <button
-                  className={`px-4 py-2 ${activeTab === "client" ? "border-b-2 border-blue-500 font-semibold" : ""}`}
-                  onClick={() => setActiveTab("client")}
-                >
-                  Client
-                </button>
-              )}
+        {viewUser.clientDetail && (
+          <button
+            className={`px-6 py-3 font-medium transition-colors relative ${
+              activeTab === "client"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-600 hover:text-gray-800"
+            }`}
+            onClick={() => setActiveTab("client")}
+          >
+            Client
+          </button>
+        )}
 
-              {viewUser.freelancerDetail && (
-                <button
-                  className={`px-4 py-2 ${activeTab === "freelancer" ? "border-b-2 border-blue-500 font-semibold" : ""}`}
-                  onClick={() => setActiveTab("freelancer")}
-                >
-                  Freelancer
-                </button>
-              )}
+        {viewUser.freelancerDetail && (
+          <button
+            className={`px-6 py-3 font-medium transition-colors relative ${
+              activeTab === "freelancer"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-600 hover:text-gray-800"
+            }`}
+            onClick={() => setActiveTab("freelancer")}
+          >
+            Freelancer
+          </button>
+        )}
+      </div>
+
+      {/* Tab Content */}
+      <div className="p-6 overflow-y-auto flex-1">
+        {/* Overview Tab */}
+        {activeTab === "overview" && (
+          <div className="space-y-4">
+            <div className="bg-gray-50 rounded-lg p-4">
+              <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Name</label>
+              <p className="text-lg text-gray-900 mt-1">{viewUser.name}</p>
+            </div>
+            
+            <div className="bg-gray-50 rounded-lg p-4">
+              <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Email</label>
+              <p className="text-lg text-gray-900 mt-1">{viewUser.email}</p>
+            </div>
+            
+            <div className="bg-gray-50 rounded-lg p-4">
+              <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Phone</label>
+              <p className="text-lg text-gray-900 mt-1">{viewUser.phone || "N/A"}</p>
+            </div>
+            
+            <div className="bg-gray-50 rounded-lg p-4">
+              <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Roles</label>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {viewUser.roles.map((role, idx) => (
+                  <span key={idx} className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                    {role}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Client Tab */}
+        {activeTab === "client" && (
+          <div className="space-y-4">
+            <div className="bg-gray-50 rounded-lg p-4">
+              <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Company Name</label>
+              <p className="text-lg text-gray-900 mt-1">{viewUser.clientDetail?.companyName || "N/A"}</p>
+            </div>
+            
+            <div className="bg-gray-50 rounded-lg p-4">
+              <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Logo</label>
+              <div className="mt-2">
+                {viewUser.clientDetail?.companyLogo ? (
+                  <img src={viewUser.clientDetail.companyLogo} className="w-20 h-20 rounded-lg object-cover border-2 border-gray-200" alt="Company logo" />
+                ) : (
+                  <span className="text-gray-500">N/A</span>
+                )}
+              </div>
+            </div>
+            
+            <div className="bg-gray-50 rounded-lg p-4">
+              <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Website</label>
+              <p className="text-lg text-gray-900 mt-1">{viewUser.clientDetail?.website || "N/A"}</p>
+            </div>
+            
+            <div className="bg-gray-50 rounded-lg p-4">
+              <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Description</label>
+              <p className="text-gray-900 mt-1 leading-relaxed">{viewUser.clientDetail?.companyDescription || "N/A"}</p>
             </div>
 
-            {/* Tab Content */}
-            <div className="space-y-2">
-              {/* Overview Tab */}
-              {activeTab === "overview" && (
-                <>
-                  <p><strong>Name:</strong> {viewUser.name}</p>
-                  <p><strong>Email:</strong> {viewUser.email}</p>
-                  <p><strong>Phone:</strong> {viewUser.phone || "N/A"}</p>
-                  <p><strong>Roles:</strong> {viewUser.roles.join(",")}</p>
-                </>
-              )}
-
-              {/* Client Tab */}
-              {activeTab === "client" && (
-                <>
-                  <p><strong>Company Name:</strong> {viewUser.clientDetail?.companyName || "N/A"}</p>
-                  <p>
-                    <strong>Logo:</strong>{" "}
-                    {viewUser.clientDetail?.companyLogo ? <img src={viewUser.clientDetail.companyLogo} className="w-16 h-16" /> : "N/A"}
-                  </p>
-                  <p><strong>Website:</strong> {viewUser.clientDetail?.website || "N/A"}</p>
-                  <p><strong>Description:</strong> {viewUser.clientDetail?.companyDescription || "N/A"}</p>
-
-                  {confirmBlock === `client-${viewUser.id}` ? (
-                    <div className="flex space-x-2 mt-2">
-                      <button onClick={() => handleBlockClient(viewUser.id)} className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"><FaCheck /></button>
-                      <button onClick={() => setConfirmBlock(null)} className="px-3 py-1 bg-gray-400 text-white rounded hover:bg-gray-500"><FaTimes /></button>
-                    </div>
-                  ) : (
-                    <button
-                      className={`mt-2 px-4 py-2 rounded ${viewUser.isClientBlocked ? "bg-green-500 hover:bg-green-600" : "bg-red-500 hover:bg-red-600"} text-white`}
-                      onClick={() => setConfirmBlock(`client-${viewUser.id}`)}
+            <div className="pt-4 border-t border-gray-200">
+              {confirmBlock === `client-${viewUser.id}` ? (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <p className="text-sm text-gray-700 mb-3 font-medium">Are you sure you want to {viewUser.isClientBlocked ? "unblock" : "block"} this client?</p>
+                  <div className="flex space-x-3">
+                    <button 
+                      onClick={() => handleBlockClient(viewUser.id)} 
+                      className="flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
                     >
-                      {viewUser.isClientBlocked ? "Unblock Client" : "Block Client"}
+                      <FaCheck className="mr-2" /> Confirm
                     </button>
-                  )}
-                </>
-              )}
-
-              {/* Freelancer Tab */}
-              {activeTab === "freelancer" && (
-                <>
-                  <p>
-                    <strong>Logo:</strong>{" "}
-                    {viewUser.freelancerDetail?.freelancerLogo ? <img src={viewUser.freelancerDetail.freelancerLogo} className="w-16 h-16" /> : "N/A"}
-                  </p>
-                  <p><strong>Professional Role:</strong> {viewUser.freelancerDetail?.professionalRole || "N/A"}</p>
-                  <p><strong>Hourly Rate:</strong> {viewUser.freelancerDetail?.hourlyRate ? `$${viewUser.freelancerDetail.hourlyRate}` : "N/A"}</p>
-                  <p><strong>Languages:</strong> {viewUser.freelancerDetail?.languages?.join(", ") || "N/A"}</p>
-
-                  {confirmBlock === `freelancer-${viewUser.id}` ? (
-                    <div className="flex space-x-2 mt-2">
-                      <button onClick={() => handleBlockFreelancer(viewUser.id)} className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"><FaCheck /></button>
-                      <button onClick={() => setConfirmBlock(null)} className="px-3 py-1 bg-gray-400 text-white rounded hover:bg-gray-500"><FaTimes /></button>
-                    </div>
-                  ) : (
-                    <button
-                      className={`mt-2 px-4 py-2 rounded ${viewUser.isFreelancerBlocked ? "bg-green-500 hover:bg-green-600" : "bg-red-500 hover:bg-red-600"} text-white`}
-                      onClick={() => setConfirmBlock(`freelancer-${viewUser.id}`)}
+                    <button 
+                      onClick={() => setConfirmBlock(null)} 
+                      className="flex items-center justify-center px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium"
                     >
-                      {viewUser.isFreelancerBlocked ? "Unblock Freelancer" : "Block Freelancer"}
+                      <FaTimes className="mr-2" /> Cancel
                     </button>
-                  )}
-                </>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  className={`w-full py-3 rounded-lg font-semibold transition-colors ${
+                    viewUser.isClientBlocked
+                      ? "bg-green-600 hover:bg-green-700 text-white"
+                      : "bg-red-600 hover:bg-red-700 text-white"
+                  }`}
+                  onClick={() => setConfirmBlock(`client-${viewUser.id}`)}
+                >
+                  {viewUser.isClientBlocked ? "Unblock Client" : "Block Client"}
+                </button>
               )}
             </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {/* Freelancer Tab */}
+        {activeTab === "freelancer" && (
+          <div className="space-y-4">
+            <div className="bg-gray-50 rounded-lg p-4">
+              <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Logo</label>
+              <div className="mt-2">
+                {viewUser.freelancerDetail?.freelancerLogo ? (
+                  <img src={viewUser.freelancerDetail.freelancerLogo} className="w-20 h-20 rounded-lg object-cover border-2 border-gray-200" alt="Freelancer logo" />
+                ) : (
+                  <span className="text-gray-500">N/A</span>
+                )}
+              </div>
+            </div>
+            
+            <div className="bg-gray-50 rounded-lg p-4">
+              <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Professional Role</label>
+              <p className="text-lg text-gray-900 mt-1">{viewUser.freelancerDetail?.professionalRole || "N/A"}</p>
+            </div>
+            
+            <div className="bg-gray-50 rounded-lg p-4">
+              <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Hourly Rate</label>
+              <p className="text-lg text-gray-900 mt-1 font-semibold">
+                {viewUser.freelancerDetail?.hourlyRate ? `$${viewUser.freelancerDetail.hourlyRate}` : "N/A"}
+              </p>
+            </div>
+            
+            <div className="bg-gray-50 rounded-lg p-4">
+              <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Languages</label>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {viewUser.freelancerDetail?.languages?.length ? (
+                  viewUser.freelancerDetail.languages.map((lang, idx) => (
+                    <span key={idx} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
+                      {lang}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-gray-500">N/A</span>
+                )}
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-gray-200">
+              {confirmBlock === `freelancer-${viewUser.id}` ? (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <p className="text-sm text-gray-700 mb-3 font-medium">Are you sure you want to {viewUser.isFreelancerBlocked ? "unblock" : "block"} this freelancer?</p>
+                  <div className="flex space-x-3">
+                    <button 
+                      onClick={() => handleBlockFreelancer(viewUser.id)} 
+                      className="flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                    >
+                      <FaCheck className="mr-2" /> Confirm
+                    </button>
+                    <button 
+                      onClick={() => setConfirmBlock(null)} 
+                      className="flex items-center justify-center px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium"
+                    >
+                      <FaTimes className="mr-2" /> Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  className={`w-full py-3 rounded-lg font-semibold transition-colors ${
+                    viewUser.isFreelancerBlocked
+                      ? "bg-green-600 hover:bg-green-700 text-white"
+                      : "bg-red-600 hover:bg-red-700 text-white"
+                  }`}
+                  onClick={() => setConfirmBlock(`freelancer-${viewUser.id}`)}
+                >
+                  {viewUser.isFreelancerBlocked ? "Unblock Freelancer" : "Block Freelancer"}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 };

@@ -27,13 +27,13 @@ let AdminAuthController = class AdminAuthController {
         const refreshToken = jwtService.createToken(payload, jwtConfig.refreshTokenMaxAge);
         res.cookie('accessToken', accessToken, {
             httpOnly: true,
-            secure: false,
+            secure: process.env.NODE_ENV == 'production',
             sameSite: 'lax',
             maxAge: jwtConfig.accessTokenMaxAge * 1000,
         });
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            secure: false,
+            secure: process.env.NODE_ENV == 'production',
             sameSite: 'lax',
             maxAge: jwtConfig.refreshTokenMaxAge * 1000,
         });
@@ -59,6 +59,15 @@ let AdminAuthController = class AdminAuthController {
         res.status(HttpStatus.OK).json({ message: MESSAGES.AUTH.LOGOUT_SUCCESS });
     }
     async me(req, res) {
+        const payload = { userId: 'admin_1', roles: ['admin'], activeRole: 'admin' };
+        const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
+        const refreshToken = jwtService.createToken(payload, jwtConfig.refreshTokenMaxAge);
+        res.cookie('accessToken', accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV == 'production',
+            sameSite: 'lax',
+            maxAge: jwtConfig.accessTokenMaxAge * 1000,
+        });
         res.status(HttpStatus.OK).json({
             success: true,
             message: MESSAGES.ADMIN.VERIFIED,

@@ -46,6 +46,7 @@ const AdminActionApi = {
           mode,
         },
       });
+
       return response.data;
     } catch (error: any) {
       return error.response.data;
@@ -136,6 +137,7 @@ const AdminActionApi = {
         adminEndPoint.adminCreateSkills,
         data
       );
+
       return response.data;
     } catch (error: any) {
       return error.response.data;
@@ -158,7 +160,7 @@ const AdminActionApi = {
           mode,
         },
       });
-      console.log(response.data);
+
       return response.data;
     } catch (error: any) {
       return error.response.data;

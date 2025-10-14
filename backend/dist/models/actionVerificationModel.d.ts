@@ -1,4 +1,4 @@
-import { IUserActionVerification } from "./interfaces/IActionVerificationModel.js";
+import { IUserActionVerification } from './interfaces/IActionVerificationModel.js';
 export declare const UserActionVerificationModel: import("mongoose").Model<IUserActionVerification, {}, {}, {}, import("mongoose").Document<unknown, {}, IUserActionVerification, {}, {}> & IUserActionVerification & Required<{
     _id: unknown;
 }> & {

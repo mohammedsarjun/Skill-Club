@@ -5,7 +5,13 @@ import { HttpStatus } from "../enums/http-status.enum.js";
 // Extend Express Request to include user
 declare module "express-serve-static-core" {
   interface Request {
-    user?: { userId: string; roles: string[] };
+    user?: {
+      userId: string;
+      roles: string[];
+      activeRole: string;
+      isClientBlocked:boolean
+      isFreelancerBlocked:boolean
+    };
   }
 }
 
@@ -17,7 +23,11 @@ export function  authMiddleware(req: Request, res: Response, next: NextFunction)
     }
 
     // Verify token
-    const decoded = jwtService.verifyToken<{ userId: string; roles: string[]; activeRole:string;}>(token);
+    const decoded = jwtService.verifyToken<{   userId: string;
+      roles: string[];
+      activeRole: string;
+      isClientBlocked:boolean
+      isFreelancerBlocked:boolean}>(token);
 
     // Attach to request object
     req.user = decoded;

@@ -28,6 +28,7 @@ let FreelancerService = class FreelancerService {
             if (!freelancerData || !freelancerData.freelancerProfile) {
                 throw new AppError(ERROR_MESSAGES.FREELANCER.NOT_FOUND, HttpStatus.NOT_FOUND);
             }
+            console.log(freelancerData);
             const freelancerDto = mapFreelancerToDTO(freelancerData);
             return freelancerDto;
         }

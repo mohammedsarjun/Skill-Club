@@ -1,127 +1,9 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
+import React from "react";
 import { FaShieldAlt, FaEnvelope } from "react-icons/fa";
 
-import { uploadToCloudinary } from "@/utils/cloudinary";
-import { clientActionApi } from "@/api/action/ClientActionApi";
-import toast from "react-hot-toast";
-import { ClientProfileData } from "@/types/interfaces/IClient";
+function FreelancerBlockPage() {
 
-function ClientProfilePage() {
-  const [profileData, setProfileData] = useState<Partial<ClientProfileData>>({
-    companyName: "Tech Solutions Inc.",
-    description:
-      "We are a leading technology company specializing in innovative software solutions for businesses of all sizes. Our team of expert developers and designers work together to create cutting-edge applications that drive growth and efficiency.",
-    website: "https://www.techsolutions.com",
-  });
-
-  const [originalData, setOriginalData] = useState<ClientProfileData & { logo: string }>({
-    companyName: "",
-    description: "",
-    website: "",
-    logo: "",
-  });
-
-  const [isEditing, setIsEditing] = useState(false);
-  const [logo, setLogo] = useState<string>(
-    "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&dpr=1"
-  );
-  const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    async function fetchData() {
-      const response = await clientActionApi.getClientData();
-      if (response.success) {
-        const data = response.data;
-        setProfileData({
-          companyName: data.companyName,
-          description: data.description,
-          website: data.website,
-        });
-        setLogo(data.logo);
-        setOriginalData({
-          companyName: data.companyName,
-          description: data.description,
-          website: data.website,
-          logo: data.logo,
-        });
-      } else {
-        toast.error(response.message);
-      }
-    }
-
-    fetchData();
-  }, []);
-
-  const handleInputChange = (field: keyof ClientProfileData, value: string) => {
-    setProfileData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-
-      // Show temporary preview
-      const previewUrl = URL.createObjectURL(file);
-      setLogo(previewUrl);
-
-      try {
-        setUploading(true);
-        const uploadedUrl = await uploadToCloudinary(file);
-        setLogo(uploadedUrl);
-      } catch (err) {
-        console.error("Upload failed:", err);
-        alert("Failed to upload logo. Please try again.");
-      } finally {
-        setUploading(false);
-      }
-    }
-  };
-
-  const handleSave = async () => {
-    setIsEditing(false);
-
-    const updatedFields: Partial<ClientProfileData & { logo: string }> = {};
-
-    if (profileData.companyName !== originalData.companyName) updatedFields.companyName = profileData.companyName;
-    if (profileData.description !== originalData.description) updatedFields.description = profileData.description;
-    if (profileData.website !== originalData.website) updatedFields.website = profileData.website;
-    if (logo !== originalData.logo) updatedFields.logo = logo;
-
-    if (Object.keys(updatedFields).length === 0) {
-      toast("No changes to save");
-      return;
-    }
-
-    try {
-
-      const response = await clientActionApi.updateClientData(updatedFields);
-      if (response.success) {
-        toast.success(response.message);
-        setOriginalData({ ...originalData, ...updatedFields });
-      } else {
-        toast.error(response.message);
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to update profile");
-    }
-  };
-
-  const handleCancel = () => {
-    setIsEditing(false);
-    setProfileData({
-      companyName: originalData.companyName,
-      description: originalData.description,
-      website: originalData.website,
-    });
-    setLogo(originalData.logo);
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4">
@@ -161,6 +43,6 @@ function ClientProfilePage() {
   );
 }
 
-export default function ClientProfile() {
-  return <ClientProfilePage />;
+export default function FreelancerBlock() {
+  return <FreelancerBlockPage />;
 }

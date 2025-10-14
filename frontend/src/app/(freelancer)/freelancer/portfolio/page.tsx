@@ -14,10 +14,12 @@ import { z } from 'zod';
 import { portfolioSchema } from '@/utils/validation';
 import { freelancerActionApi } from '@/api/action/FreelancerActionApi';
 import toast from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
 // ✅ Cloudinary upload helper
 export const uploadToCloudinary = async (file: File, folder = "portfolio_uploads") => {
   if (!file) throw new Error("No file provided");
+
 
   const uploadPreset = process.env.NEXT_PUBLIC_UPLOAD_PRESET;
   const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
@@ -85,7 +87,7 @@ export default function PortfolioCreator() {
   const [videoPreview, setVideoPreview] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-
+  const router=useRouter()
   const projectTypes: string[] = [
     'Web App',
     'Mobile App',
@@ -216,6 +218,7 @@ export default function PortfolioCreator() {
 
       if (response.success) {
         console.log(response.data);
+        router.replace("/freelancer/profile")
         toast.success("Portfolio created successfully!");
       } else {
         toast.error(response.message);

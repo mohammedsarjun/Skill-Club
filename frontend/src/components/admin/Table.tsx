@@ -1,20 +1,33 @@
 import {
-  FaPlus, // Plus
-  FaEdit, // Edit
-  FaTrashAlt, // Trash2
-  FaTag, // Tag
-  FaSearch, // Search
+  FaPlus,
+  FaEdit,
+  FaTrashAlt,
 } from "react-icons/fa";
-
-import { Dispatch, SetStateAction } from "react";
-// components/Admin/CategorySkills/Table.tsx
-import { useState } from "react";
-
+import { Dispatch, SetStateAction, useState } from "react";
 import Button from "../common/Button";
 import Input from "../common/Input";
-import DynamicForm from "../common/Form";
 
-// Define interfaces for props
+// Utils to render cell dynamically
+const renderCell = (value: any) => {
+  if (Array.isArray(value)) {
+    return value.map((item, index) => (
+      <button
+        key={index}
+        className="px-2 py-1 mx-1 rounded-lg bg-blue-500 text-white text-xs"
+      >
+        {typeof item === "string" ? item : item?.name || JSON.stringify(item)}
+      </button>
+    ));
+  }
+
+  if (typeof value === "object" && value !== null) {
+    return value.name || JSON.stringify(value);
+  }
+
+  return value;
+};
+
+// Types
 interface Column {
   key: string;
   label: string;
@@ -26,7 +39,6 @@ interface Filter {
   options: Record<string, any>[];
 }
 
-// Field types
 type FieldType = "text" | "number" | "textarea" | "checkbox" | "select";
 
 interface SelectOption {
@@ -45,7 +57,7 @@ interface Field {
 interface TableProps {
   title: string;
   columns: Column[];
-  data: Record<string, any>[]; // array of objects
+  data: Record<string, any>[];
   filters?: Filter[];
   addButtonLabel?: string;
   formFields?: Field[] | undefined;
@@ -82,15 +94,8 @@ const Table: React.FC<TableProps> = ({
   setFilters,
   activeFilters,
 }) => {
-  // const [activeFilters, setActiveFilters] = useState<Record<string, string>>(
-  //   {}
-  // );
-
-  // Filter data based on search + dropdown filters\
-
-  let filteredData: Record<string, any>[] = [];
-
-  filteredData = data;
+  // You can add your filter/search logic here
+  let filteredData = data;
 
   return (
     <div>
@@ -102,7 +107,7 @@ const Table: React.FC<TableProps> = ({
             type="text"
             placeholder="Search ..."
             onChange={(e) => setSearch(e.target.value)}
-          ></Input>
+          />
 
           {/* Filters */}
           {filters.length > 0 &&
@@ -133,7 +138,7 @@ const Table: React.FC<TableProps> = ({
             content={addButtonLabel}
             type="button"
             onClick={handleOpenModal}
-          ></Button>
+          />
         )}
       </div>
 
@@ -141,6 +146,7 @@ const Table: React.FC<TableProps> = ({
         <div className="px-6 py-4 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
         </div>
+
         <div className="overflow-x-auto">
           {/* Table */}
           <table className="min-w-full divide-y divide-gray-200">
@@ -159,6 +165,7 @@ const Table: React.FC<TableProps> = ({
                 </th>
               </tr>
             </thead>
+
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredData.length ? (
                 filteredData.map((row, index) => (
@@ -167,26 +174,16 @@ const Table: React.FC<TableProps> = ({
                       <td key={col.key} className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="text-sm font-medium text-gray-900">
-                            {Array.isArray(row[col.key])
-                              ? (row[col.key] as string[]).map(
-                                  (role, index) => (
-                                    <button
-                                      key={index}
-                                      className="px-2 py-1 mx-1 rounded-lg bg-blue-500 text-white text-xs"
-                                    >
-                                      {role}
-                                    </button>
-                                  )
-                                )
-                              : row[col.key]}
+                            {renderCell(row[col.key])}
                           </div>
                         </div>
                       </td>
                     ))}
+
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                       {viewOnly ? (
                         <span
-                          className="text-green-600"
+                          className="text-green-600 cursor-pointer"
                           onClick={() => handleOpenViewModal?.(row)}
                         >
                           View
@@ -201,10 +198,7 @@ const Table: React.FC<TableProps> = ({
                           </button>
 
                           {canDelete && (
-                            <button
-                              className="text-red-600 hover:text-red-900"
-                              // onClick={() => handleDelete(row.id)}
-                            >
+                            <button className="text-red-600 hover:text-red-900">
                               <FaTrashAlt />
                             </button>
                           )}
@@ -225,7 +219,7 @@ const Table: React.FC<TableProps> = ({
         </div>
       </div>
 
-      {/* Simple Pagination Placeholder */}
+      {/* Simple Pagination */}
       <div className="mt-4 flex justify-end">
         <button
           className="px-3 py-1 border rounded mx-1"

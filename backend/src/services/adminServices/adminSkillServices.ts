@@ -71,6 +71,8 @@ export class AdminSkillServices implements IAdminSkillServices {
     // Map to DTO
 
     const data: SkillDto[] = result!.map(mapSkillModelToSkillDto);
+
+    
     return {
       data,
       total,

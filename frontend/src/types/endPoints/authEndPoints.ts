@@ -9,7 +9,8 @@ const authenticationRoutes = {
     resetPassword:"/auth/reset-password",
     logout:"/auth/logout",
     googleLogin:"/auth/google",
-    verifyPassword:"/auth/verify-password"
+    verifyPassword:"/auth/verify-password",
+    refreshToken:"/auth/refresh-token"
 
 
 }

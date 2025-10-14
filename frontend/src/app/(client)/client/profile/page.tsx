@@ -11,7 +11,7 @@ function ClientProfilePage() {
     companyName: "Tech Solutions Inc.",
     description:
       "We are a leading technology company specializing in innovative software solutions for businesses of all sizes. Our team of expert developers and designers work together to create cutting-edge applications that drive growth and efficiency.",
-    website: "https://www.techsolutions.com",
+    website: "",
   });
 
   const [originalData, setOriginalData] = useState<ClientProfileData & { logo: string }>({
@@ -23,7 +23,7 @@ function ClientProfilePage() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [logo, setLogo] = useState<string>(
-    "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&dpr=1"
+    ""
   );
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);

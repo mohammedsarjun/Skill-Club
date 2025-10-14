@@ -296,7 +296,7 @@ const DynamicManagementPage: React.FC = () => {
       ];
       data = skillsData.map((skill) => ({
         ...skill,
-        specialities: skill.specialities?.map((s: any) => s.name), // array of strings
+        specialities: skill.specialities?.map((s: any) => ({id:s.id,name:s.name})), // array of strings
       }));
 
       filters = [
@@ -351,6 +351,7 @@ const DynamicManagementPage: React.FC = () => {
         name: values.name || "",
         description: values.description || "",
         status: values.status || "list",
+
       });
     } else if (activeTab === "specialties") {
       setEditInitialValues({
@@ -360,13 +361,16 @@ const DynamicManagementPage: React.FC = () => {
         status: values.status,
       });
     } else if (activeTab === "skills") {
+      console.log(values)
       setEditInitialValues({
         id:values.id,
         name: values.name || "",
-        specialties: {id:values.id,name:values.name}, // here `description` can hold specialtyName
+        specialties: values.specialities.map((spec:{name:string,id:string})=>spec.id), // here `description` can hold specialtyName
          status: values.status,
       });
     }
+
+
 
     setIsEditModalOpen(true);
   }
@@ -470,14 +474,8 @@ const DynamicManagementPage: React.FC = () => {
       {/* Edit Modal */}
       {isEditModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center ">
-          <div className="bg-white rounded-lg p-6 relative w-1/3">
-            <button
-              onClick={() => setIsEditModalOpen(false)}
-              className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
-            >
-              ✕
-            </button>
-            <h2 className="text-lg font-semibold mb-4">Edit</h2>
+
+            
 
             <DynamicForm
               title={
@@ -565,13 +563,15 @@ const DynamicManagementPage: React.FC = () => {
                         options: specialtiesData.map((spec) => ({
                           label: spec.name,
                           value: spec.id, // send id to backend
+                          
                         })),
+                      
                       },
                       {
                         name: "status",
                         type: "select",
                         options: [
-                          { label: "List", value: "list" },
+                          { label: "List", value: "list"},
                           { label: "UnList", value: "unlist" },
                         ],
                         label: "Status",
@@ -595,7 +595,7 @@ const DynamicManagementPage: React.FC = () => {
                   : skillSchema
               }
             />
-          </div>
+ 
         </div>
       )}
     </div>

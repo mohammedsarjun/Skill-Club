@@ -26,7 +26,6 @@ let UserController = class UserController {
         // Issue new JWT with updated roles
         const payload = user;
         const accessToken = jwtService.createToken(payload, '15m');
-        const refreshToken = jwtService.createToken(payload, '7d');
         res.cookie('accessToken', accessToken, {
             httpOnly: process.env.NODE_ENV === 'production',
             secure: process.env.NODE_ENV === 'production',

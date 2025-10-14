@@ -115,7 +115,9 @@ function FreelancerProfilePage(): JSX.Element {
           period: `${edu.startYear} - ${edu.endYear}`,
         }));
         setEducation(responseEducation);
-        setSkills(response.data.skills);
+        console.log(response.data.skills)
+        const skill=response.data.skills.map((skill:{name:string,id:string})=>skill.name)
+        setSkills(skill);
         setPortfolio(response.data.portfolio);
         const responseWorkHistory = response.data.experiences.map(
           (exp: any) => ({

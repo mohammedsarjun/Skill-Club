@@ -5,7 +5,12 @@ export class FreelancerRepository extends BaseRepository {
         super(User);
     }
     async getFreelancerById(userId) {
-        return this.findOne({ _id: userId, roles: 'freelancer' });
+        return this.findOne({ _id: userId, roles: 'freelancer' }, {
+            populate: {
+                path: 'freelancerProfile.skills',
+                select: '_id name',
+            },
+        });
     }
     async addLanguageToFreelancerProfile(userId, language) {
         return this.update(userId, { $push: { 'freelancerProfile.languages': language } });

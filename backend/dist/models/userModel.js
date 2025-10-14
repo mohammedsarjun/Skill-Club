@@ -41,7 +41,7 @@ const freelancerProfileSchema = new Schema({
     logo: String,
     workCategory: String,
     specialties: [String],
-    skills: [String],
+    skills: [{ type: Schema.Types.ObjectId, ref: 'skill' }],
     professionalRole: String,
     experiences: [experienceSchema],
     education: [educationSchema],

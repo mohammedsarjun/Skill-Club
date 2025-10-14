@@ -4,6 +4,9 @@ declare module "express-serve-static-core" {
         user?: {
             userId: string;
             roles: string[];
+            activeRole: string;
+            isClientBlocked: boolean;
+            isFreelancerBlocked: boolean;
         };
     }
 }

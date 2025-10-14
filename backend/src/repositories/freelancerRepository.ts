@@ -4,6 +4,7 @@ import BaseRepository from './baseRepositories/baseRepository.js';
 import { IFreelancerRepository } from './interfaces/IFreelancerRepository.js';
 import { UpdateQuery } from 'mongoose';
 import { UpdateLanguageDTO } from '../dto/freelancer.dto.js';
+import { populate } from 'dotenv';
 
 export class FreelancerRepository extends BaseRepository<IUser> implements IFreelancerRepository {
   constructor() {
@@ -11,7 +12,15 @@ export class FreelancerRepository extends BaseRepository<IUser> implements IFree
   }
 
   async getFreelancerById(userId: string) {
-    return this.findOne({ _id: userId, roles: 'freelancer' });
+    return this.findOne(
+      { _id: userId, roles: 'freelancer' },
+      {
+        populate: {
+          path: 'freelancerProfile.skills',
+          select: '_id name',
+        },
+      },
+    );
   }
 
   async addLanguageToFreelancerProfile(
@@ -29,6 +38,6 @@ export class FreelancerRepository extends BaseRepository<IUser> implements IFree
   }
 
   async updateFreelancerProfile(userId: string, data: Record<string, any>): Promise<IUser | null> {
-    return this.update(userId,data)
+    return this.update(userId, data);
   }
 }

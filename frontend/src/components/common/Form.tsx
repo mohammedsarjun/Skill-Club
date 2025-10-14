@@ -5,12 +5,14 @@ import Input from "./Input";
 import Button from "./Button";
 import { ZodSchema, ZodError } from "zod";
 import React from "react";
+import { detectArrayType } from "@/utils/arrayUtils";
 
 type FieldType = "text" | "number" | "textarea" | "checkbox" | "select";
 
 interface SelectOption {
   label: string|number;
   value: string | number;
+  checked?:boolean
 }
 
 interface Field {
@@ -48,7 +50,7 @@ const DynamicFormModal: React.FC<DynamicFormProps> = ({
     ...initialValues,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-
+console.log(formData)
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -125,7 +127,7 @@ const DynamicFormModal: React.FC<DynamicFormProps> = ({
   const formFlex = layout === "horizontal" ? "flex-wrap" : "flex-col";
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50">
       <div
         className={`bg-secondary rounded-xl shadow-lg w-11/12 ${containerWidth} p-6 relative`}
       >
@@ -193,10 +195,14 @@ const DynamicFormModal: React.FC<DynamicFormProps> = ({
                       <div key={field.name} className="space-y-1 flex-1">
                         {field.options ? (
                           field.options.map((opt) => {
-                            const valueArray = Array.isArray(formData[field.name])
+                            let valueArray = Array.isArray(formData[field.name])
                               ? formData[field.name]
                               : [];
-                            const isChecked = valueArray.includes(opt.value);
+                               let isChecked=false
+                               if(detectArrayType(valueArray)=="Array of objects"){
+                                valueArray=valueArray.map((arr:{name:string,id:string})=>arr.id)
+                               }
+                               isChecked = valueArray.includes(opt.value);
                             return (
                               <label
                                 key={opt.value}
@@ -248,7 +254,7 @@ const DynamicFormModal: React.FC<DynamicFormProps> = ({
                             Select {field.label}
                           </option>
                           {field.options?.map((opt) => (
-                            <option key={opt.value} value={opt.value}>
+                            <option key={opt.value} value={opt.value} >
                               {opt.label}
                             </option>
                           ))}

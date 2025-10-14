@@ -40,8 +40,9 @@ export class FreelancerService implements IFreelancerService {
         throw new AppError(ERROR_MESSAGES.FREELANCER.NOT_FOUND, HttpStatus.NOT_FOUND);
       }
 
+      console.log(freelancerData)
       const freelancerDto = mapFreelancerToDTO(freelancerData);
-
+      
       return freelancerDto;
     } catch (error) {
       throw new AppError(ERROR_MESSAGES.FREELANCER.FETCH_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);

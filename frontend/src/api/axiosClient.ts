@@ -1,5 +1,5 @@
-import axios from "axios";
-
+import authenticationRoutes from "@/types/endPoints/authEndPoints";
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 
 export const axiosClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
@@ -19,51 +19,27 @@ axiosClient.interceptors.request.use(
 );
 
 
+
 let isRefreshing = false;
 let failedQueue: any[] = [];
 
-const processQueue = (error: any = null) => {
-  failedQueue.forEach((p) => (error ? p.reject(error) : p.resolve()));
+const processQueue = (error: any, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) prom.reject(error);
+    else prom.resolve(token);
+  });
   failedQueue = [];
 };
 
 
-const guestEndpoints = [
-  "/login",
-  "/signup",
-  "/admin/login",
-  "/otp",
-  "/forgot-password",
-  "/reset-password",
-  "/",
-];
-
-
 axiosClient.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-
-    const originalRequest = error.config;
-
-
-    if (
-      originalRequest.url?.includes("auth/refresh-token") ||
-      originalRequest.url?.includes("auth/logout")
-    ) {
-      return Promise.reject(error);
-    }
-
+  (response: AxiosResponse) => response,
+  async (error: AxiosError) => {
+    const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
 
     if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-
-      if (guestEndpoints.some((ep) => originalRequest.url?.includes(ep))) {
-        return Promise.reject(error);
-      }
-
-
       if (isRefreshing) {
+
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
@@ -71,24 +47,27 @@ axiosClient.interceptors.response.use(
           .catch((err) => Promise.reject(err));
       }
 
+      originalRequest._retry = true;
       isRefreshing = true;
 
-      return new Promise(async (resolve, reject) => {
-        try {
-          await axiosClient.post("/auth/refresh-token"); 
-          isRefreshing = false;
-          processQueue(); 
-          resolve(axiosClient(originalRequest));
-        } catch (err) {
-          isRefreshing = false;
-          processQueue(err);
-          window.location.href = "/login"; 
-          reject(err);
-        }
-      });
-    }
+      try {
 
+        await axiosClient.post(authenticationRoutes.refreshToken);
+
+        processQueue(null);
+        return axiosClient(originalRequest); 
+      } catch (err) {
+        processQueue(err);
+        // Refresh failed — redirect to login
+        console.log(err)
+
+        return Promise.reject(err);
+      } finally {
+        isRefreshing = false;
+      }
+    }
 
     return Promise.reject(error);
   }
 );
+
