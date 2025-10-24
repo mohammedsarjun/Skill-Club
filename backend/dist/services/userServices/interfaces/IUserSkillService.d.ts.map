@@ -1,1 +1,0 @@
-{"version":3,"file":"IUserSkillService.d.ts","sourceRoot":"","sources":["../../../../src/services/userServices/interfaces/IUserSkillService.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,kBAAkB,EAAE,MAAM,2BAA2B,CAAC;AAE/D,MAAM,WAAW,kBAAkB;IAC/B,kBAAkB,CAAC,YAAY,EAAC,MAAM,EAAE,GAAE,OAAO,CAAC,kBAAkB,EAAE,GAAC,IAAI,CAAC,CAAC;CAChF"}

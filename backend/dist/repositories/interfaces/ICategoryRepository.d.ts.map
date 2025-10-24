@@ -1,1 +1,0 @@
-{"version":3,"file":"ICategoryRepository.d.ts","sourceRoot":"","sources":["../../../src/repositories/interfaces/ICategoryRepository.ts"],"names":[],"mappings":"AAAA,OAAO,cAAc,MAAM,uCAAuC,CAAC;AACnE,OAAO,EAAE,SAAS,EAAE,MAAM,2CAA2C,CAAC;AAEtE,MAAM,WAAW,mBAAoB,SAAQ,cAAc,CAAC,SAAS,CAAC;IAClE,aAAa,IAAG,OAAO,CAAC,SAAS,EAAE,GAAC,IAAI,CAAC,CAAA;CAC5C"}

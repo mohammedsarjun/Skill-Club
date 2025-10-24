@@ -1,1 +1,0 @@
-{"version":3,"file":"IUserSpecialityController.d.ts","sourceRoot":"","sources":["../../../../src/controllers/user/interfaces/IUserSpecialityController.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,QAAQ,EAAE,MAAM,SAAS,CAAC;AAC5C,MAAM,WAAW,yBAAyB;IACxC,eAAe,CAAC,GAAG,EAAE,OAAO,EAAE,GAAG,EAAE,QAAQ,GAAG,OAAO,CAAC,IAAI,CAAC,CAAC;CAC7D"}

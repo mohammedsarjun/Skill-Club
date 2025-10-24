@@ -1,1 +1,0 @@
-{"version":3,"file":"client.dto.d.ts","sourceRoot":"","sources":["../../../src/dto/clientDTO/client.dto.ts"],"names":[],"mappings":"AAAA,MAAM,WAAW,YAAY;IAC3B,WAAW,EAAE,MAAM,CAAC;IACpB,IAAI,CAAC,EAAE,MAAM,GAAG,SAAS,CAAC;IAC1B,WAAW,CAAC,EAAE,MAAM,CAAC;IACrB,OAAO,CAAC,EAAE,MAAM,CAAC;CAClB;AAED,MAAM,WAAW,eAAe;IAC9B,aAAa,EAAE,OAAO,CAAC,YAAY,CAAC,CAAC;CACtC"}

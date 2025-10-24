@@ -1,1 +1,0 @@
-{"version":3,"file":"actionVerification.dto.d.ts","sourceRoot":"","sources":["../../src/dto/actionVerification.dto.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,KAAK,EAAE,MAAM,UAAU,CAAC;AAEjC,MAAM,WAAW,2BAA2B;IACxC,MAAM,EAAC,KAAK,CAAC,QAAQ,CAAC;IACtB,UAAU,EAAC,aAAa,GAAG,eAAe,GAAG,aAAa,CAAE;IAC5D,UAAU,EAAC,MAAM,CAAC,MAAM,EAAC,GAAG,CAAC,CAAA;CAChC"}
