@@ -1,1 +1,0 @@
-{"version":3,"file":"googleAuth.dto.d.ts","sourceRoot":"","sources":["../../../src/dto/authDTO/googleAuth.dto.ts"],"names":[],"mappings":"AACA,MAAM,WAAW,mBAAmB;IAClC,GAAG,EAAE,MAAM,CAAC;IACZ,WAAW,EAAE,MAAM,CAAC;IACpB,UAAU,EAAE,MAAM,CAAC;IACnB,KAAK,EAAE,MAAM,CAAC;IACd,OAAO,EAAE,MAAM,CAAC;CACjB"}

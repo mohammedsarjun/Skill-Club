@@ -1,4 +1,0 @@
-D:\Brototype files\Skill-Club\backend\logs\20251012-0000-01-access.log.gz
-D:\Brototype files\Skill-Club\backend\logs\20251020-0000-01-access.log.gz
-D:\Brototype files\Skill-Club\backend\logs\20251021-0000-01-access.log.gz
-D:\Brototype files\Skill-Club\backend\logs\20251022-0000-01-access.log.gz

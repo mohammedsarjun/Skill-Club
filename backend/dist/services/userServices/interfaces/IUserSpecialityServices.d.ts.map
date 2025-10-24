@@ -1,1 +1,0 @@
-{"version":3,"file":"IUserSpecialityServices.d.ts","sourceRoot":"","sources":["../../../../src/services/userServices/interfaces/IUserSpecialityServices.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,oBAAoB,EAAE,MAAM,gCAAgC,CAAC;AAEtE,MAAM,WAAW,uBAAuB;IACpC,eAAe,CAAC,UAAU,EAAC,MAAM,GAAE,OAAO,CAAC,oBAAoB,EAAE,GAAC,IAAI,CAAE,CAAC;CAC5E"}
