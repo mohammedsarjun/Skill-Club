@@ -1,46 +1,11 @@
-import mongoose, { Document, Schema } from "mongoose";
-
-// ------------------- Interfaces -------------------
-interface IAddress {
-  country: string;
-  streetAddress: string;
-  city: string;
-  state: string;
-  zipCode: string;
-}
-
-interface ILanguage {
-  name: string;
-  proficiency: string; 
-}
-
-interface IFreelancerProfile {
-  workField: string;
-  skills: string[];
-  professionalRole: string;
-  experience: string;
-  education: string;
-  languages: ILanguage[];
-  bio: string;
-  hourlyRate: number;
-  weeklyHours: number;
-  portfolio: string;
-}
-
-export interface IUser extends Document {
-  firstname: string;
-  lastname: string;
-  email: string;
-  phone: string;
-  password: string;
-  address: IAddress;
-  dob: Date;
-  isVerified: boolean;
-  roles: string[];
-  freelancerProfile: IFreelancerProfile;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import mongoose, { Schema } from 'mongoose';
+import {
+  IUser,
+  IAddress,
+  IFreelancerProfile,
+  IExperience,
+  IEducation,
+} from './interfaces/i-user.model.js';
 
 // ------------------- Schemas -------------------
 const addressSchema = new Schema<IAddress>({
@@ -51,40 +16,87 @@ const addressSchema = new Schema<IAddress>({
   zipCode: String,
 });
 
-const languageSchema = new Schema<ILanguage>({
-  name: String,
-  proficiency: String,
+const languageSchema = new Schema({
+  name: {
+    type: String,
+    enum: ['English', 'Tamil', 'Hindi', 'Spanish'],
+    required: true,
+  },
+  proficiency: {
+    type: String,
+    enum: ['Conversational', 'Fluent'],
+    required: true,
+  },
+});
+
+const experienceSchema = new Schema<IExperience>({
+  title: String,
+  company: String,
+  location: String,
+  country: String,
+  isCurrentRole: Boolean,
+  startMonth: String,
+  startYear: Number,
+  endMonth: String,
+  endYear: Number,
+});
+
+const educationSchema = new Schema<IEducation>({
+  school: String,
+  degree: String,
+  fieldOfStudy: String,
+  startYear: Number,
+  endYear: Number,
 });
 
 const freelancerProfileSchema = new Schema<IFreelancerProfile>({
-  workField: String,
-  skills: [String],
+  logo: String,
+  workCategory: { type: Schema.Types.ObjectId, ref: 'category' },
+  specialties: [{ type: Schema.Types.ObjectId, ref: 'speciality' }],
+  skills: [{ type: Schema.Types.ObjectId, ref: 'skill' }],
   professionalRole: String,
-  experience: String,
-  education: String,
+  experiences: [experienceSchema],
+  education: [educationSchema],
   languages: [languageSchema],
   bio: String,
   hourlyRate: Number,
-  weeklyHours: Number,
-  portfolio: String,
+  portfolio: [],
+});
+
+// ------------------- Client Profile -------------------
+const clientProfileSchema = new Schema({
+  companyName: { type: String, required: true },
+  logo: String,
+  description: String,
+  website: String,
+  location: String,
 });
 
 const userSchema = new Schema<IUser>(
   {
-    firstname: { type: String, required: true },
-    lastname: { type: String, required: true },
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+    googleId: { type: String, required: false },
     email: { type: String, required: true, unique: true },
-    phone: { type: String, required: true },
-    password: { type: String, required: true },
+    phone: { type: Number, required: false },
+    password: { type: String, required: false },
+    avatar: { type: String },
     address: addressSchema,
     dob: Date,
     isVerified: { type: Boolean, default: false },
-    roles: { type: [String], default: ["user"] },
+    isFreelancerBlocked: { type: Boolean, default: false },
+    isClientBlocked: { type: Boolean, default: false },
+    roles: { type: [String] },
+    activeRole: String,
     freelancerProfile: freelancerProfileSchema,
+    clientProfile: clientProfileSchema, // ✅ Added here
+    isOnboardingCompleted: { type: Boolean, default: false },
+    resetPasswordToken: { type: String, default: undefined },
+    resetPasswordExpires: { type: Date, default: undefined },
+    provider: { type: String, enum: ['local', 'google'], default: 'local' },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // ------------------- Model -------------------
-const User = mongoose.model<IUser>("User", userSchema);
-export default User;
+export const User = mongoose.model<IUser>('User', userSchema);

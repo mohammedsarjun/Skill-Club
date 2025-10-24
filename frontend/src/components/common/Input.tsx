@@ -8,9 +8,11 @@ type InputProps = {
   fullWidth?: boolean;
   rounded?: boolean;
   className?: string;
-  error?: string;
+  error?: string|number;
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void
   name?: string;
+  hidden?:boolean
+  disabled?:boolean
 };
 
 export default function Input({
@@ -23,7 +25,10 @@ export default function Input({
   className = "",
   error = "",
   onBlur,
-  name = ""
+  name = "",
+  hidden,
+  disabled=false
+
 }: InputProps) {
   const [showPassword, setShowPassword] = useState(false);
   const isPasswordType = type === "password";
@@ -39,6 +44,7 @@ export default function Input({
           onChange={onChange}
           onBlur={onBlur}
           name={name}
+          disabled={disabled}
           className={`
             ${fullWidth ? "w-full" : "w-auto"}
             ${rounded ? "rounded" : ""}
@@ -46,6 +52,7 @@ export default function Input({
             ${isPasswordType ? "pr-12" : ""}
             ${className}
           `}
+          hidden={hidden}
         />
         {isPasswordType && (
           <button

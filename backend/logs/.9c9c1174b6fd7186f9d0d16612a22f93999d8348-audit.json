@@ -1,0 +1,100 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 30
+    },
+    "auditLog": "D:\\Brototype files\\Skill-Club\\backend\\logs\\.9c9c1174b6fd7186f9d0d16612a22f93999d8348-audit.json",
+    "files": [
+        {
+            "date": 1759561814352,
+            "name": "D:\\Brototype files\\Skill-Club\\backend\\logs\\app-2025-10-04.log",
+            "hash": "772945acc151541acc2681daaf0d5b2fe2cc2011d9c8e8b6fbc2b13cbfa53787"
+        },
+        {
+            "date": 1759733381416,
+            "name": "D:\\Brototype files\\Skill-Club\\backend\\logs\\app-2025-10-06.log",
+            "hash": "c5ae96cee433239b1d8aeb124758c3f9c1977df17451f0d2dd6c54f81dc04b7c"
+        },
+        {
+            "date": 1759810404661,
+            "name": "D:\\Brototype files\\Skill-Club\\backend\\logs\\app-2025-10-07.log",
+            "hash": "a52e1852167762c5f17bc17a998b68e22c6a0e4fd71aa29c79395cca644cbfa3"
+        },
+        {
+            "date": 1759906376281,
+            "name": "D:\\Brototype files\\Skill-Club\\backend\\logs\\app-2025-10-08.log",
+            "hash": "bb56a6d5c3e9080ebc8c38271281d5fbd2d9190d5c9db559e0765cd61c1a5c0e"
+        },
+        {
+            "date": 1759981515416,
+            "name": "D:\\Brototype files\\Skill-Club\\backend\\logs\\app-2025-10-09.log",
+            "hash": "296c1a3b6351c4e263d4cbee7edb435c8fa9762bdc352f31523f40048b88040d"
+        },
+        {
+            "date": 1760067596544,
+            "name": "D:\\Brototype files\\Skill-Club\\backend\\logs\\app-2025-10-10.log",
+            "hash": "0af6cfabbe85b0a88e2b00a8bf911a424562e270824a5c953f0f60ca7809b954"
+        },
+        {
+            "date": 1760154130915,
+            "name": "D:\\Brototype files\\Skill-Club\\backend\\logs\\app-2025-10-11.log",
+            "hash": "7380b16f0af92dca4459185b5f6be1220b32d64d0c8f29e2e0c718d764ca1738"
+        },
+        {
+            "date": 1760209328690,
+            "name": "D:\\Brototype files\\Skill-Club\\backend\\logs\\app-2025-10-12.log",
+            "hash": "e1cbed464ec046b0279120ca04652267937daaa5128962603036e87c617212d8"
+        },
+        {
+            "date": 1760330995118,
+            "name": "D:\\Brototype files\\Skill-Club\\backend\\logs\\app-2025-10-13.log",
+            "hash": "09056a6914a28ef7492edea1c67855072a54ad22e9b0e11d3bb68236ee705625"
+        },
+        {
+            "date": 1760413193752,
+            "name": "D:\\Brototype files\\Skill-Club\\backend\\logs\\app-2025-10-14.log",
+            "hash": "de5c5d1e0fd3afc4bbc2cc06a077a37d02ad69f3b9d8ee62b75a4517dc4989c9"
+        },
+        {
+            "date": 1760591196142,
+            "name": "D:\\Brototype files\\Skill-Club\\backend\\logs\\app-2025-10-16.log",
+            "hash": "ee1add472512d5d61ce954bcccb6737fdaca89e8c4614670e591acf45fa6cec4"
+        },
+        {
+            "date": 1760760334862,
+            "name": "D:\\Brototype files\\Skill-Club\\backend\\logs\\app-2025-10-18.log",
+            "hash": "a657ec83bfdb133ee98adb59a3d4988c1ea04ff680b0d42914abd5b31a4cb0cd"
+        },
+        {
+            "date": 1760896215843,
+            "name": "D:\\Brototype files\\Skill-Club\\backend\\logs\\app-2025-10-19.log",
+            "hash": "fd066fba0948659bcb29a600671edf4f7190be7682ca504153a24232ccc48239"
+        },
+        {
+            "date": 1760899724665,
+            "name": "D:\\Brototype files\\Skill-Club\\backend\\logs\\app-2025-10-20.log",
+            "hash": "b83a0fb29e4d1e514c54cb992d15369b95aaee79f950037d0925e572fa10e490"
+        },
+        {
+            "date": 1760989993695,
+            "name": "D:\\Brototype files\\Skill-Club\\backend\\logs\\app-2025-10-21.log",
+            "hash": "6f2845717275813933a6387af4e2101f69bee55fe6a12cdc85b41659fd94755e"
+        },
+        {
+            "date": 1761108825232,
+            "name": "D:\\Brototype files\\Skill-Club\\backend\\logs\\app-2025-10-22.log",
+            "hash": "051fdd21c662a4fe134834e874323039a0444834d5a53c94b0c0e241375360a9"
+        },
+        {
+            "date": 1761190638541,
+            "name": "D:\\Brototype files\\Skill-Club\\backend\\logs\\app-2025-10-23.log",
+            "hash": "08de4498378096ee97cb2d7be81b1c4ed78c98926932600c438f6673c3aaec69"
+        },
+        {
+            "date": 1761277783841,
+            "name": "D:\\Brototype files\\Skill-Club\\backend\\logs\\app-2025-10-24.log",
+            "hash": "92988db5b736240e02a8750908049cbf70a21999aa3b4126c7d260743c0624ca"
+        }
+    ],
+    "hashType": "sha256"
+}

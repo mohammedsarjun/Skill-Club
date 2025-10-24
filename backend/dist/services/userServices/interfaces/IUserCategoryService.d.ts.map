@@ -1,0 +1,1 @@
+{"version":3,"file":"IUserCategoryService.d.ts","sourceRoot":"","sources":["../../../../src/services/userServices/interfaces/IUserCategoryService.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,kBAAkB,EAAE,MAAM,8BAA8B,CAAC;AAElE,MAAM,WAAW,qBAAqB;IAClC,gBAAgB,IAAG,OAAO,CAAC,kBAAkB,EAAE,GAAC,IAAI,CAAE,CAAC;CAC1D"}

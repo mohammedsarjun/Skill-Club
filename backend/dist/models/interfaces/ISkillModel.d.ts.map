@@ -1,0 +1,1 @@
+{"version":3,"file":"ISkillModel.d.ts","sourceRoot":"","sources":["../../../src/models/interfaces/ISkillModel.ts"],"names":[],"mappings":"AAAA,OAAiB,EAAE,QAAQ,EAAU,MAAM,UAAU,CAAC;AACtD,OAAO,EAAE,KAAK,EAAE,MAAM,UAAU,CAAC;AACjC,MAAM,WAAW,MAAO,SAAQ,QAAQ;IACpC,GAAG,EAAC,MAAM,CAAA;IACV,IAAI,EAAE,MAAM,CAAC;IACb,YAAY,EAAC,KAAK,CAAC,QAAQ,EAAE,CAAC;IAC9B,MAAM,EAAC,MAAM,CAAC;CACjB"}
