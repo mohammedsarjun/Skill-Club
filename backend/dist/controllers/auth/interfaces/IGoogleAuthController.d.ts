@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
+import { Request, Response } from 'express';
 export interface IGoogleAuthController {
-    googleLogin(req: Request, res: Response): Promise<void>;
+  googleLogin(req: Request, res: Response): Promise<void>;
 }
 //# sourceMappingURL=IGoogleAuthController.d.ts.map

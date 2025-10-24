@@ -6,6 +6,7 @@ import {
   FaPlay,
   FaChevronLeft,
   FaChevronRight,
+  FaTrash,
 } from 'react-icons/fa';
 
 import { IPortfolio } from '@/types/interfaces/IFreelancer'; 
@@ -13,9 +14,10 @@ interface PortfolioModalProps {
   portfolio: IPortfolio;
   isOpen: boolean;
   onClose: () => void;
+  onDelete?: (id: string) => void; // optional delete handler
 }
 
-export default function PortfolioModal({ portfolio, isOpen, onClose }: PortfolioModalProps) {
+export default function PortfolioModal({ portfolio, isOpen, onClose, onDelete }: PortfolioModalProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
 
@@ -43,13 +45,24 @@ export default function PortfolioModal({ portfolio, isOpen, onClose }: Portfolio
       <div className="bg-white rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-fadeIn">
         <div className="sticky top-0 bg-white z-10 border-b border-gray-200 px-6 py-4 flex justify-between items-center">
           <h2 className="text-2xl font-bold text-gray-900">{portfolio.title}</h2>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            aria-label="Close modal"
-          >
-            <FaTimes className="w-6 h-6 text-gray-600" />
-          </button>
+          <div className="flex gap-2">
+            {onDelete && (
+              <button
+                onClick={() => onDelete(portfolio.id)}
+                className="p-2 hover:bg-red-100 rounded-full transition-colors"
+                aria-label="Delete portfolio"
+              >
+                <FaTrash className="w-6 h-6 text-red-600" />
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              aria-label="Close modal"
+            >
+              <FaTimes className="w-6 h-6 text-gray-600" />
+            </button>
+          </div>
         </div>
 
         <div className="p-6 space-y-6">

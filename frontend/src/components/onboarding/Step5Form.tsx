@@ -84,9 +84,9 @@ export default function StepFiveForm({ onBack, onNext }: StepFiveProps) {
       setErrors(fieldErrors);
       return;
     }
-
     // Save to local state
     setExperiences(prev => {
+    
       const updated = [...prev, formData];
       dispatch(updateFreelancerData({ experiences: updated })); // persist to Redux
       return updated;

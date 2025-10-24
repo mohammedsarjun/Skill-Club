@@ -18,7 +18,6 @@ export default function StepThreeForm({
   const [skills, setSkills] = useState<{ value: string; label: string }[]>([]);
   const [input, setInput] = useState("");
   const [suggestedSkills, setSuggestedSkills] = useState([
-    { value: "javaScript", label: "JavaScript" },
   ]);
 
   // ✅ Load saved skills if available
@@ -121,8 +120,8 @@ export default function StepThreeForm({
       {/* Suggested skills */}
       <p className="text-gray-700 mb-2 font-medium">Suggested skills</p>
       <div className="flex flex-wrap gap-2 mb-8">
-        {suggestedSkills.map((s) => {
-          const isSelected = skills.some((skill) => skill.value === s.value);
+        {skills && suggestedSkills.map((s:{value:string,label:string}) => {
+          const isSelected = skills.some((skill:{value:string}) => skill.value === s.value);
           const isDisabled = skills.length >= MAX_SKILLS && !isSelected;
 
           return (

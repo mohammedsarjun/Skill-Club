@@ -1,4 +1,3 @@
-
 import { useState, ChangeEvent, FormEvent } from "react";
 import { FaTimes } from "react-icons/fa";
 import Input from "./Input";
@@ -7,12 +6,18 @@ import { ZodSchema, ZodError } from "zod";
 import React from "react";
 import { detectArrayType } from "@/utils/arrayUtils";
 
-type FieldType = "text" | "number" | "textarea" | "checkbox" | "select";
+type FieldType =
+  | "text"
+  | "number"
+  | "textarea"
+  | "checkbox"
+  | "select"
+  | "password";
 
 interface SelectOption {
-  label: string|number;
+  label: string | number;
   value: string | number;
-  checked?:boolean
+  checked?: boolean;
 }
 
 interface Field {
@@ -23,6 +28,10 @@ interface Field {
   options?: SelectOption[];
   hidden?: boolean;
   group?: string; // ✅ for side-by-side fields
+  hideOnCheck?: {
+    field: string; // the checkbox field name
+    value?: any; // optional value (if multiple options)
+  };
 }
 
 interface DynamicFormProps {
@@ -31,7 +40,7 @@ interface DynamicFormProps {
   onSubmit: (data: any, mode: string) => void;
   mode?: "create" | "update";
   onClose: () => void;
-  validationSchema?: ZodSchema|null;
+  validationSchema?: ZodSchema | null;
   title?: string;
   layout?: "vertical" | "horizontal"; // ✅ NEW prop
 }
@@ -50,7 +59,7 @@ const DynamicFormModal: React.FC<DynamicFormProps> = ({
     ...initialValues,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-console.log(formData)
+  console.log(formData);
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -85,6 +94,7 @@ console.log(formData)
     if (validationSchema) {
       try {
         validationSchema.parse(formData);
+
         setErrors({});
       } catch (err) {
         if (err instanceof ZodError) {
@@ -122,8 +132,7 @@ console.log(formData)
   });
 
   // ✅ Layout style
-  const containerWidth =
-    layout === "horizontal" ? "max-w-5xl" : "max-w-lg"; // widen form in horizontal mode
+  const containerWidth = layout === "horizontal" ? "max-w-5xl" : "max-w-lg"; // widen form in horizontal mode
   const formFlex = layout === "horizontal" ? "flex-wrap" : "flex-col";
 
   return (
@@ -144,17 +153,56 @@ console.log(formData)
 
         <form
           onSubmit={handleSubmit}
-          className={`space-y-4 ${layout === "horizontal" ? "grid grid-cols-2 gap-4" : ""}`}
+          className={`space-y-4 ${
+            layout === "horizontal" ? "grid grid-cols-2 gap-4" : ""
+          }`}
         >
           {Object.values(groupedFields).map((group, i) => (
             <div
               key={i}
-              className={`flex ${group.length > 1 ? "gap-4" : "flex-col"} ${formFlex}`}
+              className={`flex ${
+                group.length > 1 ? "gap-4" : "flex-col"
+              } ${formFlex}`}
             >
               {group.map((field) => {
+                console.log("hi");
+                // Skip rendering fields that should be hidden
+                if (field.hideOnCheck) {
+                  const conditionField = field.hideOnCheck.field;
+                  const conditionValue = field.hideOnCheck.value;
+
+                  const conditionData = formData[conditionField];
+
+                  const isArray = Array.isArray(conditionData);
+                  const shouldHide = conditionValue
+                    ? isArray
+                      ? conditionData.includes(conditionValue)
+                      : conditionData === conditionValue
+                    : !!conditionData; // hide if checkbox is checked (true)
+
+                  if (shouldHide) return null;
+                }
+
                 switch (field.type) {
                   case "text":
                   case "number":
+                    return (
+                      <div key={field.name} className="flex-1">
+                        <p className="text-black">{field.label}</p>
+                        <Input
+                          key={field.name}
+                          type={field.type}
+                          name={field.name}
+                          value={formData[field.name] || ""}
+                          placeholder={field.placeholder}
+                          onChange={handleChange}
+                          error={errors[field.name]}
+                          hidden={field.hidden}
+                        />
+                      </div>
+                    );
+
+                  case "password":
                     return (
                       <div key={field.name} className="flex-1">
                         <p className="text-black">{field.label}</p>
@@ -198,11 +246,15 @@ console.log(formData)
                             let valueArray = Array.isArray(formData[field.name])
                               ? formData[field.name]
                               : [];
-                               let isChecked=false
-                               if(detectArrayType(valueArray)=="Array of objects"){
-                                valueArray=valueArray.map((arr:{name:string,id:string})=>arr.id)
-                               }
-                               isChecked = valueArray.includes(opt.value);
+                            let isChecked = false;
+                            if (
+                              detectArrayType(valueArray) == "Array of objects"
+                            ) {
+                              valueArray = valueArray.map(
+                                (arr: { name: string; id: string }) => arr.id
+                              );
+                            }
+                            isChecked = valueArray.includes(opt.value);
                             return (
                               <label
                                 key={opt.value}
@@ -254,7 +306,7 @@ console.log(formData)
                             Select {field.label}
                           </option>
                           {field.options?.map((opt) => (
-                            <option key={opt.value} value={opt.value} >
+                            <option key={opt.value} value={opt.value}>
                               {opt.label}
                             </option>
                           ))}

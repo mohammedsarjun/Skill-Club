@@ -5,29 +5,38 @@ import {
   ISkills,
   ISpeaciality,
 } from "@/types/interfaces/IAdmin";
+import axios from "axios";
 
 const AdminActionApi = {
-  createCategory: async (data: IcategoryData): Promise<any> => {
+  createCategory: async (data: IcategoryData) => {
     try {
       const response = await axiosClient.post(
         adminEndPoint.adminCreateCategory,
         data
       );
       return response.data;
-    } catch (error: any) {
-      return error.response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
     }
   },
 
-  updateCategory: async (data: IcategoryData): Promise<any> => {
+  updateCategory: async (data: IcategoryData) => {
     try {
       const response = await axiosClient.patch(
         adminEndPoint.adminUpdateCategory,
         data
       );
       return response.data;
-    } catch (error: any) {
-      return error.response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
     }
   },
   getCategories: async (
@@ -35,8 +44,7 @@ const AdminActionApi = {
     page: number = 1,
     limit: number = 10,
     mode: string = "detailed"
-  ): Promise<any> => {
-
+  ) => {
     try {
       const response = await axiosClient.get(adminEndPoint.adminGetCategories, {
         params: {
@@ -48,32 +56,44 @@ const AdminActionApi = {
       });
 
       return response.data;
-    } catch (error: any) {
-      return error.response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
     }
   },
 
-  createSpeciality: async (data: IcategoryData): Promise<any> => {
+  createSpeciality: async (data: IcategoryData) => {
     try {
       const response = await axiosClient.post(
         adminEndPoint.adminCreateSpeciality,
         data
       );
       return response.data;
-    } catch (error: any) {
-      return error.response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
     }
   },
 
-  updateSpeciality: async (data: ISpeaciality): Promise<any> => {
+  updateSpeciality: async (data: ISpeaciality) => {
     try {
       const response = await axiosClient.patch(
         adminEndPoint.adminUpdateSpeciality,
         data
       );
       return response.data;
-    } catch (error: any) {
-      return error.response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
     }
   },
 
@@ -83,9 +103,8 @@ const AdminActionApi = {
     limit: number = 10,
     filter: Record<string, any>,
     mode: string = "detailed"
-  ): Promise<any> => {
+  )=> {
     try {
-      console.log(filter);
       const response = await axiosClient.get(adminEndPoint.adminGetSpeciality, {
         params: {
           search,
@@ -95,9 +114,14 @@ const AdminActionApi = {
           mode,
         },
       });
+
       return response.data;
-    } catch (error: any) {
-      return error.response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
     }
   },
 
@@ -105,8 +129,12 @@ const AdminActionApi = {
     try {
       const response = await axiosClient.get(adminEndPoint.adminGetUserStats);
       return response.data;
-    } catch (error: any) {
-      return error.response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
     }
   },
 
@@ -127,11 +155,15 @@ const AdminActionApi = {
       });
 
       return response.data;
-    } catch (error: any) {
-      return error.response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
     }
   },
-  createSkill: async (data: ISkills): Promise<any> => {
+  createSkill: async (data: ISkills) => {
     try {
       const response = await axiosClient.post(
         adminEndPoint.adminCreateSkills,
@@ -139,8 +171,12 @@ const AdminActionApi = {
       );
 
       return response.data;
-    } catch (error: any) {
-      return error.response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
     }
   },
   getSkills: async (
@@ -149,7 +185,7 @@ const AdminActionApi = {
     limit: number = 10,
     // filter: Record<string, any>,
     mode: string = "detailed"
-  ): Promise<any> => {
+  ) => {
     try {
       const response = await axiosClient.get(adminEndPoint.adminGetSkills, {
         params: {
@@ -162,40 +198,60 @@ const AdminActionApi = {
       });
 
       return response.data;
-    } catch (error: any) {
-      return error.response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
     }
   },
-  updateSkill: async (data: ISkills): Promise<any> => {
+  updateSkill: async (data: ISkills) => {
     try {
       const response = await axiosClient.patch(
         adminEndPoint.adminUpdateSkill,
         data
       );
       return response.data;
-    } catch (error: any) {
-      return error.response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
     }
   },
-  getUserDetail: async (id: string): Promise<any> => {
+  getUserDetail: async (id: string) => {
     try {
-      const response = await axiosClient.get(
-        adminEndPoint.adminUserDetail,{params:{id}}
-        
-      );
+      const response = await axiosClient.get(adminEndPoint.adminUserDetail, {
+        params: { id },
+      });
       return response.data;
-    } catch (error: any) {
-      return error.response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
     }
-  },updateUserStatus: async (id: string,role:"client"|"freelancer",status:"block"|"unblock"): Promise<any> => {
+  },
+  updateUserStatus: async (
+    id: string,
+    role: "client" | "freelancer",
+    status: "block" | "unblock"
+  ) => {
     try {
       const response = await axiosClient.patch(
-        adminEndPoint.adminUserStatusUpdate,{id,role,status}
-        
+        adminEndPoint.adminUserStatusUpdate,
+        { id, role, status }
       );
       return response.data;
-    } catch (error: any) {
-      return error.response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
     }
   },
 };

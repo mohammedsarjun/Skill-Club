@@ -1,7 +1,7 @@
-import { Request, Response } from "express";
+import { Request, Response } from 'express';
 export interface IAdminSpecialityController {
-    addSpeciality(req: Request, res: Response): Promise<void>;
-    editSpeciality(req: Request, res: Response): Promise<void>;
-    getAllSpeciality(req: Request, res: Response): Promise<void>;
+  addSpeciality(req: Request, res: Response): Promise<void>;
+  editSpeciality(req: Request, res: Response): Promise<void>;
+  getAllSpeciality(req: Request, res: Response): Promise<void>;
 }
 //# sourceMappingURL=IAdminSpecialityController.d.ts.map

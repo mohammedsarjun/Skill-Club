@@ -4,12 +4,13 @@ import {
   GetCategoryDto,
   UpdateCategoryDTO,
   CategoryDtoMinimal,
-} from "../dto/category.dto.js";
-import { ICategory } from "../models/interfaces/ICategoryModel.js";
+  CategoryQueryParams,
+} from '../dto/category.dto.js';
+import { ICategory } from '../models/interfaces/i-category.model';
 
 export const mapCreateCategoryDtoToCategoryModel = (
-  dto: CreateCategoryDTO
-): Pick<ICategory, "name" | "description" | "status"> => {
+  dto: CreateCategoryDTO,
+): Pick<ICategory, 'name' | 'description' | 'status'> => {
   return {
     name: dto.name,
     description: dto.description,
@@ -18,9 +19,9 @@ export const mapCreateCategoryDtoToCategoryModel = (
 };
 
 export const mapUpdateCategoryDtoToCategoryModel = (
-  dto: Partial<UpdateCategoryDTO> // <- make it partial
-): Partial<Pick<ICategory, "name" | "description" | "status">> => {
-  const updatedData: Partial<Pick<ICategory, "name" | "description" | "status">> = {};
+  dto: Partial<UpdateCategoryDTO>, // <- make it partial
+): Partial<Pick<ICategory, 'name' | 'description' | 'status'>> => {
+  const updatedData: Partial<Pick<ICategory, 'name' | 'description' | 'status'>> = {};
 
   if (dto.name !== undefined) updatedData.name = dto.name;
   if (dto.description !== undefined) updatedData.description = dto.description;
@@ -29,9 +30,7 @@ export const mapUpdateCategoryDtoToCategoryModel = (
   return updatedData;
 };
 
-export const mapCategoryModelToCategoryDto = (
-  category: ICategory
-): CategoryDto => {
+export const mapCategoryModelToCategoryDto = (category: ICategory): CategoryDto => {
   return {
     id: category._id.toString(),
     name: category.name,
@@ -40,24 +39,18 @@ export const mapCategoryModelToCategoryDto = (
   };
 };
 
-
-
-export const mapCategoryModelToCategoryDtoMinimal = (
-  category: ICategory
-):CategoryDtoMinimal=> {
+export const mapCategoryModelToCategoryDtoMinimal = (category: ICategory): CategoryDtoMinimal => {
   return {
     id: category._id.toString(),
     name: category.name,
- 
   };
 };
 
-
-export function mapCategoryQuery(dto: any): GetCategoryDto {
+export function mapCategoryQuery(dto: CategoryQueryParams): GetCategoryDto {
   return {
-    search: dto.search || "",
+    search: dto.search || '',
     page: dto.page ? Number(dto.page) : 1,
     limit: dto.limit ? Number(dto.limit) : 10,
-    mode:dto.mode
+    mode: dto.mode,
   };
 }

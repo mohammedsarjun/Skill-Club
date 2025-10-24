@@ -1,6 +1,7 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import freelancerReducer from "./slices/freelancerSlice";
 import authReducer from "./slices/authSlice";
+import loadingReducer from "./slices/loadingSlice";
 import { persistReducer, persistStore } from "redux-persist";
 import storageSession from "redux-persist/lib/storage/session"; // <-- sessionStorage
 import {
@@ -17,11 +18,15 @@ const freelancerPersistConfig = {
   storage: storageSession, // sessionStorage
 };
 
-const persistedFreelancerReducer = persistReducer(freelancerPersistConfig, freelancerReducer);
+const persistedFreelancerReducer = persistReducer(
+  freelancerPersistConfig,
+  freelancerReducer
+);
 
 const rootReducer = combineReducers({
   freelancer: persistedFreelancerReducer,
   auth: authReducer,
+  loading: loadingReducer,
 });
 
 export const store = configureStore({

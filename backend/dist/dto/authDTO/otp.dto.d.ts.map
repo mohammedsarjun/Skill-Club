@@ -1,1 +1,1 @@
-{"version":3,"file":"otp.dto.d.ts","sourceRoot":"","sources":["../../../src/dto/authDTO/otp.dto.ts"],"names":[],"mappings":"AAAA,MAAM,WAAW,SAAS;IACxB,KAAK,EAAC,MAAM,CAAC;IACb,SAAS,EAAC,IAAI,CAAC;IACf,OAAO,EAAC,QAAQ,GAAC,gBAAgB,CAAA;CAClC"}
+{"version":3,"file":"otp.dto.d.ts","sourceRoot":"","sources":["../../../src/dto/authDTO/otp.dto.ts"],"names":[],"mappings":"AAAA,MAAM,WAAW,SAAS;IACxB,KAAK,EAAE,MAAM,CAAC;IACd,SAAS,EAAE,IAAI,CAAC;IAChB,OAAO,EAAE,QAAQ,GAAG,gBAAgB,GAAG,aAAa,CAAC;CACtD"}

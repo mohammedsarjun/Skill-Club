@@ -1,17 +1,22 @@
-import { Types } from "mongoose";
 export interface CreateUserDTO {
   firstName: string;
-  lastName:string;
+  lastName: string;
   email: string;
-  phone:number;
+  phone: number;
   password: string;
-  agreement:boolean;
+  agreement: boolean;
 }
 
-export interface GetUserDto{
-  id?:string
-  firstName?:string,
-  lastName?:string,
-  email?:string,
-  phone?:number
+export interface LoginUserDto {
+  email: string;
+  password: string;
+  rememberMe: string;
+}
+
+export interface GetUserDto {
+  id?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: number;
 }

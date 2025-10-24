@@ -1,6 +1,12 @@
-import mongoose from "mongoose";
-export const mapCreatePortfolioDtoToPortfolio = (userId, data) => ({
-    freelancerId: new mongoose.Types.ObjectId(userId),
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.mapPortfolioToPortfolioDto = exports.mapCreatePortfolioDtoToPortfolio = void 0;
+const mongoose_1 = __importDefault(require("mongoose"));
+const mapCreatePortfolioDtoToPortfolio = (userId, data) => ({
+    freelancerId: new mongoose_1.default.Types.ObjectId(userId),
     title: data.title,
     description: data.description,
     technologies: data.technologies,
@@ -8,9 +14,10 @@ export const mapCreatePortfolioDtoToPortfolio = (userId, data) => ({
     projectUrl: data.projectUrl,
     githubUrl: data.githubUrl,
     images: data.images,
-    video: data.video
+    video: data.video,
 });
-export const mapPortfolioToPortfolioDto = (data) => ({
+exports.mapCreatePortfolioDtoToPortfolio = mapCreatePortfolioDtoToPortfolio;
+const mapPortfolioToPortfolioDto = (data) => ({
     id: data._id.toString(),
     title: data.title,
     description: data.description,
@@ -19,6 +26,7 @@ export const mapPortfolioToPortfolioDto = (data) => ({
     projectUrl: data.projectUrl,
     githubUrl: data.githubUrl,
     images: data.images,
-    video: data.video
+    video: data.video,
 });
+exports.mapPortfolioToPortfolioDto = mapPortfolioToPortfolioDto;
 //# sourceMappingURL=portfolio.mapper.js.map

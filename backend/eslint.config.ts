@@ -1,24 +1,29 @@
-import js from "@eslint/js";
-import globals from "globals";
-import tseslint from "typescript-eslint";
-import { defineConfig } from "eslint/config";
+const tseslint = require('typescript-eslint');
+const prettierPlugin = require('eslint-plugin-prettier');
 
-export default defineConfig([
+module.exports = [
   {
-    files: ["**/*.{js,mjs,cjs,ts,mts,cts}"], // your source files
-    plugins: { js },
-    extends: ["js/recommended"],
+    ignores: ['dist', 'node_modules',"eslint.config.ts"],
+  },
+  {
+    files: ['**/*.ts', '**/*.tsx'],
     languageOptions: {
-      globals: globals.node,
+      parser: tseslint.parser,
       parserOptions: {
-        ecmaVersion: 2021,
-        sourceType: "module",
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+        project: './tsconfig.json',
       },
     },
+    plugins: {
+      '@typescript-eslint': tseslint.plugin,
+      prettier: prettierPlugin,
+    },
     rules: {
-      "no-unused-vars": "warn",
-      "no-console": "off",
+      'prettier/prettier': ['warn', { endOfLine: 'auto' }],
+      'no-console': 'warn',
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-explicit-any': 'error', // ← forbid any
     },
   },
-  tseslint.configs.recommended, // only if using TypeScript
-]);
+];

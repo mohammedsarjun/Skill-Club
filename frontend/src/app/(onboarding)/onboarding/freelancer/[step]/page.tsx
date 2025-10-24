@@ -62,6 +62,7 @@ export default function OnboardingStepPage() {
   }, [step, freelancerData.completedSteps, router]);
 
   const handleSubmit = async () => {
+    console.log(freelancerData)
     const response = await userApi.createFreelancerProfile(freelancerData)
 
     if (response.success) {

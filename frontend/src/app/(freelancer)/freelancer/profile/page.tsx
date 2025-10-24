@@ -41,33 +41,22 @@ import { IPortfolio } from "@/types/interfaces/IFreelancer";
 
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
-
+import {
+  IDescriptionRole,
+  IEducation,
+  IExperience,
+  IFreelancerEducation,
+  IFreelancerLanguage,
+  IFreelancerWorkHistory,
+  IHourlyRate,
+  IProfessionalRole,
+} from "@/types/interfaces/IFreelancerData";
+import { useDispatch } from "react-redux";
+import { showLoading, hideLoading } from "@/store/slices/loadingSlice";
 const MySwal = withReactContent(Swal);
 
-const dummyProjects = [
-  {
-    title: "Personal Portfolio Website",
-    image: "https://via.placeholder.com/400x250?text=Portfolio+Website",
-    technologies: ["React", "TailwindCSS", "TypeScript"],
-  },
-  {
-    title: "E-commerce Dashboard",
-    image: "https://via.placeholder.com/400x250?text=E-commerce+Dashboard",
-    technologies: ["Next.js", "MongoDB", "Express"],
-  },
-  {
-    title: "Chat Application",
-    image: "https://via.placeholder.com/400x250?text=Chat+App",
-    technologies: ["Socket.io", "Node.js", "React"],
-  },
-  {
-    title: "Fitness Tracker",
-    image: "https://via.placeholder.com/400x250?text=Fitness+Tracker",
-    technologies: ["React Native", "Firebase"],
-  },
-];
-
 interface Education {
+  id: string;
   degree: string;
   institution: string;
   period: string;
@@ -80,10 +69,11 @@ interface Portfolio {
 }
 
 interface WorkHistory {
+  id: string;
   title: string;
   company: string;
   period: string;
-  description: string;
+  location: string;
   color: string;
 }
 
@@ -99,51 +89,78 @@ interface ModalData {
 }
 
 function FreelancerProfilePage(): JSX.Element {
+  const dispatch = useDispatch();
   useEffect(() => {
     async function fetchData() {
-      const response = await freelancerActionApi.getFreelancerData();
+      try {
+        dispatch(showLoading());
+        const response = await freelancerActionApi.getFreelancerData();
+        console.log(response);
 
-      if (response.success) {
-        setHourlyRate(`${response.data.hourlyRate}/hour`);
-        setDescription(response.data.bio);
-        setRole(response.data.professionalRole);
-        const responseLanguage = response.data.languages;
-        setLanguages(responseLanguage);
-        const responseEducation = response.data.education.map((edu: any) => ({
-          degree: `${edu.degree} of ${edu.fieldOfStudy}`,
-          institution: edu.school,
-          period: `${edu.startYear} - ${edu.endYear}`,
-        }));
-        setEducation(responseEducation);
-        console.log(response.data.skills)
-        const skill=response.data.skills.map((skill:{name:string,id:string})=>skill.name)
-        setSkills(skill);
-        setPortfolio(response.data.portfolio);
-        const responseWorkHistory = response.data.experiences.map(
-          (exp: any) => ({
-            title: exp.title,
-            company: exp.company,
-            period: `${exp.startYear}-${
-              exp.isCurrentRole ? "present" : exp.endYear
-            }`,
-          })
-        );
-        setWorkHistory(responseWorkHistory);
-        setName(response.data.name);
-        setCountry(response.data.address.country);
-        setCity(response.data.address.city);
+        if (response.success) {
+          setHourlyRate(`${response.data.hourlyRate}/hour`);
+          setDescription(response.data.bio);
+          setRole(response.data.professionalRole);
+          const responseLanguage = response.data.languages;
+          setLanguages(responseLanguage);
+          const responseEducation = response.data.education.map(
+            (edu: IEducation & { field: string }) => ({
+              id: edu.id,
+              degree: `${edu.degree} of ${edu.field}`,
+              institution: edu.school,
+              period: `${edu.startYear} - ${edu.endYear}`,
+            })
+          );
+          setEducation(responseEducation);
+          const skill = response.data.skills.map(
+            (skill: { name: string; id: string }) => skill.name
+          );
+          setSkills(skill);
+          setPortfolio(response.data.portfolio);
 
-        setLogo(response.data.logo);
-      } else {
-        toast.error(response.message);
-      }
+          const responseWorkHistory = response.data.experiences.map(
+            (exp: Partial<IFreelancerWorkHistory>) => ({
+              id: exp.id,
+              title: exp.title,
+              company: exp.company,
+              period: `${exp.startYear}-${
+                exp.isCurrentRole ? "present" : exp.endYear
+              }`,
+            })
+          );
 
-      const portfolioResponse = await freelancerActionApi.getPortFolio();
+          setWorkHistory(responseWorkHistory);
+          setName(response.data.name);
+          setCountry(response.data.address.country);
+          setCity(response.data.address.city);
 
-      if (portfolioResponse.success) {
-        setPortfolio(portfolioResponse.data);
-      } else {
-        toast.error(portfolioResponse.message);
+          setLogo(response.data.logo);
+          const skills = response?.data?.skills?.map(
+            (skill: { id: string; name: string }) => skill.name
+          );
+          const specialities = response?.data?.specialties?.map(
+            (speciality: { id: string; name: string }) => speciality.name
+          );
+          const workCategory = response?.data?.workCategory?.name;
+
+          setExpertise((expertise) => ({
+            skills,
+            specialities,
+            workCategory: workCategory,
+          }));
+        } else {
+          toast.error(response.message);
+        }
+
+        const portfolioResponse = await freelancerActionApi.getPortFolio();
+
+        if (portfolioResponse.success) {
+          setPortfolio(portfolioResponse.data);
+        } else {
+          toast.error(portfolioResponse.message);
+        }
+      } finally {
+        dispatch(hideLoading());
       }
     }
 
@@ -155,6 +172,15 @@ function FreelancerProfilePage(): JSX.Element {
   const [activeModal, setActiveModal] = useState("");
   const [isEditModal, setIsEditModal] = useState(false);
   const [isOpenModal, setIsOpenModal] = useState(false);
+  const [expertise, setExpertise] = useState<{
+    workCategory: string;
+    specialities: string[];
+    skills: string[];
+  }>({ workCategory: "gi", specialities: ["s"], skills: ["react"] });
+  const [workField, setWorkField] = useState<string>("");
+  const [specialities, setSpecialities] = useState<string[]>([]);
+  // const [skills, setSkills] = useState<string[]>([]);
+
   const router = useRouter();
   const years = Array.from({ length: 50 }, (_, i) => 2025 - i);
   const months = [
@@ -196,24 +222,7 @@ function FreelancerProfilePage(): JSX.Element {
     useState<
       { id: string; title: string; video: string; technologies: string[] }[]
     >();
-  const [workHistory, setWorkHistory] = useState<WorkHistory[]>([
-    {
-      title: "Senior Full Stack Developer",
-      company: "TechCorp Solutions",
-      period: "2022 - Present",
-      description:
-        "Led development of multiple client projects, mentored junior developers, and implemented best practices for code quality.",
-      color: "green",
-    },
-    {
-      title: "Frontend Developer",
-      company: "StartupXYZ",
-      period: "2020 - 2022",
-      description:
-        "Developed responsive web applications using React and collaborated with design team to implement pixel-perfect UIs.",
-      color: "blue",
-    },
-  ]);
+  const [workHistory, setWorkHistory] = useState<WorkHistory[]>([]);
 
   const [editInitialValues, setEditInitialValues] = useState<
     Record<string, any>
@@ -246,26 +255,48 @@ function FreelancerProfilePage(): JSX.Element {
     setIsOpenModal(true);
   }
 
-  async function onEditSubmit(submitData:  Record<string, any>, mode: string) {
-
+  async function onEditSubmit(submitData: unknown, mode: string) {
     if (activeModal == "description") {
       const response = await freelancerActionApi.updateFreelancerDescription(
-        submitData
+        submitData as IDescriptionRole
       );
 
       if (response.success) {
-        setDescription(response.data)
-        
+        setDescription(response.data);
+      } else {
+        toast.error(response.message);
+      }
+    }
+
+    if (activeModal == "professionalRole") {
+      const response = await freelancerActionApi.updateProfessionalRole(
+        submitData as IProfessionalRole
+      );
+
+      if (response.success) {
+        setRole(response.data);
+      } else {
+        toast.error(response.message);
+      }
+    }
+
+    if (activeModal == "hourlyRate") {
+      const response = await freelancerActionApi.updateHourlyRate(
+        submitData as IHourlyRate
+      );
+
+      if (response.success) {
+        setHourlyRate(response.data + "/hour");
       } else {
         toast.error(response.message);
       }
     }
   }
 
-  async function onSubmit(submitData: Record<string, any>, mode: string) {
+  async function onSubmit(submitData: unknown, mode: string) {
     if (activeModal == "language") {
       const response = await freelancerActionApi.updateFreelancerLanguage(
-        submitData
+        submitData as IFreelancerLanguage
       );
 
       if (response.success) {
@@ -273,7 +304,50 @@ function FreelancerProfilePage(): JSX.Element {
       } else {
         toast.error(response.message);
       }
-    } 
+    }
+
+    if (activeModal == "education") {
+      const response = await freelancerActionApi.addFreelancerEducation(
+        submitData as IFreelancerEducation
+      );
+
+      if (response.success) {
+        const responseEducation = response.data.map(
+          (edu: IEducation & { field: string }) => ({
+            id: edu.id,
+            degree: `${edu.degree} of ${edu.field}`,
+            institution: edu.school,
+            period: `${edu.startYear} - ${edu.endYear}`,
+          })
+        );
+        setEducation((edu) => responseEducation);
+      } else {
+        toast.error(response.message);
+      }
+    }
+    console.log(activeModal);
+    if (activeModal == "workHistory") {
+      console.log("askljkld");
+      const response = await freelancerActionApi.addFreelancerWorkHistory(
+        submitData as IFreelancerWorkHistory
+      );
+
+      if (response.success) {
+        const responseWorkHistory = response.data.experiences.map(
+          (exp: Partial<IFreelancerWorkHistory>) => ({
+            id: exp.id,
+            title: exp.title,
+            company: exp.company,
+            period: `${exp.startYear}-${
+              exp.isCurrentRole ? "present" : exp.endYear
+            }`,
+          })
+        );
+        setWorkHistory(responseWorkHistory);
+      } else {
+        toast.error(response.message);
+      }
+    }
   }
 
   async function handleOpenPortfolioModal(id: string) {
@@ -315,12 +389,98 @@ function FreelancerProfilePage(): JSX.Element {
       }
     }
   }
+
+  async function removeEducation(educationId: string) {
+    const result = await MySwal.fire({
+      title: "Delete Education?",
+      text: "This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "No",
+    });
+
+    if (result.isConfirmed) {
+      const response = await freelancerActionApi.deleteFreelancerEducation(
+        educationId
+      );
+
+      if (response.success) {
+        setEducation((prevEducation) => {
+          return prevEducation.filter((edu) => edu.id !== educationId);
+        });
+
+        toast.success(response.message);
+      } else {
+        toast.error(response.message);
+      }
+    }
+  }
+
+  async function removePortfolio(portfolioId: string) {
+    const result = await MySwal.fire({
+      title: "Delete Portfolio?",
+      text: "This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "No",
+    });
+
+    if (result.isConfirmed) {
+      const response = await freelancerActionApi.deleteFreelancerPortfolio(
+        portfolioId
+      );
+
+      if (response.success) {
+        setPortfolio((prevPortfolio) => {
+          return prevPortfolio?.filter(
+            (portfolio) => portfolio.id !== portfolioId
+          );
+        });
+        setIsPortfolioModalOpen(false);
+        toast.success(response.message);
+      } else {
+        toast.error(response.message);
+      }
+    }
+  }
+
+  async function removeExperience(workHistoryId: string) {
+    const result = await MySwal.fire({
+      title: "Delete Work History?",
+      text: "This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "No",
+    });
+
+    if (result.isConfirmed) {
+      const response = await freelancerActionApi.deleteWorkHistory(
+        workHistoryId
+      );
+
+      if (response.success) {
+        setWorkHistory((prevWorkHistory) => {
+          return prevWorkHistory?.filter(
+            (workHistory) => workHistory.id !== workHistoryId
+          );
+        });
+        setIsPortfolioModalOpen(false);
+        toast.success(response.message);
+      } else {
+        toast.error(response.message);
+      }
+    }
+  }
   return (
     <div className="min-h-screen bg-gray-50">
       <PortfolioModal
         portfolio={portfolioDetail!}
         isOpen={isPortfolioModalOpen}
         onClose={handleClosePortfolioModal}
+        onDelete={removePortfolio}
       ></PortfolioModal>
       <div className="bg-white shadow-sm">
         <div className="max-w-6xl mx-auto px-6 py-6">
@@ -382,26 +542,32 @@ function FreelancerProfilePage(): JSX.Element {
                 </div>
               </div>
               <div className="space-y-3">
-                {languages.map(
-                  (
-                    language: { name: string; proficiency: string },
-                    index: number
-                  ) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                    >
-                      <span className="text-gray-700">
-                        {language.name} ({language.proficiency})
-                      </span>
-                      <button
-                        className="text-gray-400 hover:text-green-600"
-                        onClick={() => removeLangugage(language.name, index)}
+                {languages && languages.length > 0 ? (
+                  languages.map(
+                    (
+                      language: { name: string; proficiency: string },
+                      index: number
+                    ) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                       >
-                        <FaTrash className="w-3 h-3" />
-                      </button>
-                    </div>
+                        <span className="text-gray-700">
+                          {language.name} ({language.proficiency})
+                        </span>
+                        <button
+                          className="text-gray-400 hover:text-green-600"
+                          onClick={() => removeLangugage(language.name, index)}
+                        >
+                          <FaTrash className="w-3 h-3" />
+                        </button>
+                      </div>
+                    )
                   )
+                ) : (
+                  <p className="text-gray-500 text-center py-6">
+                    No Languages added yet.
+                  </p>
                 )}
               </div>
             </div>
@@ -424,24 +590,30 @@ function FreelancerProfilePage(): JSX.Element {
                 </div>
               </div>
               <div className="space-y-4">
-                {education.map((edu: Education, index: number) => (
-                  <div
-                    key={index}
-                    className="border-l-4 border-green-600 pl-4 py-2 relative group"
-                  >
-                    <button
-                      className="absolute right-2 top-0 text-gray-400 hover:text-green-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => handleOpenEditModal("education")}
+                {education && education.length > 0 ? (
+                  education.map((edu: Education, index: number) => (
+                    <div
+                      key={index}
+                      className="border-l-4 border-green-600 pl-4 py-2 relative group"
                     >
-                      <FaEdit className="w-4 h-4" />
-                    </button>
-                    <h4 className="font-semibold text-gray-900">
-                      {edu.degree}
-                    </h4>
-                    <p className="text-gray-600 mt-1">{edu.institution}</p>
-                    <p className="text-sm text-gray-500 mt-1">{edu.period}</p>
-                  </div>
-                ))}
+                      <button
+                        className="absolute right-2 top-0 text-gray-400 hover:text-green-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => removeEducation(edu.id)}
+                      >
+                        <FaTrash className="w-4 h-4" />
+                      </button>
+                      <h4 className="font-semibold text-gray-900">
+                        {edu.degree}
+                      </h4>
+                      <p className="text-gray-600 mt-1">{edu.institution}</p>
+                      <p className="text-sm text-gray-500 mt-1">{edu.period}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-500 text-center py-6">
+                    No Education added yet.
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -532,7 +704,7 @@ function FreelancerProfilePage(): JSX.Element {
                 pagination={{ clickable: true }}
                 className="w-full"
               >
-                {portfolio &&
+                {portfolio && portfolio.length > 0 ? (
                   portfolio.map((proj, index) => (
                     <SwiperSlide key={index}>
                       <div
@@ -560,7 +732,12 @@ function FreelancerProfilePage(): JSX.Element {
                         </div>
                       </div>
                     </SwiperSlide>
-                  ))}
+                  ))
+                ) : (
+                  <p className="text-gray-500 text-center py-6">
+                    No portfolio added yet.
+                  </p>
+                )}
               </Swiper>
             </div>
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -579,37 +756,41 @@ function FreelancerProfilePage(): JSX.Element {
                 </button>
               </div>
               <div className="space-y-6">
-                {workHistory.map((work: WorkHistory, index: number) => (
-                  <div key={index} className="flex space-x-4 relative group">
-                    <button
-                      className="absolute -right-2 top-0 text-gray-400 hover:text-green-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => handleOpenEditModal("workHistory")}
-                    >
-                      <FaEdit className="w-4 h-4" />
-                    </button>
-                    <div
-                      className={`flex-shrink-0 w-12 h-12 bg-${work.color}-100 rounded-lg flex items-center justify-center`}
-                    >
-                      <FaBriefcase
-                        className={`w-6 h-6 text-${work.color}-600`}
-                      />
+                {workHistory && workHistory.length > 0 ? (
+                  workHistory.map((work: WorkHistory, index: number) => (
+                    <div key={index} className="flex space-x-4 relative group">
+                      <button
+                        className="absolute -right-2 top-0 text-gray-400 hover:text-green-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => removeExperience(work.id)}
+                      >
+                        <FaTrash className="w-4 h-4" />
+                      </button>
+                      <div
+                        className={`flex-shrink-0 w-12 h-12 bg-${work.color}-100 rounded-lg flex items-center justify-center`}
+                      >
+                        <FaBriefcase
+                          className={`w-6 h-6 text-${work.color}-600`}
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-gray-900">
+                          {work.title}
+                        </h4>
+                        <p className={`text-${work.color}-600 font-medium`}>
+                          {work.company}
+                        </p>
+                        <p className="text-sm text-gray-500 mb-2">
+                          {work.period}
+                        </p>
+                        <p className="text-gray-700 text-sm">{work.location}</p>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900">
-                        {work.title}
-                      </h4>
-                      <p className={`text-${work.color}-600 font-medium`}>
-                        {work.company}
-                      </p>
-                      <p className="text-sm text-gray-500 mb-2">
-                        {work.period}
-                      </p>
-                      <p className="text-gray-700 text-sm">
-                        {work.description}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-gray-500 text-center py-6">
+                    No Work History added yet.
+                  </p>
+                )}
               </div>
             </div>
 
@@ -618,34 +799,96 @@ function FreelancerProfilePage(): JSX.Element {
                 <div className="flex items-center space-x-2">
                   <FaCode className="w-5 h-5 text-green-600" />
                   <h3 className="text-lg font-semibold text-gray-900">
-                    Skills
+                    Expertise
                   </h3>
                 </div>
+
                 <button
+                  onClick={() => router.push("/freelancer/expertise")}
                   className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                  onClick={() => handleOpenModal("skill")}
                 >
-                  <FaPlus className="w-4 h-4" />
+                  <FaEdit className="w-4 h-4" />
                 </button>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {skills.map((skill: string, index: number) => (
-                  <span
-                    key={index}
-                    className="flex items-center px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium hover:bg-green-200 transition-colors cursor-pointer"
-                  >
-                    {skill}
-                    <FaTimes
-                      className="ml-2 text-green-700 hover:text-red-500"
-                      onClick={(e) => {
-                        e.stopPropagation(); // prevent parent click if needed
-                        // remove the skill from array
-                        const newSkills = skills.filter((_, i) => i !== index);
-                        setSkills(newSkills);
-                      }}
-                    />
+
+              {/* Work Field Section */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-medium text-gray-700">
+                    Work Field
+                  </h4>
+                  <button
+                    className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                    onClick={() => handleOpenModal("workfield")}
+                  ></button>
+                </div>
+                {expertise?.workCategory ? (
+                  <span className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-200 transition-colors cursor-pointer">
+                    {expertise?.workCategory}
                   </span>
-                ))}
+                ) : (
+                  <p className="text-sm text-gray-400 italic">
+                    No work field added
+                  </p>
+                )}
+              </div>
+
+              {/* Specialities Section */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-medium text-gray-700">
+                    Specialities
+                  </h4>
+                  <button
+                    className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                    onClick={() => handleOpenModal("speciality")}
+                  ></button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {expertise?.specialities.length > 0 ? (
+                    expertise?.specialities.map(
+                      (speciality: string, index: number) => (
+                        <span
+                          key={index}
+                          className="flex items-center px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium hover:bg-purple-200 transition-colors cursor-pointer"
+                        >
+                          {speciality}
+                        </span>
+                      )
+                    )
+                  ) : (
+                    <p className="text-sm text-gray-400 italic">
+                      No specialities added
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Skills Section */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-medium text-gray-700">Skills</h4>
+                  <button
+                    className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                    onClick={() => handleOpenModal("skill")}
+                  ></button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {skills.length > 0 ? (
+                    skills.map((skill: string, index: number) => (
+                      <span
+                        key={index}
+                        className="flex items-center px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium hover:bg-green-200 transition-colors cursor-pointer"
+                      >
+                        {skill}
+                      </span>
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-400 italic">
+                      No skills added
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -983,7 +1226,7 @@ function FreelancerProfilePage(): JSX.Element {
                     placeholder: "Enter Your Work Title",
                   },
                   {
-                    name: "companyName",
+                    name: "company",
                     type: "text",
                     label: "Company Name",
                     placeholder: "Enter Company Name",
@@ -1031,6 +1274,7 @@ function FreelancerProfilePage(): JSX.Element {
                     })),
                     label: "End Month",
                     group: "endRow",
+                    hideOnCheck: { field: "isCurrentRole" },
                   },
                   {
                     name: "endYear",
@@ -1041,6 +1285,7 @@ function FreelancerProfilePage(): JSX.Element {
                     })),
                     label: "End Year",
                     group: "endRow",
+                    hideOnCheck: { field: "isCurrentRole" },
                   },
                   {
                     name: "isCurrentRole",

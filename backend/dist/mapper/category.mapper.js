@@ -1,12 +1,16 @@
-export const mapCreateCategoryDtoToCategoryModel = (dto) => {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.mapCategoryModelToCategoryDtoMinimal = exports.mapCategoryModelToCategoryDto = exports.mapUpdateCategoryDtoToCategoryModel = exports.mapCreateCategoryDtoToCategoryModel = void 0;
+exports.mapCategoryQuery = mapCategoryQuery;
+const mapCreateCategoryDtoToCategoryModel = (dto) => {
     return {
         name: dto.name,
         description: dto.description,
         status: dto.status,
     };
 };
-export const mapUpdateCategoryDtoToCategoryModel = (dto // <- make it partial
-) => {
+exports.mapCreateCategoryDtoToCategoryModel = mapCreateCategoryDtoToCategoryModel;
+const mapUpdateCategoryDtoToCategoryModel = (dto) => {
     const updatedData = {};
     if (dto.name !== undefined)
         updatedData.name = dto.name;
@@ -16,7 +20,8 @@ export const mapUpdateCategoryDtoToCategoryModel = (dto // <- make it partial
         updatedData.status = dto.status;
     return updatedData;
 };
-export const mapCategoryModelToCategoryDto = (category) => {
+exports.mapUpdateCategoryDtoToCategoryModel = mapUpdateCategoryDtoToCategoryModel;
+const mapCategoryModelToCategoryDto = (category) => {
     return {
         id: category._id.toString(),
         name: category.name,
@@ -24,18 +29,20 @@ export const mapCategoryModelToCategoryDto = (category) => {
         status: category.status,
     };
 };
-export const mapCategoryModelToCategoryDtoMinimal = (category) => {
+exports.mapCategoryModelToCategoryDto = mapCategoryModelToCategoryDto;
+const mapCategoryModelToCategoryDtoMinimal = (category) => {
     return {
         id: category._id.toString(),
         name: category.name,
     };
 };
-export function mapCategoryQuery(dto) {
+exports.mapCategoryModelToCategoryDtoMinimal = mapCategoryModelToCategoryDtoMinimal;
+function mapCategoryQuery(dto) {
     return {
-        search: dto.search || "",
+        search: dto.search || '',
         page: dto.page ? Number(dto.page) : 1,
         limit: dto.limit ? Number(dto.limit) : 10,
-        mode: dto.mode
+        mode: dto.mode,
     };
 }
 //# sourceMappingURL=category.mapper.js.map

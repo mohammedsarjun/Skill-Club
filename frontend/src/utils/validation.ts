@@ -202,7 +202,7 @@ export const workExperienceSchema = z
       .nonempty("Title is required")
       .min(2, "Title must be at least 2 characters long"),
 
-    companyName: z
+    company: z
       .string()
       .nonempty("Company Name is required")
       .min(2, "Company Name must be at least 2 characters long"),
@@ -272,4 +272,96 @@ export const portfolioSchema = z.object({
 export const changeEmailSchema = z.object({
   newEmail: z.string().email("Invalid email format"),
   password: z.string().trim().nonempty("Invalid Password"),
+});
+
+
+export const userProfileSchema = z.object({
+  firstName: z
+    .string()
+    .trim()
+    .min(1, "First name is required")
+    .max(50, "First name must be less than 50 characters"),
+
+  lastName: z
+    .string()
+    .trim()
+    .min(1, "Last name is required")
+    .max(50, "Last name must be less than 50 characters"),
+
+  phone: z
+    .string()
+    .trim()
+    .regex(/^[0-9]{10}$/, "Phone number must be 10 digits"),
+
+  dob: z
+    .string()
+    .refine((value) => !isNaN(Date.parse(value)), {
+      message: "Invalid date format",
+    })
+    .refine(
+      (value) => {
+        const date = new Date(value);
+        const today = new Date();
+        return date < today;
+      },
+      { message: "Date of birth must be in the past" }
+    ),
+});
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(8, "Password must be at least 8 characters long"),
+  newPassword: z.string()
+  .min(8, "Password must be at least 8 characters long")
+  .regex(/[A-Z]/, "Password must contain an uppercase letter")
+  .regex(/[a-z]/, "Password must contain a lowercase letter")
+  .regex(/[0-9]/, "Password must contain a number")
+  .regex(/[!@#$%^&*]/, "Password must contain a special character"),
+  confirmPassword: z.string(),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
+});
+
+export const userAddressSchema = z.object({
+  country: z.enum(["india", "usa", "uk"] as const, {
+    message: "Select a valid country",
+  }),
+
+  streetAddress: z
+    .string()
+    .nonempty("Address is required")
+    .min(5, "Address must be at least 5 characters long"),
+
+  city: z
+    .string()
+    .nonempty("City is required")
+    .min(2, "City must be at least 2 characters long"),
+
+  state: z
+    .string()
+    .nonempty("State is required")
+    .min(2, "State must be at least 2 characters long"),
+
+  zipCode: z.preprocess((val) => {
+    if (typeof val === "string") return parseInt(val, 10);
+    return val;
+  }, z.number().int("Zip must be an integer").positive("Zip must be a positive number")),
+});
+
+
+export const clientProfileSchema = z.object({
+  companyName: z
+    .string()
+    .nonempty("Company name is required")
+    .min(2, "Company name must be at least 2 characters long"),
+
+  description: z
+    .string()
+    .nonempty("Description is required")
+    .min(5, "Description must be at least 5 characters long"),
+
+  website: z
+    .string()
+    .nonempty("Website is required")
+    .url("Please enter a valid URL"),
 });

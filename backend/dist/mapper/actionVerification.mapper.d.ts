@@ -1,5 +1,7 @@
-import { CreateActionVerificationDto } from "../dto/actionVerification.dto.js";
-export declare function mapActionVerificationToCreateActionVerification(dto: Omit<CreateActionVerificationDto, "userId"> & {
+import { CreateActionVerificationDto } from '../dto/actionVerification.dto.js';
+export declare function mapActionVerificationToCreateActionVerification(
+  dto: Omit<CreateActionVerificationDto, 'userId'> & {
     userId: string;
-}): CreateActionVerificationDto;
+  },
+): CreateActionVerificationDto;
 //# sourceMappingURL=actionVerification.mapper.d.ts.map

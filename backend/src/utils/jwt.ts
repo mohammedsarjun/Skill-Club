@@ -1,6 +1,6 @@
-import jwt, { SignOptions, JwtPayload } from "jsonwebtoken";
-import type { StringValue } from "ms";
-import dotenv from "dotenv";
+import jwt, { SignOptions, JwtPayload } from 'jsonwebtoken';
+import type { StringValue } from 'ms';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
@@ -10,7 +10,7 @@ export class JwtService {
   constructor() {
     this.secret = process.env.JWT_SECRET as string;
     if (!this.secret) {
-      throw new Error("JWT_SECRET not found in environment variables");
+      throw new Error('JWT_SECRET not found in environment variables');
     }
   }
 

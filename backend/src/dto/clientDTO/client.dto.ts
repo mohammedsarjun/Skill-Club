@@ -1,10 +1,10 @@
 export interface GetClientDTO {
   companyName: string;
-  logo?: string|undefined;
+  logo?: string | undefined;
   description?: string;
   website?: string;
 }
 
-export interface UpdateClientDto{
-    clientProfile:Partial<GetClientDTO>
+export interface UpdateClientDto {
+  clientProfile: Partial<GetClientDTO>;
 }

@@ -1,3 +1,2 @@
-export default class BaseRepository {
-}
+export default class BaseRepository {}
 //# sourceMappingURL=baseRepository.d.ts.map

@@ -6,6 +6,11 @@ export interface CreateUserDTO {
     password: string;
     agreement: boolean;
 }
+export interface LoginUserDto {
+    email: string;
+    password: string;
+    rememberMe: string;
+}
 export interface GetUserDto {
     id?: string;
     firstName?: string;

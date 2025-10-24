@@ -1,8 +1,3 @@
-export {};
-// export interface PaginatedSpecialityDto {
-//   data: SpecialityDto[];
-//   total: number;
-//   page: number;
-//   limit: number;
-// }
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 //# sourceMappingURL=skill.dto.js.map

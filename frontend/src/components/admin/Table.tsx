@@ -1,42 +1,47 @@
-import {
-  FaPlus,
-  FaEdit,
-  FaTrashAlt,
-} from "react-icons/fa";
-import { Dispatch, SetStateAction, useState } from "react";
+"use client";
+
+import { FaEdit, FaTrashAlt } from "react-icons/fa";
+import { Dispatch, SetStateAction } from "react";
 import Button from "../common/Button";
 import Input from "../common/Input";
 
-// Utils to render cell dynamically
-const renderCell = (value: any) => {
+// ===== Utility to Render Table Cell =====
+const renderCell = (value: unknown): React.ReactNode => {
   if (Array.isArray(value)) {
     return value.map((item, index) => (
       <button
         key={index}
         className="px-2 py-1 mx-1 rounded-lg bg-blue-500 text-white text-xs"
       >
-        {typeof item === "string" ? item : item?.name || JSON.stringify(item)}
+        {typeof item === "string"
+          ? item
+          : (item as { name?: string })?.name ?? JSON.stringify(item)}
       </button>
     ));
   }
 
   if (typeof value === "object" && value !== null) {
-    return value.name || JSON.stringify(value);
+    return (value as { name?: string })?.name ?? JSON.stringify(value);
   }
 
-  return value;
+  return String(value ?? "");
 };
 
-// Types
-interface Column {
-  key: string;
+// ===== Type Definitions =====
+export interface Column<T> {
+  key: keyof T;
   label: string;
 }
 
-interface Filter {
+interface FilterOption {
+  id: string | number;
+  name: string;
+}
+
+export interface Filter {
   key: string;
   label: string;
-  options: Record<string, any>[];
+  options: FilterOption[];
 }
 
 type FieldType = "text" | "number" | "textarea" | "checkbox" | "select";
@@ -54,34 +59,34 @@ interface Field {
   options?: SelectOption[];
 }
 
-interface TableProps {
+interface TableProps<T extends object> {
   title: string;
-  columns: Column[];
-  data: Record<string, any>[];
+  columns: Column<T>[];
+  data: T[];
   filters?: Filter[];
   addButtonLabel?: string;
-  formFields?: Field[] | undefined;
+  formFields?: Field[];
   handleOpenModal?: () => void;
   handleCloseModal?: () => void;
   page: number;
   setPage: Dispatch<SetStateAction<number>>;
   search: string;
-  setSearch: (searchData: any) => void;
-  canDelete: boolean;
-  handleEditModal?: (values: any) => void;
+  setSearch: (value: string) => void;
+  canDelete?: boolean;
+  handleEditModal?: (row: T) => void;
   viewOnly?: boolean;
-  handleOpenViewModal?: (row: any) => void;
-  setFilters?: (filterData: any) => void;
+  handleOpenViewModal?: (row: T) => void;
+  setFilters?: (filters: Record<string, string>) => void;
   activeFilters?: Record<string, string>;
 }
 
-const Table: React.FC<TableProps> = ({
+// ===== Main Table Component =====
+function Table<T extends { id: string | number }>({
   title,
   columns,
   data,
   filters = [],
   addButtonLabel,
-  formFields,
   handleOpenModal,
   page,
   setPage,
@@ -93,46 +98,40 @@ const Table: React.FC<TableProps> = ({
   handleOpenViewModal,
   setFilters,
   activeFilters,
-}) => {
-  // You can add your filter/search logic here
-  let filteredData = data;
+}: TableProps<T>) {
+  const filteredData = data; // implement filtering/search if needed
 
   return (
     <div>
       {/* Search + Filters + Add Button */}
       <div className="flex justify-between items-center mb-3">
         <div className="flex gap-2">
-          {/* Search */}
           <Input
             type="text"
             placeholder="Search ..."
             onChange={(e) => setSearch(e.target.value)}
           />
-
-          {/* Filters */}
-          {filters.length > 0 &&
-            filters.map((filter) => (
-              <select
-                key={filter.key}
-                className="border px-2 py-1 rounded"
-                onChange={(e) =>
-                  setFilters!({
-                    ...activeFilters,
-                    [filter.key]: e.target.value,
-                  })
-                }
-              >
-                <option value="">{filter.label}</option>
-                {filter.options.map((opt) => (
-                  <option key={opt.id} value={opt.id}>
-                    {opt.name}
-                  </option>
-                ))}
-              </select>
-            ))}
+          {filters.map((filter) => (
+            <select
+              key={filter.key}
+              className="border px-2 py-1 rounded"
+              onChange={(e) =>
+                setFilters?.({
+                  ...activeFilters,
+                  [filter.key]: e.target.value,
+                })
+              }
+            >
+              <option value="">{filter.label}</option>
+              {filter.options.map((opt) => (
+                <option key={opt.id} value={opt.id}>
+                  {opt.name}
+                </option>
+              ))}
+            </select>
+          ))}
         </div>
 
-        {/* Add Button */}
         {addButtonLabel && (
           <Button
             content={addButtonLabel}
@@ -142,19 +141,19 @@ const Table: React.FC<TableProps> = ({
         )}
       </div>
 
+      {/* Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="px-6 py-4 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
         </div>
 
         <div className="overflow-x-auto">
-          {/* Table */}
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
-              <tr className="bg-gray-100">
+              <tr>
                 {columns.map((col) => (
                   <th
-                    key={col.key}
+                    key={String(col.key)}
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
                     {col.label}
@@ -167,15 +166,16 @@ const Table: React.FC<TableProps> = ({
             </thead>
 
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredData.length ? (
-                filteredData.map((row, index) => (
-                  <tr key={index} className="hover:bg-gray-50">
+              {filteredData.length > 0 ? (
+                filteredData.map((row) => (
+                  <tr key={row.id} className="hover:bg-gray-50">
                     {columns.map((col) => (
-                      <td key={col.key} className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="text-sm font-medium text-gray-900">
-                            {renderCell(row[col.key])}
-                          </div>
+                      <td
+                        key={String(col.key)}
+                        className="px-6 py-4 whitespace-nowrap"
+                      >
+                        <div className="text-sm font-medium text-gray-900">
+                          {renderCell(row[col.key])}
                         </div>
                       </td>
                     ))}
@@ -209,7 +209,10 @@ const Table: React.FC<TableProps> = ({
                 ))
               ) : (
                 <tr>
-                  <td colSpan={columns.length + 1} className="text-center py-4">
+                  <td
+                    colSpan={columns.length + 1}
+                    className="text-center py-4 text-gray-500"
+                  >
                     No data found
                   </td>
                 </tr>
@@ -219,7 +222,7 @@ const Table: React.FC<TableProps> = ({
         </div>
       </div>
 
-      {/* Simple Pagination */}
+      {/* Pagination */}
       <div className="mt-4 flex justify-end">
         <button
           className="px-3 py-1 border rounded mx-1"
@@ -228,9 +231,7 @@ const Table: React.FC<TableProps> = ({
         >
           Prev
         </button>
-
         <span className="px-3 py-1">{page}</span>
-
         <button
           className="px-3 py-1 border rounded mx-1"
           onClick={() => setPage((prev) => prev + 1)}
@@ -240,6 +241,6 @@ const Table: React.FC<TableProps> = ({
       </div>
     </div>
   );
-};
+}
 
 export default Table;

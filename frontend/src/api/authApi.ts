@@ -1,3 +1,4 @@
+import axios from "axios";
 import { axiosClient } from "./axiosClient";
 import authenticationRoutes from "@/types/endPoints/authEndPoints";
 export interface SignUpData {
@@ -15,7 +16,7 @@ export interface LoginData {
   rememberMe: boolean;
 }
 export const authApi = {
-  signUp: async (data: SignUpData): Promise<any> => {
+  signUp: async (data: SignUpData) => {
     try {
       const response = await axiosClient.post(
         authenticationRoutes.userSignUp,
@@ -23,11 +24,15 @@ export const authApi = {
       );
 
       return response.data;
-    } catch (error: any) {
-      return error.response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
     }
   },
-  login: async (data: LoginData): Promise<any> => {
+  login: async (data: LoginData) => {
     try {
       const response = await axiosClient.post(
         authenticationRoutes.userLogin,
@@ -35,21 +40,29 @@ export const authApi = {
       );
 
       return response.data;
-    } catch (error: any) {
-      return error.response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
     }
   },
-  logout: async (): Promise<any> => {
+  logout: async ()=> {
     try {
       const response = await axiosClient.post(authenticationRoutes.logout);
 
       return response.data;
-    } catch (error: any) {
-      return error.response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
     }
   },
 
-  forgotPassword: async (email: string): Promise<any> => {
+  forgotPassword: async (email: string)=> {
     try {
       const response = await axiosClient.post(
         authenticationRoutes.forgotPassword,
@@ -57,8 +70,12 @@ export const authApi = {
       );
 
       return response.data;
-    } catch (error: any) {
-      return error.response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
     }
   },
   resetPassword: async (resetData: {
@@ -72,8 +89,12 @@ export const authApi = {
       );
 
       return response.data;
-    } catch (error: any) {
-      return error.response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
     }
   },
 
@@ -81,7 +102,7 @@ export const authApi = {
     email: string,
     userId: string | undefined,
     purpose: string
-  ): Promise<any> => {
+  )=> {
     try {
       const response = await axiosClient.post(authenticationRoutes.createOtp, {
         email,
@@ -95,9 +116,12 @@ export const authApi = {
       }
 
       return response.data;
-    } catch (error: any) {
-      console.log(error);
-      // return error.response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
     }
   },
 
@@ -105,7 +129,7 @@ export const authApi = {
     email: string,
     otp: string,
     userId?: string
-  ): Promise<any> => {
+  ) => {
     try {
       const response = await axiosClient.post(authenticationRoutes.verifyOtp, {
         email,
@@ -114,11 +138,15 @@ export const authApi = {
       });
 
       return response.data;
-    } catch (error: any) {
-      return error.response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
     }
   },
-  googleLogin: async (idToken: string): Promise<any> => {
+  googleLogin: async (idToken: string) => {
     try {
       const response = await axiosClient.post(
         authenticationRoutes.googleLogin,
@@ -126,12 +154,16 @@ export const authApi = {
       );
 
       return response.data;
-    } catch (error: any) {
-      return error?.response?.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
     }
   },
 
-  verifyPassword: async (password:string): Promise<any> => {
+  verifyPassword: async (password: string) => {
     try {
       const response = await axiosClient.post(
         authenticationRoutes.verifyPassword,
@@ -139,8 +171,80 @@ export const authApi = {
       );
 
       return response.data;
-    } catch (error: any) {
-      return error?.response?.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+  changeEmailRequest: async (data: { password: string; newEmail: string }) => {
+    try {
+      const { password, newEmail } = data;
+      const response = await axiosClient.post(
+        authenticationRoutes.changeEmailRequest,
+        { password, newEmail }
+      );
+
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+  verifyEmailChange: async (otp: string) => {
+    try {
+      const response = await axiosClient.post(
+        authenticationRoutes.verifyEmailChange,
+        { otp }
+      );
+
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+  resendChangeEmailOtp: async () => {
+    try {
+      const response = await axiosClient.post(
+        authenticationRoutes.resendChangeEmailOtp
+      );
+
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+  changePassword: async (data: {
+    currentPassword: string;
+    newPassword: string;
+  }) => {
+    try {
+      const { currentPassword, newPassword } = data;
+      const response = await axiosClient.patch(
+        authenticationRoutes.changePassword,
+        { currentPassword, newPassword }
+      );
+
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
     }
   },
 };

@@ -5,20 +5,17 @@ export const axiosClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
   headers: { "Content-Type": "application/json" },
   timeout: 10000,
-  withCredentials: true, 
+  withCredentials: true,
 });
-
 
 axiosClient.interceptors.request.use(
   (config) => config,
   (error) => {
-
-    const message = error.response?.data?.message || "Something went wrong. Try again!";
+    const message =
+      error.response?.data?.message || "Something went wrong. Try again!";
     return Promise.reject(new Error(message));
   }
 );
-
-
 
 let isRefreshing = false;
 let failedQueue: any[] = [];
@@ -31,15 +28,22 @@ const processQueue = (error: any, token: string | null = null) => {
   failedQueue = [];
 };
 
-
 axiosClient.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
+    console.log(error);
+    const originalRequest = error.config as AxiosRequestConfig & {
+      _retry?: boolean;
+    };
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    const responseData=error?.response?.data as ApiErrorResponse
+
+    if (
+      error.response?.status === 401 &&
+       responseData.code=== "TOKEN_EXPIRED" &&
+      !originalRequest._retry
+    ) {
       if (isRefreshing) {
-
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
@@ -51,15 +55,14 @@ axiosClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-
         await axiosClient.post(authenticationRoutes.refreshToken);
 
         processQueue(null);
-        return axiosClient(originalRequest); 
+        return axiosClient(originalRequest);
       } catch (err) {
         processQueue(err);
         // Refresh failed — redirect to login
-        console.log(err)
+        console.log(err);
 
         return Promise.reject(err);
       } finally {
@@ -70,4 +73,3 @@ axiosClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-

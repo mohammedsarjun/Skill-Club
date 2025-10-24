@@ -1,25 +1,28 @@
-"use client"
-import React, { useState } from 'react';
-import { 
-  FaPlus, 
-  FaTimes, 
-  FaUpload, 
-  FaLink, 
-  FaGithub, 
-  FaRegCalendarAlt, 
-  FaImage, 
-  FaVideo 
-} from 'react-icons/fa';
-import { z } from 'zod';
-import { portfolioSchema } from '@/utils/validation';
-import { freelancerActionApi } from '@/api/action/FreelancerActionApi';
-import toast from 'react-hot-toast';
-import { useRouter } from 'next/navigation';
-
+"use client";
+import React, { useState } from "react";
+import {
+  FaPlus,
+  FaTimes,
+  FaUpload,
+  FaLink,
+  FaGithub,
+  FaRegCalendarAlt,
+  FaImage,
+  FaVideo,
+} from "react-icons/fa";
+import { z } from "zod";
+import { portfolioSchema } from "@/utils/validation";
+import { freelancerActionApi } from "@/api/action/FreelancerActionApi";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { showLoading, hideLoading } from "@/store/slices/loadingSlice";
 // ✅ Cloudinary upload helper
-export const uploadToCloudinary = async (file: File, folder = "portfolio_uploads") => {
+ const uploadToCloudinary = async (
+  file: File,
+  folder = "portfolio_uploads"
+) => {
   if (!file) throw new Error("No file provided");
-
 
   const uploadPreset = process.env.NEXT_PUBLIC_UPLOAD_PRESET;
   const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
@@ -69,47 +72,55 @@ interface FormData {
 
 export default function PortfolioCreator() {
   const [formData, setFormData] = useState<FormData>({
-    title: '',
-    description: '',
+    title: "",
+    description: "",
     technologies: [],
-    projectType: '',
-    role: '',
-    startDate: '',
-    endDate: '',
-    projectUrl: '',
-    githubUrl: '',
+    projectType: "",
+    role: "",
+    startDate: "",
+    endDate: "",
+    projectUrl: "",
+    githubUrl: "",
     images: [null, null],
-    video: null
+    video: null,
   });
 
-  const [techInput, setTechInput] = useState<string>('');
-  const [imagePreviews, setImagePreviews] = useState<string[]>(['', '']);
-  const [videoPreview, setVideoPreview] = useState<string>('');
+  const [techInput, setTechInput] = useState<string>("");
+  const [imagePreviews, setImagePreviews] = useState<string[]>(["", ""]);
+  const [videoPreview, setVideoPreview] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const router=useRouter()
+  const router = useRouter();
+  const dispatch = useDispatch();
   const projectTypes: string[] = [
-    'Web App',
-    'Mobile App',
-    'Desktop App',
-    'Design',
-    'API/Backend',
-    'Full Stack',
-    'Other'
+    "Web App",
+    "Mobile App",
+    "Desktop App",
+    "Design",
+    "API/Backend",
+    "Full Stack",
+    "Other",
   ];
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    setErrors(prev => ({ ...prev, [name]: '' }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  const handleImageUpload = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (
+    index: number,
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = e.target.files?.[0];
-    if (file && file.type.startsWith('image/')) {
+    if (file && file.type.startsWith("image/")) {
       const newImages = [...formData.images];
       newImages[index] = file;
-      setFormData(prev => ({ ...prev, images: newImages }));
+      setFormData((prev) => ({ ...prev, images: newImages }));
 
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -123,9 +134,9 @@ export default function PortfolioCreator() {
 
   const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && file.type.startsWith('video/')) {
-      setFormData(prev => ({ ...prev, video: file }));
-      setErrors(prev => ({ ...prev, video: '' }));
+    if (file && file.type.startsWith("video/")) {
+      setFormData((prev) => ({ ...prev, video: file }));
+      setErrors((prev) => ({ ...prev, video: "" }));
 
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -138,32 +149,32 @@ export default function PortfolioCreator() {
   const removeImage = (index: number) => {
     const newImages = [...formData.images];
     newImages[index] = null;
-    setFormData(prev => ({ ...prev, images: newImages }));
+    setFormData((prev) => ({ ...prev, images: newImages }));
 
     const newPreviews = [...imagePreviews];
-    newPreviews[index] = '';
+    newPreviews[index] = "";
     setImagePreviews(newPreviews);
   };
 
   const removeVideo = () => {
-    setFormData(prev => ({ ...prev, video: null }));
-    setVideoPreview('');
+    setFormData((prev) => ({ ...prev, video: null }));
+    setVideoPreview("");
   };
 
   const addTechnology = () => {
     if (techInput.trim() && !formData.technologies.includes(techInput.trim())) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        technologies: [...prev.technologies, techInput.trim()]
+        technologies: [...prev.technologies, techInput.trim()],
       }));
-      setTechInput('');
+      setTechInput("");
     }
   };
 
   const removeTechnology = (tech: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      technologies: prev.technologies.filter(t => t !== tech)
+      technologies: prev.technologies.filter((t) => t !== tech),
     }));
   };
 
@@ -172,14 +183,14 @@ export default function PortfolioCreator() {
     const tempData = {
       ...formData,
       images: formData.images.filter(Boolean),
-      video: formData.video
+      video: formData.video,
     };
 
     const validation = portfolioSchema.safeParse(tempData);
 
     if (!validation.success) {
       const fieldErrors: Record<string, string> = {};
-      validation.error.issues.forEach(err => {
+      validation.error.issues.forEach((err) => {
         if (err.path[0]) fieldErrors[err.path[0] as string] = err.message;
       });
       setErrors(fieldErrors);
@@ -188,7 +199,7 @@ export default function PortfolioCreator() {
 
     setErrors({});
     setIsSubmitting(true);
-
+    dispatch(showLoading());
     try {
       // ✅ Upload all media to Cloudinary first
       const imageUrls: string[] = [];
@@ -208,46 +219,45 @@ export default function PortfolioCreator() {
       const submitData = {
         ...formData,
         images: imageUrls,
-        video: videoUrl
+        video: videoUrl,
       };
 
-      console.log('Submitting portfolio data...');
-      console.log('Final Data:', submitData);
+      console.log("Submitting portfolio data...");
+      console.log("Final Data:", submitData);
 
       const response = await freelancerActionApi.createPortFolio(submitData);
 
       if (response.success) {
         console.log(response.data);
-        router.replace("/freelancer/profile")
+        router.replace("/freelancer/profile");
         toast.success("Portfolio created successfully!");
       } else {
         toast.error(response.message);
       }
-
     } catch (error) {
-      console.error('Error submitting portfolio:', error);
-      toast.error('❌ Error creating portfolio. Please try again.');
+      console.error("Error submitting portfolio:", error);
+      toast.error("❌ Error creating portfolio. Please try again.");
     } finally {
-      setIsSubmitting(false);
+       dispatch((hideLoading()));
     }
   };
 
   const clearForm = () => {
     setFormData({
-      title: '',
-      description: '',
+      title: "",
+      description: "",
       technologies: [],
-      projectType: '',
-      role: '',
-      startDate: '',
-      endDate: '',
-      projectUrl: '',
-      githubUrl: '',
+      projectType: "",
+      role: "",
+      startDate: "",
+      endDate: "",
+      projectUrl: "",
+      githubUrl: "",
       images: [null, null],
-      video: null
+      video: null,
     });
-    setImagePreviews(['', '']);
-    setVideoPreview('');
+    setImagePreviews(["", ""]);
+    setVideoPreview("");
     setErrors({});
   };
 
@@ -257,14 +267,20 @@ export default function PortfolioCreator() {
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-lg shadow-lg p-8">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Create Portfolio Project</h1>
-            <p className="text-gray-600">Showcase your work and skills to potential clients</p>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+              Create Portfolio Project
+            </h1>
+            <p className="text-gray-600">
+              Showcase your work and skills to potential clients
+            </p>
           </div>
 
           <div className="space-y-6">
             {/* Title */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Project Title *</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Project Title *
+              </label>
               <input
                 type="text"
                 name="title"
@@ -273,12 +289,16 @@ export default function PortfolioCreator() {
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#108A00] focus:outline-none transition-colors text-gray-900"
                 placeholder="E.g. E-commerce Platform"
               />
-              {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
+              {errors.title && (
+                <p className="text-red-500 text-sm mt-1">{errors.title}</p>
+              )}
             </div>
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Description *</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Description *
+              </label>
               <textarea
                 name="description"
                 value={formData.description}
@@ -287,14 +307,19 @@ export default function PortfolioCreator() {
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#108A00] focus:outline-none transition-colors resize-none text-gray-900"
                 placeholder="Describe your project, its purpose, and key features..."
               />
-              {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
+              {errors.description && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.description}
+                </p>
+              )}
             </div>
 
             {/* Project Type & Role */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-       
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Your Role *</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Your Role *
+                </label>
                 <input
                   type="text"
                   name="role"
@@ -303,19 +328,25 @@ export default function PortfolioCreator() {
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#108A00] focus:outline-none transition-colors text-gray-900"
                   placeholder="E.g. Full Stack Developer"
                 />
-                {errors.role && <p className="text-red-500 text-sm mt-1">{errors.role}</p>}
+                {errors.role && (
+                  <p className="text-red-500 text-sm mt-1">{errors.role}</p>
+                )}
               </div>
             </div>
 
             {/* Technologies */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Technologies Used</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Technologies Used
+              </label>
               <div className="flex gap-2 mb-3">
                 <input
                   type="text"
                   value={techInput}
                   onChange={(e) => setTechInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTechnology())}
+                  onKeyPress={(e) =>
+                    e.key === "Enter" && (e.preventDefault(), addTechnology())
+                  }
                   className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#108A00] focus:outline-none transition-colors text-gray-900"
                   placeholder="E.g. React, Node.js, MongoDB"
                 />
@@ -365,7 +396,11 @@ export default function PortfolioCreator() {
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#108A00] focus:outline-none transition-colors text-gray-900"
                   placeholder="https://project-demo.com"
                 />
-                {errors.projectUrl && <p className="text-red-500 text-sm mt-1">{errors.projectUrl}</p>}
+                {errors.projectUrl && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.projectUrl}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -381,7 +416,11 @@ export default function PortfolioCreator() {
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#108A00] focus:outline-none transition-colors text-gray-900"
                   placeholder="https://github.com/username/repo"
                 />
-                {errors.githubUrl && <p className="text-red-500 text-sm mt-1">{errors.githubUrl}</p>}
+                {errors.githubUrl && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.githubUrl}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -396,9 +435,13 @@ export default function PortfolioCreator() {
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
                     <FaUpload className="w-12 h-12 mb-3 text-gray-400" />
                     <p className="mb-2 text-sm text-gray-500">
-                      <span className="font-semibold">Click to upload video</span>
+                      <span className="font-semibold">
+                        Click to upload video
+                      </span>
                     </p>
-                    <p className="text-xs text-gray-500">MP4, MOV, AVI (MAX. 50MB)</p>
+                    <p className="text-xs text-gray-500">
+                      MP4, MOV, AVI (MAX. 50MB)
+                    </p>
                   </div>
                   <input
                     type="file"
@@ -426,7 +469,9 @@ export default function PortfolioCreator() {
                   </button>
                 </div>
               )}
-              {errors.video && <p className="text-red-500 text-sm mt-1">{errors.video}</p>}
+              {errors.video && (
+                <p className="text-red-500 text-sm mt-1">{errors.video}</p>
+              )}
             </div>
 
             {/* Images Upload */}
@@ -446,7 +491,9 @@ export default function PortfolioCreator() {
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
                           <FaUpload className="w-10 h-10 mb-2 text-gray-400" />
                           <p className="text-xs text-gray-500">
-                            <span className="font-semibold">Click to upload</span>
+                            <span className="font-semibold">
+                              Click to upload
+                            </span>
                           </p>
                         </div>
                         <input
@@ -485,10 +532,12 @@ export default function PortfolioCreator() {
                 onClick={handleSubmit}
                 disabled={isSubmitting}
                 className={`px-8 py-3 rounded-lg text-white font-semibold transition-colors ${
-                  isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#108A00] hover:bg-[#0d6e00]'
+                  isSubmitting
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-[#108A00] hover:bg-[#0d6e00]"
                 }`}
               >
-                {isSubmitting ? 'Submitting...' : 'Create Project'}
+                {isSubmitting ? "Submitting..." : "Create Project"}
               </button>
             </div>
           </div>

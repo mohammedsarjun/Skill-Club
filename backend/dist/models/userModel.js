@@ -1,64 +1,65 @@
 import mongoose, { Schema } from 'mongoose';
 // ------------------- Schemas -------------------
 const addressSchema = new Schema({
-    country: String,
-    streetAddress: String,
-    city: String,
-    state: String,
-    zipCode: String,
+  country: String,
+  streetAddress: String,
+  city: String,
+  state: String,
+  zipCode: String,
 });
 const languageSchema = new Schema({
-    name: {
-        type: String,
-        enum: ['English', 'Tamil', 'Hindi', 'Spanish'],
-        required: true
-    },
-    proficiency: {
-        type: String,
-        enum: ['Conversational', 'Fluent'],
-        required: true
-    }
+  name: {
+    type: String,
+    enum: ['English', 'Tamil', 'Hindi', 'Spanish'],
+    required: true,
+  },
+  proficiency: {
+    type: String,
+    enum: ['Conversational', 'Fluent'],
+    required: true,
+  },
 });
 const experienceSchema = new Schema({
-    company: String,
-    location: String,
-    country: String,
-    isCurrentRole: Boolean,
-    startMonth: String,
-    startYear: Number,
-    endMonth: String,
-    endYear: Number,
+  company: String,
+  location: String,
+  country: String,
+  isCurrentRole: Boolean,
+  startMonth: String,
+  startYear: Number,
+  endMonth: String,
+  endYear: Number,
 });
 const educationSchema = new Schema({
-    school: String,
-    degree: String,
-    fieldOfStudy: String,
-    startYear: Number,
-    endYear: Number,
-    description: String,
+  school: String,
+  degree: String,
+  fieldOfStudy: String,
+  startYear: Number,
+  endYear: Number,
+  description: String,
 });
 const freelancerProfileSchema = new Schema({
-    logo: String,
-    workCategory: String,
-    specialties: [String],
-    skills: [{ type: Schema.Types.ObjectId, ref: 'skill' }],
-    professionalRole: String,
-    experiences: [experienceSchema],
-    education: [educationSchema],
-    languages: [languageSchema],
-    bio: String,
-    hourlyRate: Number,
-    portfolio: [],
+  logo: String,
+  workCategory: String,
+  specialties: [String],
+  skills: [{ type: Schema.Types.ObjectId, ref: 'skill' }],
+  professionalRole: String,
+  experiences: [experienceSchema],
+  education: [educationSchema],
+  languages: [languageSchema],
+  bio: String,
+  hourlyRate: Number,
+  portfolio: [],
 });
 // ------------------- Client Profile -------------------
 const clientProfileSchema = new Schema({
-    companyName: { type: String, required: true },
-    logo: String,
-    description: String,
-    website: String,
-    location: String,
+  companyName: { type: String, required: true },
+  logo: String,
+  description: String,
+  website: String,
+  location: String,
 });
-const userSchema = new Schema({
+const userSchema = new Schema(
+  {
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     googleId: { type: String, required: false },
@@ -79,7 +80,9 @@ const userSchema = new Schema({
     resetPasswordToken: { type: String, default: undefined },
     resetPasswordExpires: { type: Date, default: undefined },
     provider: { type: String, enum: ['local', 'google'], default: 'local' },
-}, { timestamps: true });
+  },
+  { timestamps: true },
+);
 // ------------------- Model -------------------
 export const User = mongoose.model('User', userSchema);
 //# sourceMappingURL=userModel.js.map

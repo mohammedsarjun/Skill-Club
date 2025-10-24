@@ -1,4 +1,4 @@
-import { ResSkillDtoMinimal } from "../dto/skill.dto.js";
-import { ISkill } from "../models/interfaces/ISkillModel.js";
+import { ResSkillDtoMinimal } from '../dto/skill.dto';
+import { ISkill } from '../models/interfaces/i-skill.model';
 export declare const mapSkillModelToSpecialityDtoMinimal: (skill: ISkill) => ResSkillDtoMinimal;
 //# sourceMappingURL=skill.mappper.d.ts.map

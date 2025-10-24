@@ -1,45 +1,65 @@
-import { Types } from "mongoose";
-import { CreateSkillDTO, GetSkillDto, SkillDto, UpdateSkillDTO } from "../../dto/adminDTO/skill.dto.js";
-import { ISkill } from "../../models/interfaces/ISkillModel.js";
+import { Types } from 'mongoose';
+import {
+  CreateSkillDTO,
+  GetSkillDto,
+  SkillDto,
+  UpdateSkillDTO,
+} from '../../dto/adminDTO/skill.dto';
+import { ISkill } from '../../models/interfaces/i-skill.model';
 
-
-export const mapCreateSkillDtoToSkillModel = (
-  dto: CreateSkillDTO
-): CreateSkillDTO => {
+export const mapCreateSkillDtoToSkillModel = (dto: CreateSkillDTO): CreateSkillDTO => {
   return {
     name: dto.name,
-    specialities:dto.specialities.map(id => new Types.ObjectId(id)),
+    specialities: dto.specialities.map((id) => new Types.ObjectId(id)),
     status: dto.status,
   };
 };
-
 
 export const mapSkillModelToSkillDto = (
-  dto: any
-): SkillDto=> {
+  dto: Omit<ISkill, 'specialities'> & {
+    specialities: { _id: string; name: string }[];
+  },
+): SkillDto => {
   return {
-    id:dto._id.toString(),
+    id: dto._id.toString(),
     name: dto.name,
-    specialities:dto.specialities.map((spec:any) => ({id:spec._id.toString(),name:spec.name})),
+    specialities: dto.specialities.map((spec) => ({
+      specialityId: spec._id.toString(),
+      specialityName: spec.name,
+    })),
     status: dto.status,
   };
 };
 
-
-export function mapSkillQuery(dto: any): GetSkillDto {
+export const mapSkillModelToAddSkillDto = (
+  dto: Omit<ISkill, 'specialities'> & {
+    specialities: { _id: string; name: string }[];
+  },
+): SkillDto => {
   return {
-    search: dto.search || "",
+    id: dto._id.toString(),
+    name: dto.name,
+    specialities: dto.specialities.map((spec) => ({
+      specialityId: spec._id.toString(),
+      specialityName: spec.name,
+    })),
+    status: dto.status,
+  };
+};
+
+export function mapSkillQuery(dto: GetSkillDto): GetSkillDto {
+  return {
+    search: dto.search || '',
     page: dto.page ? Number(dto.page) : 1,
     limit: dto.limit ? Number(dto.limit) : 10,
     mode: dto.mode,
   };
 }
 
-
 export const mapUpdateSkillDtoToSkillModel = (
-  dto: Partial<UpdateSkillDTO> // <- make it partial
-): Partial<Pick<ISkill, "name" | "specialities" | "status">> => {
-  const updatedData: Partial<Pick<ISkill, "name" | "specialities" | "status">> = {};
+  dto: Partial<UpdateSkillDTO>, // <- make it partial
+): Partial<Pick<ISkill, 'name' | 'specialities' | 'status'>> => {
+  const updatedData: Partial<Pick<ISkill, 'name' | 'specialities' | 'status'>> = {};
 
   if (dto.name !== undefined) updatedData.name = dto.name;
   if (dto.specialties !== undefined) updatedData.specialities = dto.specialties;
@@ -47,6 +67,3 @@ export const mapUpdateSkillDtoToSkillModel = (
 
   return updatedData;
 };
-
-
-

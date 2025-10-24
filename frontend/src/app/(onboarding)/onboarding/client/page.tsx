@@ -26,11 +26,7 @@ interface ClientDetailsProps {
   };
 }
 
-export default function ClientDetailsForm({
-  onBack,
-  onNext,
-  savedData,
-}: ClientDetailsProps) {
+export default function ClientDetailsForm() {
   const [formData, setFormData] = useState({
     companyName: "",
     logo: "",
@@ -47,17 +43,17 @@ export default function ClientDetailsForm({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const dispatch=useDispatch()
-  // ✅ Load saved data if available
-  useEffect(() => {
-    if (savedData) {
-      setFormData({
-        companyName: savedData.companyName || "",
-        logo: savedData.logo || "",
-        description: savedData.description || "",
-        website: savedData.website || "",
-      });
-    }
-  }, [savedData]);
+  // // ✅ Load saved data if available
+  // useEffect(() => {
+  //   if (savedData) {
+  //     setFormData({
+  //       companyName: savedData.companyName || "",
+  //       logo: savedData.logo || "",
+  //       description: savedData.description || "",
+  //       website: savedData.website || "",
+  //     });
+  //   }
+  // }, [savedData]);
 
   const validateForm = () => {
     const newErrors = { companyName: "", website: "" };
@@ -274,7 +270,7 @@ export default function ClientDetailsForm({
 
       {/* Navigation */}
       <div className="flex justify-between mt-8">
-        <Button content="Back" type="button" color="gray" onClick={onBack} />
+        <Button content="Back" type="button" color="gray"/>
         <Button
           content={uploading ? "Uploading..." : "Save"}
           type="button"

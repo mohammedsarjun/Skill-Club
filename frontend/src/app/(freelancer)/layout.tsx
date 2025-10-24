@@ -10,11 +10,9 @@ type LayoutProps = {
 
 export default function Layout({ children }: LayoutProps) {
   return (
-    <VerifyUser>
       <div className="bg-background min-h-screen">
         <FreelancerHeader></FreelancerHeader>
         {children}
       </div>
-    </VerifyUser>
   );
 }

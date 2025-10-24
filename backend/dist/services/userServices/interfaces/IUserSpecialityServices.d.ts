@@ -1,5 +1,5 @@
-import { SpecialityDtoMinimal } from "../../../dto/speciality.dto.js";
+import { SpecialityDtoMinimal } from '../../../dto/speciality.dto.js';
 export interface IUserSpecialityServices {
-    getSpecialities(categoryId: string): Promise<SpecialityDtoMinimal[] | null>;
+  getSpecialities(categoryId: string): Promise<SpecialityDtoMinimal[] | null>;
 }
 //# sourceMappingURL=IUserSpecialityServices.d.ts.map

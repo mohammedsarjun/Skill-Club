@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { Types } from 'mongoose';
 export interface CreateSkillDTO {
     name: string;
     specialities: Types.ObjectId[];
@@ -22,6 +22,15 @@ export interface SkillDto {
     specialities: {
         specialityId: string;
         specialityName: string;
+    }[];
+    status: string;
+}
+export interface SkillResponseDto {
+    _id: string;
+    name: string;
+    specialities: {
+        _id: Types.ObjectId;
+        name: string;
     }[];
     status: string;
 }

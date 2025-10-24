@@ -1,4 +1,7 @@
-export const MESSAGES = {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.MESSAGES = void 0;
+exports.MESSAGES = {
     AUTH: {
         LOGIN_SUCCESS: 'Login successful',
         LOGOUT_SUCCESS: 'Logout successful',
@@ -7,7 +10,7 @@ export const MESSAGES = {
         UNAUTHORIZED: 'You are not authorized to access this resource',
         RESET_LINK_SENT: 'Reset link sent to your email.',
         PASSWORD_CHANGED: 'Password Changed Successfully',
-        PASSWORD_VERIFIED: "Password Verfied Successfully"
+        PASSWORD_VERIFIED: 'Password Verfied Successfully',
     },
     Freelancer: {
         UPDATED: 'Freelancer updated successfully',
@@ -27,7 +30,7 @@ export const MESSAGES = {
         CREATED: 'User created successfully',
         UPDATED: 'User updated successfully',
         FETCH_SUCCESS: 'User data fetched successfully',
-        FETCH_STATS_SUCCESS: "User Stats Fetched Successfully",
+        FETCH_STATS_SUCCESS: 'User Stats Fetched Successfully',
     },
     GENERAL: {
         SERVER_ERROR: 'Something went wrong, please try again later',

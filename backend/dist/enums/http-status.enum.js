@@ -1,4 +1,7 @@
-export var HttpStatus;
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.HttpStatus = void 0;
+var HttpStatus;
 (function (HttpStatus) {
     HttpStatus[HttpStatus["OK"] = 200] = "OK";
     HttpStatus[HttpStatus["CREATED"] = 201] = "CREATED";
@@ -9,5 +12,5 @@ export var HttpStatus;
     HttpStatus[HttpStatus["CONFLICT"] = 409] = "CONFLICT";
     HttpStatus[HttpStatus["GONE"] = 410] = "GONE";
     HttpStatus[HttpStatus["INTERNAL_SERVER_ERROR"] = 500] = "INTERNAL_SERVER_ERROR";
-})(HttpStatus || (HttpStatus = {}));
+})(HttpStatus || (exports.HttpStatus = HttpStatus = {}));
 //# sourceMappingURL=http-status.enum.js.map

@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { Types } from 'mongoose';
 export interface CreatePortfolioDto {
     freelancerId: Types.ObjectId;
     title: string;

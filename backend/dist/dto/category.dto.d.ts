@@ -13,7 +13,13 @@ export interface GetCategoryDto {
     search?: string;
     page?: number;
     limit?: number;
-    mode: string;
+    mode?: string;
+}
+export interface CategoryQueryParams {
+    search?: string;
+    page?: number;
+    limit?: number;
+    mode?: string;
 }
 export interface CategoryDto {
     id: string;

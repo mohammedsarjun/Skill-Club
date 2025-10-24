@@ -4,3 +4,12 @@ export interface IClientProfile {
   description?: string;
   website?: string;
 }
+
+
+export interface IAddress {
+  country: string;
+  streetAddress: string;
+  city: string;
+  state: string;
+  zipCode: number;
+}

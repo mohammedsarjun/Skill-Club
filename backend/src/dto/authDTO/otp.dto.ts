@@ -1,5 +1,5 @@
-export interface GetOtpDto{
-  email:string,
-  expiresAt:Date,
-  purpose:"signup"|"forgotPassword"
+export interface GetOtpDto {
+  email: string;
+  expiresAt: Date;
+  purpose: 'signup' | 'forgotPassword' | 'changeEmail';
 }

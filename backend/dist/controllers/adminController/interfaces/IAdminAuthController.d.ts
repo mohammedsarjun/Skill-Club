@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
+import { Request, Response } from 'express';
 export interface IAdminAuthController {
-    login(req: Request, res: Response): Promise<void>;
+  login(req: Request, res: Response): Promise<void>;
 }
 //# sourceMappingURL=IAdminAuthController.d.ts.map

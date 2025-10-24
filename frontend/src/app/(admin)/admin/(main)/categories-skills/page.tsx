@@ -35,16 +35,27 @@ interface Skill {
   status: string;
 }
 
+interface ResponseSkill{
+    id: number;
+  name: string;
+  specialities: { specialityId: string; specialityName: string }[];
+  status: string;
+}
 interface Column {
   key: string;
   label: string;
+}
+interface FilterOption {
+  id: string | number;
+  name: string;
 }
 
 interface Filter {
   key: string;
   label: string;
-  options: Record<string, any>[];
+  options: FilterOption[];
 }
+
 
 interface FormField {
   name: string;
@@ -72,7 +83,7 @@ const DynamicManagementPage: React.FC = () => {
   const [canDeleteRow, setCanDeleteRow] = useState(false);
   const [categoriesData, setCategoriesData] = useState<Category[]>([]);
   const [specialtiesData, setSpecialtiesData] = useState<Specialty[]>([]);
-  const [skillsData, setSkillsData] = useState<Skill[]>([]);
+  const [skillsData, setSkillsData] = useState<ResponseSkill[]>([]);
   useEffect(() => {
     async function fetchData() {
       try {
@@ -296,7 +307,7 @@ const DynamicManagementPage: React.FC = () => {
       ];
       data = skillsData.map((skill) => ({
         ...skill,
-        specialities: skill.specialities?.map((s: any) => ({id:s.id,name:s.name})), // array of strings
+        specialities: skill.specialities?.map((s: any) => ({id:s.specialityId,name:s.specialityName})), // array of strings
       }));
 
       filters = [

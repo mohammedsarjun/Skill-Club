@@ -5,6 +5,8 @@ import { uploadToCloudinary } from "@/utils/cloudinary";
 import { clientActionApi } from "@/api/action/ClientActionApi";
 import toast from "react-hot-toast";
 import { ClientProfileData } from "@/types/interfaces/IClient";
+import { clientProfileSchema } from "@/utils/validation";
+import { z } from "zod";
 
 function ClientProfilePage() {
   const [profileData, setProfileData] = useState<Partial<ClientProfileData>>({
@@ -22,10 +24,10 @@ function ClientProfilePage() {
   });
 
   const [isEditing, setIsEditing] = useState(false);
-  const [logo, setLogo] = useState<string>(
-    ""
-  );
+  const [logo, setLogo] = useState<string>("");
   const [uploading, setUploading] = useState(false);
+  const [errors, setErrors] = useState<Partial<Record<keyof ClientProfileData, string>>>({});
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -55,6 +57,9 @@ function ClientProfilePage() {
 
   const handleInputChange = (field: keyof ClientProfileData, value: string) => {
     setProfileData((prev) => ({ ...prev, [field]: value }));
+
+    // Clear error for the field on change
+    setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
 
   const handleUploadClick = () => {
@@ -83,21 +88,25 @@ function ClientProfilePage() {
   };
 
   const handleSave = async () => {
-    setIsEditing(false);
-
-    const updatedFields: Partial<ClientProfileData & { logo: string }> = {};
-
-    if (profileData.companyName !== originalData.companyName) updatedFields.companyName = profileData.companyName;
-    if (profileData.description !== originalData.description) updatedFields.description = profileData.description;
-    if (profileData.website !== originalData.website) updatedFields.website = profileData.website;
-    if (logo !== originalData.logo) updatedFields.logo = logo;
-
-    if (Object.keys(updatedFields).length === 0) {
-      toast("No changes to save");
-      return;
-    }
-
+    // Validate using Zod schema
     try {
+      clientProfileSchema.parse(profileData); // throws if invalid
+      setErrors({});
+
+      setIsEditing(false);
+
+      const updatedFields: Partial<ClientProfileData & { logo: string }> = {};
+      if (profileData.companyName !== originalData.companyName)
+        updatedFields.companyName = profileData.companyName;
+      if (profileData.description !== originalData.description)
+        updatedFields.description = profileData.description;
+      if (profileData.website !== originalData.website) updatedFields.website = profileData.website;
+      if (logo !== originalData.logo) updatedFields.logo = logo;
+
+      if (Object.keys(updatedFields).length === 0) {
+        toast("No changes to save");
+        return;
+      }
 
       const response = await clientActionApi.updateClientData(updatedFields);
       if (response.success) {
@@ -107,8 +116,16 @@ function ClientProfilePage() {
         toast.error(response.message);
       }
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to update profile");
+      if (err instanceof z.ZodError) {
+        const fieldErrors: Partial<Record<keyof ClientProfileData, string>> = {};
+        err.issues.forEach((e) => {
+          const fieldName = e.path[0] as keyof ClientProfileData;
+          fieldErrors[fieldName] = e.message;
+        });
+        setErrors(fieldErrors);
+      } else {
+        toast.error("Something went wrong");
+      }
     }
   };
 
@@ -120,6 +137,7 @@ function ClientProfilePage() {
       website: originalData.website,
     });
     setLogo(originalData.logo);
+    setErrors({});
   };
 
   return (
@@ -139,7 +157,6 @@ function ClientProfilePage() {
               <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg">
                 <img src={logo} alt="Company Logo" className="object-cover w-full h-full" />
               </div>
-
               {isEditing && (
                 <button
                   onClick={handleUploadClick}
@@ -149,8 +166,13 @@ function ClientProfilePage() {
                   <FaCamera className="w-4 h-4" />
                 </button>
               )}
-
-              <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleFileChange} />
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+              />
             </div>
             <h2 className="text-2xl font-bold text-white mt-4">{profileData.companyName}</h2>
             <p className="text-white/80">{profileData.website}</p>
@@ -203,6 +225,7 @@ function ClientProfilePage() {
                     placeholder="Enter company name"
                   />
                 </div>
+                {errors.companyName && <p className="text-red-500 text-sm mt-1">{errors.companyName}</p>}
               </div>
 
               {/* Description */}
@@ -219,6 +242,7 @@ function ClientProfilePage() {
                     placeholder="Enter company description"
                   />
                 </div>
+                {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
               </div>
 
               {/* Website URL */}
@@ -235,6 +259,7 @@ function ClientProfilePage() {
                     placeholder="https://www.example.com"
                   />
                 </div>
+                {errors.website && <p className="text-red-500 text-sm mt-1">{errors.website}</p>}
               </div>
             </form>
           </div>

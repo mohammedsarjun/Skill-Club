@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { Types } from 'mongoose';
 export interface CreateSpecialityDTO {
     name: string;
     category: Types.ObjectId;
@@ -15,7 +15,16 @@ export interface GetSpecialityDto {
     page?: number;
     limit?: number;
     categoryFilter?: string;
-    mode: string;
+    mode?: string;
+}
+export interface SpecialityQueryParams {
+    search?: string;
+    page?: string;
+    limit?: string;
+    mode?: string;
+    filter?: {
+        category?: string;
+    };
 }
 export interface SpecialityDto {
     id: string;
@@ -33,5 +42,14 @@ export interface PaginatedSpecialityDto {
     total: number;
     page: number;
     limit: number;
+}
+export interface SpecialityEntity {
+    _id: string | Types.ObjectId;
+    name: string;
+    category?: {
+        _id: string | Types.ObjectId;
+        name: string;
+    };
+    status: string;
 }
 //# sourceMappingURL=speciality.dto.d.ts.map

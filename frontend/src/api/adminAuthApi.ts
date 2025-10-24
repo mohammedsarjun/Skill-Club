@@ -1,39 +1,47 @@
 import adminRouterEndPoints from "@/types/endPoints/adminEndPoints";
 import { axiosClient } from "./axiosClient";
+import axios from "axios";
 
 export const adminAuthApi = {
-  login: async (data:{email:string,password:string}): Promise<any> => {
+  login: async (data: { email: string; password: string })=> {
     try {
-
       const response = await axiosClient.post(
         adminRouterEndPoints.adminLogin,
         data
       );
 
       return response.data;
-    } catch (error: any) {
-      return error.response.data;
-    }
-  }, logout: async (): Promise<any> => {
-    try {
-      const response = await axiosClient.post(
-        adminRouterEndPoints.logout,
-      );
-
-      return response.data;
-    } catch (error: any) {
-      return error.response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
     }
   },
-  me:async (): Promise<any> => {
+  logout: async ()=> {
     try {
+      const response = await axiosClient.post(adminRouterEndPoints.logout);
 
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+  me: async () => {
+    try {
       const response = await axiosClient.get(adminRouterEndPoints.me);
       return response.data;
-    } catch (error: any) {
-      return error.response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
     }
-  }
-
-
+  },
 };

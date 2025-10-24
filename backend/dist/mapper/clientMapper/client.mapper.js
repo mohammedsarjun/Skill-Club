@@ -1,12 +1,16 @@
-export const mapClientToDTO = (clientData) => {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.mapUpdateClientDtoToClientModel = exports.mapClientToDTO = void 0;
+const mapClientToDTO = (clientData) => {
     return {
         companyName: clientData.companyName,
-        logo: clientData?.logo || "",
-        description: clientData?.description || "",
-        website: clientData?.website || ""
+        logo: clientData?.logo || '',
+        description: clientData?.description || '',
+        website: clientData?.website || '',
     };
 };
-export const mapUpdateClientDtoToClientModel = (clientData) => {
+exports.mapClientToDTO = mapClientToDTO;
+const mapUpdateClientDtoToClientModel = (clientData) => {
     const dtoObj = {};
     if (clientData.companyName) {
         dtoObj.companyName = clientData.companyName;
@@ -22,4 +26,5 @@ export const mapUpdateClientDtoToClientModel = (clientData) => {
     }
     return { clientProfile: dtoObj };
 };
+exports.mapUpdateClientDtoToClientModel = mapUpdateClientDtoToClientModel;
 //# sourceMappingURL=client.mapper.js.map

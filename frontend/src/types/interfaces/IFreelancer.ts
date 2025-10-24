@@ -1,6 +1,5 @@
 export interface IPortfolio {
-
-
+  id:string
   title: string,          // Project title
   description: string,    // Brief overview of the project
   technologies: [string], // E.g. ["React", "Node.js", "MongoDB"]
