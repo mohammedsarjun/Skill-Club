@@ -23,7 +23,7 @@ const ONBOARDING_PATHS = [
 
 const DASHBOARD_ROUTES: Record<string, string> = {
   admin: "/admin/categories-skills",
-  client: "/client/profile",
+  client: "/client",
   freelancer: "/freelancer/profile",
 };
 
@@ -105,7 +105,7 @@ export function middleware(req: NextRequest) {
       } else {
         // If not blocked, redirect away from blocked page
         if (path === "/client/blocked") {
-          return NextResponse.redirect(new URL("/client/profile", req.url));
+          return NextResponse.redirect(new URL("/client/", req.url));
         }
       }
     }

@@ -1,6 +1,7 @@
-import { Types } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
-export interface IJob {
+
+export interface JobData {
   title: string;
   description: string;
   category: string;
@@ -19,10 +20,10 @@ export interface IJob {
   };
 
   clientId: Types.ObjectId;
-  slots?: number; // default 1
+  slots: number; // default 1
   applyUntil?: Date;
 
-  status?: 
+  status: 
     | 'pending_verification'
     | 'open'
     | 'partially_filled'
@@ -31,10 +32,13 @@ export interface IJob {
     | 'archived'
     | 'rejected';
 
-  // Admin verification fields
-  verifiedBy?: Types.ObjectId; // admin who approved
-  rejectedReason?: string; // reason for rejection
 
-  createdAt?: Date;
-  updatedAt?: Date;
+  verifiedBy?: Types.ObjectId; 
+  rejectedReason?: string; 
+
+  createdAt: Date;
+  updatedAt: Date;
 }
+
+
+export interface IJob extends JobData, Document {}

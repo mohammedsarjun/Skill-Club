@@ -12,7 +12,8 @@ type FieldType =
   | "textarea"
   | "checkbox"
   | "select"
-  | "password";
+  | "password"
+  | "radio"
 
 interface SelectOption {
   label: string | number;
@@ -20,7 +21,7 @@ interface SelectOption {
   checked?: boolean;
 }
 
-interface Field {
+export interface Field {
   name: string;
   type: FieldType;
   placeholder?: string;
@@ -34,7 +35,7 @@ interface Field {
   };
 }
 
-interface DynamicFormProps {
+export interface DynamicFormProps {
   fields: Field[] | undefined;
   initialValues?: Record<string, any>;
   onSubmit: (data: any, mode: string) => void;
@@ -284,6 +285,34 @@ const DynamicFormModal: React.FC<DynamicFormProps> = ({
                             <span>{field.label}</span>
                           </label>
                         )}
+                        {errors[field.name] && (
+                          <p className="text-red-500 text-sm">
+                            {errors[field.name]}
+                          </p>
+                        )}
+                      </div>
+                    );
+
+                  case "radio":
+                    return (
+                      <div key={field.name} className="flex-1 space-y-1">
+                        <p className="text-black">{field.label}</p>
+                        {field.options?.map((opt) => (
+                          <label
+                            key={opt.value}
+                            className="flex items-center space-x-2 text-black"
+                          >
+                            <input
+                              type="radio"
+                              name={field.name}
+                              value={opt.value}
+                              checked={formData[field.name] === opt.value}
+                              onChange={handleChange}
+                              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                            />
+                            <span>{opt.label}</span>
+                          </label>
+                        ))}
                         {errors[field.name] && (
                           <p className="text-red-500 text-sm">
                             {errors[field.name]}

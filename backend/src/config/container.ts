@@ -114,8 +114,8 @@ container.register<IFreelancerRepository>('IFreelancerRepository', {
 
 import { IClientService } from '../services/clientServices/interfaces/i-client-services';
 import { ClientService } from '../services/clientServices/client-services';
-import { IClientRepository } from '../repositories/interfaces/i-client-repository';
-import { ClientRepository } from '../repositories/client-repository';
+import { IClientRepository } from '../repositories/clientRepository/interfaces/i-client-repository';
+import { ClientRepository } from '../repositories/clientRepository/client-repository';
 
 container.register<IClientService>('IClientService', { useClass: ClientService });
 container.register<IClientRepository>('IClientRepository', { useClass: ClientRepository });
@@ -135,3 +135,28 @@ container.register<IUserSpecialityServices>('IUserSpecialityServices', {
   useClass: userSpecialityServices,
 });
 container.register<IUserSkillServices>('IUserSkillServices', { useClass: UserSkillServices });
+
+//Week 2
+
+//client job management
+import { IClientJobService } from '../services/clientServices/interfaces/i-client-job-service';
+import { ClientJobService } from '../services/clientServices/client-job-service';
+import { IClientJobRepository } from '../repositories/clientRepository/interfaces/i-client-job-repository';
+import { ClientJobRepository } from '../repositories/clientRepository/client-job-repository';
+
+container.register<IClientJobService>('IClientJobService', {
+  useClass: ClientJobService,
+});
+container.register<IClientJobRepository>('IClientJobRepository', { useClass: ClientJobRepository });
+
+//client category management
+import { IClientCategoryService } from '../services/clientServices/interfaces/i-client-category-service';
+import { ClientCategoryService } from '../services/clientServices/client-category-service';
+import { IClientCategoryRepository } from '../repositories/clientRepository/interfaces/i-client-category-repository';
+import { ClientCategoryRepository } from '../repositories/clientRepository/client-category-repository';
+
+container.register<IClientCategoryService>('IClientCategoryService', {
+  useClass: ClientCategoryService,
+});
+
+container.register<IClientCategoryRepository>('IClientCategoryRepository', { useClass: ClientCategoryRepository });

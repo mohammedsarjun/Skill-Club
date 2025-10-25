@@ -1,7 +1,8 @@
 const clientRouterEndPoints ={
     //me
     me:"/client/me",
-    updateClient:"/client/update"
+    updateClient:"/client/update",
+    getAllCategories:"/client/categories"
 
 
 }

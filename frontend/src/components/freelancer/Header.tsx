@@ -32,7 +32,7 @@ export default function FreelancerHeader() {
 
     if (response.success) {
       dispatch(setUser(response.data));
-      router.push("/client/profile");
+      router.push("/client");
     } else {
       router.replace("/onboarding/client");
     }

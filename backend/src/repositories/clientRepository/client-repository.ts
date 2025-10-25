@@ -1,9 +1,9 @@
-import { User } from '../models/user.model';
-import { IUser } from '../models/interfaces/i-user.model';
-import BaseRepository from './baseRepositories/base-repository';
+import { User } from '../../models/user.model';
+import { IUser } from '../../models/interfaces/i-user.model';
+import BaseRepository from '../baseRepositories/base-repository';
 
 import { IClientRepository } from './interfaces/i-client-repository';
-import { UpdateClientDto } from '../dto/clientDTO/client.dto';
+import { UpdateClientDto } from '../../dto/clientDTO/client.dto';
 
 export class ClientRepository extends BaseRepository<IUser> implements IClientRepository {
   constructor() {

@@ -5,9 +5,13 @@ import { authMiddleware, roleGuard } from '../middlewares/auth-middleware';
 
 import { ClientController } from '../controllers/client/client-controller';
 import { clientBlockMiddleware } from '../middlewares/client-block-middleware';
+import { ClientJobController } from'../controllers/client/client-job-controller';
+import { ClientCategoryController } from '../controllers/client/client-category-controller';
 const clientRouter = express.Router();
 
 const clientController = container.resolve(ClientController);
+const clientJobController=container.resolve(ClientJobController)
+const clientCategoryController=container.resolve(ClientCategoryController)
 
 clientRouter.get(
   '/me',
@@ -29,6 +33,14 @@ clientRouter.post(
   authMiddleware,
   roleGuard('client'),
   clientBlockMiddleware,
-  clientController.updateClient.bind(clientController),
+  clientJobController.createJob.bind(clientJobController),
+);
+
+clientRouter.get(
+  '/categories',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientCategoryController.getAllCategories.bind(clientCategoryController),
 );
 export default clientRouter;

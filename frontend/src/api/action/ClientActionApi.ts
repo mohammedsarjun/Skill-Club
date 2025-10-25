@@ -33,4 +33,20 @@ export const clientActionApi = {
       }
     }
   },
+
+  async getAllCategories() {
+    try {
+      const response = await axiosClient.get(
+        clientRouterEndPoints.getAllCategories
+      );
+
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
 };
