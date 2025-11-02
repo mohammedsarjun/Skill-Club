@@ -1,13 +1,6 @@
 import Image from "next/image";
 import React from "react";
-
-type CardProps = {
-  title: string;            // Card title
-  content?: string;          // Card content / description
-  imageSrc?: string;         // Optional image URL
-  footer?: React.ReactNode;  // Optional footer (buttons, links, etc.)
-  className?: string;        // Extra Tailwind classes
-};
+import { CardProps } from '@/types/interfaces/ui';
 
 export default function Card({
   title,

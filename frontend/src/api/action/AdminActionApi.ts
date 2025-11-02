@@ -5,7 +5,9 @@ import {
   ISkills,
   ISpeaciality,
 } from "@/types/interfaces/IAdmin";
+import { IJobQueryParams } from "@/types/interfaces/IJob";
 import axios from "axios";
+import { reject } from "lodash";
 
 const AdminActionApi = {
   createCategory: async (data: IcategoryData) => {
@@ -103,7 +105,7 @@ const AdminActionApi = {
     limit: number = 10,
     filter: Record<string, any>,
     mode: string = "detailed"
-  )=> {
+  ) => {
     try {
       const response = await axiosClient.get(adminEndPoint.adminGetSpeciality, {
         params: {
@@ -128,6 +130,19 @@ const AdminActionApi = {
   async getUserStats() {
     try {
       const response = await axiosClient.get(adminEndPoint.adminGetUserStats);
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getJobStats() {
+    try {
+      const response = await axiosClient.get(adminEndPoint.adminGetJobStats);
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
@@ -254,6 +269,82 @@ const AdminActionApi = {
       }
     }
   },
-};
+
+  async getAllJobs(
+    search: string = "",
+    page: number = 1,
+    limit: number = 10,
+    filters: Pick<IJobQueryParams, "filters">
+  ) {
+    try {
+      const response = await axiosClient.get(adminEndPoint.adminGetAllJobs, {
+        params: {
+          search,
+          page,
+          limit,
+          filters,
+        },
+      });
+
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+  async getJobDetail(jobId: string) {
+    try {
+      const response = await axiosClient.get(`${adminEndPoint.adminGetJobDetail}/${jobId}`);
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+  async approveJob(jobId: string) {
+    try {
+      const response = await axiosClient.patch(adminEndPoint.adminApproveJob(jobId));
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async rejectJob(jobId: string, rejectedReason: string) {
+    try {
+      const response = await axiosClient.patch(adminEndPoint.adminRejectJob(jobId), { rejectedReason });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async suspendJob(jobId: string, suspendedReason: string) {
+    try {
+      const response = await axiosClient.patch(adminEndPoint.adminSuspendJob(jobId), { suspendedReason });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+}
 
 export default AdminActionApi;

@@ -2,12 +2,13 @@ import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
-import { IClientService } from './interfaces/i-client-services';
-import type { IClientRepository } from '../../repositories/clientRepository/interfaces/i-client-repository';
+import { IClientService } from './interfaces/client-services.interface';
+
 import { mapClientToDTO } from '../../mapper/clientMapper/client.mapper';
 import { GetClientDTO, UpdateClientDto } from '../../dto/clientDTO/client.dto';
 import { flattenObject } from '../../utils/flatten-objects';
 import { ERROR_MESSAGES } from '../../contants/error-constants';
+import { IClientRepository } from 'src/repositories/interfaces/client-repository.interface';
 
 @injectable()
 export class ClientService implements IClientService {

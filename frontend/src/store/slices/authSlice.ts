@@ -2,12 +2,14 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface User {
-  userId:string,
-  roles:string[],
-  activeRole:string,
-  isOnboardingCompleted:boolean,
-  clientProfile?:string|undefined,
-  freelancerProfile?:string|undefined
+  userId: string;
+  roles: string[];
+  activeRole: string;
+  isOnboardingCompleted: boolean;
+  clientProfile?: string | undefined;
+  freelancerProfile?: string | undefined;
+  isFreelancerBlocked: boolean;
+  isClientBlocked: boolean;
 }
 
 interface AuthState {

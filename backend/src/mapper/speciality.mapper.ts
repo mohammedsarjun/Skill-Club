@@ -7,7 +7,7 @@ import {
   SpecialityQueryParams,
   UpdateSpecialityDTO,
 } from '../dto/speciality.dto.js';
-import { ISpeciality } from '../models/interfaces/i-speciality.model';
+import { ISpeciality } from '../models/interfaces/speciality.model.interface.js';
 
 export const mapCreateSpecialityDtoToSpecialityModel = (
   dto: CreateSpecialityDTO,

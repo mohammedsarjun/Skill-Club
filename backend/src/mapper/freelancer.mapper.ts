@@ -1,4 +1,4 @@
-import { IExperience, ILanguage, IUser } from '../models/interfaces/i-user.model';
+import { IExperience, ILanguage, IUser } from '../models/interfaces/user.model.interface';
 import {
   ExperienceDTO,
   EducationDTO,

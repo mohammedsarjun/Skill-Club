@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import type { IAdminCategoryController } from './interfaces/i-admin-category-controller';
+import type { IAdminCategoryController } from './interfaces/admin-category-controller.interface';
 import { injectable, inject } from 'tsyringe';
-import type { IAdminCategoryServices } from '../../services/adminServices/interfaces/i-admin-category-services';
+import type { IAdminCategoryServices } from '../../services/adminServices/interfaces/admin-category-services.interface';
 import '../../config/container';
 import { CategoryQueryParams, CreateCategoryDTO, UpdateCategoryDTO } from '../../dto/category.dto';
 import { HttpStatus } from '../../enums/http-status.enum';
@@ -9,18 +9,18 @@ import { MESSAGES } from '../../contants/contants';
 
 @injectable()
 export class AdminCategoryController implements IAdminCategoryController {
-  private adminCategoryService: IAdminCategoryServices;
+  private _adminCategoryService: IAdminCategoryServices;
 
   constructor(
     @inject('IAdminCategoryServices')
     adminCategoryService: IAdminCategoryServices,
   ) {
-    this.adminCategoryService = adminCategoryService;
+    this._adminCategoryService = adminCategoryService;
   }
 
   async addCategory(req: Request, res: Response): Promise<void> {
     const categoryDto: CreateCategoryDTO = req.body;
-    const result = await this.adminCategoryService.addCategory(categoryDto);
+    const result = await this._adminCategoryService.addCategory(categoryDto);
     res.status(HttpStatus.CREATED).json({
       success: true,
       message: MESSAGES.CATEGORY.CREATED,
@@ -31,7 +31,7 @@ export class AdminCategoryController implements IAdminCategoryController {
   async editCategory(req: Request, res: Response): Promise<void> {
     const dto: UpdateCategoryDTO = req.body;
 
-    const result = await this.adminCategoryService.editCategory(dto, dto.id);
+    const result = await this._adminCategoryService.editCategory(dto, dto.id);
 
     res.status(HttpStatus.OK).json({
       success: true,
@@ -47,7 +47,7 @@ export class AdminCategoryController implements IAdminCategoryController {
       limit: Number(req?.query?.limit) || 10,
       mode: typeof req.query.mode === 'string' ? req.query.mode : '',
     };
-    const result = await this.adminCategoryService.getCategory(dto);
+    const result = await this._adminCategoryService.getCategory(dto);
     res.status(HttpStatus.OK).json({
       success: true,
       message: MESSAGES.CATEGORY.FETCH_SUCCESS,

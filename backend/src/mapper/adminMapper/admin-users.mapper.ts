@@ -6,7 +6,7 @@ import {
   UserDetailDto,
   UserQuery,
 } from '../../dto/adminDTO/admin-users.dto';
-import { IUser } from '../../models/interfaces/i-user.model';
+import { IUser } from '../../models/interfaces/user.model.interface';
 
 export const mapUserModelDtoToAdminUserStatsDto = (dto: AdminUserStatsDto): AdminUserStatsDto => {
   return {

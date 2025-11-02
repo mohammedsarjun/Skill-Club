@@ -7,7 +7,7 @@ import Input from "@/components/common/Input";
 import Checkbox from "@/components/common/CheckBox";
 import Image from "next/image";
 import AuthGuard from "@/components/AuthGaurd";
-import { emailSchema, passwordSchema } from "@/utils/validation";
+import { emailSchema, passwordSchema } from "@/utils/validations/validation";
 import { z } from "zod";
 import { authApi } from "@/api/authApi";
 import { LoginData } from "@/api/authApi";
@@ -16,18 +16,19 @@ import { useDispatch } from "react-redux";
 import { setUser } from "@/store/slices/authSlice";
 import { adminAuthApi } from "@/api/adminAuthApi";
 
- function LoginPage() {
+function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
- const [formData, setFormData] = useState<LoginData>({
-  email: "",
-  password: "",
-  rememberMe:false
-});
+  const [formData, setFormData] = useState<LoginData>({
+    email: "",
+    password: "",
+    rememberMe: false,
+  });
 
-
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
-  const dispatch=useDispatch()
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
+    {}
+  );
+  const dispatch = useDispatch();
   const route = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,8 +50,10 @@ import { adminAuthApi } from "@/api/adminAuthApi";
     const passwordResult = passwordSchema.safeParse(formData.password);
 
     const newErrors: typeof errors = {};
-    if (!emailResult.success) newErrors.email = emailResult.error.issues[0].message;
-    if (!passwordResult.success) newErrors.password = passwordResult.error.issues[0].message;
+    if (!emailResult.success)
+      newErrors.email = emailResult.error.issues[0].message;
+    if (!passwordResult.success)
+      newErrors.password = passwordResult.error.issues[0].message;
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -62,12 +65,12 @@ import { adminAuthApi } from "@/api/adminAuthApi";
 
     const response = await adminAuthApi.login(formData);
 
-    if(response.success){
-
+    if (response.success) {
       dispatch(setUser(response.data));
-      route.replace("/admin/categories-skills")
-    }else{
-      toast.error(response.message)
+      localStorage.setItem("user", JSON.stringify(response.data));
+      route.replace("/admin/categories-skills");
+    } else {
+      toast.error(response.message);
     }
     await new Promise((resolve) => setTimeout(resolve, 2000));
     setIsLoading(false);
@@ -91,8 +94,6 @@ import { adminAuthApi } from "@/api/adminAuthApi";
       </div>
 
       <div className="signUp bg-white p-6 rounded-lg shadow-lg w-full max-w-md space-y-6">
-
-   
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
             <Input
@@ -102,7 +103,9 @@ import { adminAuthApi } from "@/api/adminAuthApi";
               value={formData.email}
               onChange={handleChange}
             />
-            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+            {errors.email && (
+              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+            )}
           </div>
 
           <div>
@@ -114,25 +117,23 @@ import { adminAuthApi } from "@/api/adminAuthApi";
               value={formData.password}
               onChange={handleChange}
             />
-            {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+            {errors.password && (
+              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+            )}
           </div>
 
           <div className="flex justify-center">
-            <Button type="submit" content={isLoading ? "Loading..." : "LOGIN"} />
+            <Button
+              type="submit"
+              content={isLoading ? "Loading..." : "LOGIN"}
+            />
           </div>
         </form>
-
-
       </div>
     </div>
   );
 }
 
-
-export default function Login(){
-  return(
-
-    <LoginPage></LoginPage>
-
-  )
+export default function Login() {
+  return <LoginPage></LoginPage>;
 }

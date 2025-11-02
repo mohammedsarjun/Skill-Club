@@ -3,8 +3,8 @@ import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { MESSAGES } from '../../contants/contants';
-import { IUserSpecialityController } from './interfaces/i-user-speciality-controller';
-import type { IUserSpecialityServices } from '../../services/userServices/interfaces/i-user-speciality-services';
+import { IUserSpecialityController } from './interfaces/user-speciality-controller.interface';
+import type { IUserSpecialityServices } from '../../services/userServices/interfaces/user-speciality-services.interface';
 import { SpecialityDtoMinimal } from '../../dto/speciality.dto';
 
 @injectable()

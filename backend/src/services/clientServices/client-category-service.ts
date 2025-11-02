@@ -10,7 +10,7 @@
  *
  * @dependencies
  * - tsyringe: For dependency injection.
- * - IClientCategoryRepository: For database operations related to client categories.
+ * - CategoryRepository: For database operations related to categories.
  * - AppError & HttpStatus: For consistent error handling.
  *
  * @usage
@@ -21,31 +21,30 @@
  *
  * @see IClientCategoryController
  * @see IClientCategoryService
- * @see IClientCategoryRepository
+ * @see ICategoryRepository
  */
 
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
-import { IClientCategoryService } from './interfaces/i-client-category-service';
+import { IClientCategoryService } from './interfaces/client-category-service.interface';
 import { GetClientCategoryDTO } from '../../dto/clientDTO/client-category-dto';
-import { IClientCategoryRepository } from '../../repositories/clientRepository/interfaces/i-client-category-repository';
 import { mapCategoryModelToGetClientCategoryDTO } from '../../mapper/clientMapper/client-category-mapper';
+import { ICategoryRepository } from 'src/repositories/interfaces/category-repository.interface';
 
 @injectable()
 export class ClientCategoryService implements IClientCategoryService {
-  private _clientCategoryRepository: IClientCategoryRepository;
-  constructor(
-    @inject('IClientCategoryRepository') clientCategoryRepository: IClientCategoryRepository,
-  ) {
-    this._clientCategoryRepository = clientCategoryRepository;
+  private _categoryRepository: ICategoryRepository;
+  constructor(@inject('ICategoryRepository') categoryRepository: ICategoryRepository) {
+    this._categoryRepository = categoryRepository;
   }
 
   /**
    * @description Fetches all client categories and maps them to DTOs.
    * @returns {Promise<GetClientCategoryDTO[]>} Returns an array of client category DTOs.
    */
+
   async getAllCategories(): Promise<GetClientCategoryDTO[]> {
-    const categories = await this._clientCategoryRepository.getAllCategories();
+    const categories = await this._categoryRepository.getCategories();
 
     const categoryDTOs: GetClientCategoryDTO[] =
       categories?.map(mapCategoryModelToGetClientCategoryDTO) || [];

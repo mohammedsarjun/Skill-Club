@@ -2,10 +2,10 @@ import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { HttpStatus } from '../../enums/http-status.enum';
-import { IFreelancerController } from './interfaces/i-freelancer-controller';
-import type { IFreelancerService } from '../../services/freelancerServices/interfaces/i-freelancer-services';
+import { IFreelancerController } from './interfaces/freelancer-controller.interface';
+import type { IFreelancerService } from '../../services/freelancerServices/interfaces/freelancer-services.interface';
 import { MESSAGES } from '../../contants/contants';
-import { IFreelancerProfile } from '../../models/interfaces/i-user.model';
+import { IFreelancerProfile } from '../../models/interfaces/user.model.interface';
 
 @injectable()
 export class FreelancerController implements IFreelancerController {

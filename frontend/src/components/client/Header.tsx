@@ -6,7 +6,6 @@ import { useDispatch } from "react-redux";
 import { setUser } from "@/store/slices/authSlice";
 import { FaUser, FaChevronDown, FaBell, FaBars, FaTimes } from "react-icons/fa";
 import { userApi } from "@/api/userApi";
-import toast from "react-hot-toast";
 import { useState } from "react";
 
 export default function ClientHeader() {
@@ -18,9 +17,12 @@ export default function ClientHeader() {
 
   const handleLogout = async () => {
     try {
-      await authApi.logout();
-      dispatch(setUser(null));
-      router.push("/login");
+      const respone = await authApi.logout();
+      if (respone.success) {
+        dispatch(setUser(null));
+        localStorage.removeItem("user");
+        router.push("/login");
+      }
     } catch (err) {
       console.error("Logout failed", err);
     }
@@ -31,9 +33,9 @@ export default function ClientHeader() {
 
     if (response.success) {
       dispatch(setUser(response.data));
-      router.replace("/freelancer/profile");
+      router.push("/freelancer/profile");
     } else {
-      router.replace("/onboarding/freelancer/0");
+      router.push("/onboarding/freelancer/0");
     }
   };
 
@@ -63,31 +65,57 @@ export default function ClientHeader() {
               <FaChevronDown className="w-3 h-3" />
             </button>
             <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-              <a href="#" className="block px-4 py-2 text-sm text-black hover:bg-gray-100">
+              <a
+                href="#"
+                className="block px-4 py-2 text-sm text-black hover:bg-gray-100"
+              >
                 Jobs
               </a>
-              <a href="#" className="block px-4 py-2 text-sm text-black hover:bg-gray-100">
+              <a
+                href="#"
+                className="block px-4 py-2 text-sm text-black hover:bg-gray-100"
+              >
                 Post Job
               </a>
-              <a href="#" className="block px-4 py-2 text-sm text-black hover:bg-gray-100">
+              <a
+                href="#"
+                className="block px-4 py-2 text-sm text-black hover:bg-gray-100"
+              >
                 Pending Offers
               </a>
-              <a href="#" className="block px-4 py-2 text-sm text-black hover:bg-gray-100">
+              <a
+                href="#"
+                className="block px-4 py-2 text-sm text-black hover:bg-gray-100"
+              >
                 Search for Talent
               </a>
-              <a href="#" className="block px-4 py-2 text-sm text-black hover:bg-gray-100">
+              <a
+                href="#"
+                className="block px-4 py-2 text-sm text-black hover:bg-gray-100"
+              >
                 Talent You've Hired
               </a>
-              <a href="#" className="block px-4 py-2 text-sm text-black hover:bg-gray-100">
+              <a
+                href="#"
+                className="block px-4 py-2 text-sm text-black hover:bg-gray-100"
+              >
                 Talent You've Saved
               </a>
             </div>
           </div>
 
-          <a href="#" className="text-black hover:text-gray-700">Finance</a>
-          <a href="#" className="text-black hover:text-gray-700">Contract</a>
-          <a href="#" className="text-black hover:text-gray-700">Meetings</a>
-          <a href="#" className="text-black hover:text-gray-700">Messages</a>
+          <a href="#" className="text-black hover:text-gray-700">
+            Finance
+          </a>
+          <a href="#" className="text-black hover:text-gray-700">
+            Contract
+          </a>
+          <a href="#" className="text-black hover:text-gray-700">
+            Meetings
+          </a>
+          <a href="#" className="text-black hover:text-gray-700">
+            Messages
+          </a>
         </nav>
 
         {/* Desktop Right Side */}
@@ -206,7 +234,11 @@ export default function ClientHeader() {
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="text-black hover:text-gray-700 p-2"
           >
-            {isMenuOpen ? <FaTimes className="w-6 h-6" /> : <FaBars className="w-6 h-6" />}
+            {isMenuOpen ? (
+              <FaTimes className="w-6 h-6" />
+            ) : (
+              <FaBars className="w-6 h-6" />
+            )}
           </button>
         </div>
       </div>
@@ -215,7 +247,6 @@ export default function ClientHeader() {
       {isMenuOpen && (
         <div className="lg:hidden bg-white border-t border-gray-200 shadow-lg">
           <div className="px-4 py-3 space-y-2">
-
             {/* Hire Talent Dropdown Mobile */}
             <div className="border-b border-gray-200 pb-2">
               <button
@@ -223,26 +254,48 @@ export default function ClientHeader() {
                 className="flex items-center justify-between w-full text-black hover:text-gray-700 py-2"
               >
                 <span>Hire Talent</span>
-                <FaChevronDown className={`w-3 h-3 transition-transform ${isHireTalentOpen ? 'rotate-180' : ''}`} />
+                <FaChevronDown
+                  className={`w-3 h-3 transition-transform ${
+                    isHireTalentOpen ? "rotate-180" : ""
+                  }`}
+                />
               </button>
               {isHireTalentOpen && (
                 <div className="ml-4 mt-2 space-y-1">
-                  <a href="#" className="block py-2 text-sm text-black hover:text-gray-700">
+                  <a
+                    href="#"
+                    className="block py-2 text-sm text-black hover:text-gray-700"
+                  >
                     Jobs
                   </a>
-                  <a href="#" className="block py-2 text-sm text-black hover:text-gray-700">
+                  <a
+                    href="#"
+                    className="block py-2 text-sm text-black hover:text-gray-700"
+                  >
                     Post Job
                   </a>
-                  <a href="#" className="block py-2 text-sm text-black hover:text-gray-700">
+                  <a
+                    href="#"
+                    className="block py-2 text-sm text-black hover:text-gray-700"
+                  >
                     Pending Offers
                   </a>
-                  <a href="#" className="block py-2 text-sm text-black hover:text-gray-700">
+                  <a
+                    href="#"
+                    className="block py-2 text-sm text-black hover:text-gray-700"
+                  >
                     Search for Talent
                   </a>
-                  <a href="#" className="block py-2 text-sm text-black hover:text-gray-700">
+                  <a
+                    href="#"
+                    className="block py-2 text-sm text-black hover:text-gray-700"
+                  >
                     Talent You've Hired
                   </a>
-                  <a href="#" className="block py-2 text-sm text-black hover:text-gray-700">
+                  <a
+                    href="#"
+                    className="block py-2 text-sm text-black hover:text-gray-700"
+                  >
                     Talent You've Saved
                   </a>
                 </div>
@@ -250,16 +303,28 @@ export default function ClientHeader() {
             </div>
 
             {/* Other Nav Items Mobile */}
-            <a href="#" className="block py-2 text-black hover:text-gray-700 border-b border-gray-200">
+            <a
+              href="#"
+              className="block py-2 text-black hover:text-gray-700 border-b border-gray-200"
+            >
               Finance
             </a>
-            <a href="#" className="block py-2 text-black hover:text-gray-700 border-b border-gray-200">
+            <a
+              href="#"
+              className="block py-2 text-black hover:text-gray-700 border-b border-gray-200"
+            >
               Contract
             </a>
-            <a href="#" className="block py-2 text-black hover:text-gray-700 border-b border-gray-200">
+            <a
+              href="#"
+              className="block py-2 text-black hover:text-gray-700 border-b border-gray-200"
+            >
               Meetings
             </a>
-            <a href="#" className="block py-2 text-black hover:text-gray-700 border-b border-gray-200">
+            <a
+              href="#"
+              className="block py-2 text-black hover:text-gray-700 border-b border-gray-200"
+            >
               Messages
             </a>
           </div>

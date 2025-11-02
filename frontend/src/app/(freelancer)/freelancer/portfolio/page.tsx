@@ -11,7 +11,7 @@ import {
   FaVideo,
 } from "react-icons/fa";
 import { z } from "zod";
-import { portfolioSchema } from "@/utils/validation";
+import { portfolioSchema } from "@/utils/validations/validation";
 import { freelancerActionApi } from "@/api/action/FreelancerActionApi";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";

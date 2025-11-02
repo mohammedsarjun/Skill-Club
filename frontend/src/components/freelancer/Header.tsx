@@ -19,20 +19,22 @@ export default function FreelancerHeader() {
 
   const handleLogout = async () => {
     try {
-      await authApi.logout();
-      dispatch(setUser(null));
-      router.replace("/login");
+      const respone = await authApi.logout();
+      if (respone.success) {
+        dispatch(setUser(null));
+        router.push("/login");
+      }
     } catch (err) {
       console.error("Logout failed", err);
     }
   };
-
   const handleSwitchAccount = async () => {
     const response = await userApi.switchAccount();
 
     if (response.success) {
       dispatch(setUser(response.data));
-      router.push("/client");
+      localStorage.removeItem("user");
+      router.replace("/client");
     } else {
       router.replace("/onboarding/client");
     }
@@ -58,7 +60,7 @@ export default function FreelancerHeader() {
             <a
               href="#"
               className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-              onClick={() => router.push("/client/profile")}
+              onClick={() => router.push("/freelancer/profile")}
             >
               Profile
             </a>

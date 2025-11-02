@@ -1,8 +1,8 @@
 import { CreatePortfolioDto } from '../dto/portfolio.dto';
-import { IPortfolio } from '../models/interfaces/i-portfolio.model';
+import { IPortfolio } from '../models/interfaces/portfolio.model.interface';
 import { portfolioModel } from '../models/portfolio.model';
 import BaseRepository from './baseRepositories/base-repository';
-import { IPortfolioRepository } from './interfaces/i-portfolio-respository';
+import { IPortfolioRepository } from './interfaces/portfolio-respository.interface';
 
 export class PortfolioRepository
   extends BaseRepository<IPortfolio>

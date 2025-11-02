@@ -1,8 +1,8 @@
 import { User } from '../models/user.model';
-import { IUser } from '../models/interfaces/i-user.model';
+import { IUser } from '../models/interfaces/user.model.interface';
 import { FilterQuery, Types } from 'mongoose';
 import BaseRepository from './baseRepositories/base-repository';
-import { IUserRepository } from './interfaces/i-user-repository';
+import { IUserRepository } from './interfaces/user-repository.interface';
 import { AddressDTO } from 'src/dto/user.dto';
 
 export class UserRepository extends BaseRepository<IUser> implements IUserRepository {
@@ -122,6 +122,10 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
   }
 
   async updateUserAddress(userId: string, userAddress: AddressDTO): Promise<IUser | null> {
-    return super.updateById(userId,{ $set:{address:userAddress}})
+    return super.updateById(userId, { $set: { address: userAddress } });
+  }
+
+  async countAllUsers(): Promise<number> {
+    return super.count();
   }
 }

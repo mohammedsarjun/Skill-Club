@@ -1,4 +1,4 @@
 export interface GetClientCategoryDTO {
-  categoryId:string,
-  categoryName:string
+  categoryId: string;
+  categoryName: string;
 }

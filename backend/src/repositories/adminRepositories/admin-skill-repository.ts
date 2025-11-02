@@ -1,8 +1,8 @@
 import { CreateSkillDTO } from 'src/dto/adminDTO/skill.dto';
-import { ISkill } from '../../models/interfaces/i-skill.model';
+import { ISkill } from '../../models/interfaces/skill.model.interface';
 import { skillModel } from '../../models/skill.model';
 import BaseRepository from '../baseRepositories/base-repository';
-import { IAdminSkillRepository } from './interfaces/i-admin-skill-repository';
+import { IAdminSkillRepository } from './interfaces/admin-skill-repository.interface';
 
 export class AdminSkillRepository extends BaseRepository<ISkill> implements IAdminSkillRepository {
   constructor() {
@@ -52,5 +52,9 @@ export class AdminSkillRepository extends BaseRepository<ISkill> implements IAdm
 
   async createSkill(skillData: CreateSkillDTO): Promise<ISkill | null> {
     return super.create(skillData);
+  }
+
+  async countAllSkills(): Promise<number> {
+    return super.count();
   }
 }

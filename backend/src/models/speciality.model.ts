@@ -1,5 +1,5 @@
 import mongoose, { Model, Schema } from 'mongoose';
-import { ISpeciality } from './interfaces/i-speciality.model';
+import { ISpeciality } from './interfaces/speciality.model.interface';
 
 const specialitySchema = new Schema<ISpeciality>(
   {

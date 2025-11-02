@@ -5,46 +5,7 @@ import Button from "./Button";
 import { ZodSchema, ZodError } from "zod";
 import React from "react";
 import { detectArrayType } from "@/utils/arrayUtils";
-
-type FieldType =
-  | "text"
-  | "number"
-  | "textarea"
-  | "checkbox"
-  | "select"
-  | "password"
-  | "radio"
-
-interface SelectOption {
-  label: string | number;
-  value: string | number;
-  checked?: boolean;
-}
-
-export interface Field {
-  name: string;
-  type: FieldType;
-  placeholder?: string;
-  label?: string;
-  options?: SelectOption[];
-  hidden?: boolean;
-  group?: string; // ✅ for side-by-side fields
-  hideOnCheck?: {
-    field: string; // the checkbox field name
-    value?: any; // optional value (if multiple options)
-  };
-}
-
-export interface DynamicFormProps {
-  fields: Field[] | undefined;
-  initialValues?: Record<string, any>;
-  onSubmit: (data: any, mode: string) => void;
-  mode?: "create" | "update";
-  onClose: () => void;
-  validationSchema?: ZodSchema | null;
-  title?: string;
-  layout?: "vertical" | "horizontal"; // ✅ NEW prop
-}
+import { Field, DynamicFormProps } from '@/types/interfaces/forms';
 
 const DynamicFormModal: React.FC<DynamicFormProps> = ({
   fields = [],

@@ -1,8 +1,8 @@
 import { Types } from 'mongoose';
-import { ISkill } from '../models/interfaces/i-skill.model';
+import { ISkill } from '../models/interfaces/skill.model.interface';
 import { skillModel } from '../models/skill.model';
 import BaseRepository from './baseRepositories/base-repository';
-import { ISkillRepository } from './interfaces/i-skill-repository';
+import { ISkillRepository } from './interfaces/skill-repository.interface';
 
 export class SkillRepository extends BaseRepository<ISkill> implements ISkillRepository {
   constructor() {
@@ -10,5 +10,9 @@ export class SkillRepository extends BaseRepository<ISkill> implements ISkillRep
   }
   getSuggestedSkills(specialities: Types.ObjectId[]): Promise<ISkill[] | null> {
     return this.findAll({ specialities: { $in: specialities } });
+  }
+
+  getListedSkillsByIds(Ids: Types.ObjectId[]): Promise<ISkill[] | null> {
+    return this.findAll({ _id: { $in: Ids }, status: 'list' });
   }
 }

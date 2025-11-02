@@ -10,7 +10,7 @@ import {
   FaUsers,
   FaCog,
   FaBookOpen,
-  FaAward,
+  FaBriefcase,
 } from "react-icons/fa";
 import Image from "next/image";
 import AdminAuthGuard from "@/components/AdminAuthGaurd";
@@ -33,6 +33,7 @@ function AdminLayout({ children }: LayoutProps) {
     try {
       await adminAuthApi.logout();
       dispatch(setUser(null));
+      localStorage.removeItem("user");
       router.push("/admin/login");
     } catch (err) {
       console.error("Logout failed", err);
@@ -128,11 +129,11 @@ function AdminLayout({ children }: LayoutProps) {
               </Link>
 
               <Link
-                href="/admin/skills"
+                href="/admin/jobs"
                 className={linkClasses("/admin/skills")}
               >
-                <FaAward className="w-5 h-5" />
-                <span className="font-medium">Skills</span>
+                <FaBriefcase className="w-5 h-5" />
+                <span className="font-medium">Jobs</span>
               </Link>
 
               <Link href="/admin/users" className={linkClasses("/admin/users")}>

@@ -5,7 +5,7 @@ import {
   IFreelancerProfile,
   IExperience,
   IEducation,
-} from './interfaces/i-user.model.js';
+} from './interfaces/user.model.interface.js';
 
 // ------------------- Schemas -------------------
 const addressSchema = new Schema<IAddress>({

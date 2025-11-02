@@ -1,4 +1,4 @@
-import { IAdminCategoryServices } from './interfaces/i-admin-category-services';
+import { IAdminCategoryServices } from './interfaces/admin-category-services.interface';
 import {
   CategoryDto,
   CategoryDtoMinimal,
@@ -7,7 +7,7 @@ import {
   PaginatedCategoryDto,
   UpdateCategoryDTO,
 } from '../../dto/category.dto';
-import type { IAdminCategoryRepository } from '../../repositories/adminRepositories/interfaces/i-admin-category-repository';
+import type { IAdminCategoryRepository } from '../../repositories/adminRepositories/interfaces/admin-category-repository.interface';
 import { injectable, inject } from 'tsyringe';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
@@ -57,9 +57,7 @@ export class AdminCategoryServices implements IAdminCategoryServices {
       { skip, limit },
     );
 
-    const total = await this._adminCategoryRepository.count({
-      name: filterDataDto.search || '',
-    });
+    const total = await this._adminCategoryRepository.count();
 
     // Map to DTO
     let data: CategoryDto[] | CategoryDtoMinimal[];

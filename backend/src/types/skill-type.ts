@@ -1,4 +1,4 @@
-import { ISkill } from 'src/models/interfaces/i-skill.model';
+import { ISkill } from 'src/models/interfaces/skill.model.interface';
 
 export type ISkillWithPopulatedSpecialities = Omit<ISkill, 'specialities'> & {
   specialities: { _id: string; name: string }[];

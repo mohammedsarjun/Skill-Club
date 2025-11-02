@@ -12,7 +12,7 @@ export const validateData = <T>(schema: ZodType<T>, data: unknown): T => {
       //     field: e.path.join('.'),
       //     message: e.message,
       //   }));
-
+      console.log(err.issues[0]);
       throw new AppError(ERROR_MESSAGES.VALIDATION.FAILED, HttpStatus.BAD_REQUEST);
     }
 

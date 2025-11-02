@@ -8,7 +8,7 @@ import Image from "next/image";
 import { SignUpData } from "@/api/authApi";
 import { useRouter } from "next/navigation";
 import { authApi } from "@/api/authApi";
-import { handleSignUpSubmit } from "@/utils/validation";
+import { handleSignUpSubmit } from "@/utils/validations/validation";
 import { handleInputChange, handleCheckBox } from "@/utils/formHandlers";
 import toast from "react-hot-toast";
 

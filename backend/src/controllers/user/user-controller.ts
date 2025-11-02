@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { HttpStatus } from '../../enums/http-status.enum';
-import { IUserController } from './interfaces/i-user-controller';
-import type { IUserServices } from '../../services/userServices/interfaces/i-user-services';
+import { IUserController } from './interfaces/user-controller.interface';
+import type { IUserServices } from '../../services/userServices/interfaces/user-services.interface';
 import { jwtService } from '../../utils/jwt';
 import { MESSAGES } from '../../contants/contants';
 import { jwtConfig } from '../../config/jwt.config';
@@ -128,15 +128,15 @@ export class UserController implements IUserController {
   }
 
   async updateAddress(req: Request, res: Response): Promise<void> {
-     const userId = req.user?.userId;
-     console.log("working")
-     const {address}=req.body
-     const user= await this._userService.updateAddress(userId as string,address);
+    const userId = req.user?.userId;
+    console.log('working');
+    const { address } = req.body;
+    const user = await this._userService.updateAddress(userId as string, address);
     res.status(HttpStatus.OK).json({
       success: true,
       message: 'User Address Update Successfully',
       data: user,
-    })
+    });
   }
 
   async createActionVerification(req: Request, res: Response): Promise<void> {

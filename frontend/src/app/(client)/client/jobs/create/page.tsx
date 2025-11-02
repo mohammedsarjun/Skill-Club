@@ -3,41 +3,73 @@ import { useEffect, useState } from "react";
 import Input from "@/components/common/Input";
 import Button from "@/components/common/Button";
 import DynamicFormModal from "@/components/common/Form";
-import JobCreationStep1 from "@/components/client/job-creation/JobCreationStep1";
-import JobCreationStep2 from "@/components/client/job-creation/JobCreationStep2";
-import JobCreationStep3 from "@/components/client/job-creation/JobCreationStep3";
-import JobCreationStep4 from "@/components/client/job-creation/JobCreationStep4";
+import JobFormStep1 from "@/components/client/job-form/JobFormStep1";
+import JobFormStep2 from "@/components/client/job-form/JobFormStep2";
+import JobFormStep3 from "@/components/client/job-form/JobFormStep3";
+import JobFormStep4 from "@/components/client/job-form/JobFormStep4";
+import { JobData } from "@/types/interfaces/IClient";
+import toast from "react-hot-toast";
+import { clientActionApi } from "@/api/action/ClientActionApi";
+import { useRouter } from "next/navigation";
 
 function CreateJobPost() {
-  const [categories, setCategories] = useState([
-    "Web Development",
-    "Graphic Design",
-    "Digital Marketing",
-    "Content Writing",
-    "UI/UX Design",
-    "Mobile App Development",
-  ]);
-
-  const [selectedCategory, setSelectedCategory] = useState("");
   const [step, setStep] = useState<number>(1);
+  const [isNextAllowed, setIsNextAllowed] = useState<boolean>(false);
   const totalSteps = 4;
-  const [isCategoryModalOpen, setIsCategoryModalOpen] =
-    useState<boolean>(false);
-
+  const [jobSavedData, setJobSavedData] = useState<JobData>();
+  const nextContent = step == totalSteps ? "Submit" : "Next";
+  const route=useRouter()
   // Map of step number to component
   const stepComponents: Record<number, any> = {
-    1: JobCreationStep1,
-    2: JobCreationStep2, // Add more steps here
-    3: JobCreationStep3,
-    4: JobCreationStep4,
+    1: JobFormStep1,
+    2: JobFormStep2, // Add more steps here
+    3: JobFormStep3,
+    4: JobFormStep4,
   };
 
   const CurrentStepComponent = stepComponents[step]; // get the current step component
 
+  async function handleClickNext() {
+    if (jobSavedData) {
+      sessionStorage.setItem("jobSavedData", JSON.stringify(jobSavedData));
+    }
+    if (step != totalSteps) {
+      setStep(step + 1);
+    } else {
+      const jobData = sessionStorage.getItem("jobSavedData");
+
+      if (!jobData) {
+        return toast.error("Something Went Wrong Fill Job Detail Again!");
+      }
+      const parsedJobData: JobData = JSON.parse(jobData);
+
+      if (parsedJobData.rateType == "hourly") {
+        delete parsedJobData.fixedRate;
+      } else {
+        delete parsedJobData.hourlyRate;
+      }
+
+      const jobCreateResponse = await clientActionApi.createJob(parsedJobData);
+      sessionStorage.removeItem("jobSavedData");
+      if (jobCreateResponse.success) {
+        toast.success(jobCreateResponse.message);
+        route.push("/client/")
+      } else {
+        toast.error(jobCreateResponse?.message);
+        return;
+      }
+    }
+  }
+
   return (
     <div>
       {CurrentStepComponent && (
-        <CurrentStepComponent step={step} totalSteps={totalSteps} />
+        <CurrentStepComponent
+          step={step}
+          totalSteps={totalSteps}
+          setIsNextAllowed={setIsNextAllowed}
+          setJobSavedData={setJobSavedData}
+        />
       )}
 
       {/* Navigation Buttons */}
@@ -48,11 +80,15 @@ function CreateJobPost() {
           color="gray"
           onClick={() => step > 1 && setStep(step - 1)}
         />
-        <Button
-          content="Next"
-          type="button"
-          onClick={() => setStep(step + 1)}
-        />
+        {isNextAllowed ? (
+          <Button
+            content={nextContent}
+            type="button"
+            onClick={handleClickNext}
+          />
+        ) : (
+          <Button content={nextContent} type="button" color="gray" />
+        )}
       </div>
     </div>
   );

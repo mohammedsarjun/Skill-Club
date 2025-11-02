@@ -6,7 +6,7 @@ import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
 import { userApi } from "@/api/userApi";
 import toast from "react-hot-toast";
-import { userAddressSchema } from "@/utils/validation";
+import { userAddressSchema } from "@/utils/validations/validation";
 import { z } from "zod";
 
 interface AddressData {

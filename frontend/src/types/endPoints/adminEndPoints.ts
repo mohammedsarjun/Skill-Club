@@ -22,7 +22,15 @@ const adminRouterEndPoints ={
     adminGetUserStats:"/admin/users-stats",
     adminUser:"/admin/users",
     adminUserDetail:"/admin/user",
-    adminUserStatusUpdate:"/admin/user/updateStatus"
+    adminUserStatusUpdate:"/admin/user/updateStatus",
+
+    //jobs
+    adminGetJobStats:"/admin/jobs-stats",
+    adminGetAllJobs:"/admin/jobs",
+    adminGetJobDetail:"/admin/jobs",
+    adminApproveJob:(jobId:string) => `/admin/jobs/${jobId}/approve`,
+    adminRejectJob:(jobId:string) => `/admin/jobs/${jobId}/reject`,
+    adminSuspendJob:(jobId:string) => `/admin/jobs/${jobId}/suspend`,
 
 }
 

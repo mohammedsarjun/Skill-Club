@@ -5,7 +5,7 @@ import { uploadToCloudinary } from "@/utils/cloudinary";
 import { clientActionApi } from "@/api/action/ClientActionApi";
 import toast from "react-hot-toast";
 import { ClientProfileData } from "@/types/interfaces/IClient";
-import { clientProfileSchema } from "@/utils/validation";
+import { clientProfileSchema } from "@/utils/validations/validation";
 import { z } from "zod";
 
 function ClientProfilePage() {

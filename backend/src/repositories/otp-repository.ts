@@ -1,7 +1,7 @@
 import { otpModel } from '../models/otp.model';
-import { IOtp } from '../models/interfaces/i-otp.model';
+import { IOtp } from '../models/interfaces/otp.model.interface';
 import BaseRepository from './baseRepositories/base-repository';
-import type { IOtpRepository } from './interfaces/i-otp-repository';
+import type { IOtpRepository } from './interfaces/otp-repository.interface';
 
 export class OtpRepository extends BaseRepository<IOtp> implements IOtpRepository {
   constructor() {

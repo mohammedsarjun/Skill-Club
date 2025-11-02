@@ -1,7 +1,7 @@
 import { UserActionVerificationModel } from '../models/action-verification.model';
-import { IUserActionVerification } from '../models/interfaces/i-action-verification.model';
+import { IUserActionVerification } from '../models/interfaces/action-verification.model.interface';
 import BaseRepository from './baseRepositories/base-repository';
-import { IActionVerificationRepository } from './interfaces/i-action-verification-repository';
+import { IActionVerificationRepository } from './interfaces/action-verification-repository.interface';
 import { CreateActionVerificationDto, RequestChangeEmailDto } from '../dto/action-verification.dto';
 
 export class ActionVerificationRepository

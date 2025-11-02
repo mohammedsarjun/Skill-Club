@@ -1,26 +1,26 @@
 import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
-import { IAdminAuthController } from './interfaces/i-admin-auth-controller';
+import { IAdminAuthController } from './interfaces/admin-auth-controller.interface';
 import '../../config/container';
 import { HttpStatus } from '../../enums/http-status.enum';
-import type { IAdminAuthServices } from '../../services/adminServices/interfaces/i-admin-auth-services';
+import type { IAdminAuthServices } from '../../services/adminServices/interfaces/admin-auth-services.interface';
 import { jwtService } from '../../utils/jwt';
 import { jwtConfig } from '../../config/jwt.config';
 import { MESSAGES } from '../../contants/contants';
 
 @injectable()
 export class AdminAuthController implements IAdminAuthController {
-  private adminAuthServices: IAdminAuthServices;
+  private _adminAuthServices: IAdminAuthServices;
 
   constructor(
     @inject('IAdminAuthServices')
     adminAuthServices: IAdminAuthServices,
   ) {
-    this.adminAuthServices = adminAuthServices;
+    this._adminAuthServices = adminAuthServices;
   }
 
   async login(req: Request, res: Response): Promise<void> {
-    this.adminAuthServices.login(req.body);
+    this._adminAuthServices.login(req.body);
 
     const payload = { userId: 'admin_1', roles: ['admin'], activeRole: 'admin' };
     const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);

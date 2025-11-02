@@ -1,5 +1,3 @@
-
-
 export interface GetClientDTO {
   companyName: string;
   logo?: string | undefined;
@@ -10,4 +8,3 @@ export interface GetClientDTO {
 export interface UpdateClientDto {
   clientProfile: Partial<GetClientDTO>;
 }
-

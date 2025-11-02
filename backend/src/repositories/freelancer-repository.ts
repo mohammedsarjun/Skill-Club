@@ -1,7 +1,7 @@
 import { User } from '../models/user.model';
-import { IExperience, IUser } from '../models/interfaces/i-user.model';
+import { IExperience, IUser } from '../models/interfaces/user.model.interface';
 import BaseRepository from './baseRepositories/base-repository';
-import { IFreelancerRepository } from './interfaces/i-freelancer-repository';
+import { IFreelancerRepository } from './interfaces/freelancer-repository.interface';
 import { IEducationDTO, UpdateLanguageDTO } from '../dto/freelancer.dto';
 import { Types } from 'mongoose';
 

@@ -9,7 +9,7 @@ import OtpModal from "@/components/common/otpModal";
 import { userApi } from "@/api/userApi";
 import { authApi } from "@/api/authApi";
 import toast from "react-hot-toast";
-import { changeEmailSchema, changePasswordSchema, userProfileSchema } from "@/utils/validation";
+import { changeEmailSchema, changePasswordSchema, userProfileSchema } from "@/utils/validations/validation";
 import { z } from "zod";
 
 interface ProfileData {

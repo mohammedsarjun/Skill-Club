@@ -25,8 +25,8 @@ import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { HttpStatus } from '../../enums/http-status.enum';
-import { IClientCategoryController } from './interfaces/i-client-category-controller';
-import { IClientCategoryService } from '../../services/clientServices/interfaces/i-client-category-service';
+import { IClientCategoryController } from './interfaces/client-category-controller.interface';
+import { IClientCategoryService } from '../../services/clientServices/interfaces/client-category-service.interface';
 import { MESSAGES } from '../../contants/contants';
 import { GetClientCategoryDTO } from '../../dto/clientDTO/client-category-dto';
 
@@ -51,7 +51,8 @@ export class ClientCategoryController implements IClientCategoryController {
    */
 
   async getAllCategories(_req: Request, res: Response): Promise<void> {
-    const categoryData:GetClientCategoryDTO[] = await this._clientCategoryService.getAllCategories();
+    const categoryData: GetClientCategoryDTO[] =
+      await this._clientCategoryService.getAllCategories();
 
     res.status(HttpStatus.OK).json({
       success: true,

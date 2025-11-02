@@ -1,5 +1,5 @@
 import { model, Schema } from 'mongoose';
-import { IUserActionVerification } from './interfaces/i-action-verification.model';
+import { IUserActionVerification } from './interfaces/action-verification.model.interface';
 
 const userActionVerificationSchema = new Schema<IUserActionVerification>({
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },

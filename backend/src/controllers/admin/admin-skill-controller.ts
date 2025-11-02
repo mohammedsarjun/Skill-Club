@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
-import { IAdminSkillController } from './interfaces/i-admin-skill-controller';
+import { IAdminSkillController } from './interfaces/admin-skill-controller.interface';
 import '../../config/container';
 import { HttpStatus } from '../../enums/http-status.enum';
-import type { IAdminSkillServices } from '../../services/adminServices/interfaces/i-admin-skill-services';
+import type { IAdminSkillServices } from '../../services/adminServices/interfaces/admin-skill-services.interface';
 import { MESSAGES } from '../../contants/contants';
 import { CreateSkillDTO, GetSkillDto, UpdateSkillDTO } from '../../dto/adminDTO/skill.dto';
 

@@ -51,4 +51,13 @@ export const MESSAGES = {
     UPDATED: 'Speciality Edited successfully',
     FETCH_SUCCESS: 'Speciality data fetched successfully',
   },
+  JOB:{
+    CREATED: 'Job created successfully',
+    UPDATED: 'Job Edited successfully',
+    FETCH_SUCCESS: 'Job data fetched successfully',
+    APPROVE_SUCCESS: 'Job approved successfully',
+    REJECT_SUCCESS: 'Job rejected successfully',
+    SUSPEND_SUCCESS: 'Job suspended successfully',
+    CLOSED: 'Job closed successfully',
+  }
 };

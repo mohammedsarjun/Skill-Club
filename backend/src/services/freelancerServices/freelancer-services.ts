@@ -2,8 +2,8 @@ import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
-import { IFreelancerService } from './interfaces/i-freelancer-services';
-import type { IFreelancerRepository } from '../../repositories/interfaces/i-freelancer-repository';
+import { IFreelancerService } from './interfaces/freelancer-services.interface';
+import type { IFreelancerRepository } from '../../repositories/interfaces/freelancer-repository.interface';
 import {
   mapDtoToEducationModel,
   mapEducationModelToDTO,
@@ -14,14 +14,14 @@ import {
 } from '../../mapper/freelancer.mapper';
 import { FetchFreelancerDTO } from '../../dto/freelancer.dto';
 import { ERROR_MESSAGES } from '../../contants/error-constants';
-import { IExperience, IFreelancerProfile } from '../../models/interfaces/i-user.model';
+import { IExperience, IFreelancerProfile } from '../../models/interfaces/user.model.interface';
 import { CreatePortfolioDto, PortfolioDto } from '../../dto/portfolio.dto';
 import {
   mapCreatePortfolioDtoToPortfolio,
   mapPortfolioToPortfolioDto,
 } from '../../mapper/portfolio.mapper';
-import type { IPortfolioRepository } from '../../repositories/interfaces/i-portfolio-respository';
-import { IPortfolio } from '../../models/interfaces/i-portfolio.model';
+import type { IPortfolioRepository } from '../../repositories/interfaces/portfolio-respository.interface';
+import { IPortfolio } from '../../models/interfaces/portfolio.model.interface';
 import { EducationDTO } from '../../dto/user.dto';
 import { validateData } from '../../utils/validation';
 import { educationSchema } from '../../utils/validationSchemas/validations';

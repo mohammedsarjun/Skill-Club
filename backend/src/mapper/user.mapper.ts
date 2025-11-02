@@ -8,7 +8,7 @@ import {
   UserDto,
   UserProfileDto,
 } from '../dto/user.dto';
-import { IExperience, IUser } from '../models/interfaces/i-user.model';
+import { IExperience, IUser } from '../models/interfaces/user.model.interface';
 import { Types } from 'mongoose';
 
 export const mapUserModelToUserDto = (modelData: IUser): UserDto => {
@@ -148,9 +148,9 @@ export function mapAddressDtoToUserModel(address: AddressDTO): IAddress {
   return {
     country: address?.country,
     state: address?.state,
-    streetAddress:address?.streetAddress,
+    streetAddress: address?.streetAddress,
     city: address?.city,
-    zipCode:address?.zipCode,
+    zipCode: address?.zipCode,
   };
 }
 

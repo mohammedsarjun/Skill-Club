@@ -6,6 +6,7 @@ import { RootState } from "@/store";
 import { useRouter, usePathname } from "next/navigation";
 import { setUser } from "@/store/slices/authSlice";
 import { userApi } from "@/api/userApi";
+import toast from "react-hot-toast";
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -28,10 +29,24 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
       try {
         let currentUser = user;
 
-        if (!user) {
+        // Try hydrate from localStorage first (fast path for client navigation)
+        if (!currentUser) {
+          try {
+            const raw = localStorage.getItem("user");
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              dispatch(setUser(parsed));
+              currentUser = parsed;
+            }
+          } catch (e) {
+            // ignore JSON errors
+          }
+        }
+
+        // If still not found, fall back to an API call
+        if (!currentUser) {
           const response = await userApi.me();
-          console.log(response)
-          if (response.success) {
+          if (response && response.success) {
             dispatch(setUser(response.data));
             currentUser = response.data;
           }
@@ -76,6 +91,34 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
           return false; // block other pages
         }
         return true; // allow rendering any onboarding page
+      }
+
+      // Additional checks: ensure profile exists for client/freelancer pages
+      // and block access when the user is blocked.
+      if (path.startsWith("/freelancer")) {
+        if (currentUser.isFreelancerBlocked) {
+          toast.error("Your freelancer account is blocked.");
+          router.replace("/");
+          return false;
+        }
+        if (!currentUser.freelancerProfile) {
+          // Redirect to freelancer onboarding
+          router.replace("/onboarding/freelancer");
+          return false;
+        }
+      }
+
+      if (path.startsWith("/client")) {
+        if (currentUser.isClientBlocked) {
+          toast.error("Your client account is blocked.");
+          router.replace("/");
+          return false;
+        }
+        if (!currentUser.clientProfile) {
+          // Redirect to client onboarding
+          router.replace("/onboarding/client");
+          return false;
+        }
       }
 
       if (guestRoutes.includes(path)) {

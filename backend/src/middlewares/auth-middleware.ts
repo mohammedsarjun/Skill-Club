@@ -21,7 +21,7 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction):
     if (!token) {
       return res
         .status(HttpStatus.UNAUTHORIZED)
-        .json({ code:"TOKEN_EXPIRED",message: 'Unauthorized: No token provided' });
+        .json({ code: 'TOKEN_EXPIRED', message: 'Unauthorized: No token provided' });
     }
 
     // Verify token

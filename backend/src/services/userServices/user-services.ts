@@ -1,6 +1,6 @@
 import { injectable, inject } from 'tsyringe';
-import { IUserServices } from './interfaces/i-user-services';
-import type { IUserRepository } from '../../repositories/interfaces/i-user-repository';
+import { IUserServices } from './interfaces/user-services.interface';
+import type { IUserRepository } from '../../repositories/interfaces/user-repository.interface';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
 import {
@@ -20,10 +20,10 @@ import {
   UserDto,
   UserProfileDto,
 } from '../../dto/user.dto';
-import { IUser } from '../../models/interfaces/i-user.model';
+import { IUser } from '../../models/interfaces/user.model.interface';
 import { ERROR_MESSAGES } from '../../contants/error-constants';
 import { mapActionVerificationToCreateActionVerification } from '../../mapper/action-verification.mapper';
-import type { IActionVerificationRepository } from '../../repositories/interfaces/i-action-verification-repository';
+import type { IActionVerificationRepository } from '../../repositories/interfaces/action-verification-repository.interface';
 import { userProfileSchema } from '../../utils/validationSchemas/validations';
 import { validateData } from '../../utils/validation';
 

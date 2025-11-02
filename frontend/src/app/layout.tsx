@@ -8,10 +8,14 @@ import Script from "next/script";
 import { persistor } from "@/store";
 import RouteLoader from "../components/common/RouteLoader";
 import GlobalSpinner from "@/components/common/Spinner";
+import "react-quill-new/dist/quill.snow.css";
+import ClientInit from "@/components/UserInit";
 
 type LayoutProps = {
   children: React.ReactNode;
 };
+
+
 
 export default function Layout({ children }: LayoutProps) {
   return (

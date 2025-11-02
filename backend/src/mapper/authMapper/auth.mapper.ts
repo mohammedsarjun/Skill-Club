@@ -1,5 +1,5 @@
 import { CreateUserDTO, GetUserDto } from '../../dto/authDTO/auth.dto';
-import { IUser } from '../../models/interfaces/i-user.model';
+import { IUser } from '../../models/interfaces/user.model.interface';
 
 export const mapCreateUserDtoToUserModel = (
   dto: CreateUserDTO,

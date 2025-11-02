@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
-import type { IAuthService } from '../../services/authServices/interfaces/i-auth-services';
+import type { IAuthService } from '../../services/authServices/interfaces/auth-services.interface';
 import { GetUserDto } from '../../dto/authDTO/auth.dto';
-import type { IAuthController } from './interfaces/i-auth-controller';
+import type { IAuthController } from './interfaces/auth-controller.interface';
 import '../../config/container';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { UserDto } from '../../dto/user.dto';
@@ -71,7 +71,7 @@ export class AuthController implements IAuthController {
     res.clearCookie('accessToken', cookieOptions);
     res.clearCookie('refreshToken', cookieOptions);
 
-    res.status(HttpStatus.OK).json({ message: MESSAGES.AUTH.LOGOUT_SUCCESS });
+    res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.AUTH.LOGOUT_SUCCESS });
   }
 
   async forgotPassword(req: Request, res: Response): Promise<void> {

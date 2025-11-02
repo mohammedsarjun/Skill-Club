@@ -7,7 +7,7 @@ import Input from "@/components/common/Input";
 import Checkbox from "@/components/common/CheckBox";
 import Image from "next/image";
 import AuthGuard from "@/components/AuthGaurd";
-import { emailSchema, passwordSchema } from "@/utils/validation";
+import { emailSchema, passwordSchema } from "@/utils/validations/validation";
 import { z } from "zod";
 import { authApi } from "@/api/authApi";
 import { LoginData } from "@/api/authApi";
@@ -19,15 +19,16 @@ import GoogleLogin from "@/components/GoogleButton";
 function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
- const [formData, setFormData] = useState<LoginData>({
-  email: "",
-  password: "",
-  rememberMe:false
-});
+  const [formData, setFormData] = useState<LoginData>({
+    email: "",
+    password: "",
+    rememberMe: false,
+  });
 
-
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
-  const dispatch=useDispatch()
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
+    {}
+  );
+  const dispatch = useDispatch();
   const route = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,8 +50,10 @@ function LoginPage() {
     const passwordResult = passwordSchema.safeParse(formData.password);
 
     const newErrors: typeof errors = {};
-    if (!emailResult.success) newErrors.email = emailResult.error.issues[0].message;
-    if (!passwordResult.success) newErrors.password = passwordResult.error.issues[0].message;
+    if (!emailResult.success)
+      newErrors.email = emailResult.error.issues[0].message;
+    if (!passwordResult.success)
+      newErrors.password = passwordResult.error.issues[0].message;
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -62,12 +65,12 @@ function LoginPage() {
 
     const response = await authApi.login(formData);
 
-    if(response.success){
-
+    if (response.success) {
+      localStorage.setItem("user", JSON.stringify(response.data));
       dispatch(setUser(response.data));
-      route.push("/client/profile")
-    }else{
-      toast.error(response.message)
+      route.push("/client/profile");
+    } else {
+      toast.error(response.message);
     }
     await new Promise((resolve) => setTimeout(resolve, 2000));
     setIsLoading(false);
@@ -107,7 +110,9 @@ function LoginPage() {
               value={formData.email}
               onChange={handleChange}
             />
-            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+            {errors.email && (
+              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+            )}
           </div>
 
           <div>
@@ -119,7 +124,9 @@ function LoginPage() {
               value={formData.password}
               onChange={handleChange}
             />
-            {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+            {errors.password && (
+              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+            )}
           </div>
 
           <div className="flex justify-between items-center">
@@ -133,19 +140,28 @@ function LoginPage() {
               />
               <span>Remember me</span>
             </label>
-            <a href="/forgot-password" className="text-blue-600 hover:underline text-sm">
+            <a
+              href="/forgot-password"
+              className="text-blue-600 hover:underline text-sm"
+            >
               Forgot password?
             </a>
           </div>
 
           <div className="flex justify-center">
-            <Button type="submit" content={isLoading ? "Loading..." : "LOGIN"} />
+            <Button
+              type="submit"
+              content={isLoading ? "Loading..." : "LOGIN"}
+            />
           </div>
         </form>
 
         <p className="text-center text-sm text-gray-500 mt-4">
           Don't have an Account?{" "}
-          <span className="text-blue-700 cursor-pointer" onClick={() => route.push("/signup")}>
+          <span
+            className="text-blue-700 cursor-pointer"
+            onClick={() => route.push("/signup")}
+          >
             Sign Up
           </span>
         </p>
@@ -155,9 +171,5 @@ function LoginPage() {
 }
 
 export default function Login() {
-  return (
-
-      <LoginPage />
-
-  );
+  return <LoginPage />;
 }

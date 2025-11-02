@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { CreatePortfolioDto, PortfolioDto } from '../dto/portfolio.dto';
-import { IPortfolio } from '../models/interfaces/i-portfolio.model';
+import { IPortfolio } from '../models/interfaces/portfolio.model.interface';
 
 export const mapCreatePortfolioDtoToPortfolio = (
   userId: string,

@@ -1,5 +1,5 @@
 import { GetClientCategoryDTO } from 'src/dto/clientDTO/client-category-dto';
-import { ICategory } from 'src/models/interfaces/i-category.model';
+import { ICategory } from 'src/models/interfaces/category.model.interface';
 
 export const mapCategoryModelToGetClientCategoryDTO = (
   categoryData: ICategory,

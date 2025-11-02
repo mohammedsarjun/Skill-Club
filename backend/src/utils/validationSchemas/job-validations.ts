@@ -1,51 +1,76 @@
 import { z } from 'zod';
 
-const objectIdRegex = /^[0-9a-fA-F]{24}$/;
-const objectIdString = z.string().regex(objectIdRegex, 'Invalid ObjectId');
-
 const hourlyRateSchema = z
   .object({
-    min: z.number().nonnegative().max(10_000, 'hourlyRate.min too high'),
-    max: z.number().nonnegative().max(10_000, 'hourlyRate.max too high').optional(),
+    min: z
+      .number()
+      .min(100, 'Minimum hourly rate must be at least ₹100')
+      .max(100000, 'Minimum hourly rate cannot exceed ₹100,000'),
+    max: z
+      .number()
+      .min(100, 'Maximum hourly rate must be at least ₹100')
+      .max(100000, 'Maximum hourly rate cannot exceed ₹100,000'),
+    hoursPerWeek: z
+      .number()
+      .min(1, 'Hours per week must be at least 1')
+      .max(60, 'Hours per week cannot exceed 60'),
+    estimatedDuration: z.enum(['1 To 3 Months', '3 To 6 Months']),
   })
-  .refine((data) => data.max === undefined || data.max >= data.min, {
-    message: 'hourlyRate.max must be >= hourlyRate.min',
+  .refine((data) => data.max >= data.min, {
+    message: 'Maximum hourly rate must be greater than or equal to minimum rate',
     path: ['max'],
   });
 
 const fixedRateSchema = z
   .object({
-    min: z.number().nonnegative().max(1_000_000, 'fixedRate.min too high'),
-    max: z.number().nonnegative().max(1_000_000, 'fixedRate.max too high').optional(),
+    min: z
+      .number()
+      .min(100, 'Minimum budget must be at least ₹100')
+      .max(100000, 'Minimum budget cannot exceed ₹100,000'),
+    max: z
+      .number()
+      .min(100, 'Maximum budget must be at least ₹100')
+      .max(100000, 'Maximum budget cannot exceed ₹100,000'),
   })
-  .refine((data) => data.max === undefined || data.max >= data.min, {
-    message: 'fixedRate.max must be >= fixedRate.min',
+  .refine((data) => data.max >= data.min, {
+    message: 'Maximum budget must be greater than or equal to minimum budget',
     path: ['max'],
   });
 
-const dateOrStringToDate = z.preprocess((val) => {
-  if (!val) return undefined;
-  if (val instanceof Date) return val;
-  if (typeof val === 'string' || typeof val === 'number') {
-    const d = new Date(val);
-    return isNaN(d.getTime()) ? undefined : d;
-  }
-  return undefined;
-}, z.date().optional());
-
 export const createJobSchema = z
   .object({
-    title: z.string().min(1, 'Title is required').max(100, 'Title too long'),
-    description: z.string().min(1, 'Description is required').max(2000, 'Description too long'),
-    category: z.string().min(1, 'Category is required').max(50, 'Category too long'),
-    specialities: z.array(z.string().min(1).max(50)).min(1).max(3),
-    skills: z.array(z.string().min(1).max(50)).min(1).max(10),
+    title: z
+      .string()
+      .trim()
+      .min(5, 'Title must be at least 5 characters long')
+      .max(100, 'Title is too long')
+      .refine((val) => val.trim().length > 0, {
+        message: 'Title cannot be empty or just spaces',
+      })
+      .refine((val) => !/\s{2,}/.test(val), {
+        message: 'Title cannot contain multiple consecutive spaces',
+      }),
+    description: z
+      .string()
+      .min(50, 'Description must be at least 50 characters long')
+      .max(50000, 'Description cannot exceed 50000 characters')
+      .refine(
+        (val) => val.replace(/<[^>]*>/g, '').trim().length >= 50,
+        'Minimum 50 characters required',
+      )
+      .refine(
+        (val) => !/ {2,}/.test(val.replace(/<[^>]*>/g, '')),
+        'Description cannot contain excessive spaces',
+      ),
+    category: z.string(),
+    specialities: z
+      .array(z.string())
+      .min(1, { message: 'Select at least one speciality.' })
+      .max(3, { message: 'Select at most 3 specialities.' }),
+    skills: z.array(z.string()).min(1, 'Select at least one skills.'),
     rateType: z.enum(['hourly', 'fixed']),
     hourlyRate: hourlyRateSchema.optional(),
     fixedRate: fixedRateSchema.optional(),
-    clientId: objectIdString,
-    slots: z.number().int().positive().max(100, 'Too many slots').optional().default(1),
-    applyUntil: dateOrStringToDate,
   })
   .superRefine((data, ctx) => {
     if (data.rateType === 'hourly' && !data.hourlyRate) {
@@ -63,17 +88,57 @@ export const createJobSchema = z
         path: ['fixedRate'],
       });
     }
+  });
 
-    if (data.applyUntil && data.applyUntil.getTime() <= Date.now()) {
+export const updateJobSchema = z
+  .object({
+    title: z
+      .string()
+      .trim()
+      .min(5, 'Title must be at least 5 characters long')
+      .max(100, 'Title is too long')
+      .refine((val) => val.trim().length > 0, {
+        message: 'Title cannot be empty or just spaces',
+      })
+      .refine((val) => !/\s{2,}/.test(val), {
+        message: 'Title cannot contain multiple consecutive spaces',
+      }),
+    description: z
+      .string()
+      .min(50, 'Description must be at least 50 characters long')
+      .max(50000, 'Description cannot exceed 50000 characters')
+      .refine(
+        (val) => val.replace(/<[^>]*>/g, '').trim().length >= 50,
+        'Minimum 50 characters required',
+      )
+      .refine(
+        (val) => !/ {2,}/.test(val.replace(/<[^>]*>/g, '')),
+        'Description cannot contain excessive spaces',
+      ),
+    category: z.string(),
+    specialities: z
+      .array(z.string())
+      .min(1, { message: 'Select at least one speciality.' })
+      .max(3, { message: 'Select at most 3 specialities.' }),
+    skills: z.array(z.string()).min(1, 'Select at least one skills.'),
+    rateType: z.enum(['hourly', 'fixed']),
+    hourlyRate: hourlyRateSchema.optional(),
+    fixedRate: fixedRateSchema.optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.rateType === 'hourly' && !data.hourlyRate) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'applyUntil must be a future date',
-        path: ['applyUntil'],
+        message: 'hourlyRate is required when rateType is hourly',
+        path: ['hourlyRate'],
+      });
+    }
+
+    if (data.rateType === 'fixed' && !data.fixedRate) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'fixedRate is required when rateType is fixed',
+        path: ['fixedRate'],
       });
     }
   });
-
-
-
-export const updateJobSchema = createJobSchema.partial();
-

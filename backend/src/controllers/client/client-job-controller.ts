@@ -1,29 +1,11 @@
-/**
- * @file client-job-controller.ts
- * @description Controller responsible for handling client job-related operations.
- *       It communicates with the ClientJobService to perform actions such as
- *       creating new jobs, fetching job details, updating, or deleting jobs.
- *
- * @layer Controller
- * @module Client
- * @category Jobs
- *
- * @dependencies
- * - express (for handling HTTP requests/responses)
- * - tsyringe (for dependency injection)
- * - IClientJobService (for business logic related to jobs)
- *
- * @usage
- * This controller is used in client routes (/api/client/jobs)
- * to handle all job management operations from the client side.
- */
-
 import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { HttpStatus } from '../../enums/http-status.enum';
-import { IClientJobController } from './interfaces/i-client-job-controller';
-import { IClientJobService } from '../../services/clientServices/interfaces/i-client-job-service';
+import { IClientJobController } from './interfaces/client-job-controller.interface';
+import { IClientJobService } from '../../services/clientServices/interfaces/client-job-service.interface';
+import { JobQueryParams } from '../../dto/commonDTO/job-common.dto';
+import { MESSAGES } from '../../contants/contants';
 
 @injectable()
 export class ClientJobController implements IClientJobController {
@@ -32,26 +14,61 @@ export class ClientJobController implements IClientJobController {
     this._clientJobService = clientJobService;
   }
 
-  /**
-   * @description    Creates a new job for the authenticated client.
-   * @route   POST /api/client/jobs
-   * @access  Private (Client only)
-   * @param   {Request} req - Express request object containing user and job data.
-   * @param   {Response} res - Express response object for sending HTTP responses.
-   * @returns {Promise<void>} Responds with success message and created job details.
-   * @throws  {AppError} Throws error if job creation fails.
-   */
-
   async createJob(req: Request, res: Response): Promise<void> {
     const userId = req.user?.userId;
-    const jobData = req.body;
+    const { jobData } = req.body;
 
     const result = await this._clientJobService.createJob(userId as string, jobData);
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Job Created Successfully',
+      message: MESSAGES.JOB.CREATED,
       data: result,
+    });
+  }
+
+  async getAllJobs(req: Request, res: Response): Promise<void> {
+    const userId = req.user?.userId;
+    const queryParams = req.query as unknown as JobQueryParams;
+    const result = await this._clientJobService.getAllJobs(userId as string, queryParams);
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: MESSAGES.JOB.FETCH_SUCCESS,
+      data: result,
+    });
+  }
+
+  async getJobDetail(req: Request, res: Response): Promise<void> {
+    const userId = req.user?.userId;
+    const jobId = req.params.jobId;
+    const result = await this._clientJobService.getJobDetail(userId as string, jobId);
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: MESSAGES.JOB.FETCH_SUCCESS,
+      data: result,
+    });
+  }
+
+  async updateJobDetail(req: Request, res: Response): Promise<void> {
+    const userId = req.user?.userId;
+    const jobId = req.params.jobId;
+    const { jobData } = req.body;
+
+    const result = await this._clientJobService.updateJobDetail(userId as string, jobId, jobData);
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: MESSAGES.JOB.UPDATED,
+      data: result,
+    });
+  }
+
+  async closeJob(req: Request, res: Response): Promise<void> {
+    const userId = req.user?.userId;
+    const jobId = req.params.jobId; 
+     await this._clientJobService.closeJob(userId as string, jobId);
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: MESSAGES.JOB.CLOSED,
     });
   }
 }

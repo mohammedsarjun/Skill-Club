@@ -48,7 +48,7 @@ export default function GoogleLogin() {
           }
 
 
-      localStorage.setItem("token", res.data.token); // store JWT for SPA
+      // localStorage.setItem("token", res.data.token); // store JWT for SPA
     } catch (err) {
       console.error(err);
     }

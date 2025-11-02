@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
 import Image from "next/image";
-import { emailSchema } from "@/utils/validation";
+import { emailSchema } from "@/utils/validations/validation";
 import { authApi } from "@/api/authApi"; // make sure you have forgotPassword API
 import toast from "react-hot-toast";
 

@@ -5,7 +5,7 @@ import Button from "../common/Button";
 import { z } from "zod";
 import { useDispatch } from "react-redux";
 import { updateFreelancerData } from "@/store/slices/freelancerSlice"; // adjust path
-import { educationSchema } from "@/utils/validation";
+import { educationSchema } from "@/utils/validations/validation";
 // Zod schema for education
 
 

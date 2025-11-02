@@ -12,7 +12,7 @@ import {
   languageProficiencySchema,
   professionalRoleSchema,
   workExperienceSchema,
-} from "@/utils/validation";
+} from "@/utils/validations/validation";
 import {
   FaEdit,
   FaTrash,

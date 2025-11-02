@@ -1,5 +1,5 @@
-import type { IAuthService } from './interfaces/i-auth-services';
-import type { IUserRepository } from '../../repositories/interfaces/i-user-repository';
+import type { IAuthService } from './interfaces/auth-services.interface';
+import type { IUserRepository } from '../../repositories/interfaces/user-repository.interface';
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { CreateUserDTO, GetUserDto, LoginUserDto } from '../../dto/authDTO/auth.dto';
@@ -12,8 +12,8 @@ import { mapUserModelToUserDto, mapUserModelToUserProfileDto } from '../../mappe
 import { genRandom } from '../../utils/crypto-generator';
 import sendEmailOtp from '../../utils/send-otp';
 import { ERROR_MESSAGES } from '../../contants/error-constants';
-import { IActionVerificationRepository } from '../../repositories/interfaces/i-action-verification-repository';
-import { IOtpServices } from './interfaces/i-otp-services';
+import { IActionVerificationRepository } from '../../repositories/interfaces/action-verification-repository.interface';
+import { IOtpServices } from './interfaces/i-otp-services.interface';
 
 import { mapChangeEmailRequestToActionVerification } from '../../mapper/action-verification.mapper';
 
