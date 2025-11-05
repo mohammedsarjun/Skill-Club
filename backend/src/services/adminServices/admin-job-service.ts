@@ -10,7 +10,11 @@ import {
 
 import { ERROR_MESSAGES } from '../../contants/error-constants';
 import { JobQueryParams } from '../../dto/commonDTO/job-common.dto';
-import { AdminJobDetailResponseDTO, AdminJobResponseDTO } from '../../dto/adminDTO/admin-job.dto';
+import {
+  AdminJobDetailResponseDTO,
+  AdminJobResponseDTO,
+  PaginatedAdminJobDto,
+} from '../../dto/adminDTO/admin-job.dto';
 import { mapJobQuery } from '../../mapper/commonMapper/common-job-mapper';
 @injectable()
 export class AdminJobService implements IAdminJobService {
@@ -23,7 +27,7 @@ export class AdminJobService implements IAdminJobService {
     this._jobRepository = jobRepository;
   }
 
-  async getAllJobs(queryParams: JobQueryParams): Promise<AdminJobResponseDTO[]> {
+  async getAllJobs(queryParams: JobQueryParams): Promise<PaginatedAdminJobDto> {
     const JobQueryDto = mapJobQuery(queryParams);
 
     const skip = (JobQueryDto.page - 1) * JobQueryDto.limit;
@@ -35,8 +39,14 @@ export class AdminJobService implements IAdminJobService {
     }
 
     const JobResponseDTO: AdminJobResponseDTO[] = JobResponse.map(mapJobModelToAdminJobResponseDTO);
+    const total = await this._jobRepository.countAllJobs();
 
-    return JobResponseDTO;
+    return {
+      data: JobResponseDTO,
+      total,
+      page: JobQueryDto.page,
+      limit: JobQueryDto.limit,
+    };
   }
 
   async getJobDetail(jobId: string): Promise<AdminJobDetailResponseDTO> {
@@ -45,7 +55,8 @@ export class AdminJobService implements IAdminJobService {
       throw new AppError(ERROR_MESSAGES.JOB.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
-    const JobDetailResponseDTO: AdminJobDetailResponseDTO = mapJobModelToAdminJobDetailResponseDTO(job);
+    const JobDetailResponseDTO: AdminJobDetailResponseDTO =
+      mapJobModelToAdminJobDetailResponseDTO(job);
 
     return JobDetailResponseDTO;
   }
@@ -66,7 +77,8 @@ export class AdminJobService implements IAdminJobService {
       throw new AppError(ERROR_MESSAGES.JOB.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
-    const updatedJobDto: AdminJobDetailResponseDTO = mapJobModelToAdminJobDetailResponseDTO(updatedJob);
+    const updatedJobDto: AdminJobDetailResponseDTO =
+      mapJobModelToAdminJobDetailResponseDTO(updatedJob);
 
     return updatedJobDto;
   }
@@ -88,12 +100,13 @@ export class AdminJobService implements IAdminJobService {
       throw new AppError(ERROR_MESSAGES.JOB.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
-    const updatedJobDto: AdminJobDetailResponseDTO = mapJobModelToAdminJobDetailResponseDTO(updatedJob);
+    const updatedJobDto: AdminJobDetailResponseDTO =
+      mapJobModelToAdminJobDetailResponseDTO(updatedJob);
 
     return updatedJobDto;
   }
 
-  async suspendJob(jobId: string, suspendedReason: string): Promise<AdminJobDetailResponseDTO> { 
+  async suspendJob(jobId: string, suspendedReason: string): Promise<AdminJobDetailResponseDTO> {
     const job = await this._jobRepository.getJobById(jobId);
     if (!job) {
       throw new AppError(ERROR_MESSAGES.JOB.NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -110,7 +123,8 @@ export class AdminJobService implements IAdminJobService {
       throw new AppError(ERROR_MESSAGES.JOB.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
-    const updatedJobDto: AdminJobDetailResponseDTO = mapJobModelToAdminJobDetailResponseDTO(updatedJob);
+    const updatedJobDto: AdminJobDetailResponseDTO =
+      mapJobModelToAdminJobDetailResponseDTO(updatedJob);
 
     return updatedJobDto;
   }

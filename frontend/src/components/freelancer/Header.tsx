@@ -22,6 +22,7 @@ export default function FreelancerHeader() {
       const respone = await authApi.logout();
       if (respone.success) {
         dispatch(setUser(null));
+        localStorage.removeItem("user");
         router.push("/login");
       }
     } catch (err) {
@@ -33,7 +34,7 @@ export default function FreelancerHeader() {
 
     if (response.success) {
       dispatch(setUser(response.data));
-      localStorage.removeItem("user");
+      localStorage.setItem("user", JSON.stringify(response.data));
       router.replace("/client");
     } else {
       router.replace("/onboarding/client");

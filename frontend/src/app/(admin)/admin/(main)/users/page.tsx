@@ -42,6 +42,7 @@ const UserManagementPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [search, setSearch] = useState("");
+  const [localSearch, setLocalSearch] = useState("");
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [totalCount, setTotalCount] = useState<number | undefined>(undefined);
   const [totalUsers, setTotalUsers] = useState(0);
@@ -101,6 +102,11 @@ const UserManagementPage: React.FC = () => {
     () => debounce((value: string) => setSearch(value), 500),
     []
   );
+
+  useEffect(() => {
+    debouncedSetSearch(localSearch);
+    return () => debouncedSetSearch.cancel();
+  }, [localSearch, debouncedSetSearch]);
 
   // ===== Columns =====
   const columns: Column<User>[] = [
@@ -204,8 +210,8 @@ const UserManagementPage: React.FC = () => {
         setPage={setPage}
         pageSize={limit}
         totalCount={totalCount}
-        search={search}
-        setSearch={debouncedSetSearch}
+  search={localSearch}
+  setSearch={setLocalSearch}
         canDelete={true}
         setFilters={setFilters}
         activeFilters={filters}

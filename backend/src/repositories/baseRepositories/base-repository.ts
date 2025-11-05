@@ -47,7 +47,9 @@ export default class BaseRepository<T extends Document> implements IBaseReposito
   }
 
   async updateById<R = T>(id: string, data: UpdateQuery<T>): Promise<R | null> {
-    return await this.model.findByIdAndUpdate(id, data, { new: true }).exec() as unknown as R | null;;
+    return (await this.model
+      .findByIdAndUpdate(id, data, { new: true })
+      .exec()) as unknown as R | null;
   }
 
   async update(filter: FilterQuery<T>, data?: UpdateQuery<T>): Promise<T | null> {

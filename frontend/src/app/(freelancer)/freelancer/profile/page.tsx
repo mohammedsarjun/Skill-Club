@@ -36,7 +36,7 @@ import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import PortfolioModal from "@/components/freelancer/PortfolioModal";
+import PortfolioModal from "@/components/common/portfolioModal";
 import { IPortfolio } from "@/types/interfaces/IFreelancer";
 
 import Swal from "sweetalert2";

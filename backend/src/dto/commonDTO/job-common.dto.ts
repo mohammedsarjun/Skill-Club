@@ -3,7 +3,7 @@ export interface JobQueryParams {
   page: number;
   limit: number;
   filters: {
-    category?: string;
+    category?: string|null;
     status?:
       | 'pending_verification'
       | 'open'

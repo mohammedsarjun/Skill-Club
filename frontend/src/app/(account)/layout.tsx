@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import AuthHeader from "@/components/common/AuthHeader";
-import AuthGuard from "@/components/AuthGaurd";
+import AuthGuard from "@/components/ClientAuthGaurd";
 import ClientHeader from "@/components/client/Header";
 import { usePreventBackAfterLogout } from "@/custom-hooks/usePreventBackAfterLogout";
 

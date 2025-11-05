@@ -24,7 +24,7 @@ function ClientDashboard() {
       : currentHour < 18
       ? "Good Afternoon"
       : "Good Evening";
-  const clientName = "John Anderson";
+  const clientName = "";
 
   const stats = [
     { label: "Active Jobs", value: "12", icon: FaPlus, color: "bg-emerald-50" },
@@ -162,7 +162,7 @@ function ClientDashboard() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
           <div>
             <h1 className="text-4xl font-bold text-gray-900 mb-1">
-              {greeting}, {clientName}
+              {greeting} {clientName}
             </h1>
             <p className="text-gray-500">Welcome back to your dashboard</p>
           </div>

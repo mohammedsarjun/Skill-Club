@@ -6,7 +6,7 @@ import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
 import Checkbox from "@/components/common/CheckBox";
 import Image from "next/image";
-import AuthGuard from "@/components/AuthGaurd";
+import AuthGuard from "@/components/ClientAuthGaurd";
 import { emailSchema, passwordSchema } from "@/utils/validations/validation";
 import { z } from "zod";
 import { authApi } from "@/api/authApi";
@@ -68,7 +68,15 @@ function LoginPage() {
     if (response.success) {
       localStorage.setItem("user", JSON.stringify(response.data));
       dispatch(setUser(response.data));
-      route.push("/client/profile");
+      const user = response.data;
+
+      if (user?.activeRole == "client") {
+        route.push("/client");
+      }else if(user?.activeRole=="freelancer"){
+         route.push("/freelancer/profile");
+      }else{
+        route.push("/onboarding/role");
+      }
     } else {
       toast.error(response.message);
     }

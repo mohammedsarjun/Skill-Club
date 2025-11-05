@@ -51,3 +51,11 @@ export interface AdminJobDetailResponseDTO {
   verifiedBy?: string;
   rejectedReason?: string;
 }
+
+
+export interface PaginatedAdminJobDto {
+  data: AdminJobResponseDTO[];
+  total: number;
+  page: number;
+  limit: number;
+}

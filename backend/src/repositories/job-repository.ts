@@ -53,8 +53,9 @@ export class JobRepository extends BaseRepository<IJob> implements IJobRepositor
     filters: JobQueryParams,
     skip: number,
   ): Promise<IJobWithCategoryDetail[] | null> {
+    const query = filters.filters;
     return await super.findAll(
-      { title: { $regex: filters.search, $options: 'i' } },
+      { title: { $regex: filters.search, $options: 'i' }, ...query },
       {
         skip,
         limit: filters.limit,
@@ -71,8 +72,9 @@ export class JobRepository extends BaseRepository<IJob> implements IJobRepositor
     filters: JobQueryParams,
     skip: number,
   ): Promise<IJobWithCategoryDetail[]> {
+    const query = filters.filters;
     return await super.findAll(
-      { clientId: clientId, title: { $regex: filters.search, $options: 'i' } },
+      { clientId: clientId, title: { $regex: filters.search, $options: 'i' }, ...query },
       {
         skip,
         limit: filters.limit,
@@ -126,5 +128,13 @@ export class JobRepository extends BaseRepository<IJob> implements IJobRepositor
 
   async updateJobById(jobId: string, jobData: Partial<JobData>): Promise<IJobDetail | null> {
     return await super.updateById(jobId, jobData);
+  }
+
+  async countAllJobs(): Promise<number> {
+    return await super.count();
+  }
+
+  async countAllJobsByClientId(clientId: string): Promise<number> {
+    return await super.count({ clientId });
   }
 }

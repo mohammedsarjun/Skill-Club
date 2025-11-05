@@ -102,7 +102,7 @@ export function useSwal() {
       });
 
       if (reason.isConfirmed && reason.value) {
-        return { action: "suspended", reason: reason.value };
+        return { action: "rejected", reason: reason.value };
       }
       return "cancelled";
     }

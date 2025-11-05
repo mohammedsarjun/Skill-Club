@@ -7,8 +7,12 @@ import { useRouter, usePathname } from "next/navigation";
 import { setUser } from "@/store/slices/authSlice";
 import { adminAuthApi } from "@/api/adminAuthApi";
 
-export default function AdminAuthGuard({ children }: { children: React.ReactNode }) {
-  const user = useSelector((state: RootState) => state.auth.user);
+export default function AdminAuthGuard({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const user = JSON.parse(localStorage.getItem("user")!);
   const dispatch = useDispatch();
   const router = useRouter();
   const pathname = usePathname();
@@ -22,16 +26,6 @@ export default function AdminAuthGuard({ children }: { children: React.ReactNode
     const verifyAdmin = async () => {
       try {
         let currentUser = user;
-
-        // fetch user if not already in redux
-        if (!user) {
-          const response = await adminAuthApi.me();
-
-          if (response.success) {
-            dispatch(setUser(response.data));
-            currentUser = response.data;
-          }
-        }
 
         // No user → force login
         if (!currentUser) {

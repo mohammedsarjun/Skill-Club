@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 import { debounce } from "lodash";
 
 import { IJobQueryParams } from "@/types/interfaces/IJob";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 // ===== Main Component =====
 const JobManagementPage: React.FC = () => {
   // ===== State =====
@@ -16,11 +16,12 @@ const JobManagementPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [search, setSearch] = useState("");
+  const [localSearch, setLocalSearch] = useState("");
   const [filters, setFilters] = useState<Pick<IJobQueryParams, "filters">>();
   const [totalUsers, setTotalUsers] = useState(0);
   const [totalFreelancers, setTotalFreelancers] = useState(0);
   const [totalClients, setTotalClients] = useState(0);
-
+  const [totalCount, setTotalCount] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<
     "overview" | "client" | "freelancer"
@@ -40,7 +41,9 @@ const JobManagementPage: React.FC = () => {
 
         if (response.success) {
           // Map the API job shape to a table-friendly flat row so we don't expose raw ids
-          const mapped = (response.data || []).map((j: any) => ({
+
+          console.log(response.data);
+          const mapped = (response.data.data || []).map((j: any) => ({
             id: j.jobId ?? j._id ?? j.id,
             jobTitle: j.jobTitle ?? "-",
             category: j.category?.categoryName ?? j.category ?? "-",
@@ -55,6 +58,10 @@ const JobManagementPage: React.FC = () => {
           }));
 
           setJobs(mapped);
+          const total = response.data.total
+          if (typeof total === "number") setTotalCount(total);
+          else setTotalCount(response.data.data?.length ?? undefined);
+
         } else toast.error(response.message);
       } catch (err: any) {
         toast.error(err.message);
@@ -81,10 +88,19 @@ const JobManagementPage: React.FC = () => {
   }, []);
 
   // ===== Debounced Search =====
+  // localSearch updates immediately from the input. We debounce updates to
+  // `search` which is used by the fetch effect to trigger server requests.
   const debouncedSetSearch = useMemo(
     () => debounce((value: string) => setSearch(value), 500),
     []
   );
+
+  useEffect(() => {
+    debouncedSetSearch(localSearch);
+    return () => {
+      debouncedSetSearch.cancel();
+    };
+  }, [localSearch, debouncedSetSearch]);
 
   // ===== Columns =====
   const columns: Column<any>[] = [
@@ -114,15 +130,14 @@ const JobManagementPage: React.FC = () => {
 
   // When viewing a row from the Jobs table, navigate to the job detail route
   const handleViewModal = (row: any) => {
-    const id = row?.id ?? row?.jobId ?? row?.raw?.jobId ?? row?.raw?._id ?? row?.raw?.id;
+    const id =
+      row?.id ?? row?.jobId ?? row?.raw?.jobId ?? row?.raw?._id ?? row?.raw?.id;
     if (!id) {
       toast.error("Missing job id");
       return;
     }
     router.push(`/admin/jobs/${id}`);
   };
-
-
 
   // ===== Render =====
   return (
@@ -156,12 +171,19 @@ const JobManagementPage: React.FC = () => {
         data={jobs}
         filters={filtersConfig}
         badgeKeys={["status"]}
-        badgeColors={{ pending_verification: "#f59e0bb4", open: "#10b981b4", rejected: "#ef4444b4", suspended: "#6B7280" }}
+        badgeColors={{
+          pending_verification: "#f59e0bb4",
+          open: "#10b981b4",
+          rejected: "#ef4444b4",
+          suspended: "#6B7280",
+        }}
         handleOpenViewModal={handleViewModal}
         page={page}
         setPage={setPage}
-        search={search}
-        setSearch={debouncedSetSearch}
+        pageSize={limit}
+        totalCount={totalCount}
+  search={localSearch}
+  setSearch={setLocalSearch}
         canDelete={true}
         setFilters={setFilters}
         activeFilters={filters}

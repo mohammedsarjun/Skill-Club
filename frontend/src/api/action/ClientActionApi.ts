@@ -3,6 +3,8 @@ import { axiosClient } from "../axiosClient";
 import { ClientProfileData, JobData } from "@/types/interfaces/IClient";
 import axios from "axios";
 import { IJobQueryParams } from "@/types/interfaces/IJob";
+import { IFreelancerData } from "@/types/interfaces/IFreelancerData";
+import { IFreelancerQueryParams } from "@/types/interfaces/IFreelancer";
 export const clientActionApi = {
   async getClientData() {
     try {
@@ -109,9 +111,11 @@ export const clientActionApi = {
     }
   },
 
-    async getJobDetail(jobId: string) {
-      try {
-      const response = await axiosClient.get(clientRouterEndPoints.getJobDetail(jobId));
+  async getJobDetail(jobId: string) {
+    try {
+      const response = await axiosClient.get(
+        clientRouterEndPoints.getJobDetail(jobId)
+      );
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
@@ -122,10 +126,55 @@ export const clientActionApi = {
     }
   },
 
-     async updateJobDetail(jobId: string,jobData:JobData) {
-      try {
-    
-      const response = await axiosClient.put(clientRouterEndPoints.updateJobDetail(jobId), {jobData});
+  async updateJobDetail(jobId: string, jobData: JobData) {
+    try {
+      const response = await axiosClient.put(
+        clientRouterEndPoints.updateJobDetail(jobId),
+        { jobData }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+  async closeJob(jobId: string) {
+    try {
+      const response = await axiosClient.patch(
+        clientRouterEndPoints.closeJob(jobId)
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getAllFreelancers(filters: IFreelancerQueryParams) {
+    try {
+      const response = await axiosClient.get(
+        clientRouterEndPoints.getAllFreelancers,{params:filters}
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+  async getFreelancerDetail(freelancerId: string) {
+    try {
+      const response = await axiosClient.get(
+        clientRouterEndPoints.getFreelancerDetail(freelancerId)
+      );
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
@@ -136,3 +185,6 @@ export const clientActionApi = {
     }
   },
 };
+
+
+

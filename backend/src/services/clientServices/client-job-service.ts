@@ -6,6 +6,7 @@ import {
   ClientJobDetailResponseDTO,
   ClientJobResponseDto,
   CreateJobDto,
+  PaginatedClientJobDto,
   UpdateJobDto,
 } from '../../dto/clientDTO/client-job.dto';
 
@@ -100,7 +101,7 @@ export class ClientJobService implements IClientJobService {
     return responseJobData;
   }
 
-  async getAllJobs(clientId: string, queryParams: JobQueryParams): Promise<ClientJobResponseDto[]> {
+  async getAllJobs(clientId: string, queryParams: JobQueryParams): Promise<PaginatedClientJobDto> {
     const JobQueryDto = mapJobQuery(queryParams);
 
     const skip = (JobQueryDto.page - 1) * JobQueryDto.limit;
@@ -114,7 +115,14 @@ export class ClientJobService implements IClientJobService {
       mapJobModelDtoToClientJobResponseDto,
     );
 
-    return JobResponseDTO;
+    const total = await this._jobRepository.countAllJobsByClientId(clientId);
+
+    return {
+      data: JobResponseDTO,
+      total,
+      page: JobQueryDto.page,
+      limit: JobQueryDto.limit,
+    };
   }
 
   async getJobDetail(clientId: string, jobId: string): Promise<ClientJobDetailResponseDTO> {
@@ -171,7 +179,10 @@ export class ClientJobService implements IClientJobService {
       throw new AppError(ERROR_MESSAGES.JOB.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
-    if(job.status === 'closed' || (job.status !== 'open' && job.status !== 'pending_verification')){
+    if (
+      job.status === 'closed' ||
+      (job.status !== 'open' && job.status !== 'pending_verification')
+    ) {
       throw new AppError(ERROR_MESSAGES.JOB.INVALID_STATUS, HttpStatus.BAD_REQUEST);
     }
 

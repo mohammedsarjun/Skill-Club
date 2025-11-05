@@ -5,7 +5,7 @@ import Button from "@/components/common/Button";
 import { authApi } from "@/api/authApi";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import AuthGuard from "@/components/AuthGaurd";
+import AuthGuard from "@/components/ClientAuthGaurd";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/store/slices/authSlice";
 import { userApi } from "@/api/userApi";

@@ -1,6 +1,7 @@
 import BaseRepository from '../baseRepositories/base-repository';
-import { IExperience, IUser } from '../../models/interfaces/user.model.interface';
+import { IExperience, IFreelancerData, IFreelancerDetailData, IUser } from '../../models/interfaces/user.model.interface';
 import { IEducationDTO, UpdateLanguageDTO } from '../../dto/freelancer.dto';
+import { freelancerParams } from '../../dto/clientDTO/client-freelancer-dto';
 
 export interface IFreelancerRepository extends BaseRepository<IUser> {
   getFreelancerById(userId: string): Promise<
@@ -34,4 +35,8 @@ export interface IFreelancerRepository extends BaseRepository<IUser> {
     userId: string,
     workHistoryId: string,
   ): Promise<IUser | null>;
+
+  getAllFreelancers(clientUserId:string,queryFilter:freelancerParams): Promise<IFreelancerData[] | null>;
+  getFreelacerByIdForClient(freelancerId:string):Promise<IFreelancerDetailData|null>
+
 }

@@ -1,9 +1,16 @@
 import { User } from '../models/user.model';
-import { IExperience, IUser } from '../models/interfaces/user.model.interface';
+import {
+  IExperience,
+  IFreelancerData,
+  IFreelancerDetailData,
+  IUser,
+} from '../models/interfaces/user.model.interface';
 import BaseRepository from './baseRepositories/base-repository';
 import { IFreelancerRepository } from './interfaces/freelancer-repository.interface';
 import { IEducationDTO, UpdateLanguageDTO } from '../dto/freelancer.dto';
 import { Types } from 'mongoose';
+import { freelancerParams } from '../dto/clientDTO/client-freelancer-dto';
+import { mapClientQueryToFreelancerModelQuery } from '../mapper/clientMapper/client-freelancer.mapper';
 
 export class FreelancerRepository extends BaseRepository<IUser> implements IFreelancerRepository {
   constructor() {
@@ -110,4 +117,140 @@ export class FreelancerRepository extends BaseRepository<IUser> implements IFree
       $pull: { 'freelancerProfile.experiences': { _id: new Types.ObjectId(workHistoryId) } },
     });
   }
+  async getAllFreelancers(
+    clientUserId: string,
+    queryFilter: freelancerParams,
+  ): Promise<IFreelancerData[] | null> {
+    const mongoQuery = mapClientQueryToFreelancerModelQuery(clientUserId, queryFilter);
+    console.log(mongoQuery);
+
+    const page = Number(queryFilter.page) || 1;
+    const limit = Number(queryFilter.limit) || 10;
+    const skip = (page - 1) * limit;
+    const pipeline = [
+      { $match: mongoQuery },
+      { $skip: skip },
+      { $limit: limit },
+      // ✅ Convert string skill IDs to ObjectIds before lookup
+      {
+        $addFields: {
+          'freelancerProfile.skills': {
+            $map: {
+              input: '$freelancerProfile.skills',
+              as: 'skillId',
+              in: { $toObjectId: '$$skillId' },
+            },
+          },
+        },
+      },
+      // ✅ Now the lookup will work
+      {
+        $lookup: {
+          from: 'skills',
+          localField: 'freelancerProfile.skills',
+          foreignField: '_id',
+          as: 'freelancerProfile.skills',
+        },
+      },
+      {
+        $project: {
+          freelancerId: { $toString: '$_id' },
+          logo: '$freelancerProfile.logo',
+          firstName: '$firstName',
+          lastName: '$lastName',
+          professionalRole: '$freelancerProfile.professionalRole',
+          country: '$address.country',
+          hourlyRate: '$freelancerProfile.hourlyRate',
+          jobSuccessRate: { $ifNull: ['$freelancerProfile.jobSuccessRate', 0] },
+          totalEarnedAmount: { $ifNull: ['$freelancerProfile.totalEarnedAmount', 0] },
+          categoryId: {
+            $cond: {
+              if: { $gt: ['$freelancerProfile.workCategory', null] },
+              then: { $toString: '$freelancerProfile.workCategory' },
+              else: '',
+            },
+          },
+          specialityIds: {
+            $map: {
+              input: { $ifNull: ['$freelancerProfile.specialties', []] },
+              as: 's',
+              in: { $toString: '$$s' },
+            },
+          },
+          skills: {
+              $map: {
+              input: { $ifNull: ['$freelancerProfile.skills', []] },
+              as: 's',
+              in: '$$s.name' ,
+            }
+          },
+          bio: '$freelancerProfile.bio',
+          language: {
+            $map: {
+              input: { $ifNull: ['$freelancerProfile.languages', []] },
+              as: 'l',
+              in: '$$l.name',
+            },
+          },
+        },
+      },
+    ];
+
+    const result = await this.model.aggregate(pipeline).exec();
+    return result as IFreelancerData[];
+  }
+
+ async getFreelacerByIdForClient(freelancerId: string): Promise<IFreelancerDetailData | null> {
+  console.log(freelancerId);
+  const [freelancer] = await this.model.aggregate([
+    { $match: { _id: new Types.ObjectId(freelancerId) } },
+    {
+      $lookup: {
+        from: 'specialities', // Make sure this matches your actual collection name
+        localField: 'freelancerProfile.specialties',
+        foreignField: '_id',
+        as: 'specialtiesData',
+      },
+    },
+    {
+      $lookup: {
+        from: 'skills', // Make sure this matches your actual collection name
+        localField: 'freelancerProfile.skills',
+        foreignField: '_id',
+        as: 'skillsData',
+      },
+    },
+    {
+      $project: {
+        firstName: '$firstName',
+        lastName: '$lastName',
+        address: '$address',
+        logo: '$freelancerProfile.logo',
+        workCategory: '$freelancerProfile.workCategory',
+        specialties: {
+          $map: {
+            input: { $ifNull: ['$specialtiesData', []] },
+            as: 'spec',
+            in: { id: '$$spec._id', name: '$$spec.name' },
+          },
+        },
+        skills: {
+          $map: {
+            input: { $ifNull: ['$skillsData', []] },
+            as: 'sk',
+            in: { id: '$$sk._id', name: '$$sk.name' },
+          },
+        },
+        professionalRole: '$freelancerProfile.professionalRole',
+        experiences: '$freelancerProfile.experiences',
+        education: '$freelancerProfile.education',
+        languages: '$freelancerProfile.languages',
+        bio: '$freelancerProfile.bio',
+        hourlyRate: '$freelancerProfile.hourlyRate',
+      },
+    },
+  ]);
+
+  return freelancer as unknown as IFreelancerDetailData;
+}
 }

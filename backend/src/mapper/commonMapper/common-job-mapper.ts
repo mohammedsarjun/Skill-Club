@@ -1,10 +1,23 @@
 import { JobQueryParams } from "../../dto/commonDTO/job-common.dto";
 
 export function mapJobQuery(dto: JobQueryParams): JobQueryParams {
+  // Normalize and clean up query parameters
+  const search = dto?.search?.trim() || '';
+  const page = dto.page ? Number(dto.page) : 1;
+  const limit = dto.limit ? Number(dto.limit) : 10;
+
+  // Prepare filters safely
+  const status =
+    dto?.filters?.status && dto.filters.status.trim() !== ''
+      ? dto.filters.status
+      : undefined;
+
   return {
-    search: dto?.search || '',
-    page: dto.page ? Number(dto.page) : 1,
-    limit: dto.limit ? Number(dto.limit) : 10,
-    filters: { category: dto?.filters?.category, status: dto?.filters?.status },
+    search,
+    page,
+    limit,
+    filters: {
+      ...(status && { status }), 
+    },
   };
 }

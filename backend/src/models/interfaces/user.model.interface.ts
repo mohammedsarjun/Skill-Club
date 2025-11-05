@@ -84,3 +84,41 @@ export interface IUser extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface IFreelancerSkill {
+  skillId: string;
+  skillName: string;
+}
+
+export interface IFreelancerData {
+  freelancerId: string;
+  logo: string;
+  firstName: string;
+  lastName: string;
+  professionalRole: string;
+  country: string;
+  hourlyRate: number;
+  jobSuccessRate: number;
+  totalEarnedAmount: number;
+  categoryId: string;
+  specialityIds: string[];
+  skills: IFreelancerSkill[];
+  bio: string;
+  language: string[];
+}
+
+export interface IFreelancerDetailData {
+  firstName: string;
+  lastName: string;
+  address:IAddress
+  logo: string | undefined;
+  workCategory: Types.ObjectId;
+  specialties: {id:Types.ObjectId,name:string}[];
+  skills: {id:Types.ObjectId,name:string}[];
+  professionalRole: string;
+  experiences: IExperience[];
+  education: IEducation[];
+  languages: ILanguage[];
+  bio: string;
+  hourlyRate: number;
+}

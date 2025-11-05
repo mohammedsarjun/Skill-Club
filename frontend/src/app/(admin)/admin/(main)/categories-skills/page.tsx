@@ -133,7 +133,7 @@ const DynamicManagementPage: React.FC = () => {
 
           if (response.success) {
             setSpecialtiesData(response.data.data);
-            console.log(response.data);
+
 
             
             const total = response.data.total ?? response.data.count ?? response.data.totalCount ?? response.data.meta?.total ?? response.data.pagination?.total;

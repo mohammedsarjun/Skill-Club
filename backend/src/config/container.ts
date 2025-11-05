@@ -174,3 +174,13 @@ import { ClientSpecialityService } from '../services/clientServices/client-speci
 container.register<IClientSpecialityService>('IClientSpecialityService', {
   useClass: ClientSpecialityService,
 });
+
+
+
+//client freelancer management
+import { IClientFreelancerService } from '../services/clientServices/interfaces/client-freelancer-service.interface';
+import { ClientFreelancerService } from '../services/clientServices/client-freelancer-service';
+
+container.register<IClientFreelancerService>('IClientFreelancerService', {
+  useClass: ClientFreelancerService,
+});

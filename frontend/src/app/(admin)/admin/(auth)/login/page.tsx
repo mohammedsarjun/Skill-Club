@@ -6,7 +6,7 @@ import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
 import Checkbox from "@/components/common/CheckBox";
 import Image from "next/image";
-import AuthGuard from "@/components/AuthGaurd";
+import AuthGuard from "@/components/ClientAuthGaurd";
 import { emailSchema, passwordSchema } from "@/utils/validations/validation";
 import { z } from "zod";
 import { authApi } from "@/api/authApi";

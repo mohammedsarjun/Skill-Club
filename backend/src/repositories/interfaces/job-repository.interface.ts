@@ -25,4 +25,6 @@ export interface IJobRepository extends BaseRepository<IJob> {
   rejectJob(jobId: string, rejectedReason: string): Promise<IJob | null>;
   getJobById(jobId: string): Promise<IJobDetail | null>;
   suspendJob(jobId: string, suspendedReason: string): Promise<IJob | null>;
+  countAllJobs(): Promise<number>;
+  countAllJobsByClientId(clientId: string): Promise<number>;
 }

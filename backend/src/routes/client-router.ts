@@ -8,13 +8,14 @@ import { clientBlockMiddleware } from '../middlewares/client-block-middleware';
 import { ClientJobController } from '../controllers/client/client-job-controller';
 import { ClientCategoryController } from '../controllers/client/client-category-controller';
 import { ClientSpecialityController } from '../controllers/client/client-speciality-controller';
+import { ClientFreelancerController } from '../controllers/client/client-freelancer-controller';
 const clientRouter = express.Router();
 
 const clientController = container.resolve(ClientController);
 const clientJobController = container.resolve(ClientJobController);
 const clientCategoryController = container.resolve(ClientCategoryController);
 const clientSpecialityController = container.resolve(ClientSpecialityController);
-
+const clientFreelancerController = container.resolve(ClientFreelancerController);
 clientRouter.get(
   '/me',
   authMiddleware,
@@ -85,4 +86,21 @@ clientRouter.patch(
   clientBlockMiddleware,
   clientJobController.closeJob.bind(clientJobController),
 );
+
+clientRouter.get(
+  '/freelancers',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientFreelancerController.getAllFreelancers.bind(clientFreelancerController),
+);
+
+clientRouter.get(
+  '/freelancers/:freelancerId',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientFreelancerController.getFreelancerDetail.bind(clientFreelancerController),
+);
+
 export default clientRouter;

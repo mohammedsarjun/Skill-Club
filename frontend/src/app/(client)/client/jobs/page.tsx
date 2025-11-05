@@ -8,10 +8,9 @@ import toast from "react-hot-toast";
 import { debounce } from "lodash";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import { IJob, IJobQueryParams } from "@/types/interfaces/IJob";
-import { useRouter } from 'next/navigation';
-import UserDetailModal from '@/components/admin/UserDetailModal';
+import { useRouter } from "next/navigation";
+import UserDetailModal from "@/components/admin/UserDetailModal";
 import { clientActionApi } from "@/api/action/ClientActionApi";
-
 
 // ===== Main Component =====
 const JobManagementPage: React.FC = () => {
@@ -20,13 +19,14 @@ const JobManagementPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [search, setSearch] = useState("");
+  const [localSearch, setLocalSearch] = useState("");
   const [filters, setFilters] = useState<Pick<IJobQueryParams, "filters">>();
   const [totalUsers, setTotalUsers] = useState(0);
   const [totalFreelancers, setTotalFreelancers] = useState(0);
   const [totalClients, setTotalClients] = useState(0);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [totalCount, setTotalCount] = useState<number>(0);
   const [activeTab, setActiveTab] = useState<
     "overview" | "client" | "freelancer"
   >("overview");
@@ -45,7 +45,7 @@ const JobManagementPage: React.FC = () => {
 
         if (response.success) {
           // Map the API job shape to a table-friendly flat row so we don't expose raw ids
-          const mapped = (response.data || []).map((j: any) => ({
+          const mapped = (response.data.data || []).map((j: any) => ({
             id: j.jobId ?? j._id ?? j.id,
             jobTitle: j.jobTitle ?? "-",
             category: j.category?.categoryName ?? j.category ?? "-",
@@ -60,6 +60,10 @@ const JobManagementPage: React.FC = () => {
           }));
 
           setJobs(mapped);
+          const total = response.data.total;
+          console.log(total)
+          if (typeof total === "number") setTotalCount(total);
+          else setTotalCount(response.data.data?.length ?? undefined);
         } else toast.error(response.message);
       } catch (err: any) {
         toast.error(err.message);
@@ -91,6 +95,11 @@ const JobManagementPage: React.FC = () => {
     []
   );
 
+  useEffect(() => {
+    debouncedSetSearch(localSearch);
+    return () => debouncedSetSearch.cancel();
+  }, [localSearch, debouncedSetSearch]);
+
   // ===== Columns =====
   const columns: Column<any>[] = [
     { key: "jobTitle", label: "Job" },
@@ -119,7 +128,7 @@ const JobManagementPage: React.FC = () => {
 
   // When viewing a row from the Jobs table, navigate to the job detail route
   const handleViewModal = (row: any) => {
-    console.log(row)
+    console.log(row);
     const id = row?.id;
     if (!id) {
       toast.error("Missing job id");
@@ -127,9 +136,6 @@ const JobManagementPage: React.FC = () => {
     }
     router.push(`/client/jobs/${id}`);
   };
-
-
-
 
   // ===== Render =====
   return (
@@ -163,12 +169,19 @@ const JobManagementPage: React.FC = () => {
         data={jobs}
         filters={filtersConfig}
         badgeKeys={["status"]}
-        badgeColors={{ pending_verification: "#f59e0bb4", open: "#10b981b4", rejected: "#ef4444b4", suspended: "#6B7280" }}
+        badgeColors={{
+          pending_verification: "#f59e0bb4",
+          open: "#10b981b4",
+          rejected: "#ef4444b4",
+          suspended: "#6B7280",
+        }}
         handleOpenViewModal={handleViewModal}
+        pageSize={limit}
         page={page}
         setPage={setPage}
-        search={search}
-        setSearch={debouncedSetSearch}
+  search={localSearch}
+  totalCount={totalCount}
+  setSearch={setLocalSearch}
         canDelete={true}
         setFilters={setFilters}
         activeFilters={filters}

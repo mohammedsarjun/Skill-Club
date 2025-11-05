@@ -72,6 +72,7 @@ authRouter.post('/logout', authController.logout.bind(authController));
 
 authRouter.post('/refresh-token', (req, res) => {
   const refreshToken = req.cookies.refreshToken;
+  console.log(refreshToken)
   try {
     const decoded = jwtService.verifyToken(refreshToken);
 

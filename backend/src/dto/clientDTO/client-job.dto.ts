@@ -93,3 +93,11 @@ export interface ClientJobDetailResponseDTO {
   rejectedReason?: string;
   suspendedReason?: string;
 }
+
+
+export interface PaginatedClientJobDto {
+  data: ClientJobResponseDto[];
+  total: number;
+  page: number;
+  limit: number;
+}

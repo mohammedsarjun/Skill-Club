@@ -34,6 +34,8 @@ import { useParams, useRouter } from "next/navigation";
 import { JobData } from "@/types/interfaces/IClient";
 import { JobDetailResponseDTO } from "@/types/interfaces/IJob";
 import { useSwal } from "@/custom-hooks/useSwal";
+import toast from "react-hot-toast";
+import { set } from "lodash";
 
 const mockJobData = {
   jobId: "JOB-12345",
@@ -138,6 +140,7 @@ function JobDetailPage() {
   const router = useRouter();
   const params = useParams();
   const jobIdParam = (params as any)?.jobId as string | undefined;
+  const { closeJobStatus } = useSwal();
   useEffect(() => {
     const fetchJobDetail = async () => {
       setIsLoading(true);
@@ -161,9 +164,23 @@ function JobDetailPage() {
     fetchJobDetail();
   }, [jobIdParam]);
 
-  const handleCloseJob=()=>{
-    useSwal
-  }
+  const handleCloseJob = async () => {
+    const result = await closeJobStatus(job?.jobTitle || "");
+
+    if (result === "closed") {
+      // Refresh job details to reflect the closed status
+      const jobResponse = await clientActionApi.closeJob(jobIdParam as string);
+      if (jobResponse.success) {
+        toast.success(jobResponse.message || "Job closed successfully");
+        setJob((prev) => {
+          if (prev) {
+            return { ...prev, status: "closed" };
+          }
+          return prev;
+        });
+      }
+    }
+  };
   const handleViewProposal = (proposal: (typeof mockProposals)[0]) => {
     setSelectedProposal(proposal);
     setShowProposalModal(true);
@@ -329,7 +346,7 @@ function JobDetailPage() {
 
                   <button
                     className="px-5 py-2.5 bg-red-600 text-white text-sm font-medium rounded-lg shadow hover:bg-red-700 transition flex items-center gap-2"
-                    onClick={()=>handleCloseJob()}
+                    onClick={() => handleCloseJob()}
                   >
                     Close Job
                   </button>
