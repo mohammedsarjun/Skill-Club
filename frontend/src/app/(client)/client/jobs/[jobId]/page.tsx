@@ -314,9 +314,10 @@ function JobDetailPage() {
                 <h2 className="text-xl font-semibold text-gray-900 mb-4 pb-3 border-b border-gray-100">
                   Job Description
                 </h2>
-                <p className="text-gray-700 leading-relaxed break-words overflow-hidden break-all whitespace-pre-wrap">
-                  {job?.jobDescription}
-                </p>
+                <p
+                  className="text-gray-700 leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: job?.jobDescription as string }}
+                ></p>
               </div>
 
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">

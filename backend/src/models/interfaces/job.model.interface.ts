@@ -57,6 +57,20 @@ export interface IJobDetail
     clientProfile: {
       companyName: string;
       logo: string;
+      country?:string
     };
+  };
+}
+
+
+export interface IJobResponse
+  extends Omit<IJob, 'category' | 'clientId' | 'specialities' | 'skills'> {
+  category: { _id: string; name: string };
+  specialities: { _id: string; name: string }[];
+  skills: { _id: string; name: string }[];
+  client: {
+      companyName: string;
+      logo: string;
+      country?:string
   };
 }

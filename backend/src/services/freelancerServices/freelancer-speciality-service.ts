@@ -1,28 +1,28 @@
 
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
-import { IClientSpecialityService } from './interfaces/client-speciality-service.interface';
-import { GetClientSpecialityWithSkillsDTO } from '../../dto/clientDTO/client-speciality.dto';
-import { mapSpecialityModelToGetClientSpecialityWithSkillsDTO } from '../../mapper/clientMapper/client-speciality.mapper';
 import { ISpecialityWithSkill } from '../../models/interfaces/speciality.model.interface';
-import { ISpecialityRepository } from '../../repositories/interfaces/speciality-repository.interface';
+import { ISpecialityRepository } from 'src/repositories/interfaces/speciality-repository.interface';
+import { IFreelancerSpecialityService } from './interfaces/freelancer-speciality-service.interface';
+import { GetFreelancerSpecialityWithSkillsDTO } from '../../dto/freelancerDTO/freelancer-speciality.dto';
+import { mapSpecialityModelToGetFreelancerSpecialityWithSkillsDTO } from '../../mapper/freelancerMapper/freelancer-speciality.mapper';
 
 @injectable()
-export class ClientSpecialityService implements IClientSpecialityService {
+export class FreelancerSpecialityService implements IFreelancerSpecialityService {
   private _specialityRepository: ISpecialityRepository;
   constructor(@inject('ISpecialityRepository') specialityRepository: ISpecialityRepository) {
     this._specialityRepository = specialityRepository;
   }
-
+  
   async getSpecialityWithSkills(
     selectedCategory: string,
-  ): Promise<GetClientSpecialityWithSkillsDTO[]> {
+  ): Promise<GetFreelancerSpecialityWithSkillsDTO[]> {
 
     const specialitiesWithSkills: ISpecialityWithSkill[] | null =
       await this._specialityRepository.getAllSpecialitiesWithSkills(selectedCategory);
 
     const specialityDtos = specialitiesWithSkills
-      ? specialitiesWithSkills.map(mapSpecialityModelToGetClientSpecialityWithSkillsDTO)
+      ? specialitiesWithSkills.map(mapSpecialityModelToGetFreelancerSpecialityWithSkillsDTO)
       : [];
 
     return specialityDtos;

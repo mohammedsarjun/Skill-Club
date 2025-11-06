@@ -9,7 +9,7 @@ import BaseRepository from './baseRepositories/base-repository';
 import { IFreelancerRepository } from './interfaces/freelancer-repository.interface';
 import { IEducationDTO, UpdateLanguageDTO } from '../dto/freelancer.dto';
 import { Types } from 'mongoose';
-import { freelancerParams } from '../dto/clientDTO/client-freelancer-dto';
+import { freelancerParams } from '../dto/clientDTO/client-freelancer.dto';
 import { mapClientQueryToFreelancerModelQuery } from '../mapper/clientMapper/client-freelancer.mapper';
 
 export class FreelancerRepository extends BaseRepository<IUser> implements IFreelancerRepository {

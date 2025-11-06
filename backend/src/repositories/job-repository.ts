@@ -34,11 +34,15 @@ import BaseRepository from './baseRepositories/base-repository';
 import {
   IJob,
   IJobDetail,
+  IJobResponse,
   IJobWithCategoryDetail,
   JobData,
 } from '../models/interfaces/job.model.interface';
 import { IJobRepository } from './interfaces/job-repository.interface';
-import { JobQueryParams } from 'src/dto/commonDTO/job-common.dto';
+import { JobQueryParams } from '../dto/commonDTO/job-common.dto';
+import { FreelancerJobFiltersDto } from 'src/dto/freelancerDTO/freelancer-job.dto';
+import { PipelineStage } from 'mongoose';
+import { mapFreelancerJobFilterDtoToJobAggregationQuery } from '../mapper/freelancerMapper/freelancer-job.mapper';
 
 export class JobRepository extends BaseRepository<IJob> implements IJobRepository {
   constructor() {
@@ -137,4 +141,121 @@ export class JobRepository extends BaseRepository<IJob> implements IJobRepositor
   async countAllJobsByClientId(clientId: string): Promise<number> {
     return await super.count({ clientId });
   }
+async findAllWithFreelancerFilters(
+  filters: FreelancerJobFiltersDto,
+  paginationData: { page: number; limit: number }
+): Promise<IJobResponse[] | null> {
+  const pipeline: PipelineStage[] = [];
+
+  // Get match stage from mapper
+  const initialMatchStage = mapFreelancerJobFilterDtoToJobAggregationQuery(filters);
+  pipeline.push({ $match: initialMatchStage });
+
+  // Lookup client details
+  pipeline.push({
+    $lookup: {
+      from: 'users',
+      localField: 'clientId',
+      foreignField: '_id',
+      as: 'client'
+    }
+  });
+
+  pipeline.push({
+    $unwind: {
+      path: '$client',
+      preserveNullAndEmptyArrays: true
+    }
+  });
+
+  // Filter by country if provided
+  if (filters.selectedCountry) {
+    pipeline.push({
+      $match: {
+        'client.country': filters.selectedCountry
+      }
+    });
+  }
+
+  
+  pipeline.push({
+    $addFields:{
+          'specialities': {
+            $map: {
+              input: '$specialities',
+              as: 'specialityId',
+              in: { $toObjectId: '$$specialityId' },
+            },
+          },
+        },
+  })
+
+  // Lookup specialities details
+  pipeline.push({
+    $lookup: {
+      from: 'specialities',
+      localField: 'specialities',
+      foreignField: '_id',
+      as: 'specialitiesDetails'
+    }
+  });
+
+  // Lookup skills details
+
+  pipeline.push({
+    $addFields:{
+          'skills': {
+            $map: {
+              input: '$skills',
+              as: 'skillId',
+              in: { $toObjectId: '$$skillId' },
+            },
+          },
+        },
+  })
+  pipeline.push({
+    $lookup: {
+      from: 'skills',
+      localField: 'skills',
+      foreignField: '_id',
+      as: 'skillsDetails'
+    }
+  });
+
+  // Sort by creation date (newest first)
+  pipeline.push({
+    $sort: { createdAt: -1 }
+  });
+
+  // Pagination
+  const skip = (paginationData.page - 1) * paginationData.limit;
+  pipeline.push({ $skip: skip });
+  pipeline.push({ $limit: paginationData.limit });
+
+  // Project final structure
+  pipeline.push({
+    $project: {
+      _id: 1,
+      title: 1,
+      description: 1,
+      category: 1,
+      specialities: '$specialitiesDetails',
+      skills: '$skillsDetails',
+      rateType: 1,
+      hourlyRate: 1,
+      fixedRate: 1,
+      client: {
+        _id: '$client._id',
+        companyName: '$client.clientProfile.companyName',
+        country: '$client.address.country'
+      },
+      status: 1,
+      createdAt: 1,
+      updatedAt: 1
+    }
+  });
+
+  const results = await this.model.aggregate(pipeline).exec();
+  return results.length > 0 ? results : null;
+}
 }

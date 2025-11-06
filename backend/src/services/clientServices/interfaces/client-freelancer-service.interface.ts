@@ -2,7 +2,7 @@ import {
   ClientFreelancerResponseDto,
   FetchClientFreelancerDTO,
   freelancerParams,
-} from '../../../dto/clientDTO/client-freelancer-dto';
+} from '../../../dto/clientDTO/client-freelancer.dto';
 
 export interface IClientFreelancerService {
   getAllFreelancers(

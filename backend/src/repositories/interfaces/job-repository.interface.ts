@@ -3,10 +3,12 @@ import BaseRepository from '../baseRepositories/base-repository';
 import {
   IJob,
   IJobDetail,
+  IJobResponse,
   IJobWithCategoryDetail,
   JobData,
 } from '../../models/interfaces/job.model.interface';
 import { JobQueryParams } from 'src/dto/commonDTO/job-common.dto';
+import { FreelancerJobFiltersDto } from 'src/dto/freelancerDTO/freelancer-job.dto';
 
 export interface IJobRepository extends BaseRepository<IJob> {
   createJob(jobData: Partial<JobData>): Promise<IJob | null>;
@@ -27,4 +29,5 @@ export interface IJobRepository extends BaseRepository<IJob> {
   suspendJob(jobId: string, suspendedReason: string): Promise<IJob | null>;
   countAllJobs(): Promise<number>;
   countAllJobsByClientId(clientId: string): Promise<number>;
+  findAllWithFreelancerFilters(filters:Partial<FreelancerJobFiltersDto>,paginationData:{page:number,limit:number}):Promise<IJobResponse[]|null>
 }

@@ -4,7 +4,7 @@ import '../../config/container';
 import { MESSAGES } from '../../contants/contants';
 import { IClientFreelancerController } from './interfaces/client-freelancer-controller.interface';
 import { IClientFreelancerService } from '../../services/clientServices/interfaces/client-freelancer-service.interface';
-import { freelancerParams } from '../../dto/clientDTO/client-freelancer-dto';
+import { freelancerParams } from '../../dto/clientDTO/client-freelancer.dto';
 import { HttpStatus } from '../../enums/http-status.enum';
 
 @injectable()

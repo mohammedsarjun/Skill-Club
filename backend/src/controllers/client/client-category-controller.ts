@@ -5,7 +5,7 @@ import { HttpStatus } from '../../enums/http-status.enum';
 import { IClientCategoryController } from './interfaces/client-category-controller.interface';
 import { IClientCategoryService } from '../../services/clientServices/interfaces/client-category-service.interface';
 import { MESSAGES } from '../../contants/contants';
-import { GetClientCategoryDTO } from '../../dto/clientDTO/client-category-dto';
+import { GetClientCategoryDTO } from '../../dto/clientDTO/client-category.dto';
 
 @injectable()
 export class ClientCategoryController implements IClientCategoryController {

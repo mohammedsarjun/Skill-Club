@@ -4,10 +4,15 @@ import { container } from 'tsyringe';
 import { authMiddleware, roleGuard } from '../middlewares/auth-middleware';
 import { FreelancerController } from '../controllers/freelancer/freelancer-controller';
 import { freelancerBlockMiddleware } from '../middlewares/freelancer-block-middleware';
+import { FreelancerCategoryController } from '../controllers/freelancer/freelancer-category-controller';
+import { FreelancerSpecialityController } from '../controllers/freelancer/freelancer-speciality-controller';
+import { FreelancerJobController } from '../controllers/freelancer/freelancer-job-controller';
 const freelancerRouter = express.Router();
 
 const freelancerController = container.resolve(FreelancerController);
-
+const freelancerCategoryController=container.resolve(FreelancerCategoryController)
+const freelancerSpecialityController=container.resolve(FreelancerSpecialityController)
+const freelancerJobController=container.resolve(FreelancerJobController)
 freelancerRouter.get(
   '/me',
   authMiddleware,
@@ -115,4 +120,35 @@ freelancerRouter.delete(
   freelancerController.deleteFreelancerWorkHistory.bind(freelancerController),
 );
 
+freelancerRouter.get(
+  '/categories',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerCategoryController.getAllCategories.bind(freelancerCategoryController),
+);
+
+freelancerRouter.get(
+  '/specialities',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerSpecialityController.getSpecialityWithSkills.bind(freelancerSpecialityController),
+);
+
+freelancerRouter.get(
+  '/jobs',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerJobController.getAllJobs.bind(freelancerJobController),
+);
+
+freelancerRouter.get(
+  '/jobs/:jobId',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerJobController.getJobDetail.bind(freelancerJobController),
+);
 export default freelancerRouter;

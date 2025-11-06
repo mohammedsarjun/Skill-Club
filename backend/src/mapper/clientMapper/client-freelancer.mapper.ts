@@ -1,6 +1,6 @@
 // import { IUser } from 'src/models/interfaces/user.model.interface';
 import { IExperience, IFreelancerData, IFreelancerDetailData, ILanguage } from '../../models/interfaces/user.model.interface';
-import { ClientFreelancerResponseDto, FetchClientFreelancerDTO, freelancerParams } from '../../dto/clientDTO/client-freelancer-dto';
+import { ClientFreelancerResponseDto, FetchClientFreelancerDTO, freelancerParams } from '../../dto/clientDTO/client-freelancer.dto';
 import { Types } from 'mongoose';
 import { EducationDTO, ExperienceDTO, IEducationDTO } from 'src/dto/freelancer.dto';
 import { mapEducationModelToDTO } from '../freelancer.mapper';

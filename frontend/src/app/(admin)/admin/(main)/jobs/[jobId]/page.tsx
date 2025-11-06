@@ -29,108 +29,117 @@ import {
 
 function AdminJobDetailPage() {
   const [job, setJob] = useState<JobDetailResponseDTO>({
-      jobId: "",
-      jobTitle: "",
-      jobDescription: "",
-      category: {
-        categoryName: "",
-        categoryId: "",
+    jobId: "",
+    jobTitle: "",
+    jobDescription: "",
+    category: {
+      categoryName: "",
+      categoryId: "",
+    },
+    specialities: [
+      {
+        specialityId: "",
+        specialityName: "",
       },
-  specialities: [{
-    specialityId: "",
-    specialityName: "",
-  }],
-  skills: [{
-    skillId: "",
-    skillName: "",
-  }],
-  budget: {
-    rateType: "hourly",
-    min: 0,
-    max: 0,
-    hoursPerWeek: 0,
-    estimatedDuration: "1 To 3 Months",
-  },
-  totalProposal: 0,
-  status: "pending_verification",
-  clientDetail: {
-    clientId: "",
-    companyName: "",
-    companyLogo: "",
-  },
-  verifiedBy: "",
-  rejectedReason: "",
-  suspendedReason: "",
+    ],
+    skills: [
+      {
+        skillId: "",
+        skillName: "",
+      },
+    ],
+    budget: {
+      rateType: "hourly",
+      min: 0,
+      max: 0,
+      hoursPerWeek: 0,
+      estimatedDuration: "1 To 3 Months",
+    },
+    totalProposal: 0,
+    status: "pending_verification",
+    clientDetail: {
+      clientId: "",
+      companyName: "",
+      companyLogo: "",
+    },
+    verifiedBy: "",
+    rejectedReason: "",
+    suspendedReason: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const { jobAction, suspendJob } = useSwal();
   const params = useParams();
   const jobIdParam = (params as any)?.jobId as string | undefined;
 
+  const handleReviewJob = async () => {
+    const result = await jobAction(job?.jobTitle as string);
 
-    const handleReviewJob = async () => {
-      const result = await jobAction(job?.jobTitle as string);
-
-      if (result === "approved") {
-        setIsLoading(true);
-        try {
-          const response = await AdminActionApi.approveJob(job?.jobId as string);
-          if (response.success) {
-            setJob((prev) => ({
-              ...prev,
-              status: "open",
-            }));
-            toast.success("Job approved successfully!");
-          }
-        } catch (error) {
-          console.error("Failed to approve job", error);
-          toast.error("Failed to approve job");
-        } finally {
-          setIsLoading(false);
+    if (result === "approved") {
+      setIsLoading(true);
+      try {
+        const response = await AdminActionApi.approveJob(job?.jobId as string);
+        if (response.success) {
+          setJob((prev) => ({
+            ...prev,
+            status: "open",
+          }));
+          toast.success("Job approved successfully!");
         }
-      } else if (typeof result === "object" && result.action === "rejected") {
-        setIsLoading(true);
-        try {
-          const response: any = await AdminActionApi.rejectJob(job.jobId, result.reason);
-          if (response.success) {
-            setJob((prev) => ({
-              ...prev,
-              status: "rejected",
-              rejectedReason: result.reason,
-            }));
-            toast.success("Job rejected");
-          }
-        } catch (error) {
-          console.error("Failed to reject job", error);
-          toast.error("Failed to reject job");
-        } finally {
-          setIsLoading(false);
-        }
+      } catch (error) {
+        console.error("Failed to approve job", error);
+        toast.error("Failed to approve job");
+      } finally {
+        setIsLoading(false);
       }
-    };
-
-    const handleSuspendJob = async () => {
-      const result = await suspendJob(job?.jobTitle as string);
-
-      if (typeof result === "object" && result?.action === "suspended") {
-        setIsLoading(true);
-        try {
-          const response = await AdminActionApi.suspendJob(job?.jobId, result.reason);
-          if (response.success) {
-            setJob((prev) => ({
-              ...prev,
-              status: "suspended",
-              suspendedReason: result.reason,
-            }));
-            toast.success("Job suspended");
-          }
-        } catch (error) {
-          toast.error("Failed to suspend job");
-        } finally {
-          setIsLoading(false);
+    } else if (typeof result === "object" && result.action === "rejected") {
+      setIsLoading(true);
+      try {
+        const response: any = await AdminActionApi.rejectJob(
+          job.jobId,
+          result.reason
+        );
+        if (response.success) {
+          setJob((prev) => ({
+            ...prev,
+            status: "rejected",
+            rejectedReason: result.reason,
+          }));
+          toast.success("Job rejected");
         }
+      } catch (error) {
+        console.error("Failed to reject job", error);
+        toast.error("Failed to reject job");
+      } finally {
+        setIsLoading(false);
       }
-    };
+    }
+  };
+
+  const handleSuspendJob = async () => {
+    const result = await suspendJob(job?.jobTitle as string);
+
+    if (typeof result === "object" && result?.action === "suspended") {
+      setIsLoading(true);
+      try {
+        const response = await AdminActionApi.suspendJob(
+          job?.jobId,
+          result.reason
+        );
+        if (response.success) {
+          setJob((prev) => ({
+            ...prev,
+            status: "suspended",
+            suspendedReason: result.reason,
+          }));
+          toast.success("Job suspended");
+        }
+      } catch (error) {
+        toast.error("Failed to suspend job");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
 
   useEffect(() => {
     const fetchJobDetail = async () => {
@@ -143,7 +152,6 @@ function AdminJobDetailPage() {
         if (jobResponse.success) {
           setJob(jobResponse.data);
         }
-
       } catch (err) {
         console.error("Failed to fetch job details", err);
       } finally {
@@ -210,15 +218,12 @@ function AdminJobDetailPage() {
       >
         {config?.icon}
         {config?.label}
-
       </span>
     );
   };
 
   if (isLoading) {
-    return (
-      <GlobalSpinner />
-    );
+    return <GlobalSpinner />;
   }
 
   return (
@@ -341,9 +346,10 @@ function AdminJobDetailPage() {
                   Job Description
                 </h3>
               </div>
-              <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                {job?.jobDescription}
-              </p>
+              <p
+                className="text-gray-700 leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: job?.jobDescription }}
+              ></p>
             </div>
 
             {/* Skills & Specialities */}

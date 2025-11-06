@@ -1,9 +1,9 @@
-import { GetClientSpecialityWithSkillsDTO } from '../../dto/clientDTO/client-speciality-dto';
+import { GetFreelancerSpecialityWithSkillsDTO } from '../../dto/freelancerDTO/freelancer-speciality.dto';
 import { ISpecialityWithSkill } from '../../models/interfaces/speciality.model.interface';
 
-export const mapSpecialityModelToGetClientSpecialityWithSkillsDTO = (
+export const mapSpecialityModelToGetFreelancerSpecialityWithSkillsDTO = (
   specialityData: ISpecialityWithSkill,
-): GetClientSpecialityWithSkillsDTO => {
+): GetFreelancerSpecialityWithSkillsDTO => {
   return {
     specialityId: specialityData._id.toString(),
     specialityName: specialityData.name,

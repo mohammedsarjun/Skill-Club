@@ -9,6 +9,7 @@ import {
   IHourlyRate,
   IProfessionalRole,
 } from "@/types/interfaces/IFreelancerData";
+import { FreelancerJobFilters } from "@/types/interfaces/IJob";
 
 export const freelancerActionApi = {
   async getFreelancerData() {
@@ -247,4 +248,68 @@ export const freelancerActionApi = {
     }
   },
 
+  async getAllCategories() {
+    try {
+      const response = await axiosClient.get(
+        freelancerRouterEndPoints.getAllCategories
+      );
+
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+  async getSpecialitiesWithSkills(selectedCategory: string) {
+    try {
+      const response = await axiosClient.get(
+        freelancerRouterEndPoints.getSpecialitiesWithSkills,
+        { params: { selectedCategory } }
+      );
+
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getJobs(jobFilters: FreelancerJobFilters) {
+    try {
+      const response = await axiosClient.get(
+        freelancerRouterEndPoints.getJobs,
+        { params: { jobFilters } }
+      );
+
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+    async getJobDetail(jobId: string) {
+    try {
+      const response = await axiosClient.get(
+        freelancerRouterEndPoints.getJobDetail(jobId)
+      );
+
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
 };

@@ -14,6 +14,10 @@ const freelancerRouterEndPoints = {
   createPortfolio: "/freelancer/portfolio",
   getPortfolio: "/freelancer/portfolio",
   getPortfolioDetails: "/freelancer/portfolio/detail",
+  getAllCategories: "/freelancer/categories",
+  getSpecialitiesWithSkills: "/freelancer/specialities",
+  getJobs: "/freelancer/jobs",
+  getJobDetail:(jobId:string)=> `/freelancer/jobs/${jobId}`,
 };
 
 export default freelancerRouterEndPoints;

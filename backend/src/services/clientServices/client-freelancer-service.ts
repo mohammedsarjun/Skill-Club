@@ -6,7 +6,7 @@ import {
   ClientFreelancerResponseDto,
   FetchClientFreelancerDTO,
   freelancerParams,
-} from '../../dto/clientDTO/client-freelancer-dto';
+} from '../../dto/clientDTO/client-freelancer.dto';
 import { mapFreelancerToFetchClientFreelancerDTO, mapUserModelToClientFreelancerResponseDto } from '../../mapper/clientMapper/client-freelancer.mapper';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';

@@ -184,3 +184,29 @@ import { ClientFreelancerService } from '../services/clientServices/client-freel
 container.register<IClientFreelancerService>('IClientFreelancerService', {
   useClass: ClientFreelancerService,
 });
+
+
+
+
+//freelancer category 
+import { IFreelancerCategoryService } from '../services/freelancerServices/interfaces/freelancer-category-service.interface';
+import { FreelancerCategoryService } from '../services/freelancerServices/freelancer-category-service';
+
+container.register<IFreelancerCategoryService>('IFreelancerCategoryService', {
+  useClass: FreelancerCategoryService,
+});
+
+//freelancer speciality 
+import { IFreelancerSpecialityService } from '../services/freelancerServices/interfaces/freelancer-speciality-service.interface';
+import { FreelancerSpecialityService } from '../services/freelancerServices/freelancer-speciality-service';
+
+container.register<IFreelancerSpecialityService>('IFreelancerSpecialityService', {
+  useClass: FreelancerSpecialityService,
+});
+
+//freelancer Job
+import { IFreelancerJobService } from '../services/freelancerServices/interfaces/freelancer-job-service.interface';
+import { FreelancerJobService } from '../services/freelancerServices/freelancer-job-service';
+container.register<IFreelancerJobService>('IFreelancerJobService', {
+  useClass: FreelancerJobService,
+});
