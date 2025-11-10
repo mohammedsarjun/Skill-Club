@@ -103,4 +103,21 @@ clientRouter.get(
   clientFreelancerController.getFreelancerDetail.bind(clientFreelancerController),
 );
 
+clientRouter.get(
+  '/freelancers/:freelancerId/portfolio',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientFreelancerController.getFreelancerPortfolio.bind(clientFreelancerController),
+);
+
+
+// clientRouter.get(
+//   '/proposals',
+//   authMiddleware,
+//   roleGuard('freelancer'),
+//   clientBlockMiddleware,
+//   freelancerProposalController.createProposal.bind(freelancerProposalController),
+// );
+
 export default clientRouter;

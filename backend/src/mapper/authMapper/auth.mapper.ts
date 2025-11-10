@@ -3,9 +3,12 @@ import { IUser } from '../../models/interfaces/user.model.interface';
 
 export const mapCreateUserDtoToUserModel = (
   dto: CreateUserDTO,
-): Pick<IUser, 'firstName' | 'lastName' | 'email' | 'phone' | 'password'> & {
+): Pick<IUser, 'firstName' | 'lastName' | 'email' | 'phone' | 'password' | 'preferredCurrency' | 'preferredTimezone' | 'address'> & {
   agreement: boolean;
 } => {
+
+  console.log('Mapping CreateUserDTO to UserModel:');
+  console.log(dto);
   return {
     firstName: dto.firstName,
     lastName: dto.lastName,
@@ -13,6 +16,15 @@ export const mapCreateUserDtoToUserModel = (
     phone: dto.phone,
     password: dto.password,
     agreement: dto.agreement,
+    preferredCurrency: dto.preferredCurrency || 'USD',
+    preferredTimezone: dto.timezone || 'UTC',
+    address: {
+      country: dto.country || '',
+      streetAddress: '',
+      city: '',
+      state: '',
+      zipCode: 0,
+    },
   };
 };
 

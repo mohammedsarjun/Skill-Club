@@ -84,3 +84,16 @@ export interface IClientFreelancerLanguageDTO {
   name: string;
   proficiency: string;
 }
+
+// DTO for sending freelancer profile data
+export interface FetchClientFreelancerPortfolioDTO {
+  id: string;
+  title: string;
+  description: string;
+  technologies: [string];
+  role: string;
+  projectUrl: string;
+  githubUrl: string;
+  images: [string];
+  video: string;
+}

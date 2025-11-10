@@ -82,6 +82,12 @@ const userSchema = new Schema<IUser>(
     password: { type: String, required: false },
     avatar: { type: String },
     address: addressSchema,
+    preferredCurrency: {
+  type: String,
+  enum: ['USD','EUR','GBP','INR','AUD','CAD','SGD','JPY','AED','CHF'],
+  default: 'USD'
+},
+preferredTimezone: { type: String, default: 'UTC' }, 
     dob: Date,
     isVerified: { type: Boolean, default: false },
     isFreelancerBlocked: { type: Boolean, default: false },

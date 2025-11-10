@@ -22,12 +22,14 @@ export class FreelancerJobService implements IFreelancerJobService {
     this._clientRepository=clientRepository
   }
 
-  async getAllJobs(filters: FreelancerJobFiltersDto): Promise<FreelancerJobResponseDto[]|null> {
+  async getAllJobs(freelancerUserId: string, filters: FreelancerJobFiltersDto): Promise<FreelancerJobResponseDto[]|null> {
+ 
     const jobFilterDto=mapFreelancerJobRawFilterToFreelancerJobFiltersDto(filters)
+ 
     const page=Number(filters?.page)
     const limit=Number(filters?.limit)
     const paginationData={page,limit}
-    const jobData=await this._jobRepository.findAllWithFreelancerFilters(jobFilterDto,paginationData);
+    const jobData=await this._jobRepository.findAllWithFreelancerFilters(freelancerUserId,jobFilterDto,paginationData);
 
     const freelancerJobResponseDto=jobData?jobData.map(mapJobModelToFreelancerJobResponseDTO):null
     return freelancerJobResponseDto
@@ -36,7 +38,7 @@ export class FreelancerJobService implements IFreelancerJobService {
   async getJobDetail(freelancerUserId: string, jobId: string): Promise<FreelancerJobDetailResponseDto> {
     const jobData = await this._jobRepository.getJobById(jobId);
 
-    if (jobId == freelancerUserId) {
+    if (jobData?.clientId._id == freelancerUserId) {
       throw new AppError('You cannot view your own freelancer profile.', HttpStatus.BAD_REQUEST);
     }
 

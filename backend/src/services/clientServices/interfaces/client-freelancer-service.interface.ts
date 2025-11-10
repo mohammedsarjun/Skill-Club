@@ -1,6 +1,7 @@
 import {
   ClientFreelancerResponseDto,
   FetchClientFreelancerDTO,
+  FetchClientFreelancerPortfolioDTO,
   freelancerParams,
 } from '../../../dto/clientDTO/client-freelancer.dto';
 
@@ -13,4 +14,8 @@ export interface IClientFreelancerService {
     clientUserId: string,
     freelancerId: string,
   ): Promise<FetchClientFreelancerDTO| null>;
+  getFreelancerPortfolio(
+    clientUserId: string,
+    freelancerId: string,
+  ): Promise<FetchClientFreelancerPortfolioDTO[] | null>;
 }

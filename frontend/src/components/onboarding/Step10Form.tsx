@@ -26,11 +26,15 @@ interface StepNineProps {
   };
 }
 
-export default function StepNineForm({ onBack, onNext, savedData }: StepNineProps) {
+export default function StepNineForm({
+  onBack,
+  onNext,
+  savedData,
+}: StepNineProps) {
   const dispatch = useDispatch();
-
+  const [countries, setCountries] = useState<{name: string, code: string}[]>([]);
   const [logo, setLogo] = useState("/images/site logo.png");
-  const [country, setCountry] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState("");
   const [streetAddress, setStreetAddress] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
@@ -43,13 +47,28 @@ export default function StepNineForm({ onBack, onNext, savedData }: StepNineProp
   useEffect(() => {
     if (savedData) {
       if (savedData.logo) setLogo(savedData.logo);
-      if (savedData.country) setCountry(savedData.country);
+      if (savedData.country) setSelectedCountry(savedData.country);
       if (savedData.streetAddress) setStreetAddress(savedData.streetAddress);
       if (savedData.city) setCity(savedData.city);
       if (savedData.state) setState(savedData.state);
       if (savedData.zipCode) setZipCode(savedData.zipCode);
     }
   }, [savedData]);
+
+    useEffect(() => {
+    fetch('https://restcountries.com/v3.1/all?fields=name,cca2')
+      .then(res => res.json())
+      .then(data => {
+        const sorted = data
+          .map((c: { name: { common: string }; cca2: string }) => ({
+            name: c.name.common,
+            code: c.cca2  // ISO 2-letter code
+          }))
+          .sort((a:{name:string},b:{name:string}) => a.name.localeCompare(b.name));
+        setCountries(sorted);
+      })
+      .catch(err => console.error('Failed to load countries', err));
+  }, []);
 
   // Handle file selection and upload to Cloudinary
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,18 +102,21 @@ export default function StepNineForm({ onBack, onNext, savedData }: StepNineProp
   const handleNext = () => {
     // Save all step data to Redux
     dispatch(
-      updateFreelancerData({address:{
-        country,
-        streetAddress,
-        city,
-        state,
-        zipCode: zipCode || 0,
-      },logo:logo})
+      updateFreelancerData({
+        address: {
+          country:selectedCountry,
+          streetAddress,
+          city,
+          state,
+          zipCode: zipCode || 0,
+        },
+        logo: logo,
+      })
     );
 
     // Pass data to parent
     onNext({
-      country,
+      country: selectedCountry,
       streetAddress,
       city,
       state,
@@ -105,7 +127,7 @@ export default function StepNineForm({ onBack, onNext, savedData }: StepNineProp
 
   const isFormValid =
     logo !== "/images/site logo.png" &&
-    country.trim() !== "" &&
+    selectedCountry.trim() !== "" &&
     streetAddress.trim() !== "" &&
     city.trim() !== "" &&
     state.trim() !== "" &&
@@ -166,19 +188,21 @@ export default function StepNineForm({ onBack, onNext, savedData }: StepNineProp
             />
           </div>
 
-          <div>
-            <label className="block mb-1 font-medium">Country*</label>
-            <select
-              value={country}
-              onChange={(e) => setCountry(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="">Select Country</option>
-              <option value="india">India</option>
-              <option value="usa">USA</option>
-              <option value="uk">UK</option>
-            </select>
-          </div>
+       <div>
+      <label className="block mb-1 font-medium">Country*</label>
+      <select
+        value={selectedCountry}
+        onChange={e => setSelectedCountry(e.target.value)}
+        className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      >
+        <option value="">Select Country</option>
+        {countries.map(c => (
+          <option key={c.code} value={c.code}>
+            {c.name}
+          </option>
+        ))}
+      </select>
+    </div>
 
           <div>
             <label className="block mb-1 font-medium">Street Address*</label>

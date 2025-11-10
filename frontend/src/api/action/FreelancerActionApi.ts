@@ -10,6 +10,7 @@ import {
   IProfessionalRole,
 } from "@/types/interfaces/IFreelancerData";
 import { FreelancerJobFilters } from "@/types/interfaces/IJob";
+import { ICreateProposal } from "@/types/interfaces/IProposal";
 
 export const freelancerActionApi = {
   async getFreelancerData() {
@@ -297,10 +298,27 @@ export const freelancerActionApi = {
     }
   },
 
-    async getJobDetail(jobId: string) {
+  async getJobDetail(jobId: string) {
     try {
       const response = await axiosClient.get(
         freelancerRouterEndPoints.getJobDetail(jobId)
+      );
+
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async createProposal(proposalData: ICreateProposal) {
+    try {
+      const response = await axiosClient.post(
+        freelancerRouterEndPoints.createProposal,
+        {proposalData}
       );
 
       return response.data;

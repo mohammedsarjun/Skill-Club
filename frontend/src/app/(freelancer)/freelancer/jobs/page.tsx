@@ -1,8 +1,10 @@
 "use client";
 import { freelancerActionApi } from "@/api/action/FreelancerActionApi";
 import Pagination from "@/components/common/Pagination";
-import { FreelancerJobFilters } from "@/types/interfaces/IJob";
-import React, { useEffect, useState } from "react";
+import { FreelancerJobFilters, FreelancerJobResponse } from "@/types/interfaces/IJob";
+import React, { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { debounce } from "lodash";
 import {
   FaBriefcase,
   FaDollarSign,
@@ -17,139 +19,7 @@ import {
   FaChevronUp,
 } from "react-icons/fa";
 
-// Dummy job data
-const jobListings = [
-  {
-    id: 1,
-    jobTitle: "Full Stack Web Application Development",
-    clientRating: "4.9",
-    totalMoneySpend: 50000,
-    country: "United States",
-    jobRateType: "hourly",
-    description:
-      "Looking for an experienced full-stack developer to build a comprehensive web application with React frontend and Node.js backend. The project involves creating a scalable architecture with real-time features and third-party integrations.",
-    skills: ["React", "Node.js", "MongoDB", "AWS", "TypeScript"],
-    minHourlyRate: "50",
-    maxHourlyRate: "100",
-    totalProposalReceived: 28,
-  },
-  {
-    id: 2,
-    jobTitle: "Mobile App UI/UX Design",
-    clientRating: "5.0",
-    totalMoneySpend: 125000,
-    country: "United Kingdom",
-    jobRateType: "fixed",
-    description:
-      "Need a talented UI/UX designer to create modern, intuitive designs for our mobile application. Must have experience with iOS and Android design guidelines.",
-    skills: ["Figma", "UI/UX Design", "Mobile Design", "Prototyping"],
-    minFixedRate: "3000",
-    maxFixedRate: "5000",
-    totalProposalReceived: 42,
-  },
-  {
-    id: 3,
-    jobTitle: "E-commerce Platform Development",
-    clientRating: "4.7",
-    totalMoneySpend: 85000,
-    country: "Canada",
-    jobRateType: "hourly",
-    description:
-      "Seeking a skilled developer to build a custom e-commerce platform with payment gateway integration, inventory management, and admin dashboard.",
-    skills: ["PHP", "Laravel", "MySQL", "Vue.js", "Stripe API"],
-    minHourlyRate: "40",
-    maxHourlyRate: "75",
-    totalProposalReceived: 15,
-  },
-  {
-    id: 4,
-    jobTitle: "AI/ML Model Development",
-    clientRating: "4.8",
-    totalMoneySpend: 200000,
-    country: "Germany",
-    jobRateType: "fixed",
-    description:
-      "Looking for an AI specialist to develop and train machine learning models for predictive analytics. Experience with TensorFlow and PyTorch required.",
-    skills: [
-      "Python",
-      "TensorFlow",
-      "PyTorch",
-      "Machine Learning",
-      "Data Science",
-    ],
-    minFixedRate: "8000",
-    maxFixedRate: "12000",
-    totalProposalReceived: 8,
-  },
-  {
-    id: 5,
-    jobTitle: "WordPress Website Customization",
-    clientRating: "4.6",
-    totalMoneySpend: 15000,
-    country: "Australia",
-    jobRateType: "hourly",
-    description:
-      "Need a WordPress expert to customize our existing website with new features, optimize performance, and improve SEO.",
-    skills: ["WordPress", "PHP", "JavaScript", "CSS", "SEO"],
-    minHourlyRate: "25",
-    maxHourlyRate: "50",
-    totalProposalReceived: 35,
-  },
-  {
-    id: 6,
-    jobTitle: "Blockchain Smart Contract Development",
-    clientRating: "4.9",
-    totalMoneySpend: 180000,
-    country: "Switzerland",
-    jobRateType: "fixed",
-    description:
-      "Seeking an experienced blockchain developer to create secure smart contracts for our DeFi platform. Must have expertise in Solidity and Web3.",
-    skills: [
-      "Solidity",
-      "Ethereum",
-      "Web3.js",
-      "Smart Contracts",
-      "Blockchain",
-    ],
-    minFixedRate: "10000",
-    maxFixedRate: "15000",
-    totalProposalReceived: 12,
-  },
-  {
-    id: 7,
-    jobTitle: "Mobile Game Development",
-    clientRating: "4.5",
-    totalMoneySpend: 45000,
-    country: "Japan",
-    jobRateType: "hourly",
-    description:
-      "Looking for a Unity game developer to create an engaging mobile game with multiplayer features and in-app purchases.",
-    skills: ["Unity", "C#", "Game Development", "3D Modeling", "Animation"],
-    minHourlyRate: "35",
-    maxHourlyRate: "65",
-    totalProposalReceived: 22,
-  },
-  {
-    id: 8,
-    jobTitle: "Digital Marketing Campaign Management",
-    clientRating: "4.8",
-    totalMoneySpend: 95000,
-    country: "United States",
-    jobRateType: "fixed",
-    description:
-      "Need a digital marketing expert to manage our multi-channel marketing campaigns including SEO, PPC, and social media marketing.",
-    skills: [
-      "SEO",
-      "Google Ads",
-      "Facebook Ads",
-      "Content Marketing",
-      "Analytics",
-    ],
-    minFixedRate: "4000",
-    maxFixedRate: "7000",
-    totalProposalReceived: 48,
-  },
-];
+// Showing backend-provided jobs only (no local dummy data)
 
 const countries = [
   "United States",
@@ -169,9 +39,12 @@ const FreelancerJobListing = () => {
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [apiCategories, setApiCategories] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(2);
-  const limit=5
-
+  const [itemsPerPage] = useState(10); // page size (limit)
+  const [totalPages, setTotalPages] = useState(1);
+  const [jobs, setJobs] = useState<FreelancerJobResponse[]>([]);
+  const [isLoadingJobs, setIsLoadingJobs] = useState(false);
+  const [jobsError, setJobsError] = useState<string | null>(null);
+  const router=useRouter()
   const selectedCategoryObj = apiCategories.find(
     (c) => c.categoryId === selectedCategory
   );
@@ -306,7 +179,8 @@ const FreelancerJobListing = () => {
     );
   };
 
-  const filteredJobs = jobListings.filter((job) => {
+  // Filter the backend-provided jobs according to the active filters
+  const filteredJobs = jobs.filter((job: any) => {
     // Search query
     if (
       searchQuery &&
@@ -380,49 +254,123 @@ const FreelancerJobListing = () => {
     return true;
   });
 
-useEffect(() => {
-  const timer = setTimeout(() => {
-    async function fetchJobs() {
-      const filters: FreelancerJobFilters = {
-        searchQuery,
-        selectedCategory,
-        selectedSpecialty,
-        selectedSkills,
-        rateType,
-        minHourlyRate,
-        maxHourlyRate,
-        minFixedRate,
-        maxFixedRate,
-        selectedProposalRanges,
-        selectedCountry,
-        selectedRating,
-        page:currentPage,
-        limit,
-      };
-      const response = await freelancerActionApi.getJobs(filters);
-      console.log(response);
-    }
-    fetchJobs();
-    console.log("📋 Filtered Jobs:", filteredJobs.length);
-  }, 500);
+  // Build current filters payload
+  const buildFilters = (): FreelancerJobFilters => ({
+    searchQuery,
+    selectedCategory,
+    selectedSpecialty,
+    selectedSkills,
+    rateType,
+    minHourlyRate,
+    maxHourlyRate,
+    minFixedRate,
+    maxFixedRate,
+    selectedProposalRanges,
+    selectedCountry,
+    selectedRating,
+    page: currentPage,
+    limit: itemsPerPage,
+  });
 
-  return () => clearTimeout(timer);
-}, [
-  searchQuery,
-  selectedCategory,
-  selectedSpecialty,
-  selectedSkills,
-  rateType,
-  minHourlyRate,
-  maxHourlyRate,
-  minFixedRate,
-  maxFixedRate,
-  selectedProposalRanges,
-  selectedCountry,
-  selectedRating,
-  currentPage,
-  totalPages,
-]);
+  // Debounced fetch to backend (500ms)
+  const debouncedFetchJobs = useMemo(
+    () =>
+      debounce(async (filters: FreelancerJobFilters) => {
+        setIsLoadingJobs(true);
+        setJobsError(null);
+        try {
+          const response = await freelancerActionApi.getJobs(filters);
+          console.log(response)
+          // Expect response.success & response.data.jobs and response.data.totalCount or totalPages
+          if (response?.success) {
+            const data = response.data;
+            // Flexible shape handling
+            const jobsArray: FreelancerJobResponse[] = Array.isArray(data?.jobs)
+              ? data.jobs
+              : Array.isArray(data)
+              ? (data as FreelancerJobResponse[])
+              : [];
+            setJobs(jobsArray);
+            // Derive total pages
+            if (typeof data?.totalCount === "number") {
+              setTotalPages(Math.max(1, Math.ceil(data.totalCount / itemsPerPage)));
+            } else if (typeof data?.totalPages === "number") {
+              setTotalPages(Math.max(1, data.totalPages));
+            } else {
+              // Fallback: derive from length if length >= limit
+              setTotalPages(Math.max(1, Math.ceil(jobsArray.length / itemsPerPage)));
+            }
+          } else {
+            setJobsError(response?.message || "Failed to fetch jobs");
+            setJobs([]);
+            setTotalPages(1);
+          }
+        } catch (err: any) {
+          console.error("Failed to fetch jobs", err);
+          setJobsError(err?.message || "Unexpected error fetching jobs");
+          setJobs([]);
+          setTotalPages(1);
+        } finally {
+          setIsLoadingJobs(false);
+        }
+      }, 500),
+    [itemsPerPage]
+  );
+
+  // Trigger debounced backend fetch when filters/page change
+  useEffect(() => {
+    const filters = buildFilters();
+    debouncedFetchJobs(filters);
+    return () => debouncedFetchJobs.cancel();
+  }, [
+    searchQuery,
+    selectedCategory,
+    selectedSpecialty,
+    selectedSkills,
+    rateType,
+    minHourlyRate,
+    maxHourlyRate,
+    minFixedRate,
+    maxFixedRate,
+    selectedProposalRanges,
+    selectedCountry,
+    selectedRating,
+    currentPage,
+  ]);
+
+  // Fallback pagination on local filtered list
+  const paginatedFallbackJobs = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredJobs.slice(start, start + itemsPerPage);
+  }, [filteredJobs, currentPage, itemsPerPage]);
+
+  // Decide which jobs to render: backend (jobs) if available, else paginated fallback
+  const displayJobs = jobs.length > 0 ? jobs : paginatedFallbackJobs;
+
+  // When using fallback (no backend jobs), compute total pages from filteredJobs
+  useEffect(() => {
+    if (jobs.length === 0) {
+      setTotalPages(Math.max(1, Math.ceil(filteredJobs.length / itemsPerPage)));
+    }
+  }, [filteredJobs.length, itemsPerPage, jobs.length]);
+
+  // Reset to first page when any filter (except page) changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [
+    searchQuery,
+    selectedCategory,
+    selectedSpecialty,
+    selectedSkills,
+    rateType,
+    minHourlyRate,
+    maxHourlyRate,
+    minFixedRate,
+    maxFixedRate,
+    selectedProposalRanges,
+    selectedCountry,
+    selectedRating,
+  ]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -735,9 +683,21 @@ useEffect(() => {
             </div>
 
             <div className="space-y-4">
-              {filteredJobs.map((job) => (
+              {isLoadingJobs && (
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 text-center">
+                  <div className="animate-spin w-10 h-10 border-4 border-gray-200 border-t-[#108A00] rounded-full mx-auto mb-2" />
+                  <p className="text-gray-600 text-sm">Loading jobs...</p>
+                </div>
+              )}
+              {!isLoadingJobs && jobsError && (
+                <div className="bg-white rounded-xl shadow-sm border border-red-200 p-6 text-center">
+                  <p className="text-red-600 font-medium">{jobsError}</p>
+                  <p className="text-gray-500 text-sm mt-1">Showing fallback sample jobs.</p>
+                </div>
+              )}
+              {!isLoadingJobs && displayJobs.map((job: any) => (
                 <div
-                  key={job.id}
+                  key={job.jobId}
                   className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all cursor-pointer"
                 >
                   <div className="flex justify-between items-start mb-4">
@@ -794,7 +754,7 @@ useEffect(() => {
                   </p>
 
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {job.skills.map((skill, idx) => (
+                    {(job.skills || []).map((skill: string, idx: number) => (
                       <span
                         key={idx}
                         className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium hover:bg-[#108A00] hover:text-white transition-colors"
@@ -808,14 +768,14 @@ useEffect(() => {
                     <button className="bg-[#108A00] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#0d7000] transition-colors">
                       Apply Now
                     </button>
-                    <button className="border-2 border-gray-300 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:border-[#108A00] hover:text-[#108A00] transition-colors">
+                    <button onClick={()=>router.push(`/freelancer/jobs/${job.jobId}`)} className="border-2 border-gray-300 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:border-[#108A00] hover:text-[#108A00] transition-colors">
                       View Details
                     </button>
                   </div>
                 </div>
               ))}
 
-              {filteredJobs.length === 0 && (
+              {!isLoadingJobs && displayJobs.length === 0 && (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
                   <FaBriefcase
                     size={48}
@@ -831,11 +791,13 @@ useEffect(() => {
               )}
             </div>
             {/* Pagination */}
-
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
-              onPageChange={setCurrentPage}
+              onPageChange={(page) => {
+                setCurrentPage(page);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
             />
           </div>
         </div>

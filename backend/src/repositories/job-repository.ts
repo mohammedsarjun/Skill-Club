@@ -41,7 +41,7 @@ import {
 import { IJobRepository } from './interfaces/job-repository.interface';
 import { JobQueryParams } from '../dto/commonDTO/job-common.dto';
 import { FreelancerJobFiltersDto } from 'src/dto/freelancerDTO/freelancer-job.dto';
-import { PipelineStage } from 'mongoose';
+import { PipelineStage, Types } from 'mongoose';
 import { mapFreelancerJobFilterDtoToJobAggregationQuery } from '../mapper/freelancerMapper/freelancer-job.mapper';
 
 export class JobRepository extends BaseRepository<IJob> implements IJobRepository {
@@ -142,14 +142,15 @@ export class JobRepository extends BaseRepository<IJob> implements IJobRepositor
     return await super.count({ clientId });
   }
 async findAllWithFreelancerFilters(
+  freelancerUserId:string,
   filters: FreelancerJobFiltersDto,
   paginationData: { page: number; limit: number }
 ): Promise<IJobResponse[] | null> {
   const pipeline: PipelineStage[] = [];
-
+  console.log(freelancerUserId)
   // Get match stage from mapper
   const initialMatchStage = mapFreelancerJobFilterDtoToJobAggregationQuery(filters);
-  pipeline.push({ $match: initialMatchStage });
+  pipeline.push({ $match: initialMatchStage },{ $match: { clientId: { $ne: new Types.ObjectId(freelancerUserId) } } });
 
   // Lookup client details
   pipeline.push({
@@ -258,4 +259,5 @@ async findAllWithFreelancerFilters(
   const results = await this.model.aggregate(pipeline).exec();
   return results.length > 0 ? results : null;
 }
+
 }

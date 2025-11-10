@@ -13,6 +13,7 @@ import { handleInputChange, handleCheckBox } from "@/utils/formHandlers";
 import toast from "react-hot-toast";
 
 import GoogleLogin from "@/components/GoogleButton";
+import countryToCurrency, { getCurrency } from "@/utils/countryToCurrency";
 
 function SignupPage() {
   const route = useRouter();
@@ -45,15 +46,24 @@ function SignupPage() {
         setIsLoading(false);
         return;
       }
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-      const response = await authApi.signUp(formData);
+      const res = await fetch("https://ipapi.co/json/");
+      const data = await res.json();
+  const preferredCurrency = getCurrency(data.country_code);
+
+      const response = await authApi.signUp(formData,{preferredCurrency, timezone, country: data.country_code});
       if (!response?.success) {
         toast.error(response?.message);
         setIsLoading(false);
         return;
       }
 
-      const otpResponse = await authApi.createOtp(response.data.email, response.data.id,"signup");
+      const otpResponse = await authApi.createOtp(
+        response.data.email,
+        response.data.id,
+        "signup"
+      );
       if (!otpResponse.success) {
         toast.error(otpResponse.message);
         setIsLoading(false);
@@ -96,7 +106,7 @@ function SignupPage() {
           )}
 
           {/* Google signup */}
-         <GoogleLogin></GoogleLogin>
+          <GoogleLogin></GoogleLogin>
 
           {/* Separator */}
           <div className="flex items-center text-gray-400">
@@ -203,16 +213,9 @@ function SignupPage() {
       </div>
     </>
   );
-
-  
 }
-
 
 // Wrap with AuthGuard
 export default function Signup() {
-  return (
-
-      <SignupPage />
-
-  );
+  return <SignupPage />;
 }

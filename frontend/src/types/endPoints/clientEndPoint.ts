@@ -10,7 +10,9 @@ const clientRouterEndPoints = {
   updateJobDetail:(jobId:string)=>`/client/jobs/${jobId}`,
   closeJob: (jobId:string)=>`/client/jobs/${jobId}/close`,
   getAllFreelancers:"/client/freelancers",
-  getFreelancerDetail:(freelancerId:string)=>`/client/freelancers/${freelancerId}`
+  getFreelancerDetail:(freelancerId:string)=>`/client/freelancers/${freelancerId}`,
+  createOffer: "/client/offers",
+  getAllFreelancerPortfolio:(freelancerId:string)=>`/client/freelancers/${freelancerId}/portfolio`,
 };
 
 export default clientRouterEndPoints;

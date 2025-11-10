@@ -7,12 +7,14 @@ import { freelancerBlockMiddleware } from '../middlewares/freelancer-block-middl
 import { FreelancerCategoryController } from '../controllers/freelancer/freelancer-category-controller';
 import { FreelancerSpecialityController } from '../controllers/freelancer/freelancer-speciality-controller';
 import { FreelancerJobController } from '../controllers/freelancer/freelancer-job-controller';
+import { FreelancerProposalController } from '../controllers/freelancer/freelancer-proposal-controller';
 const freelancerRouter = express.Router();
 
 const freelancerController = container.resolve(FreelancerController);
 const freelancerCategoryController=container.resolve(FreelancerCategoryController)
 const freelancerSpecialityController=container.resolve(FreelancerSpecialityController)
 const freelancerJobController=container.resolve(FreelancerJobController)
+const freelancerProposalController=container.resolve(FreelancerProposalController)
 freelancerRouter.get(
   '/me',
   authMiddleware,
@@ -150,5 +152,14 @@ freelancerRouter.get(
   roleGuard('freelancer'),
   freelancerBlockMiddleware,
   freelancerJobController.getJobDetail.bind(freelancerJobController),
+);
+
+
+freelancerRouter.post(
+  '/proposals',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerProposalController.createProposal.bind(freelancerProposalController),
 );
 export default freelancerRouter;

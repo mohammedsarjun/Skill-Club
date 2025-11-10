@@ -115,9 +115,7 @@ export const skillSchema = z.object({
 });
 
 export const addressSchema = z.object({
-  country: z.enum(["india", "usa", "uk"] as const, {
-    message: "Select a valid country",
-  }),
+
 
   address: z
     .string()
@@ -323,9 +321,6 @@ export const changePasswordSchema = z.object({
 });
 
 export const userAddressSchema = z.object({
-  country: z.enum(["india", "usa", "uk"] as const, {
-    message: "Select a valid country",
-  }),
 
   streetAddress: z
     .string()

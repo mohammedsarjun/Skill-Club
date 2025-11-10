@@ -17,8 +17,10 @@ export class FreelancerJobController implements IFreelancerJobController {
 
   async getAllJobs(req: Request, res: Response): Promise<void> {
     const { jobFilters } = req.query;
+    const freelancerUserId = req.user?.userId;
 
     const result = await this._freelancerJobService.getAllJobs(
+      freelancerUserId as string,
       jobFilters as unknown as FreelancerJobFiltersDto,
     );
     res.status(HttpStatus.OK).json({

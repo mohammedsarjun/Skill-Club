@@ -25,9 +25,10 @@ export interface IJobRepository extends BaseRepository<IJob> {
   ): Promise<IJobDetail | null>;
   updateJobStatus(jobId: string, status: string): Promise<IJob | null>;
   rejectJob(jobId: string, rejectedReason: string): Promise<IJob | null>;
-  getJobById(jobId: string): Promise<IJobDetail | null>;
+   getJobById(jobId: string): Promise<IJobDetail | null>;
   suspendJob(jobId: string, suspendedReason: string): Promise<IJob | null>;
   countAllJobs(): Promise<number>;
   countAllJobsByClientId(clientId: string): Promise<number>;
-  findAllWithFreelancerFilters(filters:Partial<FreelancerJobFiltersDto>,paginationData:{page:number,limit:number}):Promise<IJobResponse[]|null>
+  findAllWithFreelancerFilters(freelancerUserId:string,filters:Partial<FreelancerJobFiltersDto>,paginationData:{page:number,limit:number}):Promise<IJobResponse[]|null>
+
 }

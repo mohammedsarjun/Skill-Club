@@ -17,6 +17,8 @@ import { IJobRepository } from '../repositories/interfaces/job-repository.interf
 import { JobRepository } from '../repositories/job-repository';
 import { IClientRepository } from '../repositories/interfaces/client-repository.interface';
 import { ClientRepository } from '../repositories/client-repository';
+import { IProposalRepository } from '../repositories/interfaces/proposal-repository.interface';
+import { ProposalRepository } from '../repositories/proposal-repository';
 container.register<ICategoryRepository>('ICategoryRepository', { useClass: CategoryRepository });
 container.register<ISpecialityRepository>('ISpecialityRepository', {
   useClass: SpecialityRepository,
@@ -26,9 +28,9 @@ container.register<IPortfolioRepository>('IPortfolioRepository', { useClass: Por
 container.register<IActionVerificationRepository>('IActionVerificationRepository', {
   useClass: ActionVerificationRepository,
 });
-
 container.register<IJobRepository>('IJobRepository', { useClass: JobRepository });
 container.register<IClientRepository>('IClientRepository', { useClass: ClientRepository });
+container.register<IProposalRepository>('IProposalRepository', { useClass: ProposalRepository });
 //Auth
 import { AuthService } from '../services/authServices/auth-services';
 import type { IAuthService } from '../services/authServices/interfaces/auth-services.interface';
@@ -207,6 +209,15 @@ container.register<IFreelancerSpecialityService>('IFreelancerSpecialityService',
 //freelancer Job
 import { IFreelancerJobService } from '../services/freelancerServices/interfaces/freelancer-job-service.interface';
 import { FreelancerJobService } from '../services/freelancerServices/freelancer-job-service';
+
+
 container.register<IFreelancerJobService>('IFreelancerJobService', {
   useClass: FreelancerJobService,
+});
+
+//freelancer proposal Service
+import { IFreelancerProposalService } from '../services/freelancerServices/interfaces/freelancer-proposal-service.interface';
+import { FreelancerProposalService } from '../services/freelancerServices/freelancer-proposal-service';
+container.register<IFreelancerProposalService>('IFreelancerProposalService', {
+  useClass: FreelancerProposalService,
 });

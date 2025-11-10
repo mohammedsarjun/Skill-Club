@@ -5,17 +5,24 @@ import { IFreelancerRepository } from '../../repositories/interfaces/freelancer-
 import {
   ClientFreelancerResponseDto,
   FetchClientFreelancerDTO,
+  FetchClientFreelancerPortfolioDTO,
   freelancerParams,
 } from '../../dto/clientDTO/client-freelancer.dto';
-import { mapFreelancerToFetchClientFreelancerDTO, mapUserModelToClientFreelancerResponseDto } from '../../mapper/clientMapper/client-freelancer.mapper';
+import { mapFreelancerToFetchClientFreelancerDTO, mapPortfolioToFetchClientPortfolioDTO, mapUserModelToClientFreelancerResponseDto } from '../../mapper/clientMapper/client-freelancer.mapper';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
+import { IPortfolioRepository } from 'src/repositories/interfaces/portfolio-respository.interface';
 
 @injectable()
 export class ClientFreelancerService implements IClientFreelancerService {
   private _freelancerRepository: IFreelancerRepository;
-  constructor(@inject('IFreelancerRepository') freelancerRepository: IFreelancerRepository) {
+  private _portfolioRepository: IPortfolioRepository;
+  constructor(
+    @inject('IFreelancerRepository') freelancerRepository: IFreelancerRepository,
+    @inject('IPortfolioRepository') portfolioRepository: IPortfolioRepository
+  ) {
     this._freelancerRepository = freelancerRepository;
+    this._portfolioRepository = portfolioRepository;
   }
 
   async getAllFreelancers(
@@ -45,5 +52,15 @@ export class ClientFreelancerService implements IClientFreelancerService {
     const freelancerDto = mapFreelancerToFetchClientFreelancerDTO(freelancerData!)
 
     return freelancerDto
+  }
+
+  async getFreelancerPortfolio(clientUserId: string, freelancerId: string): Promise<FetchClientFreelancerPortfolioDTO[] | null> {
+    if(clientUserId==freelancerId){
+      throw new AppError("You cannot view your own freelancer porfolio.",HttpStatus.BAD_REQUEST)
+    }
+    const portfolioData = await this._portfolioRepository.getPortfolioByFreelancerId(freelancerId);
+    const portfolioDto = portfolioData?.map(mapPortfolioToFetchClientPortfolioDTO);
+    console.log(portfolioDto)
+    return portfolioDto ? portfolioDto : null;
   }
 }

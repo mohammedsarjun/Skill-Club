@@ -1,10 +1,11 @@
 // import { IUser } from 'src/models/interfaces/user.model.interface';
 import { IExperience, IFreelancerData, IFreelancerDetailData, ILanguage } from '../../models/interfaces/user.model.interface';
-import { ClientFreelancerResponseDto, FetchClientFreelancerDTO, freelancerParams } from '../../dto/clientDTO/client-freelancer.dto';
+import { ClientFreelancerResponseDto, FetchClientFreelancerDTO, FetchClientFreelancerPortfolioDTO, freelancerParams } from '../../dto/clientDTO/client-freelancer.dto';
 import { Types } from 'mongoose';
 import { EducationDTO, ExperienceDTO, IEducationDTO } from 'src/dto/freelancer.dto';
 import { mapEducationModelToDTO } from '../freelancer.mapper';
 import { LanguageDTO } from 'src/dto/user.dto';
+import { IPortfolio } from 'src/models/interfaces/portfolio.model.interface';
 
 export interface FreelancerModelQuery {
   roles?: string;
@@ -161,4 +162,17 @@ export const mapEducationToDTO = (edu: EducationDTO): IEducationDTO => ({
 export const mapLanguageToDTO = (lang: ILanguage): LanguageDTO => ({
   name: lang.name,
   proficiency: lang.proficiency,
+});
+
+
+export const mapPortfolioToFetchClientPortfolioDTO = (data: IPortfolio): FetchClientFreelancerPortfolioDTO => ({
+  id: data._id.toString(),
+  title: data.title,
+  description: data.description,
+  technologies: data.technologies,
+  role: data.role,
+  projectUrl: data.projectUrl,
+  githubUrl: data.githubUrl,
+  images: data.images,
+  video: data.video,
 });

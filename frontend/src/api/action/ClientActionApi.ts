@@ -5,6 +5,7 @@ import axios from "axios";
 import { IJobQueryParams } from "@/types/interfaces/IJob";
 import { IFreelancerData } from "@/types/interfaces/IFreelancerData";
 import { IFreelancerQueryParams } from "@/types/interfaces/IFreelancer";
+import { OfferPayload } from "@/types/interfaces/IOffer";
 export const clientActionApi = {
   async getClientData() {
     try {
@@ -159,7 +160,8 @@ export const clientActionApi = {
   async getAllFreelancers(filters: IFreelancerQueryParams) {
     try {
       const response = await axiosClient.get(
-        clientRouterEndPoints.getAllFreelancers,{params:filters}
+        clientRouterEndPoints.getAllFreelancers,
+        { params: filters }
       );
       return response.data;
     } catch (error: unknown) {
@@ -184,7 +186,34 @@ export const clientActionApi = {
       }
     }
   },
+  async createOffer(offerData: OfferPayload) {
+    try {
+      console.log(offerData);
+      const response = await axiosClient.post(
+        clientRouterEndPoints.createOffer,
+        { offerData }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+  async getAllFreelancerPortfolio(freelancerId: string) {
+    try {
+      const response = await axiosClient.get(
+        clientRouterEndPoints.getAllFreelancerPortfolio(freelancerId)
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
 };
-
-
-

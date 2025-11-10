@@ -21,6 +21,9 @@ import {
   FaUser,
   FaChartLine,
 } from "react-icons/fa";
+import ProposalFormModal from "./components/ProposalModal";
+import { ICreateProposal } from "@/types/interfaces/IProposal";
+import toast from "react-hot-toast";
 
 // TypeScript Interfaces
 interface HourlyRate {
@@ -254,6 +257,17 @@ const JobDetailPage: React.FC = () => {
     fetchJobDetail();
   }, []);
 
+
+  async function handleProposalSubmit(submittedData:any):Promise<void>{
+    submittedData.jobId=jobId
+    const response=await freelancerActionApi.createProposal(submittedData)
+    if(response.success){
+      toast.success(response.message)
+    }else{
+      toast.error(response.message)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -332,7 +346,7 @@ const JobDetailPage: React.FC = () => {
                         : "Fixed Budget"}
                     </div>
                     <div className="text-3xl font-bold text-gray-900">
-                      ₹{jobDetail?.fixedRate?.min || jobDetail?.fixedRate?.min}{""}
+                      ₹{jobDetail?.fixedRate?.min || jobDetail?.hourlyRate?.min}{""}
                       -₹
                       {jobDetail?.hourlyRate?.max || jobDetail?.fixedRate?.max}
                       {jobDetail?.rateType === "hourly" && (
@@ -531,102 +545,7 @@ const JobDetailPage: React.FC = () => {
 
       {/* Proposal Modal */}
       {showProposalModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
-                Submit Your Proposal
-              </h2>
-              <button
-                onClick={() => setShowProposalModal(false)}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
-
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Your Bid Amount (
-                  {jobDetail?.rateType === "hourly" ? "per hour" : "total"})
-                </label>
-                <input
-                  type="number"
-                  value={bidAmount}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setBidAmount(e.target.value)
-                  }
-                  placeholder={`$${
-                    jobDetail?.hourlyRate?.min || jobDetail?.fixedRate?.min
-                  }`}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Cover Letter
-                </label>
-                <textarea
-                  rows={8}
-                  value={coverLetter}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                    setCoverLetter(e.target.value)
-                  }
-                  placeholder="Explain why you're the best fit for this job..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent resize-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Estimated Delivery Time
-                </label>
-                <select
-                  value={deliveryTime}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                    setDeliveryTime(e.target.value)
-                  }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent"
-                >
-                  <option>1-2 weeks</option>
-                  <option>2-4 weeks</option>
-                  <option>1-2 months</option>
-                  <option>2-3 months</option>
-                  <option>3-6 months</option>
-                </select>
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowProposalModal(false)}
-                  className="flex-1 border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSubmitProposal}
-                  className="flex-1 bg-[#108A00] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#0d7000] transition-colors"
-                >
-                  Submit Proposal
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ProposalFormModal jobType={jobDetail?.rateType as "hourly"|"fixed"} onSubmit={handleProposalSubmit} onClose={()=>{setShowProposalModal(false)}} />
       )}
     </div>
   );

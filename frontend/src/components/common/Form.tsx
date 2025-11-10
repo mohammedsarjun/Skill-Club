@@ -16,6 +16,7 @@ const DynamicFormModal: React.FC<DynamicFormProps> = ({
   title,
   validationSchema,
   layout = "vertical", // ✅ default
+  submitContent,
 }) => {
   const [formData, setFormData] = useState<Record<string, any>>({
     ...initialValues,
@@ -148,6 +149,8 @@ const DynamicFormModal: React.FC<DynamicFormProps> = ({
                 switch (field.type) {
                   case "text":
                   case "number":
+                  case "date":
+                  case "datetime-local":
                     return (
                       <div key={field.name} className="flex-1">
                         <p className="text-black">{field.label}</p>
@@ -319,7 +322,7 @@ const DynamicFormModal: React.FC<DynamicFormProps> = ({
           <div className={`${layout === "horizontal" ? "col-span-2" : ""}`}>
             <Button
               className="w-full"
-              content={mode === "create" ? "Create" : "Update"}
+              content={submitContent ?? (mode === "create" ? "Create" : "Update")}
               type="submit"
             />
           </div>

@@ -1,4 +1,4 @@
-import { Types } from 'mongoose';
+
 import { FreelancerClientMinimalDTO } from '../../dto/freelancerDTO/freelancer-client.dto';
 import {
   FreelancerJobDetailResponseDto,
@@ -13,9 +13,9 @@ export function mapJobModelToFreelancerJobDetailResponseDTO(
 ): FreelancerJobDetailResponseDto {
   return {
     jobId: jobDetailDto?._id?.toString() as string,
-    title: jobDetailDto.title,
-    description: jobDetailDto.description,
-    category: jobDetailDto.category.name,
+    title: jobDetailDto?.title,
+    description: jobDetailDto?.description,
+    category: jobDetailDto?.category?.name,
     specialities: jobDetailDto.specialities.map((spec) => spec.name),
     skills: jobDetailDto.skills.map((skill) => skill.name),
     rateType: jobDetailDto.rateType,
@@ -25,7 +25,7 @@ export function mapJobModelToFreelancerJobDetailResponseDTO(
     proposalReceived: 0,
     client: {
       companyName: clientData.companyName,
-      country: clientData.country,
+      country: clientData?.country,
       rating: clientData.rating,
       totalJobsPosted: clientData.totalJobsPosted,
     },
@@ -38,8 +38,8 @@ export function mapFreelancerJobRawFilterToFreelancerJobFiltersDto(
   return {
     searchQuery: rawFilter?.searchQuery,
     selectedCategory: rawFilter?.selectedCategory,
-    selectedSpecialty: rawFilter?.selectedSpecialty,
-    selectedSkills: rawFilter?.selectedSkills,
+    selectedSpecialty: rawFilter?.selectedSpecialty.toString(),
+    selectedSkills: rawFilter?.selectedSkills?.map((id) => id.toString()),
     rateType: rawFilter?.rateType,
     minHourlyRate: rawFilter?.minHourlyRate,
     maxHourlyRate: rawFilter?.maxHourlyRate,
@@ -73,13 +73,14 @@ export function mapFreelancerJobFilterDtoToJobAggregationQuery(
 
   // Specialty filter
   if (filters.selectedSpecialty) {
-    matchStage.specialities = new Types.ObjectId(filters.selectedSpecialty);
+    matchStage.specialities = filters.selectedSpecialty;
   }
 
   // Skills filter
+  
   if (filters.selectedSkills && filters.selectedSkills.length > 0) {
     matchStage.skills = {
-      $in: filters.selectedSkills.map((id: string) => new Types.ObjectId(id)),
+      $in: filters.selectedSkills.map((id: string) => id),
     };
   }
 
@@ -128,7 +129,6 @@ export function mapFreelancerJobFilterDtoToJobAggregationQuery(
 export function mapJobModelToFreelancerJobResponseDTO(
   jobDetailDto: IJobResponse,
 ): FreelancerJobResponseDto {
-    console.log(jobDetailDto)
   return {
     jobId: jobDetailDto?._id?.toString() as string,
     jobTitle: jobDetailDto.title,

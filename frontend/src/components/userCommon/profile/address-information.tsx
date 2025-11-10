@@ -17,7 +17,6 @@ interface AddressData {
   zipCode: number;
 }
 
-
 export default function AddressInformation() {
   const [addressData, setAddressData] = useState<AddressData>({
     streetAddress: "",
@@ -28,6 +27,9 @@ export default function AddressInformation() {
   });
 
   const [isEditing, setIsEditing] = useState(false);
+  const [countries, setCountries] = useState<{ name: string; code: string }[]>(
+    []
+  );
   const [errors, setErrors] = useState<
     Partial<Record<keyof AddressData, string>>
   >({});
@@ -50,6 +52,24 @@ export default function AddressInformation() {
     }
 
     fetchUserProfile();
+  }, []);
+
+  useEffect(() => {
+    fetch("https://restcountries.com/v3.1/all?fields=name,cca2")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        const sorted = data
+          .map((c: { name: { common: string }; cca2: string }) => ({
+            name: c.name.common,
+            code: c.cca2, // ISO 2-letter code
+          }))
+          .sort((a: { name: string }, b: { name: string }) =>
+            a.name.localeCompare(b.name)
+          );
+        setCountries(sorted);
+      })
+      .catch((err) => console.error("Failed to load countries", err));
   }, []);
 
   const handleInputChange = (field: keyof AddressData, value: string) => {
@@ -147,7 +167,9 @@ export default function AddressInformation() {
               name="street"
               type="text"
               value={addressData.streetAddress}
-              onChange={(e) => handleInputChange("streetAddress", e.target.value)}
+              onChange={(e) =>
+                handleInputChange("streetAddress", e.target.value)
+              }
               disabled={!isEditing}
               className="pl-10"
               placeholder="123 Main Street"
@@ -207,7 +229,9 @@ export default function AddressInformation() {
               disabled={!isEditing}
               placeholder="10001"
             />
-            {errors.zipCode && <p className="text-red-500 text-sm">{errors.zipCode}</p>}
+            {errors.zipCode && (
+              <p className="text-red-500 text-sm">{errors.zipCode}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -221,9 +245,11 @@ export default function AddressInformation() {
               className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
               <option value="">Select Country</option>
-              <option value="india">India</option>
-              <option value="usa">USA</option>
-              <option value="uk">UK</option>
+              {countries.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.name}
+                </option>
+              ))}
             </select>
             {errors.country && (
               <p className="text-red-500 text-sm">{errors.country}</p>

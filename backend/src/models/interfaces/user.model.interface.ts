@@ -79,6 +79,9 @@ export interface IUser extends Document {
   roles: string[];
   activeRole: string;
   freelancerProfile: IFreelancerProfile;
+  preferredCurrency:  string;
+  
+  preferredTimezone: string;
   clientProfile: IClientProfile; // ✅ added here
   provider: 'local' | 'google';
   createdAt: Date;
@@ -110,11 +113,11 @@ export interface IFreelancerData {
 export interface IFreelancerDetailData {
   firstName: string;
   lastName: string;
-  address:IAddress
+  address: IAddress;
   logo: string | undefined;
   workCategory: Types.ObjectId;
-  specialties: {id:Types.ObjectId,name:string}[];
-  skills: {id:Types.ObjectId,name:string}[];
+  specialties: { id: Types.ObjectId; name: string }[];
+  skills: { id: Types.ObjectId; name: string }[];
   professionalRole: string;
   experiences: IExperience[];
   education: IEducation[];

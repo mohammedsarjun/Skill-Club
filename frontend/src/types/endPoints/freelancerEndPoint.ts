@@ -18,6 +18,7 @@ const freelancerRouterEndPoints = {
   getSpecialitiesWithSkills: "/freelancer/specialities",
   getJobs: "/freelancer/jobs",
   getJobDetail:(jobId:string)=> `/freelancer/jobs/${jobId}`,
+  createProposal:'/freelancer/proposals',
 };
 
 export default freelancerRouterEndPoints;

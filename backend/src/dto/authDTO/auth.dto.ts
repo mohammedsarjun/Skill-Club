@@ -5,6 +5,9 @@ export interface CreateUserDTO {
   phone: number;
   password: string;
   agreement: boolean;
+  timezone?: string;
+  preferredCurrency?: string;
+  country?: string;
 }
 
 export interface LoginUserDto {

@@ -1,6 +1,7 @@
 import { ZodSchema } from 'zod';
 
-export type FieldType = 'text' | 'number' | 'textarea' | 'checkbox' | 'select' | 'password' | 'radio';
+// Added 'date' and 'datetime-local' for richer form support
+export type FieldType = 'text' | 'number' | 'textarea' | 'checkbox' | 'select' | 'password' | 'radio' | 'date' | 'datetime-local';
 
 export interface SelectOption {
   label: string | number;
@@ -31,4 +32,5 @@ export interface DynamicFormProps {
   validationSchema?: ZodSchema | null;
   title?: string;
   layout?: 'vertical' | 'horizontal';
+  submitContent?: string; // custom submit button label
 }

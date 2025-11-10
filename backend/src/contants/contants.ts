@@ -59,5 +59,11 @@ export const MESSAGES = {
     REJECT_SUCCESS: 'Job rejected successfully',
     SUSPEND_SUCCESS: 'Job suspended successfully',
     CLOSED: 'Job closed successfully',
+  },
+    PROPOSAL:{
+    CREATED: 'Proposal created successfully',
+  },
+  PORTFOLIO:{
+    PORTFOLIO_FETCH_SUCCESS: 'Freelancer portfolio fetched successfully',
   }
 };

@@ -40,4 +40,15 @@ export class ClientFreelancerController implements IClientFreelancerController {
       data: freelancerData,
     });
   }
+
+  async getFreelancerPortfolio(req: Request, res: Response): Promise<void> {
+    const userClientId = req.user?.userId;
+    const freelancerId = req.params.freelancerId;
+    const portfolioData = await this._clientFreelancerService.getFreelancerPortfolio(userClientId as string, freelancerId as string);
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: MESSAGES.PORTFOLIO.PORTFOLIO_FETCH_SUCCESS,
+      data: portfolioData,
+    });
+  }
 }
