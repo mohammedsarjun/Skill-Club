@@ -1,3 +1,5 @@
+import { get } from "lodash";
+
 const freelancerRouterEndPoints = {
   //me
   me: "/freelancer/me",
@@ -19,6 +21,9 @@ const freelancerRouterEndPoints = {
   getJobs: "/freelancer/jobs",
   getJobDetail:(jobId:string)=> `/freelancer/jobs/${jobId}`,
   createProposal:'/freelancer/proposals',
+  getMyProposals:(jobId:string)=> `/freelancer/jobs/${jobId}/proposals`,
+  getOffers: '/freelancer/offers',
+  getOfferDetail: (offerId: string) => `/freelancer/offers/${offerId}`,
 };
 
 export default freelancerRouterEndPoints;

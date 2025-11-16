@@ -2,7 +2,7 @@ import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { IFreelancerProposalService } from './interfaces/freelancer-proposal-service.interface';
 import { IProposalRepository } from '../../repositories/interfaces/proposal-repository.interface';
-import { CreateProposalRequestDto } from '../../dto/freelancerDTO/freelancer-proposal.dto';
+import { CreateProposalRequestDto, FreelancerProposalResponseDTO } from '../../dto/freelancerDTO/freelancer-proposal.dto';
 import { validateData } from '../../utils/validation';
 import {
   fixedProposalSchema,
@@ -12,7 +12,8 @@ import { IJobRepository } from '../../repositories/interfaces/job-repository.int
 import AppError from '../../utils/app-error';
 import { ERROR_MESSAGES } from '../../contants/error-constants';
 import { HttpStatus } from '../../enums/http-status.enum';
-import { mapCreateProposalRequestDtoToProposalModel } from '../../mapper/freelancerMapper/freelancer-proposal.mapper';
+import { mapCreateProposalRequestDtoToProposalModel, mapProposalModelToFreelancerProposalResponseDTO } from '../../mapper/freelancerMapper/freelancer-proposal.mapper';
+import { mapRawQueryFiltersToProposalQueryParamsDTO } from '../../mapper/clientMapper/client-proposal.mapper';
 // import AppError from '../../utils/app-error';
 // import { HttpStatus } from '../../enums/http-status.enum';
 
@@ -62,5 +63,27 @@ export class FreelancerProposalService implements IFreelancerProposalService {
     );
 
     await this._proposalRepository.createProposal(proposalDbData);
+  }
+
+  async getAllProposal(
+    freelancerId: string,
+    jobId: string,
+    queryFilters: Record<string, unknown>,
+  ): Promise<FreelancerProposalResponseDTO[]|null> {
+       const proposalQueryDto = mapRawQueryFiltersToProposalQueryParamsDTO(queryFilters);
+       console.log(jobId)
+       const skip =
+         (proposalQueryDto?.page ? proposalQueryDto?.page - 1 : 0) * (proposalQueryDto.limit ? proposalQueryDto?.limit : 5);
+   
+       const proposalResponse = await this._proposalRepository.findAllByJobAndFreelancerId(
+         freelancerId,
+         jobId,
+         proposalQueryDto,
+         skip,
+       );
+   
+       const proposalResponseDTO = proposalResponse?.map(mapProposalModelToFreelancerProposalResponseDTO)
+       console.log(proposalResponseDTO);
+       return proposalResponseDTO || null;
   }
 }

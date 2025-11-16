@@ -71,4 +71,5 @@ export class ClientJobController implements IClientJobController {
       message: MESSAGES.JOB.CLOSED,
     });
   }
+
 }

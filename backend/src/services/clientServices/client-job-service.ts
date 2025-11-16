@@ -188,4 +188,5 @@ export class ClientJobService implements IClientJobService {
 
     await this._jobRepository.updateJobStatus(jobId, 'closed');
   }
-}
+
+ }

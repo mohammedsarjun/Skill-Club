@@ -13,6 +13,8 @@ const clientRouterEndPoints = {
   getFreelancerDetail:(freelancerId:string)=>`/client/freelancers/${freelancerId}`,
   createOffer: "/client/offers",
   getAllFreelancerPortfolio:(freelancerId:string)=>`/client/freelancers/${freelancerId}/portfolio`,
+  getAllJobProposals:(jobId:string)=>`/client/jobs/${jobId}/proposals`,
+  getProposalDetail:(proposalId:string)=>`/client/proposals/${proposalId}`,
 };
 
 export default clientRouterEndPoints;

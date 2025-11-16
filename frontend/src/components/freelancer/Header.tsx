@@ -10,7 +10,6 @@ import { userApi } from "@/api/userApi";
 import toast from "react-hot-toast";
 import { useState } from "react";
 
-
 export default function FreelancerHeader() {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -69,45 +68,41 @@ export default function FreelancerHeader() {
               <FaChevronDown className="w-3 h-3" />
             </button>
             <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                <a
-                onClick={() => router.push("/client/jobs")}
-                className="block px-4 py-2 text-sm text-black hover:bg-gray-100"
+              <a
+                onClick={() => router.push("/freelancer/jobs")}
+                className="cursor-pointer block px-4 py-2 text-sm text-black hover:bg-gray-100"
               >
                 Find Jobs
               </a>
               <a
                 onClick={() => router.push("/client/jobs")}
-                className="block px-4 py-2 text-sm text-black hover:bg-gray-100"
+                className="cursor-pointer block px-4 py-2 text-sm text-black hover:bg-gray-100"
               >
                 Saved Jobs
               </a>
               <a
-                href="#"
-                className="block px-4 py-2 text-sm text-black hover:bg-gray-100"
+                onClick={() => router.push("/freelancer/proposals")}
+                className="cursor-pointer block px-4 py-2 text-sm text-black hover:bg-gray-100"
               >
                 Proposals
               </a>
               <a
-                href="#"
-                className="block px-4 py-2 text-sm text-black hover:bg-gray-100"
+                onClick={() => router.push("/freelancer/offers")}
+                className="cursor-pointer block px-4 py-2 text-sm text-black hover:bg-gray-100"
               >
                 Offers
               </a>
-
-
             </div>
           </div>
 
           <a href="#" className="text-black hover:text-gray-700">
             Contract
           </a>
-          <a href="#" className="text-black hover:text-gray-700">
-           
-          </a>
+          <a href="#" className="text-black hover:text-gray-700"></a>
           <a href="#" className="text-black hover:text-gray-700">
             Earnings
           </a>
-            <a href="#" className="text-black hover:text-gray-700">
+          <a href="#" className="text-black hover:text-gray-700">
             Meetings
           </a>
           <a href="#" className="text-black hover:text-gray-700">
@@ -248,7 +243,7 @@ export default function FreelancerHeader() {
               {isHireTalentOpen && (
                 <div className="ml-4 mt-2 space-y-1">
                   <a
-                    href="#"
+                    onClick={() => router.push("/freelancer/jobs")}
                     className="block py-2 text-sm text-black hover:text-gray-700"
                   >
                     Find Jobs
@@ -260,13 +255,13 @@ export default function FreelancerHeader() {
                     Saved Job
                   </a>
                   <a
-                    href="#"
+                    onClick={() => router.push("/freelancer/proposals")}
                     className="block py-2 text-sm text-black hover:text-gray-700"
                   >
                     Proposals
                   </a>
                   <a
-                    href="#"
+                    onClick={() => router.push("/freelancer/offers")}
                     className="block py-2 text-sm text-black hover:text-gray-700"
                   >
                     Offers
@@ -306,4 +301,3 @@ export default function FreelancerHeader() {
     </div>
   );
 }
- 

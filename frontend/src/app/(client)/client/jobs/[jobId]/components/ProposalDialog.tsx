@@ -1,6 +1,7 @@
 import React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { FaTimes, FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
+import { useRouter } from "next/navigation";
 
 // ===== Utility =====
 const cn = (...classes: (string | undefined | false)[]) => classes.filter(Boolean).join(" ");
@@ -61,6 +62,8 @@ const DialogTitle = React.forwardRef<
 // ===== Type Definitions =====
 interface Freelancer {
   id: string;
+  firstName?: string;
+  lastName?: string;
   name: string;
   avatar: string;
   country: string;
@@ -70,16 +73,18 @@ interface Freelancer {
 
 export interface Proposal {
   id: string;
-  freelancerId: string;
-  jobId: string;
-  freelancer: Freelancer;
+  freelancerId?: string;
+  jobId?: string;
+  freelancer: Partial<Freelancer>;
   hourlyRate?: number;
   availableHoursPerWeek?: number;
   proposedBudget?: number;
   deadline?: string;
-  coverLetter: string;
-  createdAt: string;
-  status?: "pending" | "approved" | "rejected" | "under_review";
+  coverLetter?: string;
+  createdAt?: string;
+  proposedAt?: string;
+  proposalId?: string;
+  status?: string;
   skills?: string[];
 }
 
@@ -204,7 +209,8 @@ const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
 
 // ===== View Proposal Dialog =====
 interface ViewProposalDialogProps {
-  proposalId: string | null;
+  proposal?: Proposal | null;
+  proposalId?: string | null;
   isOpen: boolean;
   onClose: () => void;
   onAccept: (proposal: Proposal) => void;
@@ -213,6 +219,7 @@ interface ViewProposalDialogProps {
 }
 
 const ViewProposalDialog: React.FC<ViewProposalDialogProps> = ({
+  proposal: proposalProp,
   proposalId,
   isOpen,
   onClose,
@@ -220,14 +227,22 @@ const ViewProposalDialog: React.FC<ViewProposalDialogProps> = ({
   onReject,
   onMessage,
 }) => {
-  // Find proposal by ID from dummy data
-  const proposal = proposalId 
-    ? DUMMY_PROPOSALS.find(p => p.id === proposalId) 
-    : null;
+  // Prefer provided proposal object, otherwise fall back to dummy lookup by id
+  const proposal = proposalProp ?? (proposalId ? DUMMY_PROPOSALS.find((p) => p.id === proposalId) : null);
+  const router=useRouter()
+
+  function handleViewProfile() {
+    if (proposal?.freelancer.profileUrl) {
+      router.push(proposal.freelancer.profileUrl);
+    }
+  }
 
   if (!proposal) return null;
 
   const { freelancer } = proposal;
+  const displayName = (freelancer.firstName || freelancer.lastName)
+    ? `${freelancer.firstName || ""} ${freelancer.lastName || ""}`.trim()
+    : freelancer.name || "";
   const isHourlyBased = proposal.hourlyRate !== undefined;
 
   return (
@@ -250,20 +265,20 @@ const ViewProposalDialog: React.FC<ViewProposalDialogProps> = ({
             {/* Freelancer Info */}
             <div className="flex-1">
               <h2 className="text-2xl font-bold text-gray-900 mb-1">
-                {freelancer.name}
+                {displayName}
               </h2>
               <p className="text-gray-600 mb-3 flex items-center gap-2">
                 <span className="text-xl">🌍</span>
                 <span className="font-medium">{freelancer.country}</span>
               </p>
-              <StarRating rating={freelancer.rating} />
+              <StarRating rating={freelancer.rating ?? 0} />
             </div>
           </div>
 
           {/* View Profile Link */}
           <div className="mt-4 pt-4 border-t border-blue-200">
             <a
-              href={freelancer.profileUrl}
+              onClick={handleViewProfile}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition-colors"
@@ -356,13 +371,15 @@ const ViewProposalDialog: React.FC<ViewProposalDialogProps> = ({
           {/* Submission Date */}
           <div className="text-sm text-gray-500">
             Submitted on{" "}
-            {new Date(proposal.createdAt).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
+            {proposal.createdAt
+              ? new Date(proposal.createdAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : ""}
           </div>
         </div>
 

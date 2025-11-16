@@ -1,4 +1,8 @@
-import { ProposalQueryParamsDTO } from 'src/dto/clientDTO/client-proposal.dto';
+import {
+  ClientProposalResponseDTO,
+  ProposalQueryParamsDTO,
+} from 'src/dto/clientDTO/client-proposal.dto';
+import { ProposalDetailWithFreelancerDetail } from 'src/models/interfaces/proposal.model.interface';
 
 type ProposalStatus = 'pending_verification' | 'accepted' | 'rejected';
 
@@ -11,16 +15,16 @@ export const mapRawQueryFiltersToProposalQueryParamsDTO = (
 ): ProposalQueryParamsDTO => {
   let filters: RawFilters = {};
 
-  if (typeof rawQuery.filters === 'string') {
+  if (typeof rawQuery?.filters === 'string') {
     try {
-      const parsed = JSON.parse(rawQuery.filters);
+      const parsed = JSON.parse(rawQuery?.filters);
       if (typeof parsed === 'object' && parsed !== null) {
         filters = parsed as RawFilters;
       }
     } catch {
       filters = {};
     }
-  } else if (typeof rawQuery.filters === 'object' && rawQuery.filters !== null) {
+  } else if (typeof rawQuery?.filters === 'object' && rawQuery?.filters !== null) {
     filters = rawQuery.filters as RawFilters;
   }
 
@@ -30,14 +34,37 @@ export const mapRawQueryFiltersToProposalQueryParamsDTO = (
     'rejected',
   ];
 
-  const status = filters.status && allowedStatuses.includes(filters.status)
-    ? filters.status
-    : undefined;
+  const status =
+    filters?.status && allowedStatuses.includes(filters?.status)
+      ? filters?.status
+      : 'pending_verification';
 
   return {
-    search: typeof rawQuery.search === 'string' ? rawQuery.search : undefined,
-    page: Number(rawQuery.page) > 0 ? Number(rawQuery.page) : 1,
-    limit: Number(rawQuery.limit) > 0 ? Number(rawQuery.limit) : 10,
-    filters: { status },
+    search: typeof rawQuery?.search === 'string' ? rawQuery.search : '',
+    page: Number(rawQuery?.page) > 0 ? Number(rawQuery?.page) : 1,
+    limit: Number(rawQuery?.limit) > 0 ? Number(rawQuery?.limit) : 10,
+    filters: { status: status },
+  };
+};
+
+export const mapProposalModelToClientProposalResponseDTO = (
+  rawProposalData: ProposalDetailWithFreelancerDetail,
+): ClientProposalResponseDTO => {
+  return {
+    proposalId: rawProposalData?._id?.toString()!,
+    freelancer: {
+      freelancerId: rawProposalData.freelancer._id.toString(),
+      firstName: rawProposalData.freelancer.firstName,
+      lastName: rawProposalData.freelancer.lastName,
+      avatar: rawProposalData.freelancer.freelancerProfile.logo,
+      country: rawProposalData.freelancer.address.country,
+    },
+    proposedBudget: rawProposalData?.proposedBudget,
+    deadline: rawProposalData?.deadline,
+    hourlyRate: rawProposalData?.hourlyRate!,
+    availableHoursPerWeek: rawProposalData?.availableHoursPerWeek!,
+    coverLetter: rawProposalData?.coverLetter,
+    status: rawProposalData?.status,
+    proposedAt: rawProposalData?.createdAt!,
   };
 };

@@ -147,6 +147,7 @@ function GenericTable<T extends Record<string, any> = any>(props: TableProps<T>)
     return "#3b82f6"; // blue-500 default
   };
 
+  console.log(data)
   // Internal state only used when parent doesn't supply controlled props
   const [internalPage, setInternalPage] = useState(1);
   const [internalSearch, setInternalSearch] = useState("");

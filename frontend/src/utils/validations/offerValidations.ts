@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { PaymentType, ReportingFrequency } from '@/types/interfaces/IOffer';
 
 // Reusable date refinements
 const isFutureDate = (value: string, field: string) => {
@@ -15,6 +14,9 @@ const milestoneSchema = z.object({
   expected_delivery: z.string().refine(v => isFutureDate(v, 'expected_delivery'), 'Delivery date must be a valid future date'),
 });
 
+const dayOfWeek = z.enum(['monday','tuesday','wednesday','thursday','friday','saturday','sunday']);
+const timeHHmm = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Time must be HH:mm (24h)');
+
 export const offerSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 chars'),
   description: z.string().min(20, 'Description must be at least 20 chars'),
@@ -29,12 +31,16 @@ export const offerSchema = z.object({
   expires_at: z.string().refine(v => isFutureDate(v, 'expires_at'), 'Expiry must be future date/time'),
   communication: z.object({
     preferred_method: z.enum(['chat','video_call','email','mixed']),
-    meeting_schedule: z.string().min(3),
-    timezone: z.string().min(2),
+    meeting_frequency: z.enum(['daily','weekly','monthly']).optional(),
+    meeting_day_of_week: dayOfWeek.optional(),
+    meeting_day_of_month: z.number().int().min(1).max(31).optional(),
+    meeting_time_utc: timeHHmm.optional(),
   }),
   reporting: z.object({
-    frequency: z.enum(['daily','weekly']),
-    due_time: z.string().min(3),
+    frequency: z.enum(['daily','weekly','monthly']),
+    due_time_utc: timeHHmm,
+    due_day_of_week: dayOfWeek.optional(),
+    due_day_of_month: z.number().int().min(1).max(31).optional(),
     format: z.enum(['text_with_attachments','text_only','video'])
   }),
   reference_files: z.array(z.object({
@@ -73,8 +79,33 @@ export const offerSchema = z.object({
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['expected_end_date'], message: 'End date must be after start date' });
   }
   const expiry = new Date(data.expires_at).getTime();
-  if (!isNaN(end) && !isNaN(expiry) && expiry >start) {
+  if (!isNaN(end) && !isNaN(expiry) && expiry > start) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['expires_at'], message: 'Expiry must be before start date' });
+  }
+
+  // When video_call is selected, validate meeting fields according to frequency
+  if (data.communication.preferred_method === 'video_call') {
+    const freq = data.communication.meeting_frequency;
+    if (!freq) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['communication.meeting_frequency'], message: 'Meeting frequency is required' });
+    }
+    if (!data.communication.meeting_time_utc) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['communication.meeting_time_utc'], message: 'Meeting time (UTC) is required' });
+    }
+    if (freq === 'weekly' && !data.communication.meeting_day_of_week) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['communication.meeting_day_of_week'], message: 'Meeting day of week is required for weekly meetings' });
+    }
+    if (freq === 'monthly' && !data.communication.meeting_day_of_month) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['communication.meeting_day_of_month'], message: 'Meeting day of month is required for monthly meetings' });
+    }
+  }
+
+  // Reporting day constraints based on frequency
+  if (data.reporting.frequency === 'weekly' && !data.reporting.due_day_of_week) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['reporting.due_day_of_week'], message: 'Due day of week required for weekly reporting' });
+  }
+  if (data.reporting.frequency === 'monthly' && !data.reporting.due_day_of_month) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['reporting.due_day_of_month'], message: 'Due day of month required for monthly reporting' });
   }
 });
 

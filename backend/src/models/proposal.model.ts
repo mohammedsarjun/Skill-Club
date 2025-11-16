@@ -3,8 +3,8 @@ import { IProposal } from './interfaces/proposal.model.interface';
 
 const proposalSchema = new Schema<IProposal>(
   {
-    freelancerId: { type: Schema.Types.ObjectId, ref: 'user', required: true },
-    jobId: { type: Schema.Types.ObjectId, ref: 'job', required: true },
+    freelancerId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    jobId: { type: Schema.Types.ObjectId, ref: 'Job', required: true },
 
     hourlyRate: { type: Number },
     availableHoursPerWeek: { type: Number },
@@ -13,7 +13,7 @@ const proposalSchema = new Schema<IProposal>(
     deadline: { type: Date },
     status:{
         type:String,
-        enum:["pending_verification","accepted","rejected"],
+        enum:["pending_verification","accepted","rejected","offer_sent"],
         default:"pending_verification"
     },
     coverLetter: { type: String, required: true, trim: true },

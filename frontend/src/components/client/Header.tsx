@@ -68,37 +68,37 @@ export default function ClientHeader() {
             <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
               <a
                 onClick={() => router.push("/client/jobs")}
-                className="block px-4 py-2 text-sm text-black hover:bg-gray-100"
+                className="block px-4 py-2 text-sm text-black hover:bg-gray-100 cursor-pointer"
               >
                 Jobs
               </a>
               <a
-                href="#"
-                className="block px-4 py-2 text-sm text-black hover:bg-gray-100"
+                onClick={() => router.push("/client/jobs/create")}
+                className="cursor-pointer block px-4 py-2 text-sm text-black hover:bg-gray-100"
               >
                 Post Job
               </a>
               <a
                 href="#"
-                className="block px-4 py-2 text-sm text-black hover:bg-gray-100"
+                className="cursor-pointer block px-4 py-2 text-sm text-black hover:bg-gray-100"
               >
                 Pending Offers
               </a>
               <a
                 onClick={() => router.push("/client/freelancers")}
-                className="block px-4 py-2 text-sm text-black hover:bg-gray-100"
+                className=" cursor-pointer block px-4 py-2 text-sm text-black hover:bg-gray-100"
               >
                 Search for Talent
               </a>
               <a
                 href="#"
-                className="block px-4 py-2 text-sm text-black hover:bg-gray-100"
+                className="cursor-pointer block px-4 py-2 text-sm text-black hover:bg-gray-100"
               >
                 Talent You've Hired
               </a>
               <a
                 href="#"
-                className="block px-4 py-2 text-sm text-black hover:bg-gray-100"
+                className="cursor-pointer block px-4 py-2 text-sm text-black hover:bg-gray-100"
               >
                 Talent You've Saved
               </a>
@@ -264,13 +264,13 @@ export default function ClientHeader() {
               {isHireTalentOpen && (
                 <div className="ml-4 mt-2 space-y-1">
                   <a
-                    href="#"
+                    onClick={() => router.push("/client/jobs")}
                     className="block py-2 text-sm text-black hover:text-gray-700"
                   >
                     Jobs
                   </a>
                   <a
-                    href="#"
+                    onClick={() => router.push("/client/jobs/create")}
                     className="block py-2 text-sm text-black hover:text-gray-700"
                   >
                     Post Job
@@ -282,7 +282,7 @@ export default function ClientHeader() {
                     Pending Offers
                   </a>
                   <a
-                    href="#"
+                    onClick={() => router.push("/client/talent/search")}
                     className="block py-2 text-sm text-black hover:text-gray-700"
                   >
                     Search for Talent

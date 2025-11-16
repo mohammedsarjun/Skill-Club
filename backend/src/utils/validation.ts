@@ -8,12 +8,11 @@ export const validateData = <T>(schema: ZodType<T>, data: unknown): T => {
     return schema.parse(data);
   } catch (err) {
     if (err instanceof ZodError) {
-      //   const validationErrors = err.issues.map((e) => ({
-      //     field: e.path.join('.'),
-      //     message: e.message,
-      //   }));
-      console.log(err.issues[0]);
-      throw new AppError(ERROR_MESSAGES.VALIDATION.FAILED, HttpStatus.BAD_REQUEST);
+      // Log all issues to make debugging easier in dev
+      console.error('Validation issues:', err.issues);
+      // include issues in the error message to return a clearer error in dev
+      const details = JSON.stringify(err.issues.map((i) => ({ path: i.path, message: i.message, code: i.code })));
+      throw new AppError(`${ERROR_MESSAGES.VALIDATION.FAILED} - ${details}`, HttpStatus.BAD_REQUEST);
     }
 
     // Rethrow other types of errors

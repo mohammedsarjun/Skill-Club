@@ -10,6 +10,5 @@ export interface IAdminSpecialityServices {
   getSpeciality(filterData: GetSpecialityDto): Promise<PaginatedSpecialityDto>;
   editSpeciality(specialityData: UpdateSpecialityDTO): Promise<SpecialityDto>;
 
-  // getSpeciality(filterData:any):Promise<any>
-  // editSpeciality(data:any,id:string):Promise<any>
+  // Legacy signatures removed — prefer typed methods above.
 }

@@ -9,6 +9,8 @@ import { ClientJobController } from '../controllers/client/client-job-controller
 import { ClientCategoryController } from '../controllers/client/client-category-controller';
 import { ClientSpecialityController } from '../controllers/client/client-speciality-controller';
 import { ClientFreelancerController } from '../controllers/client/client-freelancer-controller';
+import { ClientProposalController } from '../controllers/client/client-proposal-controller';
+import { ClientOfferController } from '../controllers/client/client-offer-controller';
 const clientRouter = express.Router();
 
 const clientController = container.resolve(ClientController);
@@ -16,6 +18,8 @@ const clientJobController = container.resolve(ClientJobController);
 const clientCategoryController = container.resolve(ClientCategoryController);
 const clientSpecialityController = container.resolve(ClientSpecialityController);
 const clientFreelancerController = container.resolve(ClientFreelancerController);
+const clientProposalController = container.resolve(ClientProposalController);
+const clientOfferController = container.resolve(ClientOfferController);
 clientRouter.get(
   '/me',
   authMiddleware,
@@ -112,12 +116,29 @@ clientRouter.get(
 );
 
 
-// clientRouter.get(
-//   '/proposals',
-//   authMiddleware,
-//   roleGuard('freelancer'),
-//   clientBlockMiddleware,
-//   freelancerProposalController.createProposal.bind(freelancerProposalController),
-// );
+clientRouter.get(
+  '/jobs/:jobId/proposals',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientProposalController.getAllProposal.bind(clientProposalController),
+);
+
+
+clientRouter.get(
+  '/proposals/:proposalId',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientProposalController.getProposalDetail.bind(clientProposalController),
+);
+
+clientRouter.post(
+  '/offers',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientOfferController.createOffer.bind(clientOfferController),
+);
 
 export default clientRouter;

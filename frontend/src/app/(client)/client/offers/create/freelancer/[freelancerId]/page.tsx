@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { clientActionApi } from "@/api/action/ClientActionApi";
 import { OfferPayload, PaymentType, CommunicationMethod, ReportingFrequency, ReportingFormat, Currency } from "@/types/interfaces/IOffer";
 import { validateOffer } from "@/utils/validations/offerValidations";
@@ -19,6 +19,8 @@ import {
   FaInfoCircle,
   FaPaperPlane,
 } from "react-icons/fa";
+import { useParams } from "next/navigation";
+import { uploadApi } from "@/api/uploadApi";
 
 // Local UI-only types reused where needed
 
@@ -78,8 +80,12 @@ const getOrdinalSuffix = (num: number): string => {
 
 const SendOfferToFreelancer: React.FC = () => {
   // Basic Details
+  const {freelancerId} = useParams();
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
+  const [freelancerName, setFreelancerName] = useState<string>("John Doe");
+  const [freelancerLogo, setFreelancerLogo] = useState<string>("");
+  const [freelancerRole, setFreelancerRole] = useState<string>("Full Stack Developer");
 
   // Payment Details
   const [paymentType, setPaymentType] = useState<PaymentType>("fixed");
@@ -99,7 +105,8 @@ const SendOfferToFreelancer: React.FC = () => {
   const [expiresAt, setExpiresAt] = useState<string>("");
 
   // Communication
-  const [preferredMethod, setPreferredMethod] = useState<CommunicationMethod>("video_call");
+  // default to a non-video method so video details are hidden until selected
+  const [preferredMethod, setPreferredMethod] = useState<CommunicationMethod>("chat");
   const [meetingFrequency, setMeetingFrequency] = useState<"daily" | "weekly" | "monthly">("weekly");
   const [meetingDay, setMeetingDay] = useState<string>("monday");
   const [meetingDate, setMeetingDate] = useState<string>("1");
@@ -183,22 +190,40 @@ const SendOfferToFreelancer: React.FC = () => {
 
   const handleSubmit = async (): Promise<void> => {
     // Basic validation
-    // Build meeting schedule string
-    let meetingSchedule = "";
-    if (meetingFrequency === "daily") {
-      meetingSchedule = `Daily at ${meetingTime}`;
-    } else if (meetingFrequency === "weekly") {
-      meetingSchedule = `Weekly on ${meetingDay.charAt(0).toUpperCase() + meetingDay.slice(1)} at ${meetingTime}`;
-    } else if (meetingFrequency === "monthly") {
-      meetingSchedule = `Monthly on ${meetingDate}${getOrdinalSuffix(parseInt(meetingDate))} at ${meetingTime}`;
-    }
 
-    // Build reporting due time string
-    let reportDueTime = "";
-    if (reportingFrequency === "daily") {
-      reportDueTime = `Daily at ${reportingDueTime}`;
-    } else if (reportingFrequency === "weekly") {
-      reportDueTime = `Every ${reportingDueDay.charAt(0).toUpperCase() + reportingDueDay.slice(1)} at ${reportingDueTime}`;
+    let preparedReferenceFiles = referenceFiles;
+    const pendingUploads = referenceFiles.filter((file) => file.file);
+
+    if (pendingUploads.length > 0) {
+      try {
+        const uploadedFiles = await Promise.all(
+          pendingUploads.map((item) =>
+            uploadApi.uploadFile(item.file!, {
+              folder: "offers/reference_files",
+              resourceType: "auto",
+            })
+          )
+        );
+
+        let uploadIndex = 0;
+        preparedReferenceFiles = referenceFiles.map((item) => {
+          if (!item.file) return item;
+          const uploaded = uploadedFiles[uploadIndex++];
+          if (item.file_url.startsWith("blob:")) {
+            URL.revokeObjectURL(item.file_url);
+          }
+          return {
+            file_name: item.file_name,
+            file_url: uploaded.url,
+          };
+        });
+
+        setReferenceFiles(preparedReferenceFiles);
+      } catch (error) {
+        console.error("File upload failed", error);
+        alert("Failed to upload reference files. Please try again.");
+        return;
+      }
     }
 
     const coreOffer = {
@@ -218,17 +243,26 @@ const SendOfferToFreelancer: React.FC = () => {
           : undefined,
       expected_start_date: expectedStartDate,
       expected_end_date: expectedEndDate,
-      communication: {
-        preferred_method: preferredMethod,
-        meeting_schedule: meetingSchedule,
-        timezone: "User's Local Time", // Since timezone field was removed, using generic value
-      },
+      communication: (
+        preferredMethod === "video_call"
+          ? {
+              preferred_method: preferredMethod,
+              meeting_frequency: meetingFrequency,
+              meeting_day_of_week: meetingFrequency === "weekly" ? (meetingDay as any) : undefined,
+              meeting_day_of_month: meetingFrequency === "monthly" ? parseInt(meetingDate) : undefined,
+              meeting_time_utc: meetingTime || undefined,
+            }
+          : { preferred_method: preferredMethod }
+      ),
       reporting: {
         frequency: reportingFrequency,
-        due_time: reportDueTime,
+        due_time_utc: reportingDueTime || "",
+        due_day_of_week: reportingFrequency === "weekly" ? (reportingDueDay as any) : undefined,
         format: reportingFormat,
       },
-      reference_files: referenceFiles.filter((f) => f.file_name && f.file_url),
+      reference_files: preparedReferenceFiles
+        .filter((f) => f.file_name && f.file_url)
+        .map((f) => ({ file_name: f.file_name, file_url: f.file_url })),
       reference_links: referenceLinks.filter((l) => l.description && l.link),
       expires_at: expiresAt,
       status: "pending",
@@ -243,9 +277,8 @@ const SendOfferToFreelancer: React.FC = () => {
 
     // If valid, attach IDs and submit to API
     const payload: OfferPayload = {
-      freelancerId: "dummy-freelancer-id",
-      jobId: "dummy-job-id",
-      proposalId: "dummy-proposal-id",
+      freelancerId:freelancerId,
+      offerType:"direct",
       ...result.data,
     } as OfferPayload;
 
@@ -258,6 +291,24 @@ const SendOfferToFreelancer: React.FC = () => {
       alert("Failed to send offer.");
     }
   };
+
+  useEffect(()=>{
+    (async function fetchFreelancerDetails(freelancerId: string) {
+      try {
+        const response = await clientActionApi.getFreelancerDetail(freelancerId);
+        const d = response?.data ?? response;
+
+        if (d) {
+          setFreelancerName(d.name || `${(d.firstName || "").trim()} ${(d.lastName || "").trim()}`.trim() || "John Doe");
+          setFreelancerLogo(d.logo || d.avatar || "");
+          setFreelancerRole(d.professionalRole || d.professional_role || "Full Stack Developer");
+        }
+      } catch (err) {
+        console.error("Failed to fetch freelancer detail:", err);
+      }
+    })(freelancerId as string)
+
+  },[freelancerId])
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -277,21 +328,23 @@ const SendOfferToFreelancer: React.FC = () => {
         <div>
           {/* Freelancer Info Card (Mock) */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-[#108A00] rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                JD
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">
-                  John Doe
-                </h2>
-                <p className="text-gray-600">Full Stack Developer</p>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="text-yellow-500">★★★★★</span>
-                  <span className="text-sm text-gray-600">4.9 (127 reviews)</span>
+              <div className="flex items-center gap-4">
+                {freelancerLogo ? (
+                  <img src={freelancerLogo} alt={freelancerName} className="w-16 h-16 rounded-full object-cover border border-gray-200" />
+                ) : (
+                  <div className="w-16 h-16 bg-[#108A00] rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                    {freelancerName.split(" ").map(s => s[0]).slice(0,2).join("")}
+                  </div>
+                )}
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">{freelancerName}</h2>
+                  <p className="text-gray-600">{freelancerRole}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-yellow-500">★★★★★</span>
+                    <span className="text-sm text-gray-600">4.9 (127 reviews)</span>
+                  </div>
                 </div>
               </div>
-            </div>
           </div>
 
           {/* Basic Details */}
@@ -557,87 +610,105 @@ const SendOfferToFreelancer: React.FC = () => {
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Preferred Communication Method *
                 </label>
-                <select
-                  value={preferredMethod}
-                  onChange={(e) => { setPreferredMethod(e.target.value as CommunicationMethod); clearError('communication.preferred_method'); }}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent"
-                >
-                  <option value="chat">Chat</option>
-                  <option value="video_call">Video Call</option>
-                  <option value="email">Email</option>
-                  <option value="mixed">Mixed</option>
-                </select>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Meeting Frequency
+                <div className="flex items-center gap-6">
+                  <label className="inline-flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="comm_method"
+                      value="video_call"
+                      checked={preferredMethod === "video_call"}
+                      onChange={(e) => { setPreferredMethod(e.target.value as CommunicationMethod); clearError('communication.preferred_method'); }}
+                      className="form-radio h-4 w-4 text-[#108A00]"
+                    />
+                    <span className="text-sm">Video Call</span>
                   </label>
-                  <select
-                    value={meetingFrequency}
-                    onChange={(e) => { setMeetingFrequency(e.target.value as "daily" | "weekly" | "monthly"); }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent"
-                  >
-                    <option value="daily">Daily</option>
-                    <option value="weekly">Weekly</option>
-                    <option value="monthly">Monthly</option>
-                  </select>
-                </div>
 
-                {meetingFrequency === "weekly" && (
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Meeting Day
-                    </label>
-                    <select
-                      value={meetingDay}
-                      onChange={(e) => { setMeetingDay(e.target.value); }}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent"
-                    >
-                      <option value="monday">Monday</option>
-                      <option value="tuesday">Tuesday</option>
-                      <option value="wednesday">Wednesday</option>
-                      <option value="thursday">Thursday</option>
-                      <option value="friday">Friday</option>
-                      <option value="saturday">Saturday</option>
-                      <option value="sunday">Sunday</option>
-                    </select>
-                  </div>
-                )}
-
-                {meetingFrequency === "monthly" && (
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Meeting Date
-                    </label>
-                    <select
-                      value={meetingDate}
-                      onChange={(e) => { setMeetingDate(e.target.value); }}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent"
-                    >
-                      {Array.from({ length: 31 }, (_, i) => i + 1).map((date) => (
-                        <option key={date} value={date}>
-                          {date}{getOrdinalSuffix(date)}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Meeting Time
+                  <label className="inline-flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="comm_method"
+                      value="chat"
+                      checked={preferredMethod === "chat"}
+                      onChange={(e) => { setPreferredMethod(e.target.value as CommunicationMethod); clearError('communication.preferred_method'); }}
+                      className="form-radio h-4 w-4 text-[#108A00]"
+                    />
+                    <span className="text-sm">No Video</span>
                   </label>
-                  <input
-                    type="time"
-                    value={meetingTime}
-                    onChange={(e) => { setMeetingTime(e.target.value); clearError('communication.meeting_schedule'); }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent"
-                  />
-                  {errors["communication.meeting_schedule"] && (<p className="text-red-600 text-sm mt-1">{errors["communication.meeting_schedule"]}</p>)}
                 </div>
               </div>
+
+              {/* Show meeting schedule only when video call is selected */}
+              {preferredMethod === "video_call" && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Meeting Frequency
+                    </label>
+                    <select
+                      value={meetingFrequency}
+                      onChange={(e) => { setMeetingFrequency(e.target.value as "daily" | "weekly" | "monthly"); }}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent"
+                    >
+                      <option value="daily">Daily</option>
+                      <option value="weekly">Weekly</option>
+                      <option value="monthly">Monthly</option>
+                    </select>
+                  </div>
+
+                  {meetingFrequency === "weekly" && (
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Meeting Day
+                      </label>
+                      <select
+                        value={meetingDay}
+                        onChange={(e) => { setMeetingDay(e.target.value); }}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent"
+                      >
+                        <option value="monday">Monday</option>
+                        <option value="tuesday">Tuesday</option>
+                        <option value="wednesday">Wednesday</option>
+                        <option value="thursday">Thursday</option>
+                        <option value="friday">Friday</option>
+                        <option value="saturday">Saturday</option>
+                        <option value="sunday">Sunday</option>
+                      </select>
+                    </div>
+                  )}
+
+                  {meetingFrequency === "monthly" && (
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Meeting Date
+                      </label>
+                      <select
+                        value={meetingDate}
+                        onChange={(e) => { setMeetingDate(e.target.value); }}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent"
+                      >
+                        {Array.from({ length: 31 }, (_, i) => i + 1).map((date) => (
+                          <option key={date} value={date}>
+                            {date}{getOrdinalSuffix(date)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Meeting Time
+                    </label>
+                    <input
+                      type="time"
+                      value={meetingTime}
+                      onChange={(e) => { setMeetingTime(e.target.value); clearError('communication.meeting_schedule'); }}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent"
+                    />
+                    {errors["communication.meeting_schedule"] && (<p className="text-red-600 text-sm mt-1">{errors["communication.meeting_schedule"]}</p>)}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

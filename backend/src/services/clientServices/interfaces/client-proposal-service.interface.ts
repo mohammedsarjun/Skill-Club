@@ -1,5 +1,7 @@
+import { ClientProposalResponseDTO } from "src/dto/clientDTO/client-proposal.dto";
 
 
 export interface IClientProposalService {
-  getAllProposal(clientId: string, queryFilters: Record<string, unknown>): Promise<void>;
+  getAllProposal(clientId: string, jobId: string, queryFilters: Record<string, unknown>): Promise<ClientProposalResponseDTO[]|null>;
+  getProposalDetail( proposalId: string): Promise<ClientProposalResponseDTO|null>;
 }

@@ -51,4 +51,5 @@ export class ClientFreelancerController implements IClientFreelancerController {
       data: portfolioData,
     });
   }
+  
 }

@@ -19,6 +19,10 @@ import { IClientRepository } from '../repositories/interfaces/client-repository.
 import { ClientRepository } from '../repositories/client-repository';
 import { IProposalRepository } from '../repositories/interfaces/proposal-repository.interface';
 import { ProposalRepository } from '../repositories/proposal-repository';
+import { IOfferRepository } from '../repositories/interfaces/offer-repository.interface';
+import { OfferRepository } from '../repositories/offer-repository';
+import { IFileUploadService } from '../services/commonServices/interfaces/file-upload-service.interface';
+import { FileUploadService } from '../services/commonServices/file-upload-service';
 container.register<ICategoryRepository>('ICategoryRepository', { useClass: CategoryRepository });
 container.register<ISpecialityRepository>('ISpecialityRepository', {
   useClass: SpecialityRepository,
@@ -31,6 +35,8 @@ container.register<IActionVerificationRepository>('IActionVerificationRepository
 container.register<IJobRepository>('IJobRepository', { useClass: JobRepository });
 container.register<IClientRepository>('IClientRepository', { useClass: ClientRepository });
 container.register<IProposalRepository>('IProposalRepository', { useClass: ProposalRepository });
+container.register<IOfferRepository>('IOfferRepository', { useClass: OfferRepository });
+container.register<IFileUploadService>('IFileUploadService', { useClass: FileUploadService });
 //Auth
 import { AuthService } from '../services/authServices/auth-services';
 import type { IAuthService } from '../services/authServices/interfaces/auth-services.interface';
@@ -215,9 +221,29 @@ container.register<IFreelancerJobService>('IFreelancerJobService', {
   useClass: FreelancerJobService,
 });
 
+//freelancer Offer Service
+import { IFreelancerOfferService } from '../services/freelancerServices/interfaces/freelancer-offer-service.interface';
+import { FreelancerOfferService } from '../services/freelancerServices/freelancer-offer-service';
+
+container.register<IFreelancerOfferService>('IFreelancerOfferService', {
+  useClass: FreelancerOfferService,
+});
+
 //freelancer proposal Service
 import { IFreelancerProposalService } from '../services/freelancerServices/interfaces/freelancer-proposal-service.interface';
 import { FreelancerProposalService } from '../services/freelancerServices/freelancer-proposal-service';
+
 container.register<IFreelancerProposalService>('IFreelancerProposalService', {
   useClass: FreelancerProposalService,
 });
+
+
+//client proposal Service
+import { IClientProposalService } from '../services/clientServices/interfaces/client-proposal-service.interface';
+import { ClientProposalService } from '../services/clientServices/client-proposal-service';
+container.register<IClientProposalService>('IClientProposalService', {
+  useClass: ClientProposalService,
+});
+import { IClientOfferService } from '../services/clientServices/interfaces/client-offer-service.interface';
+import { ClientOfferService } from '../services/clientServices/client-offer-service';
+container.register<IClientOfferService>('IClientOfferService', { useClass: ClientOfferService });

@@ -216,4 +216,36 @@ export const clientActionApi = {
       }
     }
   },
-};
+
+    async getAllJobProposals(jobId: string, query?: { search?: string; page?: number; limit?: number; filters?: any }) {
+    try {
+      const params = query || {};
+      const response = await axiosClient.get(
+        clientRouterEndPoints.getAllJobProposals(jobId),
+        { params }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+  async getProposalDetail(proposalId: string) {
+    try {
+      const response = await axiosClient.get(
+        clientRouterEndPoints.getProposalDetail(proposalId)
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+}

@@ -62,8 +62,10 @@ export const MESSAGES = {
   },
     PROPOSAL:{
     CREATED: 'Proposal created successfully',
+    FETCH_SUCCESS: 'Proposal data fetched successfully',
   },
   PORTFOLIO:{
+      
     PORTFOLIO_FETCH_SUCCESS: 'Freelancer portfolio fetched successfully',
   }
 };

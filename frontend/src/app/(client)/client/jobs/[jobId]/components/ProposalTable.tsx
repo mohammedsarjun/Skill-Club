@@ -1,19 +1,34 @@
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import GenericTable, { Column, Filter } from "@/components/admin/Table";
 import ViewProposalDialog from "./ProposalDialog";
+import { useParams } from "next/navigation";
+import { clientActionApi } from "@/api/action/ClientActionApi";
 
 // ===== Type Definitions =====
 export interface Proposal {
-  id: number;
-  freelancerName: string;
-  proposalDate: string;
-  rateType: "hourly" | "fixed";
+  id: string;
+  proposalId?: string;
+  freelancerId?: string;
+  jobId?: string;
+  freelancer: {
+    freelancerId?: string;
+    firstName?: string;
+    lastName?: string;
+    name?: string;
+    avatar?: string;
+    country?: string;
+    rating?: number;
+    profileUrl?: string;
+  };
   hourlyRate?: number;
-  fixedRate?: number;
-  status: "pending" | "approved" | "rejected" | "under_review";
+  availableHoursPerWeek?: number;
+  proposedBudget?: number;
+  deadline?: string;
   coverLetter?: string;
-  estimatedDuration?: string;
+  createdAt?: string;
+  proposedAt?: string;
+  status?: string;
   skills?: string[];
 }
 
@@ -28,76 +43,86 @@ interface ViewModalProps {
 // ===== Main Component =====
 export default function ProposalManagementTable() {
   const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null);
+  const params = useParams();
+  const jobId = params.jobId;
 
-  // Sample data
-  const proposalsData: Proposal[] = [
-    {
-      id: 1,
-      freelancerName: "Sarah Johnson",
-      proposalDate: "2025-11-05",
-      rateType: "hourly",
-      hourlyRate: 85,
-      status: "pending",
-      coverLetter: "I have 5 years of experience in React development and have worked on multiple large-scale applications. I'm confident I can deliver high-quality work for your project.",
-      estimatedDuration: "2-3 weeks",
-      skills: ["React", "TypeScript", "Node.js", "MongoDB"],
-    },
-    {
-      id: 2,
-      freelancerName: "Michael Chen",
-      proposalDate: "2025-11-04",
-      rateType: "fixed",
-      fixedRate: 3500,
-      status: "approved",
-      coverLetter: "I specialize in full-stack development and have successfully completed 50+ projects. I can start immediately and deliver within the timeline.",
-      estimatedDuration: "1 month",
-      skills: ["Vue.js", "Python", "Django", "PostgreSQL"],
-    },
-    {
-      id: 3,
-      freelancerName: "Emily Rodriguez",
-      proposalDate: "2025-11-03",
-      rateType: "hourly",
-      hourlyRate: 95,
-      status: "under_review",
-      coverLetter: "As a senior developer with expertise in modern web technologies, I'm excited about this opportunity. My portfolio includes similar projects.",
-      estimatedDuration: "3-4 weeks",
-      skills: ["Angular", "Java", "Spring Boot", "AWS"],
-    },
-    {
-      id: 4,
-      freelancerName: "David Kim",
-      proposalDate: "2025-11-02",
-      rateType: "fixed",
-      fixedRate: 2800,
-      status: "rejected",
-      coverLetter: "I have a strong background in web development and can bring value to your project with my technical skills and experience.",
-      estimatedDuration: "3 weeks",
-      skills: ["React", "Node.js", "Express", "MySQL"],
-    },
-    {
-      id: 5,
-      freelancerName: "Lisa Thompson",
-      proposalDate: "2025-11-01",
-      rateType: "hourly",
-      hourlyRate: 75,
-      status: "pending",
-      coverLetter: "I'm a dedicated developer who pays attention to detail and delivers clean, maintainable code. I'd love to work on this project.",
-      estimatedDuration: "2 weeks",
-      skills: ["React", "Redux", "REST APIs", "Git"],
-    },
-    {
-      id: 6,
-      freelancerName: "James Wilson",
-      proposalDate: "2025-10-30",
-      rateType: "fixed",
-      fixedRate: 4200,
-      status: "approved",
-      coverLetter: "With 8 years of industry experience, I can provide comprehensive solutions that meet your requirements and exceed expectations.",
-      estimatedDuration: "5-6 weeks",
-      skills: ["React", "Next.js", "GraphQL", "Docker"],
-    },
-  ];
+  // Controlled table state so we can forward pagination / filters to the backend
+  const [proposalsData, setProposalsData] = useState<Proposal[]>([]);
+  const [page, setPage] = useState<number>(1);
+  const [search, setSearch] = useState<string>("");
+  const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
+  const [totalCount, setTotalCount] = useState<number | undefined>(undefined);
+
+  const pageSize = 10;
+
+  useEffect(() => {
+    async function fetchProposals() {
+      if (!jobId) return;
+
+      // Build query in the format backend expects
+      const query = {
+        search: typeof search === "string" ? search : "",
+        page: Number(page) > 0 ? Number(page) : 1,
+        limit: Number(pageSize) > 0 ? Number(pageSize) : 10,
+        filters: { status: (activeFilters && activeFilters.status) || undefined },
+      };
+
+      try {
+        const response = await clientActionApi.getAllJobProposals(jobId as string, query as any);
+        // flexible response shapes: response may be { success, data } or direct data
+        const payload = response && response.data ? response.data : response;
+        console.log(response)
+
+        // Try common shapes
+        const items: any[] = Array.isArray(payload?.proposals)
+          ? payload.proposals
+          : Array.isArray(payload?.data)
+          ? payload.data
+          : Array.isArray(payload)
+          ? payload
+          : [];
+
+        // Map backend proposal shape into the UI Proposal shape
+        const proposalItems: Proposal[] = items.map((raw: any) => ({
+          id: raw?._id?.toString() ?? raw?.id?.toString() ?? "",
+          proposalId: raw?._id?.toString() ?? raw?.id?.toString() ?? "",
+          freelancerId: raw?.freelancer?.freelancerId?.toString() ?? raw?.freelancerId,
+          jobId: raw?.jobId ?? jobId,
+          freelancer: {
+            id: raw?.freelancer?._id?.toString() ?? raw?.freelancerId,
+            firstName: raw?.freelancer?.firstName,
+            lastName: raw?.freelancer?.lastName,
+            name: `${raw?.freelancer?.firstName || ""} ${raw?.freelancer?.lastName || ""}`.trim(),
+            avatar: raw?.freelancer?.freelancerProfile?.logo || raw?.freelancer?.avatar || "",
+            country: raw?.freelancer?.address?.country || raw?.freelancer?.country || "",
+            rating: raw?.freelancer?.rating ?? 0,
+            profileUrl:  `/client/freelancers/${raw?.freelancer?.freelancerId}/profile`,
+          },
+          proposedBudget: raw?.proposedBudget ?? raw?.fixedRate ?? undefined,
+          deadline: raw?.deadline ?? undefined,
+          hourlyRate: raw?.hourlyRate ?? undefined,
+          availableHoursPerWeek: raw?.availableHoursPerWeek ?? raw?.available_hours_per_week ?? undefined,
+          coverLetter: raw?.coverLetter ?? raw?.cover_letter ?? "",
+          createdAt: raw?.createdAt ?? raw?.proposedAt ?? undefined,
+          proposedAt: raw?.createdAt ?? raw?.proposedAt ?? undefined,
+          status: raw?.status ?? "",
+          skills: raw?.skills ?? [],
+        }));
+
+        setProposalsData(proposalItems);
+
+        // Try to set totalCount from common fields
+        const tc = payload?.totalCount ?? payload?.total ?? payload?.meta?.total ?? undefined;
+        if (typeof tc === "number") setTotalCount(tc);
+      } catch (err) {
+        console.error("Failed to fetch proposals:", err);
+        setProposalsData([]);
+        setTotalCount(0);
+      }
+    }
+
+    fetchProposals();
+  }, [jobId, page, search, activeFilters]);
 
   // Define columns with custom rate rendering
   const columns: Column<Proposal>[] = [
@@ -120,32 +145,31 @@ export default function ProposalManagementTable() {
       label: "Filter by Status",
       options: [
         { id: "", name: "All" },
-        { id: "pending", name: "Pending" },
-        { id: "approved", name: "Approved" },
+        { id: "pending_verification", name: "Pending" },
+        { id: "accepted", name: "Approved" },
         { id: "rejected", name: "Rejected" },
         { id: "under_review", name: "Under Review" },
       ],
     },
   ];
 
-  // Transform data to add a formatted rate column
-  const transformedData = proposalsData.map((proposal) => ({
-    ...proposal,
-    rateType:
-      proposal.rateType === "hourly"
-        ? `$${proposal.hourlyRate}/hr`
-        : `$${proposal.fixedRate?.toLocaleString()} (Fixed)`,
-    proposalDate: new Date(proposal.proposalDate).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    }),
+  // Transform data to the flat shape the table expects (keep original in proposalsData)
+  const transformedData: any[] = proposalsData.map((p) => ({
+    ...p,
+    freelancerName: p.freelancer?.name || "",
+    rateType: p.hourlyRate ? `$${p.hourlyRate}/hr` : p.proposedBudget ? `$${p.proposedBudget?.toLocaleString()} (Fixed)` : "",
+    proposalDate: p.createdAt
+      ? new Date(p.createdAt).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        })
+      : "",
   }));
 
   const handleView = (proposal: Proposal) => {
     // Find the original proposal with all details
     const fullProposal = proposalsData.find((p) => p.id === proposal.id);
-
     setSelectedProposal(fullProposal || null);
   };
 
@@ -158,8 +182,15 @@ export default function ProposalManagementTable() {
         filters={filters}
         onView={handleView}
         viewOnly={true}
-        pageSize={10}
-        searchKeys={["freelancerName"]}
+        pageSize={pageSize}
+        page={page}
+        setPage={setPage}
+        search={search}
+        setSearch={setSearch}
+        setFilters={setActiveFilters}
+        activeFilters={activeFilters}
+        totalCount={totalCount}
+  searchKeys={["freelancer"]}
         badgeKeys={["status"]}
         badgeColors={{
           pending: "#f59e0b",
@@ -171,14 +202,14 @@ export default function ProposalManagementTable() {
 
       {selectedProposal && (
         <ViewProposalDialog
-          proposalId={"proposal_005"}
+          proposal={selectedProposal}
+          proposalId={selectedProposal.id}
           onClose={() => setSelectedProposal(null)}
-          onAccept={()=>{}}
-          onMessage={()=>{}}
-          onReject={()=>{}}
-          isOpen={true}
+          onAccept={() => {}}
+          onMessage={() => {}}
+          onReject={() => {}}
+          isOpen={!!selectedProposal}
         />
-
       )}
     </div>
   );

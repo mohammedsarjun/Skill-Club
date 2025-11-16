@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Button from "../common/Button";
-import { uploadToCloudinary } from "@/utils/cloudinary";
+import { uploadApi } from "@/api/uploadApi";
 import { useDispatch } from "react-redux";
 import { updateFreelancerData } from "@/store/slices/freelancerSlice"; // updated path
 
@@ -81,11 +81,13 @@ export default function StepNineForm({
 
       try {
         setUploading(true);
-        const uploadedUrl = await uploadToCloudinary(file);
-        setLogo(uploadedUrl); // Update state with Cloudinary URL
+        const uploaded = await uploadApi.uploadFile(file, {
+          folder: "users/profile_pictures",
+        });
+        setLogo(uploaded.url); // Update state with uploaded URL
 
         // Save to Redux immediately
-        dispatch(updateFreelancerData({ logo: uploadedUrl }));
+        dispatch(updateFreelancerData({ logo: uploaded.url }));
       } catch (err) {
         console.error("Upload failed:", err);
         alert("Failed to upload image. Please try again.");

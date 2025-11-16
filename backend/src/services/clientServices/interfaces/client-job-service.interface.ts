@@ -15,4 +15,5 @@ export interface IClientJobService {
     jobData: Partial<CreateJobDto>,
   ): Promise<ClientJobDetailResponseDTO>;
   closeJob(clientId: string, jobId: string): Promise<void>;
+
 }

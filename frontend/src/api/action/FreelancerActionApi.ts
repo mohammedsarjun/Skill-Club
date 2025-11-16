@@ -330,4 +330,60 @@ export const freelancerActionApi = {
       }
     }
   },
+
+    async getMyProposals(jobId: string, query?: { search?: string; page?: number; limit?: number; filters?: any }) {
+    try {
+      const params = query || {};
+      const response = await axiosClient.get(
+        freelancerRouterEndPoints.getMyProposals(jobId),
+        { params }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getMyOffers(query?: { search?: string; page?: number; limit?: number; filters?: { status?: string; offerType?: string } }) {
+    try {
+      const params = {
+        search: query?.search,
+        page: query?.page,
+        limit: query?.limit,
+        status: query?.filters?.status,
+        offerType: query?.filters?.offerType,
+      };
+      const response = await axiosClient.get(
+        freelancerRouterEndPoints.getOffers,
+        { params }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getOfferDetail(offerId: string) {
+    try {
+      const response = await axiosClient.get(
+        freelancerRouterEndPoints.getOfferDetail(offerId)
+      );
+
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
 };
