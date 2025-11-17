@@ -237,6 +237,15 @@ container.register<IFreelancerProposalService>('IFreelancerProposalService', {
   useClass: FreelancerProposalService,
 });
 
+// Freelancer Saved Job
+import { ISavedJobRepository } from '../repositories/interfaces/saved-job-repository.interface';
+import { SavedJobRepository } from '../repositories/saved-job-repository';
+import { IFreelancerSavedJobService } from '../services/freelancerServices/interfaces/freelancer-saved-job-service.interface';
+import { FreelancerSavedJobService } from '../services/freelancerServices/freelancer-saved-job-service';
+
+container.register<ISavedJobRepository>('ISavedJobRepository', { useClass: SavedJobRepository });
+container.register<IFreelancerSavedJobService>('IFreelancerSavedJobService', { useClass: FreelancerSavedJobService });
+
 
 //client proposal Service
 import { IClientProposalService } from '../services/clientServices/interfaces/client-proposal-service.interface';
@@ -247,3 +256,13 @@ container.register<IClientProposalService>('IClientProposalService', {
 import { IClientOfferService } from '../services/clientServices/interfaces/client-offer-service.interface';
 import { ClientOfferService } from '../services/clientServices/client-offer-service';
 container.register<IClientOfferService>('IClientOfferService', { useClass: ClientOfferService });
+// Client Saved Freelancer
+import { ISavedFreelancerRepository } from '../repositories/interfaces/saved-freelancer-repository.interface';
+import { SavedFreelancerRepository } from '../repositories/saved-freelancer-repository';
+import { IClientSavedFreelancerService } from '../services/clientServices/interfaces/client-saved-freelancer-service.interface';
+import { ClientSavedFreelancerService } from '../services/clientServices/client-saved-freelancer-service';
+import { ClientSavedFreelancerController } from '../controllers/client/client-saved-freelancer-controller';
+
+container.register<ISavedFreelancerRepository>('ISavedFreelancerRepository', { useClass: SavedFreelancerRepository });
+container.register<IClientSavedFreelancerService>('IClientSavedFreelancerService', { useClass: ClientSavedFreelancerService });
+container.register<ClientSavedFreelancerController>(ClientSavedFreelancerController, { useClass: ClientSavedFreelancerController });

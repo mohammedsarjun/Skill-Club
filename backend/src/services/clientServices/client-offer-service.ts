@@ -10,6 +10,10 @@ import { DirectOfferStrategy } from './offerStrategies/direct-offer-strategy';
 import { ProposalOfferStrategy } from './offerStrategies/proposal-offer-strategy';
 import { IOfferCreationStrategy } from './offerStrategies/offer-creation-strategy.interface';
 import { mapOfferModelToClientOfferResponseDTO } from '../../mapper/clientMapper/client-offer.mapper';
+import { mapOfferModelToClientOfferListItemDTO } from '../../mapper/clientMapper/client-offer-list.mapper';
+import { ClientOfferListResultDTO, ClientOfferQueryParamsDTO } from '../../dto/clientDTO/client-offer.dto';
+import { mapOfferModelToClientOfferDetailDTO } from '../../mapper/clientMapper/client-offer-detail.mapper';
+import { ClientOfferDetailDTO } from '../../dto/clientDTO/client-offer.dto';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { Types } from 'mongoose';
@@ -24,6 +28,40 @@ export class ClientOfferService implements IClientOfferService {
   ) {
     this._offerRepository = offerRepository;
     this._proposalRepository = proposalRepository;
+  }
+
+  async getOfferDetail(clientId: string, offerId: string): Promise<ClientOfferDetailDTO | null> {
+    const offer = await this._offerRepository.findOneForClient(clientId, offerId);
+    console.log(offerId, clientId, offer);
+    if (!offer) return null;
+    return mapOfferModelToClientOfferDetailDTO(offer);
+  }
+
+  async getAllOffers(clientId: string, query: ClientOfferQueryParamsDTO): Promise<ClientOfferListResultDTO> {
+    const page = query.page && query.page > 0 ? query.page : 1;
+    const limit = query.limit && query.limit > 0 && query.limit <= 100 ? query.limit : 10;
+    const normalized: ClientOfferQueryParamsDTO = {
+      search: query.search?.trim() || undefined,
+      page,
+      limit,
+      filters: {
+        status: query.filters?.status,
+        offerType: query.filters?.offerType,
+      },
+    };
+
+    const [offers, total] = await Promise.all([
+      this._offerRepository.findAllForClient(clientId, normalized),
+      this._offerRepository.countForClient(clientId, normalized),
+    ]);
+
+    return {
+      items: offers.map(mapOfferModelToClientOfferListItemDTO),
+      page,
+      limit,
+      total,
+      pages: Math.ceil(total / limit) || 1,
+    };
   }
 
   async createOffer(clientId: string, offerData: ClientOfferRequestDTO): Promise<ClientOfferResponseDTO> {

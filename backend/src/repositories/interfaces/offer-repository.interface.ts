@@ -11,6 +11,16 @@ export interface FreelancerOfferQueryParamsDTO {
   };
 }
 
+export interface ClientOfferQueryParamsDTO {
+  search?: string;
+  page?: number;
+  limit?: number;
+  filters: {
+    status?: OfferStatus;
+    offerType?: OfferType;
+  };
+}
+
 export interface IOfferRepository extends BaseRepository<IOffer> {
   createOffer(data: Partial<IOffer>): Promise<IOffer>;
   findAllForFreelancer(
@@ -19,4 +29,7 @@ export interface IOfferRepository extends BaseRepository<IOffer> {
   ): Promise<IOffer[]>;
   countForFreelancer(freelancerId: string, query: FreelancerOfferQueryParamsDTO): Promise<number>;
   findOneForFreelancer(freelancerId: string, offerId: string): Promise<IOffer | null>;
+  findOneForClient(clientId: string, offerId: string): Promise<IOffer | null>;
+  findAllForClient(clientId: string, query: ClientOfferQueryParamsDTO): Promise<IOffer[]>;
+  countForClient(clientId: string, query: ClientOfferQueryParamsDTO): Promise<number>;
 }

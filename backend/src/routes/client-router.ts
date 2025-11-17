@@ -11,6 +11,7 @@ import { ClientSpecialityController } from '../controllers/client/client-special
 import { ClientFreelancerController } from '../controllers/client/client-freelancer-controller';
 import { ClientProposalController } from '../controllers/client/client-proposal-controller';
 import { ClientOfferController } from '../controllers/client/client-offer-controller';
+import { ClientSavedFreelancerController } from '../controllers/client/client-saved-freelancer-controller';
 const clientRouter = express.Router();
 
 const clientController = container.resolve(ClientController);
@@ -20,6 +21,7 @@ const clientSpecialityController = container.resolve(ClientSpecialityController)
 const clientFreelancerController = container.resolve(ClientFreelancerController);
 const clientProposalController = container.resolve(ClientProposalController);
 const clientOfferController = container.resolve(ClientOfferController);
+const clientSavedFreelancerController = container.resolve(ClientSavedFreelancerController);
 clientRouter.get(
   '/me',
   authMiddleware,
@@ -115,7 +117,6 @@ clientRouter.get(
   clientFreelancerController.getFreelancerPortfolio.bind(clientFreelancerController),
 );
 
-
 clientRouter.get(
   '/jobs/:jobId/proposals',
   authMiddleware,
@@ -123,7 +124,6 @@ clientRouter.get(
   clientBlockMiddleware,
   clientProposalController.getAllProposal.bind(clientProposalController),
 );
-
 
 clientRouter.get(
   '/proposals/:proposalId',
@@ -133,12 +133,62 @@ clientRouter.get(
   clientProposalController.getProposalDetail.bind(clientProposalController),
 );
 
+// Offer routes
+clientRouter.get(
+  '/offers',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientOfferController.getAllOffers.bind(clientOfferController),
+);
+
+clientRouter.get(
+  '/offers/:offerId',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientOfferController.getOfferDetail.bind(clientOfferController),
+);
+
+clientRouter.get(
+  '/offers/:offerId',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientOfferController.getOfferDetail.bind(clientOfferController),
+);
+
+
 clientRouter.post(
   '/offers',
   authMiddleware,
   roleGuard('client'),
   clientBlockMiddleware,
   clientOfferController.createOffer.bind(clientOfferController),
+);
+
+clientRouter.post(
+  '/freelancers/:freelancerId/save',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientSavedFreelancerController.toggleSaveFreelancer.bind(clientSavedFreelancerController),
+);
+
+clientRouter.get(
+  '/freelancers/:freelancerId/saved',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientSavedFreelancerController.isFreelancerSaved.bind(clientSavedFreelancerController),
+);
+
+clientRouter.get(
+  '/saved-freelancers',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientSavedFreelancerController.getSavedFreelancers.bind(clientSavedFreelancerController),
 );
 
 export default clientRouter;

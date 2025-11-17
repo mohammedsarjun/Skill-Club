@@ -2,7 +2,8 @@
 import { freelancerActionApi } from "@/api/action/FreelancerActionApi";
 import { FreelancerJobDetailResponse } from "@/types/interfaces/IJob";
 import { useParams } from "next/navigation";
-import React, { JSX, useEffect, useState } from "react";
+import React, { JSX, useEffect, useState, useRef } from "react";
+import debounce from 'lodash/debounce';
 import {
   FaBriefcase,
   FaDollarSign,
@@ -16,6 +17,7 @@ import {
   FaCheckCircle,
   FaTimesCircle,
   FaHeart,
+  FaSpinner,
   FaShare,
   FaFlag,
   FaUser,
@@ -141,6 +143,7 @@ interface StatusConfig {
 
 const JobDetailPage: React.FC = () => {
   const [isSaved, setIsSaved] = useState<boolean>(false);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
   const [showProposalModal, setShowProposalModal] = useState<boolean>(false);
   const [bidAmount, setBidAmount] = useState<string>("");
   const [coverLetter, setCoverLetter] = useState<string>("");
@@ -203,7 +206,12 @@ const JobDetailPage: React.FC = () => {
   };
 
   const handleSaveJob = (): void => {
-    setIsSaved(!isSaved);
+    // optimistic toggle handled by debounced API call
+    const optimistic = !isSaved;
+    setIsSaved(optimistic);
+    setIsSaving(true);
+
+    debouncedToggle.current(optimistic);
   };
 
   const handleShareJob = (): void => {
@@ -256,6 +264,48 @@ const JobDetailPage: React.FC = () => {
 
     fetchJobDetail();
   }, []);
+
+  // Check saved state on mount
+  useEffect(() => {
+    let mounted = true;
+    async function checkSaved() {
+      try {
+        const resp = await freelancerActionApi.isJobSaved(jobId as string);
+        const savedFlag = resp?.data?.saved as boolean | undefined;
+        if (mounted) setIsSaved(!!savedFlag);
+      } catch (err) {
+        // ignore silently or show toast if desired
+      }
+    }
+    if (jobId) checkSaved();
+    return () => {
+      mounted = false;
+    };
+  }, [jobId]);
+
+  // Debounced toggle to avoid rapid repeated requests
+  const debouncedToggle = useRef(
+    debounce(async (optimisticState: boolean) => {
+      try {
+        const resp = await freelancerActionApi.toggleSaveJob(jobId as string);
+        const savedFlag = resp?.data?.saved as boolean | undefined;
+        if (typeof savedFlag === 'boolean') {
+          setIsSaved(savedFlag);
+        }
+      } catch (err: any) {
+        // revert optimistic state on error
+        setIsSaved(!optimisticState);
+        const message = err?.response?.data?.message || 'Failed to update saved state';
+        try { /* toast might be available */
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (toast as any)?.error?.(message);
+        } catch {}
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    400)
+  );
 
 
   async function handleProposalSubmit(submittedData:any):Promise<void>{
@@ -374,7 +424,7 @@ const JobDetailPage: React.FC = () => {
                 <FaBriefcase className="text-[#108A00]" />
                 Job Description
               </h2>
-              <div className="prose max-w-none text-gray-700 whitespace-pre-line leading-relaxed"
+              <div className="prose max-w-none text-gray-700 whitespace-pre-line leading-relaxed break-words break-all min-w-0"
               dangerouslySetInnerHTML={{ __html: jobDetail?.description!}}>
 
               </div>
@@ -438,14 +488,26 @@ const JobDetailPage: React.FC = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={handleSaveJob}
+                    disabled={isSaving}
+                    aria-pressed={isSaved}
+                    aria-label={isSaved ? 'Unsave job' : 'Save job'}
                     className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold transition-colors ${
                       isSaved
                         ? "bg-red-50 text-red-600 border-2 border-red-200"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                    } ${isSaving ? 'opacity-80 cursor-wait' : ''}`}
                   >
                     <FaHeart className={isSaved ? "fill-current" : ""} />
-                    {isSaved ? "Saved" : "Save"}
+                    {isSaving ? (
+                      <span className="flex items-center gap-2">
+                        <FaSpinner className="animate-spin" />
+                        <span className="text-sm">Saving</span>
+                      </span>
+                    ) : isSaved ? (
+                      "Saved"
+                    ) : (
+                      "Save"
+                    )}
                   </button>
                   <button
                     onClick={handleShareJob}
@@ -510,12 +572,7 @@ const JobDetailPage: React.FC = () => {
                   </div>
                 </div>
 
-                <button
-                  onClick={handleViewClientProfile}
-                  className="w-full mt-6 border-2 border-[#108A00] text-[#108A00] px-4 py-3 rounded-lg font-semibold hover:bg-[#108A00] hover:text-white transition-colors"
-                >
-                  View Client Profile
-                </button>
+
               </div>
 
               {/* Job Stats */}

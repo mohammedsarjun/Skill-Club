@@ -58,3 +58,79 @@ export interface ClientOfferResponseDTO {
   expiresAt: Date;
   createdAt: Date;
 }
+
+import { OfferStatus, OfferType } from '../../models/interfaces/offer.model.interface';
+
+export interface ClientOfferQueryParamsDTO {
+  search?: string;
+  page?: number;
+  limit?: number;
+  filters: {
+    status?: OfferStatus;
+    offerType?: OfferType;
+  };
+}
+
+export interface ClientOfferListItemDTO {
+  offerId: string;
+  title: string;
+  description?: string;
+  paymentType: 'fixed' | 'fixed_with_milestones' | 'hourly';
+  budget?: number;
+  hourlyRate?: number;
+  status: string;
+  createdAt: Date;
+  expiresAt?: Date;
+  freelancer?: {
+    freelancerId: string;
+    firstName?: string;
+    lastName?: string;
+    logo?: string;
+  };
+}
+
+export interface ClientOfferListResultDTO {
+  items: ClientOfferListItemDTO[];
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+}
+
+export interface ClientOfferDetailDTO extends ClientOfferListItemDTO {
+  jobId?: string;
+  proposalId?: string;
+  jobTitle?: string;
+  freelancer?: {
+    freelancerId: string;
+    firstName?: string;
+    lastName?: string;
+    logo?: string;
+    country?: string;
+    rating?: number;
+  };
+  milestones?: {
+    title: string;
+    amount: number;
+    expectedDelivery: Date;
+  }[];
+  expectedStartDate?: Date;
+  expectedEndDate?: Date;
+  communication?: {
+    preferredMethod: 'chat' | 'video_call' | 'email' | 'mixed';
+    meetingFrequency?: 'daily' | 'weekly' | 'monthly';
+    meetingDayOfWeek?: string;
+    meetingDayOfMonth?: number;
+    meetingTimeUtc?: string;
+  };
+  reporting?: {
+    frequency: 'daily' | 'weekly' | 'monthly';
+    dueTimeUtc?: string;
+    dueDayOfWeek?: string;
+    dueDayOfMonth?: number;
+    format?: 'text_with_attachments' | 'text_only' | 'video';
+  };
+  referenceFiles?: { fileName: string; fileUrl: string }[];
+  referenceLinks?: { description: string; link: string }[];
+  timeline?: { status: string; at: Date; note?: string }[];
+}

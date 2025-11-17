@@ -1,32 +1,3 @@
-/**
- * @file job-repository.ts
- * @desc Repository responsible for performing database operations related to jobs.
- *       It extends the BaseRepository to inherit generic CRUD operations while allowing
- *       job-specific implementations when needed.
- *
- * @layer Repository
- * @module Client
- * @category Jobs
- *
- * @dependencies
- * - jobModel (Mongoose model for the Job collection)
- * - BaseRepository (abstract class providing generic CRUD operations)
- * - IClientJobRepository (interface defining repository contract)
- * - IJob, JobData (TypeScript interfaces for strong typing)
- *
- * @class JobRepository
- * @extends BaseRepository<IJob>
- *
- * @usage
- * This repository is used by JobService to perform low-level
- * data persistence and retrieval tasks related to client jobs.
- * Example usage in service:
- * const createdJob = await this._jobRepository.createJob(jobModelData);
- *
- * @see IClientJobService
- * @see IJobRepository
- * @see BaseRepository
- */
 
 import { jobModel } from '../models/job.model';
 

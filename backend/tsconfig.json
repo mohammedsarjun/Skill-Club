@@ -22,6 +22,7 @@
 
     /* Strictness & Type Checking */
     "strict": true, // Enable all strict type checks
+    "plugins": [{ "name": "typescript-strict-plugin" }],
     "noImplicitAny": true,
     "strictNullChecks": true,
     "noUnusedLocals": true,

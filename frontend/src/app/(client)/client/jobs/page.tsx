@@ -61,7 +61,7 @@ const JobManagementPage: React.FC = () => {
 
           setJobs(mapped);
           const total = response.data.total;
-          console.log(total)
+          console.log(total);
           if (typeof total === "number") setTotalCount(total);
           else setTotalCount(response.data.data?.length ?? undefined);
         } else toast.error(response.message);
@@ -105,7 +105,6 @@ const JobManagementPage: React.FC = () => {
     { key: "jobTitle", label: "Job" },
     { key: "category", label: "Category" },
     { key: "budget", label: "Budget" },
-    { key: "totalProposal", label: "Total Proposal" },
     { key: "status", label: "Status" },
   ];
 
@@ -119,6 +118,7 @@ const JobManagementPage: React.FC = () => {
         { id: "open", name: "Open" },
         { id: "rejected", name: "Rejected" },
         { id: "suspended", name: "Suspended" },
+        {id: "closed", name: "Closed" }
       ],
     },
   ];
@@ -147,20 +147,7 @@ const JobManagementPage: React.FC = () => {
       </p>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-6 my-6">
-        <div className="bg-white shadow rounded-lg p-4 text-center">
-          <h3 className="text-lg font-semibold">Total Users</h3>
-          <p className="text-2xl font-bold">{totalUsers}</p>
-        </div>
-        <div className="bg-white shadow rounded-lg p-4 text-center">
-          <h3 className="text-lg font-semibold">Freelancers</h3>
-          <p className="text-2xl font-bold">{totalFreelancers}</p>
-        </div>
-        <div className="bg-white shadow rounded-lg p-4 text-center">
-          <h3 className="text-lg font-semibold">Clients</h3>
-          <p className="text-2xl font-bold">{totalClients}</p>
-        </div>
-      </div>
+      <div className="grid grid-cols-3 gap-6 my-6"></div>
 
       {/* Jobs Table */}
       <Table<any>
@@ -174,14 +161,15 @@ const JobManagementPage: React.FC = () => {
           open: "#10b981b4",
           rejected: "#ef4444b4",
           suspended: "#6B7280",
+          closed: "#374151",
         }}
         handleOpenViewModal={handleViewModal}
         pageSize={limit}
         page={page}
         setPage={setPage}
-  search={localSearch}
-  totalCount={totalCount}
-  setSearch={setLocalSearch}
+        search={localSearch}
+        totalCount={totalCount}
+        setSearch={setLocalSearch}
         canDelete={true}
         setFilters={setFilters}
         activeFilters={filters}

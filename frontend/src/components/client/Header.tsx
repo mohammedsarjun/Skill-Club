@@ -79,10 +79,10 @@ export default function ClientHeader() {
                 Post Job
               </a>
               <a
-                href="#"
+                onClick={() => router.push("/client/offers")}
                 className="cursor-pointer block px-4 py-2 text-sm text-black hover:bg-gray-100"
               >
-                Pending Offers
+                Offers
               </a>
               <a
                 onClick={() => router.push("/client/freelancers")}
@@ -97,7 +97,7 @@ export default function ClientHeader() {
                 Talent You've Hired
               </a>
               <a
-                href="#"
+                onClick={() => router.push("/client/saved-freelancer")}
                 className="cursor-pointer block px-4 py-2 text-sm text-black hover:bg-gray-100"
               >
                 Talent You've Saved
@@ -276,10 +276,10 @@ export default function ClientHeader() {
                     Post Job
                   </a>
                   <a
-                    href="#"
+                    onClick={() => router.push("/client/offers")}
                     className="block py-2 text-sm text-black hover:text-gray-700"
                   >
-                    Pending Offers
+                    Offers
                   </a>
                   <a
                     onClick={() => router.push("/client/talent/search")}
@@ -294,7 +294,7 @@ export default function ClientHeader() {
                     Talent You've Hired
                   </a>
                   <a
-                    href="#"
+                      onClick={() => router.push("/client/saved-freelancer")}
                     className="block py-2 text-sm text-black hover:text-gray-700"
                   >
                     Talent You've Saved

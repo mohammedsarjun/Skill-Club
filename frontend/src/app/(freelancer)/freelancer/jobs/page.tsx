@@ -42,6 +42,8 @@ const FreelancerJobListing = () => {
   const [itemsPerPage] = useState(10); // page size (limit)
   const [totalPages, setTotalPages] = useState(1);
   const [jobs, setJobs] = useState<FreelancerJobResponse[]>([]);
+  const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
+  const [pendingToggleIds, setPendingToggleIds] = useState<Set<string>>(new Set());
   const [isLoadingJobs, setIsLoadingJobs] = useState(false);
   const [jobsError, setJobsError] = useState<string | null>(null);
   const router=useRouter()
@@ -346,6 +348,72 @@ const FreelancerJobListing = () => {
 
   // Decide which jobs to render: backend (jobs) if available, else paginated fallback
   const displayJobs = jobs.length > 0 ? jobs : paginatedFallbackJobs;
+
+  // Per-item saved state check (calls `/freelancer/jobs/:jobId/saved` for each visible job)
+  useEffect(() => {
+    if (!displayJobs || displayJobs.length === 0) return;
+    let mounted = true;
+    (async () => {
+      try {
+        const checks = await Promise.allSettled(
+          displayJobs.map((job: any) => freelancerActionApi.isJobSaved(job.jobId)),
+        );
+
+        const ids = new Set<string>(savedJobIds);
+        checks.forEach((r, idx) => {
+            if (r.status === 'fulfilled') {
+            const resp = r.value as any;
+            const saved = resp?.data?.saved as boolean | undefined;
+            const jobId = displayJobs[idx].jobId;
+            if (saved) ids.add(jobId);
+            else ids.delete(jobId);
+          }
+        });
+
+        if (mounted) setSavedJobIds(ids);
+      } catch (err) {
+        // ignore errors per-item
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, [displayJobs]);
+
+  const toggleSavedFromList = async (jobId: string) => {
+    if (pendingToggleIds.has(jobId)) return; // avoid duplicates
+    // optimistic
+    const newSet = new Set(savedJobIds);
+    const willBeSaved = !newSet.has(jobId);
+    if (willBeSaved) newSet.add(jobId); else newSet.delete(jobId);
+    setSavedJobIds(newSet);
+    setPendingToggleIds(prev=> new Set(prev).add(jobId));
+    try{
+      const resp = await freelancerActionApi.toggleSaveJob(jobId);
+      const savedFlag = resp?.data?.saved as boolean | undefined;
+      if (typeof savedFlag === 'boolean'){
+        setSavedJobIds(prev=>{
+          const s = new Set(prev);
+          if (savedFlag) s.add(jobId); else s.delete(jobId);
+          return s;
+        })
+      }
+    }catch(err){
+      // revert optimistic
+      setSavedJobIds(prev=>{
+        const s = new Set(prev);
+        if (willBeSaved) s.delete(jobId); else s.add(jobId);
+        return s;
+      })
+    }finally{
+      setPendingToggleIds(prev=>{
+        const s = new Set(prev);
+        s.delete(jobId);
+        return s;
+      })
+    }
+  }
 
   // When using fallback (no backend jobs), compute total pages from filteredJobs
   useEffect(() => {
@@ -749,9 +817,9 @@ const FreelancerJobListing = () => {
                     </div>
                   </div>
 
-                  <p className="text-gray-700 mb-4 line-clamp-3">
-                    {job.description}
-                  </p>
+  
+                                <div className="line-clamp-3 prose max-w-none text-gray-700 whitespace-pre-line leading-relaxed break-words break-all min-w-0"
+              dangerouslySetInnerHTML={{ __html: job.description!}}></div>
 
                   <div className="flex flex-wrap gap-2 mb-4">
                     {(job.skills || []).map((skill: string, idx: number) => (
@@ -765,9 +833,6 @@ const FreelancerJobListing = () => {
                   </div>
 
                   <div className="flex gap-3">
-                    <button className="bg-[#108A00] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#0d7000] transition-colors">
-                      Apply Now
-                    </button>
                     <button onClick={()=>router.push(`/freelancer/jobs/${job.jobId}`)} className="border-2 border-gray-300 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:border-[#108A00] hover:text-[#108A00] transition-colors">
                       View Details
                     </button>
@@ -802,6 +867,16 @@ const FreelancerJobListing = () => {
           </div>
         </div>
       </div>
+
+                  {/* <div className="absolute right-6 top-6">
+                    <button
+                      onClick={(e)=>{ e.stopPropagation(); toggleSavedFromList(job.jobId); }}
+                      disabled={pendingToggleIds.has(job.jobId)}
+                      className={`p-2 rounded-full border ${savedJobIds.has(job.jobId)? 'bg-red-50 border-red-200 text-red-600' : 'bg-white border-gray-200 text-gray-500'} hover:scale-105 transition-transform`}
+                    >
+                      <FaHeart />
+                    </button>
+                  </div> */}
     </div>
   );
 };

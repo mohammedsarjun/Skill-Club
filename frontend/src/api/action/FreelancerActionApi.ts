@@ -386,4 +386,41 @@ export const freelancerActionApi = {
       }
     }
   },
+  async toggleSaveJob(jobId: string) {
+    try {
+      const response = await axiosClient.post(freelancerRouterEndPoints.saveJob(jobId));
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+  async isJobSaved(jobId: string) {
+    try {
+      const response = await axiosClient.get(freelancerRouterEndPoints.isJobSaved(jobId));
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+  async getSavedJobs(query?: { page?: number; limit?: number }) {
+    try {
+      const params = { page: query?.page, limit: query?.limit };
+      const response = await axiosClient.get(freelancerRouterEndPoints.getSavedJobs(), { params });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
 };

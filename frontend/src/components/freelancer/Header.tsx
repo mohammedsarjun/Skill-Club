@@ -75,7 +75,7 @@ export default function FreelancerHeader() {
                 Find Jobs
               </a>
               <a
-                onClick={() => router.push("/client/jobs")}
+                onClick={() => router.push("/freelancer/saved-jobs")}
                 className="cursor-pointer block px-4 py-2 text-sm text-black hover:bg-gray-100"
               >
                 Saved Jobs
@@ -249,10 +249,10 @@ export default function FreelancerHeader() {
                     Find Jobs
                   </a>
                   <a
-                    href="#"
+                      onClick={() => router.push("/freelancer/saved-jobs")}
                     className="block py-2 text-sm text-black hover:text-gray-700"
                   >
-                    Saved Job
+                    Saved Jobs
                   </a>
                   <a
                     onClick={() => router.push("/freelancer/proposals")}

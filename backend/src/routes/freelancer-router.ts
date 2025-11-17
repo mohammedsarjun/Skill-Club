@@ -9,6 +9,7 @@ import { FreelancerSpecialityController } from '../controllers/freelancer/freela
 import { FreelancerJobController } from '../controllers/freelancer/freelancer-job-controller';
 import { FreelancerProposalController } from '../controllers/freelancer/freelancer-proposal-controller';
 import { FreelancerOfferController } from '../controllers/freelancer/freelancer-offer-controller';
+import { FreelancerSavedJobController } from '../controllers/freelancer/freelancer-saved-job-controller';
 const freelancerRouter = express.Router();
 
 const freelancerController = container.resolve(FreelancerController);
@@ -17,6 +18,7 @@ const freelancerSpecialityController=container.resolve(FreelancerSpecialityContr
 const freelancerJobController=container.resolve(FreelancerJobController)
 const freelancerProposalController=container.resolve(FreelancerProposalController)
 const freelancerOfferController = container.resolve(FreelancerOfferController);
+const freelancerSavedJobController = container.resolve(FreelancerSavedJobController);
 freelancerRouter.get(
   '/me',
   authMiddleware,
@@ -187,6 +189,30 @@ freelancerRouter.get(
   roleGuard('freelancer'),
   freelancerBlockMiddleware,
   freelancerOfferController.getOfferDetail.bind(freelancerOfferController),
+);
+
+freelancerRouter.post(
+  '/jobs/:jobId/save',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerSavedJobController.toggleSaveJob.bind(freelancerSavedJobController),
+);
+
+freelancerRouter.get(
+  '/jobs/:jobId/saved',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerSavedJobController.isJobSaved.bind(freelancerSavedJobController),
+);
+
+freelancerRouter.get(
+  '/saved-jobs',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerSavedJobController.getSavedJobs.bind(freelancerSavedJobController),
 );
 
 export default freelancerRouter;

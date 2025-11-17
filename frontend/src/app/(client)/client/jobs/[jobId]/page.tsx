@@ -142,6 +142,16 @@ function JobDetailPage() {
   const params = useParams();
   const jobIdParam = (params as any)?.jobId as string | undefined;
   const { closeJobStatus } = useSwal();
+  // Map status -> Tailwind bg/text/border/dot classes
+  const statusStyleMap: Record<string, { bg: string; text: string; border: string; dot: string }> = {
+    pending_verification: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200", dot: "bg-amber-500" },
+    open: { bg: "bg-green-50", text: "text-green-700", border: "border-green-200", dot: "bg-green-500" },
+    rejected: { bg: "bg-red-100", text: "text-red-700", border: "border-red-300", dot: "bg-red-500" },
+    suspended: { bg: "bg-gray-100", text: "text-gray-700", border: "border-gray-300", dot: "bg-gray-500" },
+    closed: { bg: "bg-slate-100", text: "text-slate-700", border: "border-slate-300", dot: "bg-slate-500" },
+  };
+
+  const getStatusStyles = (status?: string) => statusStyleMap[status ?? ""] ?? { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", dot: "bg-blue-500" };
   useEffect(() => {
     const fetchJobDetail = async () => {
       setIsLoading(true);
@@ -223,17 +233,22 @@ function JobDetailPage() {
                 alt={job?.clientDetail?.companyName || "Company"}
                 className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover border border-gray-200 bg-white shadow-sm"
               />
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap gap-2 mb-3">
                   <span className="text-xs sm:text-sm font-medium text-gray-700 bg-gray-100 px-3 py-1.5 rounded-lg">
                     {job?.category?.categoryName || "N/A"}
                   </span>
-                  <span className="text-xs sm:text-sm font-medium text-amber-700 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200 flex items-center">
-                    <span className="w-2 h-2 bg-amber-500 rounded-full mr-2 animate-pulse"></span>
-                    {job?.status === "pending_verification"
-                      ? "Pending Review"
-                      : job?.status.replace("_", " ")}
-                  </span>
+                  {(() => {
+                    const key = job?.status ?? "";
+                    const styles = getStatusStyles(key);
+                    const label = key === "pending_verification" ? "Pending Review" : (key || "").replace(/_/g, " ");
+                    return (
+                      <span className={`text-xs sm:text-sm font-medium ${styles.text} ${styles.bg} px-3 py-1.5 rounded-lg border ${styles.border} flex items-center`}>
+                        <span className={`w-2 h-2 ${styles.dot} rounded-full mr-2 animate-pulse`} />
+                        {label}
+                      </span>
+                    );
+                  })()}
                 </div>
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
                   {job?.jobTitle}
@@ -290,7 +305,7 @@ function JobDetailPage() {
 
         {activeTab === "details" ? (
           <div className="flex flex-col lg:flex-row gap-6">
-            <div className="flex-1 space-y-6">
+            <div className="flex-1 space-y-6 min-w-0">
               {/* Rejection / Suspension Reason */}
               {(job?.status === "rejected" || job?.status === "suspended") && (
                 <div className="mb-4">
@@ -311,16 +326,19 @@ function JobDetailPage() {
                   </span>
                 </div>
               )}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4 pb-3 border-b border-gray-100">
-                  Job Description
-                </h2>
-                <p
-                  className="text-gray-700 leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: job?.jobDescription as string }}
-                ></p>
-              </div>
-
+              
+                          {/* Description Card */}
+                          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 ">
+                            <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                           
+                              Job Description
+                            </h2>
+                            <div className="prose max-w-none text-gray-700 whitespace-pre-line leading-relaxed break-words break-all min-w-0"
+                              dangerouslySetInnerHTML={{ __html: job?.jobDescription as string }}>
+                            </div>
+              
+                          
+                          </div>
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <SkillsList
                   skills={job?.skills}

@@ -15,6 +15,9 @@ import {
 } from "react-icons/fa";
 import { useParams } from "next/navigation";
 import { clientActionApi } from "@/api/action/ClientActionApi";
+import toast from "react-hot-toast";
+import debounce from 'lodash/debounce';
+import { FaSpinner } from 'react-icons/fa';
 
 const FreelancerProfile = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -46,6 +49,8 @@ const FreelancerProfile = () => {
 
   const [isPortfolioModalOpen, setIsPortfolioModalOpen] = useState(false);
   const [selectedPortfolio, setSelectedPortfolio] = useState<IPortfolio | null>(null);
+  const [saved, setSaved] = useState<boolean>(false);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
 
   useEffect(() => {
     // Simple, robust fetch that tolerates multiple API shapes
@@ -128,6 +133,49 @@ const FreelancerProfile = () => {
     if (freelancerId) load();
   }, [freelancerId]);
 
+  useEffect(() => {
+    let active = true;
+    async function checkSaved() {
+      if (!freelancerId) return;
+      try {
+        const resp = await clientActionApi.isFreelancerSaved(freelancerId as string);
+        if (!active) return;
+        if (resp && resp.success && resp.data) {
+          setSaved(Boolean(resp.data.saved));
+        }
+      } catch (err) {
+        // ignore
+      }
+    }
+    checkSaved();
+    return () => { active = false };
+  }, [freelancerId]);
+
+  // Debounced toggle to avoid rapid repeated clicks
+  const doToggleSave = async (nextState: boolean) => {
+    if (!freelancerId) return;
+    setIsSaving(true);
+    try {
+      const resp = await clientActionApi.toggleSaveFreelancer(freelancerId as string);
+      if (resp && resp.success && resp.data) {
+        setSaved(Boolean(resp.data.saved));
+        toast.success(resp.data.saved ? 'Freelancer saved' : 'Freelancer removed from saved');
+      } else {
+        // revert optimistic state
+        setSaved(!nextState);
+        toast.error('Failed to update saved state');
+      }
+    } catch (err) {
+      setSaved(!nextState);
+      toast.error('Failed to update saved state');
+    }
+    setIsSaving(false);
+  };
+
+  const debouncedToggle = debounce((next: boolean) => {
+    void doToggleSave(next);
+  }, 600);
+
   function handleOpenPortfolioModalFromItem(item: any, idx: number) {
     // Normalize an item into the IPortfolio shape expected by the modal
     const normalized: IPortfolio = {
@@ -187,6 +235,23 @@ const FreelancerProfile = () => {
             <div className="flex flex-col gap-3 md:ml-auto">
               <button className="bg-[#108A00] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#0d7000] transition-colors shadow-sm">Hire Now</button>
               <button className="border-2 border-[#108A00] text-[#108A00] px-8 py-3 rounded-lg font-semibold hover:bg-[#108A00] hover:text-white transition-colors"><FaEnvelope className="inline mr-2" size={16} />Message</button>
+              <button
+                onClick={() => {
+                  // optimistic
+                  const next = !saved;
+                  setSaved(next);
+                  debouncedToggle(next);
+                }}
+                disabled={isSaving}
+                className={`${saved ? "bg-gray-800 text-white" : "bg-white text-gray-800 border border-gray-300"} px-6 py-2 rounded-lg font-semibold hover:opacity-90 transition-colors ${isSaving ? 'opacity-80 cursor-wait' : ''}`}
+              >
+                {isSaving ? (
+                  <span className="flex items-center gap-2">
+                    <FaSpinner className="animate-spin" />
+                    <span className="text-sm">Saving</span>
+                  </span>
+                ) : saved ? "Saved" : "Save Freelancer"}
+              </button>
             </div>
           </div>
         </div>
