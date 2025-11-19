@@ -1,6 +1,6 @@
 import React from "react";
 import AuthHeader from "@/components/common/AuthHeader";
-import AuthGuard from "@/components/AuthGaurd";
+import AuthGuard from "@/components/ClientAuthGaurd";
 
 type LayoutProps = {
   children: React.ReactNode;

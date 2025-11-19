@@ -1,6 +1,6 @@
 import { injectable, inject } from 'tsyringe';
-import { IUserCategoryServices } from './interfaces/i-user-category-services';
-import type { ICategoryRepository } from '../../repositories/interfaces/i-category-repository';
+import { IUserCategoryServices } from './interfaces/user-category-services.interface';
+import type { ICategoryRepository } from '../../repositories/interfaces/category-repository.interface';
 import { CategoryDtoMinimal } from '../../dto/category.dto';
 import { mapCategoryModelToCategoryDtoMinimal } from '../../mapper/category.mapper';
 

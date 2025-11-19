@@ -1,11 +1,11 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import { FaBuilding, FaCamera, FaGlobe, FaEdit } from "react-icons/fa";
-import { uploadToCloudinary } from "@/utils/cloudinary";
+import { uploadApi } from "@/api/uploadApi";
 import { clientActionApi } from "@/api/action/ClientActionApi";
 import toast from "react-hot-toast";
 import { ClientProfileData } from "@/types/interfaces/IClient";
-import { clientProfileSchema } from "@/utils/validation";
+import { clientProfileSchema } from "@/utils/validations/validation";
 import { z } from "zod";
 
 function ClientProfilePage() {
@@ -76,8 +76,10 @@ function ClientProfilePage() {
 
       try {
         setUploading(true);
-        const uploadedUrl = await uploadToCloudinary(file);
-        setLogo(uploadedUrl);
+        const uploaded = await uploadApi.uploadFile(file, {
+          folder: "users/profile_pictures",
+        });
+        setLogo(uploaded.url);
       } catch (err) {
         console.error("Upload failed:", err);
         alert("Failed to upload logo. Please try again.");
@@ -101,7 +103,7 @@ function ClientProfilePage() {
       if (profileData.description !== originalData.description)
         updatedFields.description = profileData.description;
       if (profileData.website !== originalData.website) updatedFields.website = profileData.website;
-      if (logo !== originalData.logo) updatedFields.logo = logo;
+  if (logo !== originalData.logo) updatedFields.logo = logo;
 
       if (Object.keys(updatedFields).length === 0) {
         toast("No changes to save");

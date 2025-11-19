@@ -1,6 +1,6 @@
 import { injectable, inject } from 'tsyringe';
-import { IUserSpecialityServices } from './interfaces/i-user-speciality-services';
-import type { ISpecialityRepository } from '../../repositories/interfaces/i-speciality-repository';
+import { IUserSpecialityServices } from './interfaces/user-speciality-services.interface';
+import type { ISpecialityRepository } from '../../repositories/interfaces/speciality-repository.interface';
 import { SpecialityDtoMinimal } from '../../dto/speciality.dto';
 import { mapSpecialityModelToSpecialityDtoMinimal } from '../../mapper/speciality.mapper';
 

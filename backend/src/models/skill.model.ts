@@ -1,5 +1,5 @@
 import mongoose, { Model, Schema, Types } from 'mongoose';
-import { ISkill } from './interfaces/i-skill.model';
+import { ISkill } from './interfaces/skill.model.interface';
 
 const skillSchema = new Schema<ISkill>(
   {

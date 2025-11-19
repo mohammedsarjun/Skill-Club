@@ -3,10 +3,13 @@ export interface UserDto {
   roles: string[];
   activeRole: string;
   isOnboardingCompleted: boolean;
+  isFreelancerOnboarded: boolean;
+  isClientOnboarded: boolean;
   clientProfile?: string | undefined;
   freelancerProfile?: string | undefined;
   isFreelancerBlocked: boolean;
   isClientBlocked: boolean;
+  preferredCurrency?: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
 }
 
 export interface UserProfileDto {

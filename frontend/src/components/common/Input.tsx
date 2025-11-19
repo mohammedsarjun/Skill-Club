@@ -1,19 +1,5 @@
 import React, { useState } from "react";
-
-type InputProps = {
-  type?: string;                   
-  placeholder?: string;
-  value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  fullWidth?: boolean;
-  rounded?: boolean;
-  className?: string;
-  error?: string|number;
-  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void
-  name?: string;
-  hidden?:boolean
-  disabled?:boolean
-};
+import { InputProps } from '@/types/interfaces/ui';
 
 export default function Input({
   type = "text",

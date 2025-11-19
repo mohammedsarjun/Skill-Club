@@ -1,8 +1,8 @@
 import { injectable, inject } from 'tsyringe';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
-import { IAdminSkillServices } from './interfaces/i-admin-skill-services';
-import type { IAdminSkillRepository } from '../../repositories/adminRepositories/interfaces/i-admin-skill-repository';
+import { IAdminSkillServices } from './interfaces/admin-skill-services.interface';
+import type { IAdminSkillRepository } from '../../repositories/adminRepositories/interfaces/admin-skill-repository.interface';
 import {
   mapCreateSkillDtoToSkillModel,
   mapSkillModelToAddSkillDto,
@@ -79,9 +79,7 @@ export class AdminSkillServices implements IAdminSkillServices {
       },
     )) as ISkillWithPopulatedSpecialities[] | null;
 
-    const total = await this._adminSkillRepository.count({
-      name: filterDataDto.search || '',
-    });
+    const total = await this._adminSkillRepository.countAllSkills();
 
     // Map to DTO
 

@@ -17,3 +17,14 @@ export const uploadToCloudinary = async (file: File, folder = "users/profile_pic
   const data = await res.json();
   return data.secure_url as string;
 };
+
+// New helper (non-breaking) to upload multiple files sequentially.
+// Returns array of secure URLs in same order. Existing single-file function kept intact.
+export const uploadFilesToCloudinary = async (files: File[], folder = "users/profile_pictures") => {
+  const results: string[] = [];
+  for (const f of files) {
+    const url = await uploadToCloudinary(f, folder);
+    results.push(url);
+  }
+  return results;
+};

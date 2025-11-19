@@ -1,4 +1,4 @@
-import { IExperience, ILanguage, IUser } from '../models/interfaces/i-user.model';
+import { IExperience, ILanguage, IUser } from '../models/interfaces/user.model.interface';
 import {
   ExperienceDTO,
   EducationDTO,
@@ -53,7 +53,7 @@ export const mapFreelancerToDTO = (user: Partial<FreelancerUser>): FetchFreelanc
     languages: user?.freelancerProfile?.languages?.map(mapLanguageToDTO) || [],
     bio: user?.freelancerProfile?.bio || '',
     hourlyRate: user?.freelancerProfile?.hourlyRate || 0,
-    portfolio: null, // as per your DTO definition
+    portfolio: null,
   };
 };
 

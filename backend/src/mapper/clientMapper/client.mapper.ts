@@ -1,5 +1,5 @@
 import { GetClientDTO, UpdateClientDto } from '../../dto/clientDTO/client.dto';
-import { IClientProfile } from '../../models/interfaces/i-user.model';
+import { IClientProfile } from '../../models/interfaces/user.model.interface';
 
 export const mapClientToDTO = (clientData: IClientProfile): GetClientDTO => {
   return {

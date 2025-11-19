@@ -1,6 +1,6 @@
 import { injectable, inject } from 'tsyringe';
-import { IUserServices } from './interfaces/i-user-services';
-import type { IUserRepository } from '../../repositories/interfaces/i-user-repository';
+import { IUserServices } from './interfaces/user-services.interface';
+import type { IUserRepository } from '../../repositories/interfaces/user-repository.interface';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
 import {
@@ -20,12 +20,13 @@ import {
   UserDto,
   UserProfileDto,
 } from '../../dto/user.dto';
-import { IUser } from '../../models/interfaces/i-user.model';
+import { IUser } from '../../models/interfaces/user.model.interface';
 import { ERROR_MESSAGES } from '../../contants/error-constants';
 import { mapActionVerificationToCreateActionVerification } from '../../mapper/action-verification.mapper';
-import type { IActionVerificationRepository } from '../../repositories/interfaces/i-action-verification-repository';
+import type { IActionVerificationRepository } from '../../repositories/interfaces/action-verification-repository.interface';
 import { userProfileSchema } from '../../utils/validationSchemas/validations';
 import { validateData } from '../../utils/validation';
+import { SUPPORTED_CURRENCIES, SupportedCurrency } from '../../contants/currency.constants';
 
 @injectable()
 export class userServices implements IUserServices {
@@ -86,6 +87,27 @@ export class userServices implements IUserServices {
     }
 
     try {
+      type FreelancerPayload = Partial<IUser> & { preferredCurrency?: string; currency?: string };
+      const payload = freelancerData as FreelancerPayload;
+      const currencyFromPayload =
+        payload.preferredCurrency ||
+        payload.currency ||
+        payload.freelancerProfile?.hourlyRateCurrency ||
+        'USD';
+
+      const { getUsdRateFor } = await import('../../utils/currency.util');
+      const rateToUSD = await getUsdRateFor(currencyFromPayload as SupportedCurrency);
+
+      dto.preferredCurrency = currencyFromPayload as SupportedCurrency;
+      if (!dto.freelancerProfile) dto.freelancerProfile = {} as IUser['freelancerProfile'];
+      dto.freelancerProfile!.hourlyRateCurrency = currencyFromPayload as SupportedCurrency;
+
+      const hr = dto.freelancerProfile?.hourlyRate;
+      if (typeof hr === 'number' && !isNaN(hr)) {
+        dto.freelancerProfile!.hourlyRateConversionRate = rateToUSD;
+        dto.freelancerProfile!.hourlyRateBaseUSD = Number((hr * rateToUSD).toFixed(2));
+      }
+
       const updatedUser = await this._userRepository.createFreelancerProfile(id, dto);
       if (!updatedUser) {
         throw new AppError(ERROR_MESSAGES.USER.NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -218,5 +240,29 @@ export class userServices implements IUserServices {
       console.log(error);
       throw new AppError(ERROR_MESSAGES.FREELANCER.FAILED_CREATE, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  async updatePreferredCurrency(
+    userId: string,
+    preferredCurrency: (typeof SUPPORTED_CURRENCIES)[number],
+  ): Promise<UserDto> {
+    const user = await this._userRepository.findById(userId);
+    if (!user) {
+      throw new AppError(ERROR_MESSAGES.USER.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+
+    if (!SUPPORTED_CURRENCIES.includes(preferredCurrency)) {
+      throw new AppError('Unsupported currency', HttpStatus.BAD_REQUEST);
+    }
+
+    const updated = await this._userRepository.updateById(userId, {
+      preferredCurrency,
+    });
+
+    if (!updated) {
+      throw new AppError('Failed to update currency', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    return mapUserModelToUserDto(updated);
   }
 }

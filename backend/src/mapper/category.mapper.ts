@@ -6,7 +6,7 @@ import {
   CategoryDtoMinimal,
   CategoryQueryParams,
 } from '../dto/category.dto.js';
-import { ICategory } from '../models/interfaces/i-category.model';
+import { ICategory } from '../models/interfaces/category.model.interface.js';
 
 export const mapCreateCategoryDtoToCategoryModel = (
   dto: CreateCategoryDTO,

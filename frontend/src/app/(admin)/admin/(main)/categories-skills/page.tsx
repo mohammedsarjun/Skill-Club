@@ -10,7 +10,7 @@ import {
   categorySchema,
   skillSchema,
   specialitySchema,
-} from "@/utils/validation";
+} from "@/utils/validations/validation";
 import { debounce } from "lodash";
 
 
@@ -76,6 +76,7 @@ const DynamicManagementPage: React.FC = () => {
   >("categories");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
+  const [totalCount, setTotalCount] = useState<number | undefined>(undefined);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Record<string, any>>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -98,6 +99,11 @@ const DynamicManagementPage: React.FC = () => {
           );
           if (response.success) {
             setCategoriesData(response.data.data);
+
+            // detect server-provided total count (try common fields)
+            const total = response.data.total ?? response.data.count ?? response.data.totalCount ?? response.data.meta?.total ?? response.data.pagination?.total;
+            if (typeof total === "number") setTotalCount(total);
+            else setTotalCount(response.data.data?.length ?? undefined);
           } else {
             toast.error(response.message);
           }
@@ -127,6 +133,12 @@ const DynamicManagementPage: React.FC = () => {
 
           if (response.success) {
             setSpecialtiesData(response.data.data);
+
+
+            
+            const total = response.data.total ?? response.data.count ?? response.data.totalCount ?? response.data.meta?.total ?? response.data.pagination?.total;
+            if (typeof total === "number") setTotalCount(total);
+            else setTotalCount(response.data.data?.length ?? undefined);
           } else {
             toast.error(response.message);
           }
@@ -138,6 +150,9 @@ const DynamicManagementPage: React.FC = () => {
           const response = await AdminActionApi.getSkills(search, page, limit);
           if (response.success) {
             setSkillsData(response.data.data);
+            const total = response.data.total ?? response.data.count ?? response.data.totalCount ?? response.data.meta?.total ?? response.data.pagination?.total;
+            if (typeof total === "number") setTotalCount(total);
+            else setTotalCount(response.data.data?.length ?? undefined);
           } else {
             toast.error(response.message);
           }
@@ -410,7 +425,10 @@ const DynamicManagementPage: React.FC = () => {
                 }
               `}
               onClick={() =>
-                setActiveTab(tab as "categories" | "specialties" | "skills")
+                {
+                  setActiveTab(tab as "categories" | "specialties" | "skills");
+                  setPage(1); // reset page to 1 whenever the active tab changes
+                }
               }
             >
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -437,7 +455,9 @@ const DynamicManagementPage: React.FC = () => {
         formFields={formFields}
         handleOpenModal={handleOpenModal}
         page={page}
-        setPage={setPage}
+  setPage={setPage}
+  pageSize={limit}
+  totalCount={totalCount}
         search={search}
         setSearch={debouncedSetSearch}
         canDelete={canDeleteRow}

@@ -5,11 +5,10 @@ import Button from "@/components/common/Button";
 import { authApi } from "@/api/authApi";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import AuthGuard from "@/components/AuthGaurd";
+import AuthGuard from "@/components/ClientAuthGaurd";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/store/slices/authSlice";
 import { userApi } from "@/api/userApi";
-
 
 function OtpPage() {
   const [timeLeft, setTimeLeft] = useState<number>(0);
@@ -19,7 +18,7 @@ function OtpPage() {
   const route = useRouter();
   const inputRefs = useRef<HTMLInputElement[]>([]);
   const [triggerTimer, setTriggerTimer] = useState<number>(0); // trigger effect when resend
-  const dispatch=useDispatch()
+  const dispatch = useDispatch();
   // Timer effect
   useEffect(() => {
     const expiry = sessionStorage.getItem("otpExpiry");
@@ -59,7 +58,10 @@ function OtpPage() {
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    index: number
+  ) => {
     if (e.key === "Backspace" && otp[index] === "" && index > 0) {
       inputRefs.current[index - 1].focus();
     }
@@ -73,36 +75,37 @@ function OtpPage() {
 
     const otpValue = otp.join("");
     const email = sessionStorage.getItem("otpEmail");
-    const userId=sessionStorage.getItem("userId")
-  
-    const response = await authApi.verifyOtp(email!, otpValue,userId!);
+    const userId = sessionStorage.getItem("userId");
 
-try {
-  if (!response.success) {
-    return toast.error(response.message);
-  }
+    const response = await authApi.verifyOtp(email!, otpValue, userId!);
 
-  toast.success(response.message);
+    try {
+      if (!response.success) {
+        return toast.error(response.message);
+      }
 
-  const { purpose } = response.data;
+      toast.success(response.message);
 
-  if (purpose === "signup") {
-    const hydrateStateResponse = await userApi.me();
+      const { purpose } = response.data;
 
-    if (!hydrateStateResponse.success) {
-      return toast.error(hydrateStateResponse.message);
+      if (purpose === "signup") {
+        const hydrateStateResponse = await userApi.me();
+
+        if (!hydrateStateResponse.success) {
+          return toast.error(hydrateStateResponse.message);
+        }
+
+        localStorage.setItem("user", JSON.stringify(hydrateStateResponse.data));
+
+        dispatch(setUser(hydrateStateResponse.data));
+        route.push("/onboarding/role");
+      } else if (purpose === "forgotPassword") {
+        route.push("/auth/change-password");
+      }
+    } catch (error: unknown) {
+      console.error("An error occurred:", error);
+      toast.error("Something went wrong. Please try again.");
     }
-
-    dispatch(setUser(hydrateStateResponse.data));
-    route.push("/onboarding/role");
-  } else if (purpose === "forgotPassword") {
-    route.push("/auth/change-password");
-  }
-} catch (error: unknown) {
-  console.error("An error occurred:", error);
-  toast.error("Something went wrong. Please try again.");
-}
-
   };
 
   const handleResend = async () => {
@@ -117,7 +120,7 @@ try {
         toast.success(response.message);
 
         // restart timer
-        setTriggerTimer(prev => prev + 1);
+        setTriggerTimer((prev) => prev + 1);
       } else {
         toast.error(response.message);
       }
@@ -166,7 +169,8 @@ try {
 
           {timeLeft > 0 ? (
             <p className="text-gray-500 text-sm">
-              OTP expires in: <span className="font-semibold">{formatTime(timeLeft)}</span>
+              OTP expires in:{" "}
+              <span className="font-semibold">{formatTime(timeLeft)}</span>
             </p>
           ) : (
             <p style={{ color: "red" }}>OTP expired. Please resend.</p>
@@ -178,7 +182,9 @@ try {
             onClick={handleSubmit}
             disabled={timeLeft === 0}
             className={`mx-auto px-8 py-3 text-lg rounded-md text-white transition-colors ${
-              timeLeft === 0 ? "bg-gray-400 cursor-not-allowed" : "bg-primary hover:bg-primary-dark"
+              timeLeft === 0
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-primary hover:bg-primary-dark"
             }`}
           />
 
@@ -198,9 +204,5 @@ try {
 }
 
 export default function Otp() {
-  return (
-
-      <OtpPage />
-
-  );
+  return <OtpPage />;
 }

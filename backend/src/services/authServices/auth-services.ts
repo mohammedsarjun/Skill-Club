@@ -1,9 +1,12 @@
-import type { IAuthService } from './interfaces/i-auth-services';
-import type { IUserRepository } from '../../repositories/interfaces/i-user-repository';
+import type { IAuthService } from './interfaces/auth-services.interface';
+import type { IUserRepository } from '../../repositories/interfaces/user-repository.interface';
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { CreateUserDTO, GetUserDto, LoginUserDto } from '../../dto/authDTO/auth.dto';
-import { mapCreateUserDtoToUserModel } from '../../mapper/authMapper/auth.mapper';
+import {
+  mapCreateUserDtoToUserModel,
+  mapUserModelToGetUserDto,
+} from '../../mapper/authMapper/auth.mapper';
 import bcrypt from 'bcryptjs';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
@@ -12,8 +15,8 @@ import { mapUserModelToUserDto, mapUserModelToUserProfileDto } from '../../mappe
 import { genRandom } from '../../utils/crypto-generator';
 import sendEmailOtp from '../../utils/send-otp';
 import { ERROR_MESSAGES } from '../../contants/error-constants';
-import { IActionVerificationRepository } from '../../repositories/interfaces/i-action-verification-repository';
-import { IOtpServices } from './interfaces/i-otp-services';
+import { IActionVerificationRepository } from '../../repositories/interfaces/action-verification-repository.interface';
+import { IOtpServices } from './interfaces/i-otp-services.interface';
 
 import { mapChangeEmailRequestToActionVerification } from '../../mapper/action-verification.mapper';
 
@@ -61,13 +64,11 @@ export class AuthService implements IAuthService {
       user = await this._userRepository.create(dto);
     }
 
-    return {
-      id: user!._id.toString(),
-      firstName: user!.firstName,
-      lastName: user!.lastName,
-      email: user!.email,
-      phone: user!.phone!,
-    };
+    if (!user) {
+      throw new AppError('Failed to create or update user', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    return mapUserModelToGetUserDto(user);
   }
 
   async login(userData: LoginUserDto): Promise<UserDto> {
@@ -209,7 +210,7 @@ export class AuthService implements IAuthService {
     await this._otpService.verifyOtp(newEmail as string, otp);
     const user = await this._userRepository.updateEmail(userId, newEmail as string);
     await this._actionVerificationRepository.changeActionVerificationStatus(userId, 'completed');
-    return user ? mapUserModelToUserProfileDto(user) : user;
+    return user ? mapUserModelToUserProfileDto(user) : null;
   }
 
   async resendChangeEmailOtp(userId: string): Promise<{ expiresAt: Date }> {

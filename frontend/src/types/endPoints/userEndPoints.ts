@@ -8,7 +8,8 @@ const userRoutes = {
     me:"/user/me",
     createFreelancerProfile:"/user/freelancer",
     createClientProfile:"/user/client",
-    switchRole:"/user/switch-role"
+    switchRole:"/user/switch-role",
+    updatePreferredCurrency: "/user/preferences/currency",
 }
 
 export default userRoutes

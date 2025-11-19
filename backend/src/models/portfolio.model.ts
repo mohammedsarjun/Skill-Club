@@ -1,5 +1,5 @@
 import mongoose, { Model, Schema } from 'mongoose';
-import { IPortfolio } from './interfaces/i-portfolio.model';
+import { IPortfolio } from './interfaces/portfolio.model.interface';
 
 const portfolioSchema = new Schema<IPortfolio>(
   {

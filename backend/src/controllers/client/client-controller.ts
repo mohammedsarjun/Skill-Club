@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { HttpStatus } from '../../enums/http-status.enum';
-import { IClientController } from './interfaces/i-client-controller';
-import type { IClientService } from '../../services/clientServices/interfaces/i-client-services';
+import { IClientController } from './interfaces/client-controller.interface';
+import type { IClientService } from '../../services/clientServices/interfaces/client-services.interface';
 import { GetClientDTO } from '../../dto/clientDTO/client.dto';
 import { mapUpdateClientDtoToClientModel } from '../../mapper/clientMapper/client.mapper';
 

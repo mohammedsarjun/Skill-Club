@@ -8,9 +8,8 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { authApi } from "@/api/authApi";
 export default function GoogleLogin() {
-
-  const dispatch =useDispatch()
-  const route=useRouter()
+  const dispatch = useDispatch();
+  const route = useRouter();
   useEffect(() => {
     const interval = setInterval(() => {
       if (typeof window !== "undefined" && (window as any).google) {
@@ -39,16 +38,15 @@ export default function GoogleLogin() {
       // Send ID token to backend
       const res = await authApi.googleLogin(response.credential);
 
-      
-          if(res.success){
+      if (res.success) {
+       const user= localStorage.setItem("user", JSON.stringify(res.data));
         dispatch(setUser(res.data));
-        route.replace("/onboarding/role");
-          }else{
-            toast.error(response.message)
-          }
+        route.push("/client/profile");
+      } else {
+        toast.error(response.message);
+      }
 
-
-      localStorage.setItem("token", res.data.token); // store JWT for SPA
+      // localStorage.setItem("token", res.data.token); // store JWT for SPA
     } catch (err) {
       console.error(err);
     }

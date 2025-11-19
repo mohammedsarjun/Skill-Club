@@ -1,7 +1,8 @@
 import 'reflect-metadata';
+import dotenv from 'dotenv';
+dotenv.config();
 import express from 'express';
 import { connectDB } from './config/db';
-import dotenv from 'dotenv';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { errorHandler } from './middlewares/error-handlers-middleware';
@@ -12,9 +13,10 @@ import adminRouter from './routes/admin-router';
 import userRouter from './routes/user-router';
 import freelancerRouter from './routes/freelancer-router';
 import clientRouter from './routes/client-router';
+import uploadRouter from './routes/upload-router';
 import morgan from 'morgan';
 import { appLogger, accessLogStream } from './utils/logger';
-dotenv.config();
+import currencyRouter from './routes/currency-router';
 const PORT = process.env.PORT;
 
 connectDB();
@@ -47,6 +49,10 @@ app.use('/api/user', userRouter);
 app.use('/api/freelancer', freelancerRouter);
 
 app.use('/api/client', clientRouter);
+
+app.use('/api/uploads', uploadRouter);
+
+app.use('/api/currency', currencyRouter);
 
 app.use(errorHandler);
 

@@ -1,8 +1,8 @@
 import { injectable, inject } from 'tsyringe';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
-import { IAdminUserServices } from './interfaces/i-admin-user-services';
-import type { IUserRepository } from '../../repositories/interfaces/i-user-repository';
+import { IAdminUserServices } from './interfaces/admin-user-services.interface';
+import type { IUserRepository } from '../../repositories/interfaces/user-repository.interface';
 import {
   AdminUserDto,
   AdminUserStatsDto,
@@ -71,9 +71,7 @@ export class AdminUserServices implements IAdminUserServices {
       limit,
     });
 
-    const total = await this._userRepository.count({
-      name: filterData.search || '',
-    });
+    const total = await this._userRepository.countAllUsers();
 
     // Map to DTO
 

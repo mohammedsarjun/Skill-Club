@@ -5,6 +5,9 @@ export interface CreateUserDTO {
   phone: number;
   password: string;
   agreement: boolean;
+  timezone?: string;
+  preferredCurrency?: string;
+  country?: string;
 }
 
 export interface LoginUserDto {
@@ -19,4 +22,5 @@ export interface GetUserDto {
   lastName?: string;
   email?: string;
   phone?: number;
+  preferredCurrency?: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
 }

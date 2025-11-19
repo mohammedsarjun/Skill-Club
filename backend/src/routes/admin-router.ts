@@ -10,11 +10,13 @@ import { AdminAuthController } from '../controllers/admin/admin-auth-controller'
 import { AdminUserController } from '../controllers/admin/admin-user-controller';
 import { AdminSkillController } from '../controllers/admin/admin-skill-controller';
 import { skillSchema } from '../utils/validationSchemas/skill-validation';
+import { AdminJobController } from '../controllers/admin/admin-jobs-controller';
 
 const adminRouter = express.Router();
 
 const categoryController = container.resolve(AdminCategoryController);
 const adminAuthController = container.resolve(AdminAuthController);
+const adminJobController = container.resolve(AdminJobController);
 //auth
 adminRouter.post('/login', adminAuthController.login.bind(adminAuthController));
 adminRouter.get(
@@ -96,5 +98,49 @@ adminRouter.get('/user', adminUserController.getUserDetail.bind(adminUserControl
 adminRouter.patch(
   '/user/updateStatus',
   adminUserController.updateUserStatus.bind(adminUserController),
+);
+
+//jobs
+
+adminRouter.get(
+  '/jobs',
+  authMiddleware,
+  roleGuard('admin'),
+  adminJobController.getAllJobs.bind(adminJobController),
+);
+
+adminRouter.get(
+  '/jobs/:jobId',
+  authMiddleware,
+  roleGuard('admin'),
+  adminJobController.getJobDetail.bind(adminJobController),
+);
+
+adminRouter.patch(
+  '/jobs/:jobId/approve',
+  authMiddleware,
+  roleGuard('admin'),
+  adminJobController.approveJob.bind(adminJobController),
+);
+
+adminRouter.patch(
+  '/jobs/:jobId/reject',
+  authMiddleware,
+  roleGuard('admin'),
+  adminJobController.rejectJob.bind(adminJobController),
+);
+
+adminRouter.patch(
+  '/jobs/:jobId/reject',
+  authMiddleware,
+  roleGuard('admin'),
+  adminJobController.rejectJob.bind(adminJobController),
+);
+
+adminRouter.patch(
+  '/jobs/:jobId/suspend',
+  authMiddleware,
+  roleGuard('admin'),
+  adminJobController.suspendJob.bind(adminJobController),
 );
 export default adminRouter;

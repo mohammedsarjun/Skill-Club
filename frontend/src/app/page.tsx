@@ -12,7 +12,7 @@ import {
   FaTimes,
   FaCheckCircle,
 } from "react-icons/fa";
-import AuthGuard from "@/components/AuthGaurd";
+import AuthGuard from "@/components/ClientAuthGaurd";
 
 function SkillsClubLanding() {
   const router = useRouter();
@@ -22,7 +22,7 @@ function SkillsClubLanding() {
 
   const handleRedirectToSignup = () => {
     // LOGOUT USER
-    localStorage.removeItem("user"); // or any other logout logic
+    // localStorage.removeItem("user"); // or any other logout logic
     router.push("/signup");
   };
 
@@ -470,8 +470,7 @@ function SkillsClubLanding() {
 
 export default function SkillsClubLandingPage() {
   return (
-    <AuthGuard>
+
       <SkillsClubLanding />
-    </AuthGuard>
   );
 }

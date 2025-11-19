@@ -5,12 +5,13 @@ import {
   SkillDto,
   UpdateSkillDTO,
 } from '../../dto/adminDTO/skill.dto';
-import { ISkill } from '../../models/interfaces/i-skill.model';
+import { ISkill } from '../../models/interfaces/skill.model.interface';
 
-export const mapCreateSkillDtoToSkillModel = (dto: CreateSkillDTO): CreateSkillDTO => {
+export const mapCreateSkillDtoToSkillModel = (dto: Omit<CreateSkillDTO,"specialities">): CreateSkillDTO => {
+  console.log
   return {
     name: dto.name,
-    specialities: dto.specialities.map((id) => new Types.ObjectId(id)),
+    specialities: dto?.specialties?.map((id) => new Types.ObjectId(id))!,
     status: dto.status,
   };
 };

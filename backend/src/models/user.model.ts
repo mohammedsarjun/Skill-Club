@@ -5,7 +5,7 @@ import {
   IFreelancerProfile,
   IExperience,
   IEducation,
-} from './interfaces/i-user.model.js';
+} from './interfaces/user.model.interface.js';
 
 // ------------------- Schemas -------------------
 const addressSchema = new Schema<IAddress>({
@@ -60,6 +60,13 @@ const freelancerProfileSchema = new Schema<IFreelancerProfile>({
   languages: [languageSchema],
   bio: String,
   hourlyRate: Number,
+  hourlyRateCurrency: {
+    type: String,
+    enum: ['USD', 'EUR', 'GBP', 'INR', 'AUD', 'CAD', 'SGD', 'JPY'],
+    default: 'USD',
+  },
+  hourlyRateConversionRate: Number, // USD per 1 unit
+  hourlyRateBaseUSD: Number,
   portfolio: [],
 });
 
@@ -82,6 +89,12 @@ const userSchema = new Schema<IUser>(
     password: { type: String, required: false },
     avatar: { type: String },
     address: addressSchema,
+    preferredCurrency: {
+      type: String,
+      enum: ['USD', 'EUR', 'GBP', 'INR', 'AUD', 'CAD', 'SGD', 'JPY', 'AED', 'CHF'],
+      default: 'USD',
+    },
+    preferredTimezone: { type: String, default: 'UTC' },
     dob: Date,
     isVerified: { type: Boolean, default: false },
     isFreelancerBlocked: { type: Boolean, default: false },
@@ -91,6 +104,8 @@ const userSchema = new Schema<IUser>(
     freelancerProfile: freelancerProfileSchema,
     clientProfile: clientProfileSchema, // ✅ Added here
     isOnboardingCompleted: { type: Boolean, default: false },
+    isFreelancerOnboarded: { type: Boolean, default: false },
+    isClientOnboarded: { type: Boolean, default: false },
     resetPasswordToken: { type: String, default: undefined },
     resetPasswordExpires: { type: Date, default: undefined },
     provider: { type: String, enum: ['local', 'google'], default: 'local' },

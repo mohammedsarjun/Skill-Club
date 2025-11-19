@@ -3,7 +3,7 @@ import React from "react";
 
 
 type ButtonProps={
-  content:string, 
+  content?:string, 
   type:"button" | "submit" | "reset";
   onClick?: (e: React.FormEvent) => void;     
   color?:  "red" | "green" | "gray"; 

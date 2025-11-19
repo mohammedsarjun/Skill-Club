@@ -14,6 +14,11 @@ const userSpecialityController = container.resolve(UserSpecialityController);
 const userSkillController = container.resolve(UserSkillController);
 userRouter.post('/role', authMiddleware, userController.selectRole.bind(userController));
 userRouter.get('/me', authMiddleware, userController.me.bind(userController));
+userRouter.patch(
+  '/preferences/currency',
+  authMiddleware,
+  userController.updatePreferredCurrency.bind(userController),
+);
 userRouter.get('/profile', authMiddleware, userController.getProfile.bind(userController));
 userRouter.patch('/profile', authMiddleware, userController.updateProfile.bind(userController));
 userRouter.get('/address', authMiddleware, userController.getAddress.bind(userController));

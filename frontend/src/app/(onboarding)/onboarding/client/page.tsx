@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaUpload, FaGlobe, FaBuilding } from "react-icons/fa";
 import Button from "@/components/common/Button";
-import { uploadToCloudinary } from "@/utils/cloudinary"; // ✅ same util as profile page
+import { uploadApi } from "@/api/uploadApi"; // ✅ uses backend upload endpoint
 import { userApi } from "@/api/userApi";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -112,8 +112,10 @@ export default function ClientDetailsForm() {
 
       try {
         setUploading(true);
-        const uploadedUrl = await uploadToCloudinary(file);
-        setFormData((prev) => ({ ...prev, logo: uploadedUrl }));
+        const uploaded = await uploadApi.uploadFile(file, {
+          folder: "users/profile_pictures",
+        });
+        setFormData((prev) => ({ ...prev, logo: uploaded.url }));
       } catch (err) {
         console.error("Upload failed:", err);
         alert("Failed to upload logo. Please try again.");
@@ -137,8 +139,21 @@ export default function ClientDetailsForm() {
 
       if (response.success) {
         const roleSelectionResponse = await userApi.roleSelection("client");
-        dispatch(setUser(roleSelectionResponse.data));
-        router.push("/client/profile");
+        
+        if (roleSelectionResponse.success && roleSelectionResponse.data) {
+          // Update Redux
+          dispatch(setUser(roleSelectionResponse.data));
+          
+          // Update localStorage to persist the onboarding status
+          localStorage.setItem("user", JSON.stringify(roleSelectionResponse.data));
+          
+          // Small delay to ensure state is updated before redirect
+          setTimeout(() => {
+            router.push("/client/profile");
+          }, 100);
+        } else {
+          toast.error(roleSelectionResponse.message || "Failed to complete onboarding");
+        }
       } else {
         toast.error(response.message);
       }

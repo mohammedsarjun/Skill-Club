@@ -9,8 +9,8 @@ import {
   SpecialityEntity,
   UpdateSpecialityDTO,
 } from '../../dto/speciality.dto';
-import { IAdminSpecialityServices } from './interfaces/i-admin-speciality-services';
-import type { IAdminSpecialityRepository } from '../../repositories/adminRepositories/interfaces/i-admin-speciality-repository';
+import { IAdminSpecialityServices } from './interfaces/admin-speciality-services.interface';
+import type { IAdminSpecialityRepository } from '../../repositories/adminRepositories/interfaces/admin-speciality-repository.interface';
 import {
   mapCreateSpecialityDtoToSpecialityModel,
   mapSpecialityModelToSpecialityDto,
@@ -31,7 +31,7 @@ export class AdminSpecialityServices implements IAdminSpecialityServices {
 
   async addSpeciality(specialityData: CreateSpecialityDTO): Promise<SpecialityDto> {
     const specialityDataDto = mapCreateSpecialityDtoToSpecialityModel(specialityData);
-  
+
     const existing = await this._adminSpecialityRepository.findOne({
       name: specialityDataDto.name,
     });
@@ -75,9 +75,7 @@ export class AdminSpecialityServices implements IAdminSpecialityServices {
       },
     )) as SpecialityEntity[] | null;
 
-    const total = await this._adminSpecialityRepository.count({
-      name: filterData.search || '',
-    });
+    const total = await this._adminSpecialityRepository.countTotalSpecialities();
 
     // Map to DTO
 

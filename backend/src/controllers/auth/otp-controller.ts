@@ -1,9 +1,9 @@
 import { inject, injectable } from 'tsyringe';
-import { IOtpController } from './interfaces/i-otp-controller';
+import { IOtpController } from './interfaces/otp-controller.interface';
 import { Request, Response } from 'express';
-import type { IOtpServices } from '../../services/authServices/interfaces/i-otp-services';
+import type { IOtpServices } from '../../services/authServices/interfaces/i-otp-services.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
-import type { IUserServices } from '../../services/userServices/interfaces/i-user-services';
+import type { IUserServices } from '../../services/userServices/interfaces/user-services.interface';
 import { jwtService } from '../../utils/jwt';
 import { jwtConfig } from '../../config/jwt.config';
 

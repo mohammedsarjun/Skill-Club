@@ -11,3 +11,18 @@ export interface IPortfolio {
   createdAt: Date,        // Auto-generated
   updatedAt: Date         // Auto-updated
 }
+
+export interface IFreelancerQueryParams {
+  search: string;
+  minHourlyRate: number;
+  maxHourlyRate: number;
+  location: string;
+  categoryId: string;
+  specialityId: string;
+  skillIds: string[];
+  jobSuccessRate: number;
+  languages: string[];
+  page: number;
+  limit: number;
+}
+

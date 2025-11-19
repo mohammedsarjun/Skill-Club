@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
 import Image from "next/image";
-import { passwordSchema } from "@/utils/validation"; // make sure you have a password schema
+import { passwordSchema } from "@/utils/validations/validation"; // make sure you have a password schema
 import { authApi } from "@/api/authApi"; // make sure you have resetPassword API
 import toast from "react-hot-toast";
 

@@ -5,45 +5,7 @@ import Button from "./Button";
 import { ZodSchema, ZodError } from "zod";
 import React from "react";
 import { detectArrayType } from "@/utils/arrayUtils";
-
-type FieldType =
-  | "text"
-  | "number"
-  | "textarea"
-  | "checkbox"
-  | "select"
-  | "password";
-
-interface SelectOption {
-  label: string | number;
-  value: string | number;
-  checked?: boolean;
-}
-
-interface Field {
-  name: string;
-  type: FieldType;
-  placeholder?: string;
-  label?: string;
-  options?: SelectOption[];
-  hidden?: boolean;
-  group?: string; // ✅ for side-by-side fields
-  hideOnCheck?: {
-    field: string; // the checkbox field name
-    value?: any; // optional value (if multiple options)
-  };
-}
-
-interface DynamicFormProps {
-  fields: Field[] | undefined;
-  initialValues?: Record<string, any>;
-  onSubmit: (data: any, mode: string) => void;
-  mode?: "create" | "update";
-  onClose: () => void;
-  validationSchema?: ZodSchema | null;
-  title?: string;
-  layout?: "vertical" | "horizontal"; // ✅ NEW prop
-}
+import { Field, DynamicFormProps } from '@/types/interfaces/forms';
 
 const DynamicFormModal: React.FC<DynamicFormProps> = ({
   fields = [],
@@ -54,6 +16,7 @@ const DynamicFormModal: React.FC<DynamicFormProps> = ({
   title,
   validationSchema,
   layout = "vertical", // ✅ default
+  submitContent,
 }) => {
   const [formData, setFormData] = useState<Record<string, any>>({
     ...initialValues,
@@ -186,6 +149,8 @@ const DynamicFormModal: React.FC<DynamicFormProps> = ({
                 switch (field.type) {
                   case "text":
                   case "number":
+                  case "date":
+                  case "datetime-local":
                     return (
                       <div key={field.name} className="flex-1">
                         <p className="text-black">{field.label}</p>
@@ -292,6 +257,34 @@ const DynamicFormModal: React.FC<DynamicFormProps> = ({
                       </div>
                     );
 
+                  case "radio":
+                    return (
+                      <div key={field.name} className="flex-1 space-y-1">
+                        <p className="text-black">{field.label}</p>
+                        {field.options?.map((opt) => (
+                          <label
+                            key={opt.value}
+                            className="flex items-center space-x-2 text-black"
+                          >
+                            <input
+                              type="radio"
+                              name={field.name}
+                              value={opt.value}
+                              checked={formData[field.name] === opt.value}
+                              onChange={handleChange}
+                              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                            />
+                            <span>{opt.label}</span>
+                          </label>
+                        ))}
+                        {errors[field.name] && (
+                          <p className="text-red-500 text-sm">
+                            {errors[field.name]}
+                          </p>
+                        )}
+                      </div>
+                    );
+
                   case "select":
                     return (
                       <div key={field.name} className="flex-1">
@@ -329,7 +322,7 @@ const DynamicFormModal: React.FC<DynamicFormProps> = ({
           <div className={`${layout === "horizontal" ? "col-span-2" : ""}`}>
             <Button
               className="w-full"
-              content={mode === "create" ? "Create" : "Update"}
+              content={submitContent ?? (mode === "create" ? "Create" : "Update")}
               type="submit"
             />
           </div>

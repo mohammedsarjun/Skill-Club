@@ -1,5 +1,5 @@
 import { CreateGoogleUserDTO } from '../../dto/authDTO/google-auth.dto';
-import { IUser } from '../../models/interfaces/i-user.model';
+import { IUser } from '../../models/interfaces/user.model.interface';
 
 export const mapCreateGoogleUserDtoToUserModel = (
   dto: CreateGoogleUserDTO,

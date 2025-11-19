@@ -1,8 +1,8 @@
 import BaseRepository from './baseRepositories/base-repository';
 
-import { ICategoryRepository } from './interfaces/i-category-repository';
+import { ICategoryRepository } from './interfaces/category-repository.interface';
 import { categoryModel } from '../models/category.model';
-import { ICategory } from '../models/interfaces/i-category.model';
+import { ICategory } from '../models/interfaces/category.model.interface';
 
 export class CategoryRepository extends BaseRepository<ICategory> implements ICategoryRepository {
   constructor() {
@@ -10,6 +10,10 @@ export class CategoryRepository extends BaseRepository<ICategory> implements ICa
   }
 
   getCategories(): Promise<ICategory[] | null> {
-    return this.model.find();
+    return super.findAll();
+  }
+
+  async getCategory(categoryId: string): Promise<ICategory | null> {
+    return this.findById(categoryId);
   }
 }

@@ -11,48 +11,14 @@ import {
   FaVideo,
 } from "react-icons/fa";
 import { z } from "zod";
-import { portfolioSchema } from "@/utils/validation";
+import { portfolioSchema } from "@/utils/validations/validation";
 import { freelancerActionApi } from "@/api/action/FreelancerActionApi";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { showLoading, hideLoading } from "@/store/slices/loadingSlice";
-// ✅ Cloudinary upload helper
- const uploadToCloudinary = async (
-  file: File,
-  folder = "portfolio_uploads"
-) => {
-  if (!file) throw new Error("No file provided");
 
-  const uploadPreset = process.env.NEXT_PUBLIC_UPLOAD_PRESET;
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-
-  if (!uploadPreset) throw new Error("Cloudinary upload preset is missing");
-  if (!cloudName) throw new Error("Cloudinary cloud name is missing");
-
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("upload_preset", uploadPreset);
-  formData.append("folder", folder);
-
-  // detect video upload
-  const endpoint = file.type.startsWith("video/")
-    ? `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`
-    : `https://api.cloudinary.com/v1_1/${cloudName}/upload`;
-
-  const res = await fetch(endpoint, {
-    method: "POST",
-    body: formData,
-  });
-
-  if (!res.ok) {
-    const error = await res.text();
-    throw new Error(`Cloudinary upload failed: ${error}`);
-  }
-
-  const data = await res.json();
-  return data.secure_url as string;
-};
+import { uploadApi } from "@/api/uploadApi";
 
 // ----------------------------------------
 
@@ -205,14 +171,21 @@ export default function PortfolioCreator() {
       const imageUrls: string[] = [];
       for (const img of formData.images) {
         if (img) {
-          const uploaded = await uploadToCloudinary(img, "portfolio/images");
-          imageUrls.push(uploaded);
+          const uploaded = await uploadApi.uploadFile(img, {
+            folder: "portfolio/images",
+            resourceType: "auto",
+          });
+          imageUrls.push(uploaded.url);
         }
       }
 
       let videoUrl = "";
       if (formData.video) {
-        videoUrl = await uploadToCloudinary(formData.video, "portfolio/videos");
+        const uploadedVideo = await uploadApi.uploadFile(formData.video, {
+          folder: "portfolio/videos",
+          resourceType: "auto",
+        });
+        videoUrl = uploadedVideo.url;
       }
 
       // ✅ Prepare data for API

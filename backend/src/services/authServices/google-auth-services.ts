@@ -1,8 +1,8 @@
 // services/GoogleAuthService.ts
 import { OAuth2Client } from 'google-auth-library';
-import { IGoogleAuthService } from './interfaces/i-google-auth-services';
+import { IGoogleAuthService } from './interfaces/google-auth-services.interface';
 import { inject, injectable } from 'tsyringe';
-import type { IUserRepository } from '../../repositories/interfaces/i-user-repository';
+import type { IUserRepository } from '../../repositories/interfaces/user-repository.interface';
 import { mapCreateGoogleUserDtoToUserModel } from '../../mapper/authMapper/google-auth.mapper';
 import { mapUserModelToUserDto } from '../../mapper/user.mapper';
 import { UserDto } from '../../dto/user.dto';
@@ -46,6 +46,10 @@ class GoogleAuthService implements IGoogleAuthService {
         picture: picture ? picture : '',
       });
       user = await this._userRepository.create(googleUserDto);
+    }
+
+    if (!user) {
+      throw new Error('Failed to create or fetch Google user');
     }
 
     return mapUserModelToUserDto(user);

@@ -8,8 +8,9 @@ import {
   UserDto,
   UserProfileDto,
 } from '../dto/user.dto';
-import { IExperience, IUser } from '../models/interfaces/i-user.model';
+import { IExperience, IUser } from '../models/interfaces/user.model.interface';
 import { Types } from 'mongoose';
+import { SUPPORTED_CURRENCIES, SupportedCurrency } from '../contants/currency.constants';
 
 export const mapUserModelToUserDto = (modelData: IUser): UserDto => {
   return {
@@ -17,10 +18,17 @@ export const mapUserModelToUserDto = (modelData: IUser): UserDto => {
     roles: modelData.roles,
     activeRole: modelData.activeRole,
     isOnboardingCompleted: modelData.isOnboardingCompleted,
+    isFreelancerOnboarded: modelData.isFreelancerOnboarded ?? false,
+    isClientOnboarded: modelData.isClientOnboarded ?? false,
     clientProfile: modelData?.clientProfile?.logo,
     freelancerProfile: modelData?.freelancerProfile?.logo,
     isClientBlocked: modelData?.isClientBlocked,
     isFreelancerBlocked: modelData?.isFreelancerBlocked,
+    preferredCurrency: SUPPORTED_CURRENCIES.includes(
+      modelData?.preferredCurrency as SupportedCurrency,
+    )
+      ? (modelData?.preferredCurrency as SupportedCurrency)
+      : undefined,
   };
 };
 
@@ -148,9 +156,9 @@ export function mapAddressDtoToUserModel(address: AddressDTO): IAddress {
   return {
     country: address?.country,
     state: address?.state,
-    streetAddress:address?.streetAddress,
+    streetAddress: address?.streetAddress,
     city: address?.city,
-    zipCode:address?.zipCode,
+    zipCode: address?.zipCode,
   };
 }
 

@@ -1,8 +1,8 @@
 import { User } from '../models/user.model';
-import { IUser } from '../models/interfaces/i-user.model';
-import { FilterQuery, Types } from 'mongoose';
+import { IUser } from '../models/interfaces/user.model.interface';
+import { FilterQuery, Types, UpdateQuery } from 'mongoose';
 import BaseRepository from './baseRepositories/base-repository';
-import { IUserRepository } from './interfaces/i-user-repository';
+import { IUserRepository } from './interfaces/user-repository.interface';
 import { AddressDTO } from 'src/dto/user.dto';
 
 export class UserRepository extends BaseRepository<IUser> implements IUserRepository {
@@ -63,10 +63,17 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
   }
 
   async addRoleAndCompleteOnboarding(userId: string | Types.ObjectId, role: string) {
-    const update = {
+    const update: UpdateQuery<IUser> = {
       $addToSet: { roles: role },
       $set: { activeRole: role, isOnboardingCompleted: true },
     };
+
+    // Set role-specific onboarding flag
+    if (role === 'freelancer') {
+      update.$set.isFreelancerOnboarded = true;
+    } else if (role === 'client') {
+      update.$set.isClientOnboarded = true;
+    }
 
     return await this.model.findByIdAndUpdate(userId, update, { new: true });
   }
@@ -122,6 +129,10 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
   }
 
   async updateUserAddress(userId: string, userAddress: AddressDTO): Promise<IUser | null> {
-    return super.updateById(userId,{ $set:{address:userAddress}})
+    return super.updateById(userId, { $set: { address: userAddress } });
+  }
+
+  async countAllUsers(): Promise<number> {
+    return super.count();
   }
 }

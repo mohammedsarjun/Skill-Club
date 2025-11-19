@@ -1,8 +1,8 @@
 import { User } from '../models/user.model';
-import { IUser } from '../models/interfaces/i-user.model';
+import { IUser } from '../models/interfaces/user.model.interface';
 import BaseRepository from './baseRepositories/base-repository';
 
-import { IClientRepository } from './interfaces/i-client-repository';
+import { IClientRepository } from './interfaces/client-repository.interface';
 import { UpdateClientDto } from '../dto/clientDTO/client.dto';
 
 export class ClientRepository extends BaseRepository<IUser> implements IClientRepository {

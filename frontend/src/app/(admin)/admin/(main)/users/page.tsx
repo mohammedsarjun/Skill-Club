@@ -42,7 +42,9 @@ const UserManagementPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [search, setSearch] = useState("");
+  const [localSearch, setLocalSearch] = useState("");
   const [filters, setFilters] = useState<Record<string, string>>({});
+  const [totalCount, setTotalCount] = useState<number | undefined>(undefined);
   const [totalUsers, setTotalUsers] = useState(0);
   const [totalFreelancers, setTotalFreelancers] = useState(0);
   const [totalClients, setTotalClients] = useState(0);
@@ -64,7 +66,12 @@ const UserManagementPage: React.FC = () => {
           limit,
           filters
         );
-        if (response.success) setUsers(response.data.data);
+        if (response.success) {
+          setUsers(response.data.data);
+          const total = response.data.total ?? response.data.count ?? response.data.totalCount ?? response.data.meta?.total ?? response.data.pagination?.total;
+          if (typeof total === "number") setTotalCount(total);
+          else setTotalCount(response.data.data?.length ?? undefined);
+        }
         else toast.error(response.message);
       } catch (err: any) {
         toast.error(err.message);
@@ -96,11 +103,17 @@ const UserManagementPage: React.FC = () => {
     []
   );
 
+  useEffect(() => {
+    debouncedSetSearch(localSearch);
+    return () => debouncedSetSearch.cancel();
+  }, [localSearch, debouncedSetSearch]);
+
   // ===== Columns =====
   const columns: Column<User>[] = [
     { key: "name", label: "Name" },
     { key: "email", label: "Email" },
     { key: "roles", label: "Roles" },
+    { key: "status", label: "Status" },
   ];
 
   // ===== Filters =====
@@ -191,11 +204,14 @@ const UserManagementPage: React.FC = () => {
         columns={columns}
         data={users}
         filters={filtersConfig}
+
         handleOpenViewModal={handleViewModal}
         page={page}
         setPage={setPage}
-        search={search}
-        setSearch={debouncedSetSearch}
+        pageSize={limit}
+        totalCount={totalCount}
+  search={localSearch}
+  setSearch={setLocalSearch}
         canDelete={true}
         setFilters={setFilters}
         activeFilters={filters}

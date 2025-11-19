@@ -10,9 +10,13 @@ interface PreviewProfileProps {
     onSubmit:()=>void
 }
 import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { formatCurrency, SupportedCurrency } from "@/utils/currency";
 
 const PreviewProfile: React.FC<PreviewProfileProps> = ({ savedData, onEditPicture, onEditField,onSubmit }) => {
     const route=useRouter()
+    const preferredCurrency = (useSelector((s: RootState) => s.auth.user?.preferredCurrency) || 'USD') as SupportedCurrency;
     return (
         <div className="p-6 space-y-6 font-sans">
             {/* Header */}
@@ -100,7 +104,7 @@ const PreviewProfile: React.FC<PreviewProfileProps> = ({ savedData, onEditPictur
                             {/* Hourly Rate */}
                             <div className="flex items-center p-2">
                                 <div className="flex flex-col ">
-                                    <p className="text-gray-800 font-semibold text-center">{savedData.hourlyRate ? `₹ ${savedData.hourlyRate}.00` : "Hourly Rate"}</p>
+                                    <p className="text-gray-800 font-semibold text-center">{savedData.hourlyRate ? `${formatCurrency(Number(savedData.hourlyRate||0), preferredCurrency)}` : "Hourly Rate"}</p>
                                     <p className="text-gray-800 ">Hourly Rate</p>
                                 </div>
                                 <button

@@ -3,8 +3,8 @@ import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { MESSAGES } from '../../contants/contants';
-import { IUserSkillController } from './interfaces/i-user-skill-controller';
-import type { IUserSkillServices } from '../../services/userServices/interfaces/i-user-skill-services';
+import { IUserSkillController } from './interfaces/user-skill-controller.interface';
+import type { IUserSkillServices } from '../../services/userServices/interfaces/user-skill-services.interface';
 import { ResSkillDtoMinimal } from '../../dto/skill.dto';
 
 @injectable()

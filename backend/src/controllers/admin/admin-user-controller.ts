@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { HttpStatus } from '../../enums/http-status.enum';
-import { IAdminUserController } from './interfaces/i-admin-user-controller';
-import type { IAdminUserServices } from '../../services/adminServices/interfaces/i-admin-user-services';
+import { IAdminUserController } from './interfaces/admin-user-controller.interface';
+import type { IAdminUserServices } from '../../services/adminServices/interfaces/admin-user-services.interface';
 import { AdminUserStatsDto } from '../../dto/adminDTO/admin-users.dto';
 
 import { MESSAGES } from '../../contants/contants';

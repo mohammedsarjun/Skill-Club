@@ -3,25 +3,36 @@
 import { authApi } from "@/api/authApi";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
-import { setUser } from "@/store/slices/authSlice";
-import { FaUser } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser, clearUser } from "@/store/slices/authSlice";
+import { FaBars, FaChevronDown, FaTimes, FaUser } from "react-icons/fa";
 import { userApi } from "@/api/userApi";
 import toast from "react-hot-toast";
+import { useState } from "react";
+import { SUPPORTED_CURRENCIES } from "@/utils/currency";
+import { userPreferenceApi } from "@/api/userPreferenceApi";
+import { RootState } from "@/store";
 
 export default function FreelancerHeader() {
   const router = useRouter();
   const dispatch = useDispatch();
-
-  const handleOpenAccountSettings = async () => {
-    router.replace("/account/settings");
-  };
+  const user=localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user") as string) : null;
+  const preferredCurrency =
+    useSelector((s: RootState) => s.auth.user?.preferredCurrency) || "USD";
+    console.log(preferredCurrency)
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isHireTalentOpen, setIsHireTalentOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [updatingCurrency, setUpdatingCurrency] = useState(false);
 
   const handleLogout = async () => {
     try {
-      await authApi.logout();
-      dispatch(setUser(null));
-      router.replace("/login");
+      const respone = await authApi.logout();
+      if (respone.success) {
+        dispatch(clearUser());
+        localStorage.removeItem("user");
+        router.push("/login");
+      }
     } catch (err) {
       console.error("Logout failed", err);
     }
@@ -32,62 +43,323 @@ export default function FreelancerHeader() {
 
     if (response.success) {
       dispatch(setUser(response.data));
+      localStorage.setItem("user", JSON.stringify(response.data));
       router.push("/client/profile");
     } else {
-      router.replace("/onboarding/client");
+      router.push("/onboarding/client");
     }
-    // router.push("/freelancer"); // replace with the actual route for switching account
+  };
+
+  const handleOpenAccountSettings = async () => {
+    router.replace("/account/settings");
+  };
+
+  const handleCurrencyChange = async (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const next = e.target.value;
+    if (next === preferredCurrency || updatingCurrency) return;
+    try {
+      setUpdatingCurrency(true);
+      const resp = await userPreferenceApi.updatePreferredCurrency(next);
+      if (resp?.success) {
+        dispatch(setUser(resp.data));
+        try { localStorage.setItem("user", JSON.stringify(resp.data)); } catch {}
+        toast.success("Currency updated");
+      } else {
+        toast.error(resp?.message || "Failed to update currency");
+      }
+    } catch (err) {
+      toast.error("Failed to update currency");
+    } finally {
+      setUpdatingCurrency(false);
+    }
   };
 
   return (
-    <div className="header bg-secondary h-18 flex items-center justify-between px-4">
-      {/* Logo */}
-      <Image
-        src="/images/site logo.png"
-        alt="Site Logo"
-        width={150}
-        height={50}
-        className="object-contain"
-      />
-      <div className="relative group">
-        <div className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-gray-700 hover:scale-105">
-          <FaUser className="w-5 h-5 text-white" />
-        </div>
-        <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-          <div className="py-2">
-            <a
-              href="#"
-              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-              onClick={() => router.push("/client/profile")}
-            >
-              Profile
-            </a>
-            <a
-              href="#"
-              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-              onClick={handleOpenAccountSettings}
-            >
-              Account Settings
-            </a>
-            <a
-              href="#"
-              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-              onClick={handleSwitchAccount}
-            >
-              Switch Account <br />
-              <span className="text-xs text-gray-500">Client</span>
-            </a>
+    <div className="header bg-secondary h-auto min-h-18">
+      <div className="flex items-center justify-between px-4 py-3">
+        {/* Logo */}
+        <Image
+          onClick={() => router.push("/freelancer")}
+          src="/images/site logo.png"
+          alt="Site Logo"
+          width={150}
+          height={50}
+          className="object-contain cursor-pointer"
+        />
 
-            <hr className="my-1" />
-            <button
-              onClick={handleLogout}
-              className="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-            >
-              Sign Out
+        {/* Desktop Navigation */}
+        <nav className="hidden lg:flex items-center space-x-4">
+          {/* Hire Talent Dropdown */}
+          <div className="relative group">
+            <button className="flex items-center space-x-1 text-black hover:text-gray-700">
+              <span>Find Work</span>
+              <FaChevronDown className="w-3 h-3" />
             </button>
+            <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+              <a
+                onClick={() => router.push("/freelancer/jobs")}
+                className="cursor-pointer block px-4 py-2 text-sm text-black hover:bg-gray-100"
+              >
+                Find Jobs
+              </a>
+              <a
+                onClick={() => router.push("/freelancer/saved-jobs")}
+                className="cursor-pointer block px-4 py-2 text-sm text-black hover:bg-gray-100"
+              >
+                Saved Jobs
+              </a>
+              <a
+                onClick={() => router.push("/freelancer/proposals")}
+                className="cursor-pointer block px-4 py-2 text-sm text-black hover:bg-gray-100"
+              >
+                Proposals
+              </a>
+              <a
+                onClick={() => router.push("/freelancer/offers")}
+                className="cursor-pointer block px-4 py-2 text-sm text-black hover:bg-gray-100"
+              >
+                Offers
+              </a>
+            </div>
+          </div>
+
+          <a href="#" className="text-black hover:text-gray-700">
+            Contract
+          </a>
+          <a href="#" className="text-black hover:text-gray-700"></a>
+          <a href="#" className="text-black hover:text-gray-700">
+            Earnings
+          </a>
+          <a href="#" className="text-black hover:text-gray-700">
+            Meetings
+          </a>
+          <a href="#" className="text-black hover:text-gray-700">
+            Messages
+          </a>
+        </nav>
+
+        {/* Desktop Right Side */}
+        <div className="hidden lg:flex items-center space-x-4">
+          {/* Search Input */}
+          <input
+            type="text"
+            placeholder="Search..."
+            className="px-3 py-1 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black placeholder-black"
+          />
+
+          {/* Currency Switcher */}
+          <select
+            aria-label="Preferred currency"
+            value={preferredCurrency}
+            onChange={handleCurrencyChange}
+            disabled={updatingCurrency}
+            className="px-2 py-1 border border-gray-300 rounded-md text-sm text-black bg-white disabled:opacity-60"
+            title={updatingCurrency ? "Updating..." : "Change currency"}
+          >
+            {SUPPORTED_CURRENCIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+
+          {/* User Menu */}
+          <div className="relative group">
+            <div className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-gray-700 hover:scale-105">
+              <FaUser className="w-5 h-5 text-white" />
+            </div>
+            <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+              <div className="py-2">
+                <a
+                  href="#"
+                  className="block px-4 py-2 text-sm text-black hover:bg-gray-100 transition-colors"
+                  onClick={() => router.push("/freelancer/profile")}
+                >
+                  Profile
+                </a>
+                <a
+                  href="#"
+                  className="block px-4 py-2 text-sm text-black hover:bg-gray-100 transition-colors"
+                  onClick={handleOpenAccountSettings}
+                >
+                  Account Settings
+                </a>
+                <a
+                  href="#"
+                  className="block px-4 py-2 text-sm text-black hover:bg-gray-100 transition-colors"
+                  onClick={handleSwitchAccount}
+                >
+                  Switch Account <br />
+                  <span className="text-xs text-gray-500">Client</span>
+                </a>
+                <hr className="my-1" />
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </div>
           </div>
         </div>
+
+        {/* Mobile Right Side */}
+        <div className="flex lg:hidden items-center space-x-3">
+          {/* Search Input Mobile */}
+          <input
+            type="text"
+            placeholder="Search..."
+            className="hidden sm:block px-3 py-1 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black placeholder-black text-sm"
+          />
+
+          {/* Currency Switcher (Mobile) */}
+          <select
+            aria-label="Preferred currency"
+            value={preferredCurrency}
+            onChange={handleCurrencyChange}
+            disabled={updatingCurrency}
+            className="px-2 py-1 border border-gray-300 rounded-md text-sm text-black bg-white disabled:opacity-60"
+            title={updatingCurrency ? "Updating..." : "Change currency"}
+          >
+            {SUPPORTED_CURRENCIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+
+          {/* User Icon Mobile */}
+          <div className="relative group">
+            <div className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-gray-700">
+              <FaUser className="w-5 h-5 text-white" />
+            </div>
+            <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+              <div className="py-2">
+                <a
+                  href="#"
+                  className="block px-4 py-2 text-sm text-black hover:bg-gray-100 transition-colors"
+                  onClick={() => router.push("/freelancer/profile")}
+                >
+                  Profile
+                </a>
+                <a
+                  href="#"
+                  className="block px-4 py-2 text-sm text-black hover:bg-gray-100 transition-colors"
+                  onClick={handleOpenAccountSettings}
+                >
+                  Account Settings
+                </a>
+                <a
+                  href="#"
+                  className="block px-4 py-2 text-sm text-black hover:bg-gray-100 transition-colors"
+                  onClick={handleSwitchAccount}
+                >
+                  Switch Account <br />
+                  <span className="text-xs text-gray-500">Client</span>
+                </a>
+                <hr className="my-1" />
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile Menu Toggle */}
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="text-black hover:text-gray-700 p-2"
+          >
+            {isMenuOpen ? (
+              <FaTimes className="w-6 h-6" />
+            ) : (
+              <FaBars className="w-6 h-6" />
+            )}
+          </button>
+        </div>
       </div>
+
+      {/* Mobile Menu */}
+      {isMenuOpen && (
+        <div className="lg:hidden bg-white border-t border-gray-200 shadow-lg">
+          <div className="px-4 py-3 space-y-2">
+            {/* Hire Talent Dropdown Mobile */}
+            <div className="border-b border-gray-200 pb-2">
+              <button
+                onClick={() => setIsHireTalentOpen(!isHireTalentOpen)}
+                className="flex items-center justify-between w-full text-black hover:text-gray-700 py-2"
+              >
+                <span>Find Work</span>
+                <FaChevronDown
+                  className={`w-3 h-3 transition-transform ${
+                    isHireTalentOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {isHireTalentOpen && (
+                <div className="ml-4 mt-2 space-y-1">
+                  <a
+                    onClick={() => router.push("/freelancer/jobs")}
+                    className="block py-2 text-sm text-black hover:text-gray-700"
+                  >
+                    Find Jobs
+                  </a>
+                  <a
+                      onClick={() => router.push("/freelancer/saved-jobs")}
+                    className="block py-2 text-sm text-black hover:text-gray-700"
+                  >
+                    Saved Jobs
+                  </a>
+                  <a
+                    onClick={() => router.push("/freelancer/proposals")}
+                    className="block py-2 text-sm text-black hover:text-gray-700"
+                  >
+                    Proposals
+                  </a>
+                  <a
+                    onClick={() => router.push("/freelancer/offers")}
+                    className="block py-2 text-sm text-black hover:text-gray-700"
+                  >
+                    Offers
+                  </a>
+                </div>
+              )}
+            </div>
+
+            {/* Other Nav Items Mobile */}
+            <a
+              href="#"
+              className="block py-2 text-black hover:text-gray-700 border-b border-gray-200"
+            >
+              Contract
+            </a>
+            <a
+              href="#"
+              className="block py-2 text-black hover:text-gray-700 border-b border-gray-200"
+            >
+              Earnings
+            </a>
+            <a
+              href="#"
+              className="block py-2 text-black hover:text-gray-700 border-b border-gray-200"
+            >
+              Meetings
+            </a>
+            <a
+              href="#"
+              className="block py-2 text-black hover:text-gray-700 border-b border-gray-200"
+            >
+              Messages
+            </a>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

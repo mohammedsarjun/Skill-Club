@@ -1,6 +1,6 @@
-import type { IOtp } from '../../models/interfaces/i-otp.model';
-import type { IOtpRepository } from '../../repositories/interfaces/i-otp-repository';
-import type { IOtpServices } from './interfaces/i-otp-services';
+import type { IOtp } from '../../models/interfaces/otp.model.interface';
+import type { IOtpRepository } from '../../repositories/interfaces/otp-repository.interface';
+import type { IOtpServices } from './interfaces/i-otp-services.interface';
 import { injectable, inject } from 'tsyringe';
 import sendEmailOtp from '../../utils/send-otp';
 import { createOtpDigit } from '../../utils/otp-generator';

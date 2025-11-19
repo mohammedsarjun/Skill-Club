@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
-import { IGoogleAuthController } from './interfaces/i-google-auth-controller';
+import { IGoogleAuthController } from './interfaces/google-auth-controller.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { injectable, inject } from 'tsyringe';
-import type { IGoogleAuthService } from '../../services/authServices/interfaces/i-google-auth-services';
+import type { IGoogleAuthService } from '../../services/authServices/interfaces/google-auth-services.interface';
 import dotenv from 'dotenv';
 import { jwtService } from '../../utils/jwt';
-import type { IUserServices } from '../../services/userServices/interfaces/i-user-services';
+import type { IUserServices } from '../../services/userServices/interfaces/user-services.interface';
 import { UserDto } from '../../dto/user.dto';
 import { jwtConfig } from '../../config/jwt.config';
 import { MESSAGES } from '../../contants/contants';

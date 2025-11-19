@@ -1,7 +1,7 @@
-import {  Request, Response } from 'express';
-import type { IAdminSpecialityController } from './interfaces/i-admin-speciality-controller';
+import { Request, Response } from 'express';
+import type { IAdminSpecialityController } from './interfaces/admin-speciality-controller.interface';
 import { injectable, inject } from 'tsyringe';
-import type { IAdminSpecialityServices } from '../../services/adminServices/interfaces/i-admin-speciality-services';
+import type { IAdminSpecialityServices } from '../../services/adminServices/interfaces/admin-speciality-services.interface';
 import '../../config/container';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { MESSAGES } from '../../contants/contants';
@@ -19,14 +19,13 @@ export class AdminSpecialityController implements IAdminSpecialityController {
     this._adminSpecialityService = adminSpecialityService;
   }
   async addSpeciality(req: Request, res: Response): Promise<void> {
-
-      const specialityDto: CreateSpecialityDTO = req.body;
-      const result = await this._adminSpecialityService.addSpeciality(specialityDto);
-      res.status(HttpStatus.CREATED).json({
-        success: true,
-        message: MESSAGES.SPECIALITY.CREATED,
-        data: result,
-      });
+    const specialityDto: CreateSpecialityDTO = req.body;
+    const result = await this._adminSpecialityService.addSpeciality(specialityDto);
+    res.status(HttpStatus.CREATED).json({
+      success: true,
+      message: MESSAGES.SPECIALITY.CREATED,
+      data: result,
+    });
   }
 
   async editSpeciality(req: Request, res: Response): Promise<void> {

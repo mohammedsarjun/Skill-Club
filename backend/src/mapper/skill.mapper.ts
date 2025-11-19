@@ -1,5 +1,5 @@
 import { ResSkillDtoMinimal } from '../dto/skill.dto';
-import { ISkill } from '../models/interfaces/i-skill.model';
+import { ISkill } from '../models/interfaces/skill.model.interface';
 
 export const mapSkillModelToSpecialityDtoMinimal = (skill: ISkill): ResSkillDtoMinimal => {
   return {

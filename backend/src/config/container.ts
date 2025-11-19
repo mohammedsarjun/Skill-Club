@@ -3,16 +3,28 @@ import { container } from 'tsyringe';
 //Week 1
 
 //category,speacility,skills Repository
-import { ICategoryRepository } from '../repositories/interfaces/i-category-repository';
+import { ICategoryRepository } from '../repositories/interfaces/category-repository.interface';
 import { CategoryRepository } from '../repositories/category-repository';
-import { ISpecialityRepository } from '../repositories/interfaces/i-speciality-repository';
+import { ISpecialityRepository } from '../repositories/interfaces/speciality-repository.interface';
 import { SpecialityRepository } from '../repositories/speciality-repository';
-import { ISkillRepository } from '../repositories/interfaces/i-skill-repository';
+import { ISkillRepository } from '../repositories/interfaces/skill-repository.interface';
 import { SkillRepository } from '../repositories/skill-repository';
-import { IPortfolioRepository } from '../repositories/interfaces/i-portfolio-respository';
+import { IPortfolioRepository } from '../repositories/interfaces/portfolio-respository.interface';
 import { PortfolioRepository } from '../repositories/portfolio-repository';
-import { IActionVerificationRepository } from '../repositories/interfaces/i-action-verification-repository';
+import { IActionVerificationRepository } from '../repositories/interfaces/action-verification-repository.interface';
 import { ActionVerificationRepository } from '../repositories/action-verification-repository';
+import { IJobRepository } from '../repositories/interfaces/job-repository.interface';
+import { JobRepository } from '../repositories/job-repository';
+import { IClientRepository } from '../repositories/interfaces/client-repository.interface';
+import { ClientRepository } from '../repositories/client-repository';
+import { IProposalRepository } from '../repositories/interfaces/proposal-repository.interface';
+import { ProposalRepository } from '../repositories/proposal-repository';
+import { IOfferRepository } from '../repositories/interfaces/offer-repository.interface';
+import { OfferRepository } from '../repositories/offer-repository';
+import { IFileUploadService } from '../services/commonServices/interfaces/file-upload-service.interface';
+import { FileUploadService } from '../services/commonServices/file-upload-service';
+import { IGetRatesService } from '../services/commonServices/interfaces/get-rates-service.interface';
+import { GetRatesService } from '../services/commonServices/get-rates-service';
 container.register<ICategoryRepository>('ICategoryRepository', { useClass: CategoryRepository });
 container.register<ISpecialityRepository>('ISpecialityRepository', {
   useClass: SpecialityRepository,
@@ -22,15 +34,21 @@ container.register<IPortfolioRepository>('IPortfolioRepository', { useClass: Por
 container.register<IActionVerificationRepository>('IActionVerificationRepository', {
   useClass: ActionVerificationRepository,
 });
+container.register<IJobRepository>('IJobRepository', { useClass: JobRepository });
+container.register<IClientRepository>('IClientRepository', { useClass: ClientRepository });
+container.register<IProposalRepository>('IProposalRepository', { useClass: ProposalRepository });
+container.register<IOfferRepository>('IOfferRepository', { useClass: OfferRepository });
+container.register<IFileUploadService>('IFileUploadService', { useClass: FileUploadService });
+container.register<IGetRatesService>('IGetRatesService', { useClass: GetRatesService });
 //Auth
 import { AuthService } from '../services/authServices/auth-services';
-import type { IAuthService } from '../services/authServices/interfaces/i-auth-services';
+import type { IAuthService } from '../services/authServices/interfaces/auth-services.interface';
 import { OtpService } from '../services/authServices/otp-services';
-import { IOtpServices } from '../services/authServices/interfaces/i-otp-services';
+import { IOtpServices } from '../services/authServices/interfaces/i-otp-services.interface';
 import { UserRepository } from '../repositories/user-repository';
 import { OtpRepository } from '../repositories/otp-repository';
-import type { IUserRepository } from '../repositories/interfaces/i-user-repository';
-import type { IOtpRepository } from '../repositories/interfaces/i-otp-repository';
+import type { IUserRepository } from '../repositories/interfaces/user-repository.interface';
+import type { IOtpRepository } from '../repositories/interfaces/otp-repository.interface';
 
 // Register service
 container.register<IAuthService>('IAuthService', { useClass: AuthService });
@@ -40,36 +58,36 @@ container.register<IUserRepository>('IUserRepository', { useClass: UserRepositor
 container.register<IOtpRepository>('IOtpRepository', { useClass: OtpRepository });
 
 //GoogleAuth
-import { IGoogleAuthService } from '../services/authServices/interfaces/i-google-auth-services';
+import { IGoogleAuthService } from '../services/authServices/interfaces/google-auth-services.interface';
 import GoogleAuthService from '../services/authServices/google-auth-services';
 container.register<IGoogleAuthService>('IGoogleAuthService', { useClass: GoogleAuthService });
 
 //User
 import { userServices } from '../services/userServices/user-services';
-import { IUserServices } from '../services/userServices/interfaces/i-user-services';
+import { IUserServices } from '../services/userServices/interfaces/user-services.interface';
 
 container.register<IUserServices>('IUserServices', { useClass: userServices });
 
 //Admin
 
 //AdminAuth
-import { IAdminAuthServices } from '../services/adminServices/interfaces/i-admin-auth-services';
+import { IAdminAuthServices } from '../services/adminServices/interfaces/admin-auth-services.interface';
 import { AdminAuthServices } from '../services/adminServices/admin-auth-services';
 container.register<IAdminAuthServices>('IAdminAuthServices', { useClass: AdminAuthServices });
 
 //Category and skills
 import { AdminCategoryServices } from '../services/adminServices/admin-category-services';
-import { IAdminCategoryServices } from '../services/adminServices/interfaces/i-admin-category-services';
+import { IAdminCategoryServices } from '../services/adminServices/interfaces/admin-category-services.interface';
 import { AdminCategoryRepository } from '../repositories/adminRepositories/admin-category-repository';
-import { IAdminCategoryRepository } from '../repositories/adminRepositories/interfaces/i-admin-category-repository';
-import { IAdminSpecialityServices } from '../services/adminServices/interfaces/i-admin-speciality-services';
+import { IAdminCategoryRepository } from '../repositories/adminRepositories/interfaces/admin-category-repository.interface';
+import { IAdminSpecialityServices } from '../services/adminServices/interfaces/admin-speciality-services.interface';
 import { AdminSpecialityServices } from '../services/adminServices/admin-speciality-services';
-import { IAdminSpecialityRepository } from '../repositories/adminRepositories/interfaces/i-admin-speciality-repository';
+import { IAdminSpecialityRepository } from '../repositories/adminRepositories/interfaces/admin-speciality-repository.interface';
 import { AdminSpecialityRepository } from '../repositories/adminRepositories/admin-speciality-repository';
 
-import { IAdminSkillServices } from '../services/adminServices/interfaces/i-admin-skill-services';
+import { IAdminSkillServices } from '../services/adminServices/interfaces/admin-skill-services.interface';
 import { AdminSkillServices } from '../services/adminServices/admin-skill-services';
-import { IAdminSkillRepository } from '../repositories/adminRepositories/interfaces/i-admin-skill-repository';
+import { IAdminSkillRepository } from '../repositories/adminRepositories/interfaces/admin-skill-repository.interface';
 import { AdminSkillRepository } from '../repositories/adminRepositories/admin-skill-repository';
 
 //add category
@@ -95,37 +113,32 @@ container.register<IAdminSkillRepository>('IAdminSkillRepository', {
 });
 //AdminUser
 import { AdminUserServices } from '../services/adminServices/admin-user-services';
-import { IAdminUserServices } from '../services/adminServices/interfaces/i-admin-user-services';
+import { IAdminUserServices } from '../services/adminServices/interfaces/admin-user-services.interface';
 
 container.register<IAdminUserServices>('IAdminUserServices', { useClass: AdminUserServices });
 
 //Freelancer
-import { IFreelancerRepository } from '../repositories/interfaces/i-freelancer-repository';
+import { IFreelancerRepository } from '../repositories/interfaces/freelancer-repository.interface';
 import { FreelancerRepository } from '../repositories/freelancer-repository';
-import { IFreelancerService } from '../services/freelancerServices/interfaces/i-freelancer-services';
+import { IFreelancerService } from '../services/freelancerServices/interfaces/freelancer-services.interface';
 import { FreelancerService } from '../services/freelancerServices/freelancer-services';
 
-container.register<IFreelancerService>('IFreelancerService', { useClass: FreelancerService });
-container.register<IFreelancerRepository>('IFreelancerRepository', {
-  useClass: FreelancerRepository,
-});
+container.registerSingleton<IFreelancerService>('IFreelancerService', FreelancerService);
+container.register<IFreelancerRepository>('IFreelancerRepository', FreelancerRepository);
 
 //Client
 
-import { IClientService } from '../services/clientServices/interfaces/i-client-services';
+import { IClientService } from '../services/clientServices/interfaces/client-services.interface';
 import { ClientService } from '../services/clientServices/client-services';
-import { IClientRepository } from '../repositories/interfaces/i-client-repository';
-import { ClientRepository } from '../repositories/client-repository';
 
 container.register<IClientService>('IClientService', { useClass: ClientService });
-container.register<IClientRepository>('IClientRepository', { useClass: ClientRepository });
 
 //user category ,speciality,skills
-import { IUserCategoryServices } from '../services/userServices/interfaces/i-user-category-services';
+import { IUserCategoryServices } from '../services/userServices/interfaces/user-category-services.interface';
 import { userCategoryServices } from '../services/userServices/user-category-services';
-import { IUserSpecialityServices } from '../services/userServices/interfaces/i-user-speciality-services';
+import { IUserSpecialityServices } from '../services/userServices/interfaces/user-speciality-services.interface';
 import { userSpecialityServices } from '../services/userServices/user-speciality-services';
-import { IUserSkillServices } from '../services/userServices/interfaces/i-user-skill-services';
+import { IUserSkillServices } from '../services/userServices/interfaces/user-skill-services.interface';
 import { UserSkillServices } from '../services/userServices/user-skill-services';
 
 container.register<IUserCategoryServices>('IUserCategoryServices', {
@@ -135,3 +148,123 @@ container.register<IUserSpecialityServices>('IUserSpecialityServices', {
   useClass: userSpecialityServices,
 });
 container.register<IUserSkillServices>('IUserSkillServices', { useClass: UserSkillServices });
+
+//Week 2
+
+//admin
+//admin job management
+import { IAdminJobService } from '../services/adminServices/interfaces/admin-job-service.interface';
+import { AdminJobService } from '../services/adminServices/admin-job-service';
+
+container.register<IAdminJobService>('IAdminJobService', {
+  useClass: AdminJobService,
+});
+
+//client job management
+import { IClientJobService } from '../services/clientServices/interfaces/client-job-service.interface';
+import { ClientJobService } from '../services/clientServices/client-job-service';
+
+container.register<IClientJobService>('IClientJobService', {
+  useClass: ClientJobService,
+});
+
+//client category management
+import { IClientCategoryService } from '../services/clientServices/interfaces/client-category-service.interface';
+import { ClientCategoryService } from '../services/clientServices/client-category-service';
+
+container.register<IClientCategoryService>('IClientCategoryService', {
+  useClass: ClientCategoryService,
+});
+
+//client speciality management
+import { IClientSpecialityService } from '../services/clientServices/interfaces/client-speciality-service.interface';
+import { ClientSpecialityService } from '../services/clientServices/client-speciality-service';
+
+container.register<IClientSpecialityService>('IClientSpecialityService', {
+  useClass: ClientSpecialityService,
+});
+
+//client freelancer management
+import { IClientFreelancerService } from '../services/clientServices/interfaces/client-freelancer-service.interface';
+import { ClientFreelancerService } from '../services/clientServices/client-freelancer-service';
+
+container.register<IClientFreelancerService>('IClientFreelancerService', {
+  useClass: ClientFreelancerService,
+});
+
+//freelancer category
+import { IFreelancerCategoryService } from '../services/freelancerServices/interfaces/freelancer-category-service.interface';
+import { FreelancerCategoryService } from '../services/freelancerServices/freelancer-category-service';
+
+container.register<IFreelancerCategoryService>('IFreelancerCategoryService', {
+  useClass: FreelancerCategoryService,
+});
+
+//freelancer speciality
+import { IFreelancerSpecialityService } from '../services/freelancerServices/interfaces/freelancer-speciality-service.interface';
+import { FreelancerSpecialityService } from '../services/freelancerServices/freelancer-speciality-service';
+
+container.register<IFreelancerSpecialityService>('IFreelancerSpecialityService', {
+  useClass: FreelancerSpecialityService,
+});
+
+//freelancer Job
+import { IFreelancerJobService } from '../services/freelancerServices/interfaces/freelancer-job-service.interface';
+import { FreelancerJobService } from '../services/freelancerServices/freelancer-job-service';
+
+container.register<IFreelancerJobService>('IFreelancerJobService', {
+  useClass: FreelancerJobService,
+});
+
+//freelancer Offer Service
+import { IFreelancerOfferService } from '../services/freelancerServices/interfaces/freelancer-offer-service.interface';
+import { FreelancerOfferService } from '../services/freelancerServices/freelancer-offer-service';
+
+container.register<IFreelancerOfferService>('IFreelancerOfferService', {
+  useClass: FreelancerOfferService,
+});
+
+//freelancer proposal Service
+import { IFreelancerProposalService } from '../services/freelancerServices/interfaces/freelancer-proposal-service.interface';
+import { FreelancerProposalService } from '../services/freelancerServices/freelancer-proposal-service';
+
+container.register<IFreelancerProposalService>('IFreelancerProposalService', {
+  useClass: FreelancerProposalService,
+});
+
+// Freelancer Saved Job
+import { ISavedJobRepository } from '../repositories/interfaces/saved-job-repository.interface';
+import { SavedJobRepository } from '../repositories/saved-job-repository';
+import { IFreelancerSavedJobService } from '../services/freelancerServices/interfaces/freelancer-saved-job-service.interface';
+import { FreelancerSavedJobService } from '../services/freelancerServices/freelancer-saved-job-service';
+
+container.register<ISavedJobRepository>('ISavedJobRepository', { useClass: SavedJobRepository });
+container.register<IFreelancerSavedJobService>('IFreelancerSavedJobService', {
+  useClass: FreelancerSavedJobService,
+});
+
+//client proposal Service
+import { IClientProposalService } from '../services/clientServices/interfaces/client-proposal-service.interface';
+import { ClientProposalService } from '../services/clientServices/client-proposal-service';
+container.register<IClientProposalService>('IClientProposalService', {
+  useClass: ClientProposalService,
+});
+import { IClientOfferService } from '../services/clientServices/interfaces/client-offer-service.interface';
+import { ClientOfferService } from '../services/clientServices/client-offer-service';
+container.register<IClientOfferService>('IClientOfferService', { useClass: ClientOfferService });
+// Client Saved Freelancer
+import { ISavedFreelancerRepository } from '../repositories/interfaces/saved-freelancer-repository.interface';
+import { SavedFreelancerRepository } from '../repositories/saved-freelancer-repository';
+import { IClientSavedFreelancerService } from '../services/clientServices/interfaces/client-saved-freelancer-service.interface';
+import { ClientSavedFreelancerService } from '../services/clientServices/client-saved-freelancer-service';
+import { ClientSavedFreelancerController } from '../controllers/client/client-saved-freelancer-controller';
+
+container.register<ISavedFreelancerRepository>('ISavedFreelancerRepository', {
+  useClass: SavedFreelancerRepository,
+});
+container.register<IClientSavedFreelancerService>('IClientSavedFreelancerService', {
+  useClass: ClientSavedFreelancerService,
+});
+container.register<ClientSavedFreelancerController>(ClientSavedFreelancerController, {
+  useClass: ClientSavedFreelancerController,
+});

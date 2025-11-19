@@ -1,7 +1,7 @@
 import BaseRepository from '../baseRepositories/base-repository';
-import { ISpeciality } from '../../models/interfaces/i-speciality.model';
+import { ISpeciality } from '../../models/interfaces/speciality.model.interface';
 import { specialityModel } from '../../models/speciality.model';
-import { IAdminSpecialityRepository } from './interfaces/i-admin-speciality-repository';
+import { IAdminSpecialityRepository } from './interfaces/admin-speciality-repository.interface';
 
 export class AdminSpecialityRepository
   extends BaseRepository<ISpeciality>
@@ -49,5 +49,9 @@ export class AdminSpecialityRepository
 
     // Execute query and assert type
     return (await mongooseQuery.exec()) as ISpeciality[];
+  }
+
+  async countTotalSpecialities(): Promise<number> {
+    return super.count();
   }
 }

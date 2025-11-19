@@ -3,8 +3,8 @@ import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { MESSAGES } from '../../contants/contants';
-import type { IUserCategoryController } from './interfaces/i-user-category-controller';
-import type { IUserCategoryServices } from '../../services/userServices/interfaces/i-user-category-services';
+import type { IUserCategoryController } from './interfaces/user-category-controller.interface';
+import type { IUserCategoryServices } from '../../services/userServices/interfaces/user-category-services.interface';
 import { CategoryDtoMinimal } from '../../dto/category.dto';
 
 @injectable()
