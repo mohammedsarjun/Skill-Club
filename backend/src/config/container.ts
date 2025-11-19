@@ -23,6 +23,8 @@ import { IOfferRepository } from '../repositories/interfaces/offer-repository.in
 import { OfferRepository } from '../repositories/offer-repository';
 import { IFileUploadService } from '../services/commonServices/interfaces/file-upload-service.interface';
 import { FileUploadService } from '../services/commonServices/file-upload-service';
+import { IGetRatesService } from '../services/commonServices/interfaces/get-rates-service.interface';
+import { GetRatesService } from '../services/commonServices/get-rates-service';
 container.register<ICategoryRepository>('ICategoryRepository', { useClass: CategoryRepository });
 container.register<ISpecialityRepository>('ISpecialityRepository', {
   useClass: SpecialityRepository,
@@ -37,6 +39,7 @@ container.register<IClientRepository>('IClientRepository', { useClass: ClientRep
 container.register<IProposalRepository>('IProposalRepository', { useClass: ProposalRepository });
 container.register<IOfferRepository>('IOfferRepository', { useClass: OfferRepository });
 container.register<IFileUploadService>('IFileUploadService', { useClass: FileUploadService });
+container.register<IGetRatesService>('IGetRatesService', { useClass: GetRatesService });
 //Auth
 import { AuthService } from '../services/authServices/auth-services';
 import type { IAuthService } from '../services/authServices/interfaces/auth-services.interface';
@@ -120,10 +123,8 @@ import { FreelancerRepository } from '../repositories/freelancer-repository';
 import { IFreelancerService } from '../services/freelancerServices/interfaces/freelancer-services.interface';
 import { FreelancerService } from '../services/freelancerServices/freelancer-services';
 
-container.register<IFreelancerService>('IFreelancerService', { useClass: FreelancerService });
-container.register<IFreelancerRepository>('IFreelancerRepository', {
-  useClass: FreelancerRepository,
-});
+container.registerSingleton<IFreelancerService>('IFreelancerService', FreelancerService);
+container.register<IFreelancerRepository>('IFreelancerRepository', FreelancerRepository);
 
 //Client
 
@@ -183,8 +184,6 @@ container.register<IClientSpecialityService>('IClientSpecialityService', {
   useClass: ClientSpecialityService,
 });
 
-
-
 //client freelancer management
 import { IClientFreelancerService } from '../services/clientServices/interfaces/client-freelancer-service.interface';
 import { ClientFreelancerService } from '../services/clientServices/client-freelancer-service';
@@ -193,10 +192,7 @@ container.register<IClientFreelancerService>('IClientFreelancerService', {
   useClass: ClientFreelancerService,
 });
 
-
-
-
-//freelancer category 
+//freelancer category
 import { IFreelancerCategoryService } from '../services/freelancerServices/interfaces/freelancer-category-service.interface';
 import { FreelancerCategoryService } from '../services/freelancerServices/freelancer-category-service';
 
@@ -204,7 +200,7 @@ container.register<IFreelancerCategoryService>('IFreelancerCategoryService', {
   useClass: FreelancerCategoryService,
 });
 
-//freelancer speciality 
+//freelancer speciality
 import { IFreelancerSpecialityService } from '../services/freelancerServices/interfaces/freelancer-speciality-service.interface';
 import { FreelancerSpecialityService } from '../services/freelancerServices/freelancer-speciality-service';
 
@@ -215,7 +211,6 @@ container.register<IFreelancerSpecialityService>('IFreelancerSpecialityService',
 //freelancer Job
 import { IFreelancerJobService } from '../services/freelancerServices/interfaces/freelancer-job-service.interface';
 import { FreelancerJobService } from '../services/freelancerServices/freelancer-job-service';
-
 
 container.register<IFreelancerJobService>('IFreelancerJobService', {
   useClass: FreelancerJobService,
@@ -244,8 +239,9 @@ import { IFreelancerSavedJobService } from '../services/freelancerServices/inter
 import { FreelancerSavedJobService } from '../services/freelancerServices/freelancer-saved-job-service';
 
 container.register<ISavedJobRepository>('ISavedJobRepository', { useClass: SavedJobRepository });
-container.register<IFreelancerSavedJobService>('IFreelancerSavedJobService', { useClass: FreelancerSavedJobService });
-
+container.register<IFreelancerSavedJobService>('IFreelancerSavedJobService', {
+  useClass: FreelancerSavedJobService,
+});
 
 //client proposal Service
 import { IClientProposalService } from '../services/clientServices/interfaces/client-proposal-service.interface';
@@ -263,6 +259,12 @@ import { IClientSavedFreelancerService } from '../services/clientServices/interf
 import { ClientSavedFreelancerService } from '../services/clientServices/client-saved-freelancer-service';
 import { ClientSavedFreelancerController } from '../controllers/client/client-saved-freelancer-controller';
 
-container.register<ISavedFreelancerRepository>('ISavedFreelancerRepository', { useClass: SavedFreelancerRepository });
-container.register<IClientSavedFreelancerService>('IClientSavedFreelancerService', { useClass: ClientSavedFreelancerService });
-container.register<ClientSavedFreelancerController>(ClientSavedFreelancerController, { useClass: ClientSavedFreelancerController });
+container.register<ISavedFreelancerRepository>('ISavedFreelancerRepository', {
+  useClass: SavedFreelancerRepository,
+});
+container.register<IClientSavedFreelancerService>('IClientSavedFreelancerService', {
+  useClass: ClientSavedFreelancerService,
+});
+container.register<ClientSavedFreelancerController>(ClientSavedFreelancerController, {
+  useClass: ClientSavedFreelancerController,
+});

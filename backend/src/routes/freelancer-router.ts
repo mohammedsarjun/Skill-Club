@@ -13,10 +13,10 @@ import { FreelancerSavedJobController } from '../controllers/freelancer/freelanc
 const freelancerRouter = express.Router();
 
 const freelancerController = container.resolve(FreelancerController);
-const freelancerCategoryController=container.resolve(FreelancerCategoryController)
-const freelancerSpecialityController=container.resolve(FreelancerSpecialityController)
-const freelancerJobController=container.resolve(FreelancerJobController)
-const freelancerProposalController=container.resolve(FreelancerProposalController)
+const freelancerCategoryController = container.resolve(FreelancerCategoryController);
+const freelancerSpecialityController = container.resolve(FreelancerSpecialityController);
+const freelancerJobController = container.resolve(FreelancerJobController);
+const freelancerProposalController = container.resolve(FreelancerProposalController);
 const freelancerOfferController = container.resolve(FreelancerOfferController);
 const freelancerSavedJobController = container.resolve(FreelancerSavedJobController);
 freelancerRouter.get(
@@ -158,7 +158,6 @@ freelancerRouter.get(
   freelancerJobController.getJobDetail.bind(freelancerJobController),
 );
 
-
 freelancerRouter.post(
   '/proposals',
   authMiddleware,
@@ -166,7 +165,6 @@ freelancerRouter.post(
   freelancerBlockMiddleware,
   freelancerProposalController.createProposal.bind(freelancerProposalController),
 );
-
 
 freelancerRouter.get(
   '/jobs/:jobId/proposals',
@@ -189,6 +187,14 @@ freelancerRouter.get(
   roleGuard('freelancer'),
   freelancerBlockMiddleware,
   freelancerOfferController.getOfferDetail.bind(freelancerOfferController),
+);
+
+freelancerRouter.post(
+  '/offers/:offerId/reject',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerOfferController.rejectOffer.bind(freelancerOfferController),
 );
 
 freelancerRouter.post(

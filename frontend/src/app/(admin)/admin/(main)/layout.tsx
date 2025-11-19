@@ -16,7 +16,7 @@ import Image from "next/image";
 import AdminAuthGuard from "@/components/AdminAuthGaurd";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
-import { setUser } from "@/store/slices/authSlice";
+import { setUser, clearUser } from "@/store/slices/authSlice";
 import { adminAuthApi } from "@/api/adminAuthApi";
 import VerifyAuthAdmin from "@/components/verifyAdmin";
 type LayoutProps = {
@@ -32,7 +32,7 @@ function AdminLayout({ children }: LayoutProps) {
   const handleLogout = async () => {
     try {
       await adminAuthApi.logout();
-      dispatch(setUser(null));
+      dispatch(clearUser());
       localStorage.removeItem("user");
       router.push("/admin/login");
     } catch (err) {

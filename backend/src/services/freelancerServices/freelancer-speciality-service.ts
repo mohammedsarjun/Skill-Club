@@ -1,4 +1,3 @@
-
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { ISpecialityWithSkill } from '../../models/interfaces/speciality.model.interface';
@@ -13,11 +12,10 @@ export class FreelancerSpecialityService implements IFreelancerSpecialityService
   constructor(@inject('ISpecialityRepository') specialityRepository: ISpecialityRepository) {
     this._specialityRepository = specialityRepository;
   }
-  
+
   async getSpecialityWithSkills(
     selectedCategory: string,
   ): Promise<GetFreelancerSpecialityWithSkillsDTO[]> {
-
     const specialitiesWithSkills: ISpecialityWithSkill[] | null =
       await this._specialityRepository.getAllSpecialitiesWithSkills(selectedCategory);
 

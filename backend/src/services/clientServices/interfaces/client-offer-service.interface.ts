@@ -8,6 +8,10 @@ import {
 
 export interface IClientOfferService {
   createOffer(clientId: string, offerData: ClientOfferRequestDTO): Promise<ClientOfferResponseDTO>;
-  getAllOffers(clientId: string, query: ClientOfferQueryParamsDTO): Promise<ClientOfferListResultDTO>;
+  getAllOffers(
+    clientId: string,
+    query: ClientOfferQueryParamsDTO,
+  ): Promise<ClientOfferListResultDTO>;
   getOfferDetail(clientId: string, offerId: string): Promise<ClientOfferDetailDTO | null>;
+  withdrawOffer(clientId: string, offerId: string): Promise<{ withdrawn: boolean }>;
 }

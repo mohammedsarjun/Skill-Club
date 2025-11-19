@@ -2,24 +2,31 @@
 import { authApi } from "@/api/authApi";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
-import { setUser } from "@/store/slices/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser, clearUser } from "@/store/slices/authSlice";
 import { FaUser, FaChevronDown, FaBell, FaBars, FaTimes } from "react-icons/fa";
 import { userApi } from "@/api/userApi";
 import { useState } from "react";
+import { SUPPORTED_CURRENCIES } from "@/utils/currency";
+import { userPreferenceApi } from "@/api/userPreferenceApi";
+import toast from "react-hot-toast";
+import { RootState } from "@/store";
 
 export default function ClientHeader() {
   const router = useRouter();
   const dispatch = useDispatch();
+  const preferredCurrency =
+    useSelector((s: RootState) => s.auth.user?.preferredCurrency) || "USD";
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isHireTalentOpen, setIsHireTalentOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [updatingCurrency, setUpdatingCurrency] = useState(false);
 
   const handleLogout = async () => {
     try {
       const respone = await authApi.logout();
       if (respone.success) {
-        dispatch(setUser(null));
+        dispatch(clearUser());
         localStorage.removeItem("user");
         router.push("/login");
       }
@@ -42,6 +49,28 @@ export default function ClientHeader() {
 
   const handleOpenAccountSettings = async () => {
     router.replace("/account/settings");
+  };
+
+  const handleCurrencyChange = async (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const next = e.target.value;
+    if (next === preferredCurrency || updatingCurrency) return;
+    try {
+      setUpdatingCurrency(true);
+      const resp = await userPreferenceApi.updatePreferredCurrency(next);
+      if (resp?.success) {
+        dispatch(setUser(resp.data));
+        try { localStorage.setItem("user", JSON.stringify(resp.data)); } catch {}
+        toast.success("Currency updated");
+      } else {
+        toast.error(resp?.message || "Failed to update currency");
+      }
+    } catch (err) {
+      toast.error("Failed to update currency");
+    } finally {
+      setUpdatingCurrency(false);
+    }
   };
 
   return (
@@ -128,6 +157,22 @@ export default function ClientHeader() {
             className="px-3 py-1 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black placeholder-black"
           />
 
+          {/* Currency Switcher */}
+          <select
+            aria-label="Preferred currency"
+            value={preferredCurrency}
+            onChange={handleCurrencyChange}
+            disabled={updatingCurrency}
+            className="px-2 py-1 border border-gray-300 rounded-md text-sm text-black bg-white disabled:opacity-60"
+            title={updatingCurrency ? "Updating..." : "Change currency"}
+          >
+            {SUPPORTED_CURRENCIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+
           {/* Notification */}
           <button className="relative text-black hover:text-gray-700">
             <FaBell className="w-5 h-5" />
@@ -183,6 +228,22 @@ export default function ClientHeader() {
             placeholder="Search..."
             className="hidden sm:block px-3 py-1 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black placeholder-black text-sm"
           />
+
+          {/* Currency Switcher (Mobile) */}
+          <select
+            aria-label="Preferred currency"
+            value={preferredCurrency}
+            onChange={handleCurrencyChange}
+            disabled={updatingCurrency}
+            className="px-2 py-1 border border-gray-300 rounded-md text-sm text-black bg-white disabled:opacity-60"
+            title={updatingCurrency ? "Updating..." : "Change currency"}
+          >
+            {SUPPORTED_CURRENCIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
 
           {/* Notification */}
           <button className="relative text-black hover:text-gray-700">

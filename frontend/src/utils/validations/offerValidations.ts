@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { getUsdRateFor, formatCurrency } from "../currency";
 
 // Reusable date refinements
 const isFutureDate = (value: string, field: string) => {
@@ -22,7 +23,7 @@ export const offerSchema = z.object({
   description: z.string().min(20, 'Description must be at least 20 chars'),
   payment_type: z.enum(['fixed', 'fixed_with_milestones', 'hourly']),
   budget: z.preprocess(v => (v === '' || v === undefined ? undefined : Number(v)), z.number().positive('Budget must be > 0').optional()),
-  currency: z.enum(['USD','EUR','GBP','INR']),
+  currency: z.enum(['USD','EUR','GBP','INR','AUD','CAD','SGD','JPY']),
   hourly_rate: z.preprocess(v => (v === '' || v === undefined ? undefined : Number(v)), z.number().positive('Hourly rate must be > 0').optional()),
   estimated_hours_per_week: z.preprocess(v => (v === '' || v === undefined ? undefined : Number(v)), z.number().int().positive('Hours must be > 0').max(168, 'Too many hours').optional()),
   milestones: z.array(milestoneSchema).optional(),
@@ -111,14 +112,68 @@ export const offerSchema = z.object({
 
 export type OfferSchemaType = z.infer<typeof offerSchema>;
 
-export function validateOffer(payload: any) {
-  const parsed = offerSchema.safeParse(payload);
-  if (parsed.success) return { success: true, data: parsed.data, errors: {} };
-  const fieldErrors: Record<string,string> = {};
-  for (const issue of parsed.error.issues) {
-    const key = issue.path.join('.') || 'form';
-    // accumulate only first error per field
-    if (!fieldErrors[key]) fieldErrors[key] = issue.message;
+export async function validateOffer(payload: any) {
+  // First pass: structural validation
+  const parsed = await offerSchema.safeParseAsync(payload);
+  if (!parsed.success) {
+    const fieldErrors: Record<string, string> = {};
+    for (const issue of parsed.error.issues) {
+      const key = issue.path.join('.') || 'form';
+      if (!fieldErrors[key]) fieldErrors[key] = issue.message;
+    }
+    return { success: false, errors: fieldErrors };
   }
-  return { success: false, errors: fieldErrors };
+
+  // USD-normalized money checks
+  const data = parsed.data;
+  try {
+    const rateToUSD = await getUsdRateFor(data.currency as any);
+    if (data.payment_type === 'hourly' && typeof data.hourly_rate === 'number') {
+      const hrUSD = data.hourly_rate * rateToUSD;
+      if (hrUSD < 5 || hrUSD > 999) {
+        const minLocal = 5 / (rateToUSD || 1);
+        const maxLocal = 999 / (rateToUSD || 1);
+        return {
+          success: false,
+          errors: { hourly_rate: `Hourly rate must be between ${formatCurrency(minLocal, data.currency)} and ${formatCurrency(maxLocal, data.currency)}` },
+        };
+      }
+    }
+    if (data.payment_type !== 'hourly' && typeof data.budget === 'number') {
+      const budgetUSD = data.budget * rateToUSD;
+      if (budgetUSD < 5 || budgetUSD > 100000) {
+        const minLocal = 5 / (rateToUSD || 1);
+        const maxLocal = 100000 / (rateToUSD || 1);
+        return {
+          success: false,
+          errors: { budget: `Budget must be between ${formatCurrency(minLocal, data.currency)} and ${formatCurrency(maxLocal, data.currency)}` },
+        };
+      }
+    }
+    if (data.payment_type === 'fixed_with_milestones' && Array.isArray(data.milestones)) {
+      for (let i = 0; i < data.milestones.length; i++) {
+        const m = data.milestones[i];
+        const mUSD = (m.amount || 0) * rateToUSD;
+        if (mUSD < 5) {
+          const minLocal = 5 / (rateToUSD || 1);
+          return {
+            success: false,
+            errors: { [`milestones.${i}.amount`]: `Each milestone must be at least ${formatCurrency(minLocal, data.currency)}` },
+          };
+        }
+      }
+      const totalUSD = data.milestones.reduce((s, m) => s + (m.amount || 0), 0) * rateToUSD;
+      if (totalUSD > 100000) {
+        const maxLocal = 100000 / (rateToUSD || 1);
+        return {
+          success: false,
+          errors: { milestones: `Total milestones exceed ${formatCurrency(maxLocal, data.currency)}` },
+        };
+      }
+    }
+  } catch (e) {
+    return { success: false, errors: { form: 'Could not validate currency rates. Try again.' } };
+  }
+
+  return { success: true, data: parsed.data, errors: {} };
 }

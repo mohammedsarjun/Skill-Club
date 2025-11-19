@@ -1,7 +1,12 @@
 import BaseRepository from './baseRepositories/base-repository';
 import { IOffer } from '../models/interfaces/offer.model.interface';
+import { UpdateQuery } from 'mongoose';
 import { OfferModel } from '../models/offer.model';
-import { IOfferRepository, FreelancerOfferQueryParamsDTO, ClientOfferQueryParamsDTO } from './interfaces/offer-repository.interface';
+import {
+  IOfferRepository,
+  FreelancerOfferQueryParamsDTO,
+  ClientOfferQueryParamsDTO,
+} from './interfaces/offer-repository.interface';
 
 export class OfferRepository extends BaseRepository<IOffer> implements IOfferRepository {
   constructor() {
@@ -97,7 +102,10 @@ export class OfferRepository extends BaseRepository<IOffer> implements IOfferRep
       { _id: offerId, clientId },
       {
         populate: [
-          { path: 'freelancerId', select: '_id firstName lastName freelancerProfile.logo address.country' },
+          {
+            path: 'freelancerId',
+            select: '_id firstName lastName freelancerProfile.logo address.country',
+          },
           { path: 'jobId', select: '_id title' },
           { path: 'proposalId', select: '_id' },
         ],
@@ -105,19 +113,39 @@ export class OfferRepository extends BaseRepository<IOffer> implements IOfferRep
     );
   }
 
-  async findOneForFreelancer(
-    freelancerId: string,
-    offerId: string,
-  ): Promise<IOffer | null> {
+  async findOneForFreelancer(freelancerId: string, offerId: string): Promise<IOffer | null> {
     return await super.findOne(
       { _id: offerId, freelancerId },
       {
         populate: [
-          { path: 'clientId', select: '_id firstName lastName clientProfile.logo clientProfile.companyName address.country' },
+          {
+            path: 'clientId',
+            select:
+              '_id firstName lastName clientProfile.logo clientProfile.companyName address.country',
+          },
           { path: 'jobId', select: '_id title' },
           { path: 'proposalId', select: '_id' },
         ],
       },
     );
+  }
+
+  async updateStatusById(offerId: string, status: string): Promise<IOffer | null> {
+    const now = new Date().toISOString();
+    return await super.updateById(offerId, { $set: { status }, $push: { timeline: { status, at: now } } });
+  }
+
+  async updateStatusWithReason(offerId: string, status: string, reason?: string): Promise<IOffer | null> {
+    const now = new Date().toISOString();
+    const update: UpdateQuery<IOffer> = {
+      $set: { status } as Partial<IOffer> & Record<string, unknown>,
+      $push: { timeline: { status, at: now, note: reason || '' } } as unknown as UpdateQuery<IOffer>['$push'],
+    };
+
+    if (typeof reason === 'string' && reason.trim().length > 0) {
+      (update.$set as Record<string, unknown>).rejectedReason = reason.trim();
+    }
+
+    return await super.updateById(offerId, update);
   }
 }

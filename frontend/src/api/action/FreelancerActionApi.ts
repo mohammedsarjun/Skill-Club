@@ -386,6 +386,18 @@ export const freelancerActionApi = {
       }
     }
   },
+  async rejectOffer(offerId: string, reason?: string) {
+    try {
+      const response = await axiosClient.post(freelancerRouterEndPoints.rejectOffer(offerId), { reason });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
   async toggleSaveJob(jobId: string) {
     try {
       const response = await axiosClient.post(freelancerRouterEndPoints.saveJob(jobId));

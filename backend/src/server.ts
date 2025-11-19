@@ -16,6 +16,7 @@ import clientRouter from './routes/client-router';
 import uploadRouter from './routes/upload-router';
 import morgan from 'morgan';
 import { appLogger, accessLogStream } from './utils/logger';
+import currencyRouter from './routes/currency-router';
 const PORT = process.env.PORT;
 
 connectDB();
@@ -50,6 +51,9 @@ app.use('/api/freelancer', freelancerRouter);
 app.use('/api/client', clientRouter);
 
 app.use('/api/uploads', uploadRouter);
+
+
+app.use("/api/currency", currencyRouter);
 
 app.use(errorHandler);
 

@@ -24,7 +24,10 @@ export interface IFreelancerService {
 
   updateFreelancerHourlyRate(
     freelancerId: string,
-    hourlyRateData: { hourlyRate: string },
+    hourlyRateData: {
+      hourlyRate: number;
+      currency?: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
+    },
   ): Promise<number | null>;
 
   addFreelancerEducation(

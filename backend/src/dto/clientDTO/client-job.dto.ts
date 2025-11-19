@@ -5,6 +5,7 @@ export interface CreateJobDto {
   specialities: string[];
   skills: string[];
   rateType: 'hourly' | 'fixed';
+  currency: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
 
   hourlyRate?: {
     min: number;
@@ -20,13 +21,14 @@ export interface CreateJobDto {
   clientId: string;
 }
 
-export interface UpdateJobDto{
+export interface UpdateJobDto {
   title: string;
   description: string;
   category: string;
   specialities: string[];
   skills: string[];
   rateType: 'hourly' | 'fixed';
+  currency: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
 
   hourlyRate?: {
     min: number;
@@ -40,9 +42,8 @@ export interface UpdateJobDto{
   };
 }
 
-
 export interface ClientJobResponseDto {
- jobId: string;
+  jobId: string;
   jobTitle: string;
   companyName: string;
   category: {
@@ -53,11 +54,11 @@ export interface ClientJobResponseDto {
     rateType: string;
     min: number;
     max: number;
+    currency: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
   };
   totalProposal: number;
   status: string;
 }
-
 
 export interface ClientJobDetailResponseDTO {
   jobId: string;
@@ -81,6 +82,7 @@ export interface ClientJobDetailResponseDTO {
     max: number;
     hoursPerWeek?: number;
     estimatedDuration?: '1 To 3 Months' | '3 To 6 Months';
+    currency: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
   };
   totalProposal: number;
   status: 'pending_verification' | 'rejected' | 'open' | 'closed' | 'archived' | 'suspended';
@@ -93,7 +95,6 @@ export interface ClientJobDetailResponseDTO {
   rejectedReason?: string;
   suspendedReason?: string;
 }
-
 
 export interface PaginatedClientJobDto {
   data: ClientJobResponseDto[];

@@ -13,6 +13,10 @@ import { OfferCommunication } from './components/OfferCommunication';
 import { OfferReferences } from './components/OfferReferences';
 import { OfferTimeline } from './components/OfferTimeline';
 import { useRouter } from 'next/navigation';
+import Swal from 'sweetalert2';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
+import { formatCurrency as formatCurrencyUtil, SupportedCurrency, convertCurrency } from '@/utils/currency';
 
 interface OfferMilestone { title: string; amount: number; expectedDelivery: string; }
 interface OfferReferenceFile { fileName: string; fileUrl: string; }
@@ -58,16 +62,25 @@ interface OfferDetail {
   timeline: OfferTimelineEvent[];
   client: ClientInfo;
   jobTitle?: string;
+  rejectedReason?: string;
 }
 
 function OfferDetails() {
   const [offerDetail, setOfferDetail] = useState<OfferDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [converted, setConverted] = useState<{
+    currency: SupportedCurrency;
+    hourlyRate?: number;
+    budget?: number;
+    totalMilestones?: number;
+    milestones?: OfferMilestone[];
+  }>({ currency: 'USD' });
   // No accept/reject modals for client detail; withdraw only
   const params = useParams();
   const offerId = params.offerId;
   const router = useRouter();
+  const preferredCurrency = (useSelector((s: RootState) => s.auth.user?.preferredCurrency) || 'USD') as SupportedCurrency;
   const handleGoBack = () => {
     console.log('Navigate back to offers list');
   };
@@ -85,15 +98,9 @@ function OfferDetails() {
     });
   };
 
-  const formatCurrency = (amount: number, currency: string) => {
-    const symbols: Record<string, string> = {
-      INR: '₹',
-      USD: '$',
-      EUR: '€',
-      GBP: '£',
-    };
-    return `${symbols[currency] || currency}${amount.toLocaleString()}`;
-  };
+  const formatCurrency = (amount: number, _currency: string) => (
+    formatCurrencyUtil(Number(amount || 0), converted.currency || preferredCurrency)
+  );
 
   const getCommunicationIcon = (method: string) => {
     switch (method) {
@@ -185,6 +192,56 @@ function OfferDetails() {
     return () => { cancelled = true; };
   }, [offerId]);
 
+  // Convert monetary fields to preferred currency for display
+  useEffect(() => {
+    let cancelled = false;
+    const doConvert = async () => {
+      if (!offerDetail) return;
+      const srcCur = (offerDetail.currency || 'USD') as SupportedCurrency;
+      const tgtCur = preferredCurrency as SupportedCurrency;
+
+      try {
+        const [hr, bdg, msConverted] = await Promise.all([
+          offerDetail.hourlyRate != null
+            ? convertCurrency(offerDetail.hourlyRate, srcCur, tgtCur)
+            : Promise.resolve(undefined),
+          offerDetail.budget != null
+            ? convertCurrency(offerDetail.budget, srcCur, tgtCur)
+            : Promise.resolve(undefined),
+          Array.isArray(offerDetail.milestones)
+            ? Promise.all(
+                offerDetail.milestones.map(async (m) => ({
+                  ...m,
+                  amount: await convertCurrency(m.amount || 0, srcCur, tgtCur),
+                }))
+              )
+            : Promise.resolve(undefined),
+        ]);
+
+        const totalMs = Array.isArray(msConverted)
+          ? msConverted.reduce((s, m) => s + (m.amount || 0), 0)
+          : undefined;
+
+        if (!cancelled) {
+          setConverted({
+            currency: tgtCur,
+            hourlyRate: hr,
+            budget: bdg,
+            milestones: msConverted as any,
+            totalMilestones: totalMs,
+          });
+        }
+      } catch {
+        if (!cancelled) {
+          // Fallback: show raw with original currency if conversion fails
+          setConverted({ currency: srcCur as SupportedCurrency });
+        }
+      }
+    };
+    doConvert();
+    return () => { cancelled = true; };
+  }, [offerDetail, preferredCurrency]);
+
   return (
     <>
       <OfferHeader onGoBack={handleGoBack} />
@@ -215,11 +272,11 @@ function OfferDetails() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
               <OfferBudget
                 paymentType={offerDetail.paymentType}
-                hourlyRate={offerDetail.hourlyRate}
+                hourlyRate={converted.hourlyRate ?? offerDetail.hourlyRate}
                 estimatedHoursPerWeek={offerDetail.estimatedHoursPerWeek}
-                budget={offerDetail.budget}
-                totalMilestones={calculateTotalMilestones()}
-                currency={offerDetail.currency}
+                budget={converted.budget ?? offerDetail.budget}
+                totalMilestones={converted.totalMilestones ?? calculateTotalMilestones()}
+                currency={converted.currency}
                 formatCurrency={formatCurrency}
               />
             </div>
@@ -227,8 +284,8 @@ function OfferDetails() {
             <OfferDescription description={offerDetail.description} />
 
             <OfferMilestones
-              milestones={offerDetail.milestones || []}
-              currency={offerDetail.currency}
+              milestones={(converted.milestones ?? offerDetail.milestones) || []}
+              currency={converted.currency}
               formatDate={formatDate}
               formatCurrency={formatCurrency}
             />
@@ -258,10 +315,45 @@ function OfferDetails() {
                   </div>
                 </div>
                 <div className="mt-4">
-                  <button onClick={() => {
-                    // withdraw action (demo): update local status
-                    setOfferDetail(prev => prev ? { ...prev, status: 'withdrawn' } : prev);
-                  }} className="w-full px-4 py-2 bg-yellow-500 text-white rounded">Withdraw Offer</button>
+                  {offerDetail.status === 'rejected' && (
+                    <span
+                      className={`inline-block px-3 py-1 text-sm font-medium rounded-full bg-red-100 text-red-700 border border-red-300 mb-3`}
+                    >
+                      {`Rejected: ${offerDetail.rejectedReason || 'No reason provided'}`}
+                    </span>
+                  )}
+                  <button
+                    onClick={async () => {
+                      if (offerDetail.status === 'withdrawn') return;
+
+                      const result = await Swal.fire({
+                        title: 'Withdraw Offer',
+                        text: 'Are you sure you want to withdraw this offer?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, withdraw',
+                        cancelButtonText: 'Cancel',
+                      });
+
+                      if (result.isConfirmed) {
+                        try {
+                          const resp = await clientActionApi.withdrawOffer(String(offerDetail.id));
+                          if (resp?.success) {
+                            setOfferDetail(prev => prev ? { ...prev, status: 'withdrawn' } : prev);
+                            Swal.fire('Withdrawn', 'Offer has been withdrawn.', 'success');
+                          } else {
+                            Swal.fire('Error', resp?.message || 'Failed to withdraw offer', 'error');
+                          }
+                        } catch (err) {
+                          Swal.fire('Error', 'Unexpected error while withdrawing', 'error');
+                        }
+                      }
+                    }}
+                    disabled={offerDetail.status === 'withdrawn'}
+                    title={offerDetail.status === 'withdrawn' ? 'Offer already withdrawn' : 'Withdraw Offer'}
+                    className={`w-full px-4 py-2 rounded text-white ${offerDetail.status === 'withdrawn' ? 'bg-gray-200 text-gray-600 cursor-not-allowed' : 'bg-yellow-500'}`}>
+                    {offerDetail.status === 'withdrawn' ? 'Withdrawn' : 'Withdraw Offer'}
+                  </button>
                 </div>
               </div>
 

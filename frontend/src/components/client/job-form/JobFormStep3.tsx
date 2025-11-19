@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { FaClock, FaMoneyBillWave } from "react-icons/fa";
-import { HourlyBudgetSchema } from "@/utils/validations/clientValidations";
-import { FixedBudgetSchema } from "@/utils/validations/clientValidations";
+import { createHourlyBudgetSchema, createFixedBudgetSchema } from "@/utils/validations/clientValidations";
 import { JobData } from "@/types/interfaces/IClient";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { CURRENCY_SYMBOLS, SUPPORTED_CURRENCIES, SupportedCurrency, getUsdRateFor } from "@/utils/currency";
 // ============= TYPES =============
 
 interface JobCreationStep3Props {
@@ -64,6 +66,9 @@ function JobFormStep3({
   const [selectedRate, setSelectedRate] = useState<"hourly" | "fixed">(
     "hourly"
   );
+  const preferredCurrency = (useSelector((s: RootState) => s.auth.user?.preferredCurrency) || 'USD') as SupportedCurrency;
+  const [currency, setCurrency] = useState<SupportedCurrency>(preferredCurrency);
+  const [rateToUSD, setRateToUSD] = useState<number>(1);
 
   const [hourlyRateForm, setHourlyRateForm] = useState({
     min: 0,
@@ -96,7 +101,8 @@ function JobFormStep3({
   // ============= VALIDATION =============
 
   const validateHourlyForm = (showErrors = false) => {
-    const result = HourlyBudgetSchema.safeParse(hourlyRateForm);
+    const schema = createHourlyBudgetSchema(rateToUSD);
+    const result = schema.safeParse(hourlyRateForm);
     const errors = { minError: "", maxError: "", hoursPerWeekError: "" };
 
     if (!result.success) {
@@ -114,7 +120,8 @@ function JobFormStep3({
   };
 
   const validateFixedForm = (showErrors = false) => {
-    const result = FixedBudgetSchema.safeParse(fixedRateForm);
+    const schema = createFixedBudgetSchema(rateToUSD);
+    const result = schema.safeParse(fixedRateForm);
     const errors = { minError: "", maxError: "" };
 
     if (!result.success) {
@@ -141,6 +148,7 @@ function JobFormStep3({
           ...prev,
           rateType: "hourly",
           hourlyRate: hourlyRateForm,
+          currency,
         }));
     } else {
       isValid = validateFixedForm();
@@ -149,11 +157,12 @@ function JobFormStep3({
           ...prev,
           rateType: "fixed",
           fixedRate: fixedRateForm,
+          currency,
         }));
     }
 
     setIsNextAllowed(isValid);
-  }, [selectedRate, hourlyRateForm, fixedRateForm]);
+  }, [selectedRate, hourlyRateForm, fixedRateForm, currency, rateToUSD]);
 
   useEffect(() => {
     const savedData = sessionStorage.getItem("jobSavedData");
@@ -188,7 +197,23 @@ function JobFormStep3({
         max:parsedSavedData.fixedRate?.max||0
       })
     }
+    if ((parsedSavedData as any).currency) {
+      setCurrency(((parsedSavedData as any).currency) as SupportedCurrency);
+    }
   }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const rate = await getUsdRateFor(currency);
+        if (mounted) setRateToUSD(rate);
+      } catch {
+        if (mounted) setRateToUSD(1);
+      }
+    })();
+    return () => { mounted = false; };
+  }, [currency]);
 
   // ============= RENDER =============
 
@@ -205,6 +230,19 @@ function JobFormStep3({
 
       {/* Right Side */}
       <div className="w-full md:w-1/2 space-y-6 mt-6 md:mt-0">
+        <div className="flex items-center gap-3">
+          <label className="text-sm font-medium">Currency</label>
+          <select
+            className="border border-gray-300 px-3 py-2 rounded"
+            value={currency}
+            onChange={(e) => setCurrency(e.target.value as SupportedCurrency)}
+          >
+            {SUPPORTED_CURRENCIES.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+          <span className="text-gray-500 text-sm">Symbol: {CURRENCY_SYMBOLS[currency]}</span>
+        </div>
         {/* Rate Type Selector */}
         <div className="flex space-x-3">
           <div
@@ -257,7 +295,7 @@ function JobFormStep3({
             <div className="flex space-x-4 items-start mt-3">
               <Input
                 type="number"
-                placeholder="₹10"
+                placeholder={`${CURRENCY_SYMBOLS[currency]}10`}
                 value={hourlyRateForm.min ? String(hourlyRateForm.min) : ""}
                 error={touchedHourly.min ? hourlyErrors.minError : ""}
                 onChange={(e) =>
@@ -274,7 +312,7 @@ function JobFormStep3({
               <p className="mt-2">To</p>
               <Input
                 type="number"
-                placeholder="₹20"
+                placeholder={`${CURRENCY_SYMBOLS[currency]}20`}
                 value={hourlyRateForm.max ? String(hourlyRateForm.max) : ""}
                 error={touchedHourly.max ? hourlyErrors.maxError : ""}
                 onChange={(e) =>
@@ -351,7 +389,7 @@ function JobFormStep3({
             <div className="flex space-x-4 items-start mt-3">
               <Input
                 type="number"
-                placeholder="₹100"
+                placeholder={`${CURRENCY_SYMBOLS[currency]}100`}
                 value={fixedRateForm.min ? String(fixedRateForm.min) : ""}
                 error={touchedFixed.min ? fixedErrors.minError : ""}
                 onChange={(e) =>
@@ -368,7 +406,7 @@ function JobFormStep3({
               <p className="mt-2">To</p>
               <Input
                 type="number"
-                placeholder="₹500"
+                placeholder={`${CURRENCY_SYMBOLS[currency]}500`}
                 value={fixedRateForm.max ? String(fixedRateForm.max) : ""}
                 error={touchedFixed.max ? fixedErrors.maxError : ""}
                 onChange={(e) =>

@@ -1,7 +1,10 @@
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { IClientOfferService } from './interfaces/client-offer-service.interface';
-import { ClientOfferRequestDTO, ClientOfferResponseDTO } from '../../dto/clientDTO/client-offer.dto';
+import {
+  ClientOfferRequestDTO,
+  ClientOfferResponseDTO,
+} from '../../dto/clientDTO/client-offer.dto';
 import { validateData } from '../../utils/validation';
 import { offerValidationSchema } from '../../utils/validationSchemas/offer-validation';
 import { IOfferRepository } from '../../repositories/interfaces/offer-repository.interface';
@@ -11,7 +14,10 @@ import { ProposalOfferStrategy } from './offerStrategies/proposal-offer-strategy
 import { IOfferCreationStrategy } from './offerStrategies/offer-creation-strategy.interface';
 import { mapOfferModelToClientOfferResponseDTO } from '../../mapper/clientMapper/client-offer.mapper';
 import { mapOfferModelToClientOfferListItemDTO } from '../../mapper/clientMapper/client-offer-list.mapper';
-import { ClientOfferListResultDTO, ClientOfferQueryParamsDTO } from '../../dto/clientDTO/client-offer.dto';
+import {
+  ClientOfferListResultDTO,
+  ClientOfferQueryParamsDTO,
+} from '../../dto/clientDTO/client-offer.dto';
 import { mapOfferModelToClientOfferDetailDTO } from '../../mapper/clientMapper/client-offer-detail.mapper';
 import { ClientOfferDetailDTO } from '../../dto/clientDTO/client-offer.dto';
 import AppError from '../../utils/app-error';
@@ -37,7 +43,10 @@ export class ClientOfferService implements IClientOfferService {
     return mapOfferModelToClientOfferDetailDTO(offer);
   }
 
-  async getAllOffers(clientId: string, query: ClientOfferQueryParamsDTO): Promise<ClientOfferListResultDTO> {
+  async getAllOffers(
+    clientId: string,
+    query: ClientOfferQueryParamsDTO,
+  ): Promise<ClientOfferListResultDTO> {
     const page = query.page && query.page > 0 ? query.page : 1;
     const limit = query.limit && query.limit > 0 && query.limit <= 100 ? query.limit : 10;
     const normalized: ClientOfferQueryParamsDTO = {
@@ -64,16 +73,16 @@ export class ClientOfferService implements IClientOfferService {
     };
   }
 
-  async createOffer(clientId: string, offerData: ClientOfferRequestDTO): Promise<ClientOfferResponseDTO> {
-    console.log(offerData)
+  async createOffer(
+    clientId: string,
+    offerData: ClientOfferRequestDTO,
+  ): Promise<ClientOfferResponseDTO> {
     const parsed = validateData(offerValidationSchema, offerData);
-
 
     if (!Types.ObjectId.isValid(clientId)) {
       throw new AppError('Invalid clientId', HttpStatus.BAD_REQUEST);
     }
 
- 
     if (!parsed.freelancerId || !Types.ObjectId.isValid(parsed.freelancerId)) {
       throw new AppError('Invalid freelancerId provided', HttpStatus.BAD_REQUEST);
     }
@@ -85,7 +94,8 @@ export class ClientOfferService implements IClientOfferService {
     }
 
     // infer offer type if frontend omitted it (common for direct offers)
-    const inferredOfferType: 'direct' | 'proposal' = parsed.offerType ?? (parsed.proposalId ? 'proposal' : 'direct');
+    const inferredOfferType: 'direct' | 'proposal' =
+      parsed.offerType ?? (parsed.proposalId ? 'proposal' : 'direct');
 
     let strategy: IOfferCreationStrategy;
     if (inferredOfferType === 'proposal') {
@@ -97,6 +107,13 @@ export class ClientOfferService implements IClientOfferService {
       strategy = new DirectOfferStrategy();
     }
 
+    // Prevent duplicate proposal-based offers: allow resend only if previous offer was withdrawn or expired
+    if (inferredOfferType === 'proposal' && parsed.proposalId) {
+      const existing = await this._offerRepository.findOne({ proposalId: parsed.proposalId, clientId });
+      if (existing && !['withdrawn', 'expired'].includes(existing.status)) {
+        throw new AppError('An active offer for this proposal already exists', HttpStatus.CONFLICT);
+      }
+    }
 
     const strategyInput: ClientOfferRequestDTO = {
       ...(parsed as unknown as ClientOfferRequestDTO),
@@ -104,12 +121,89 @@ export class ClientOfferService implements IClientOfferService {
     };
     const baseOffer = await strategy.create(clientId, strategyInput);
 
-    // update proposal status when offer was created for a proposal
+    // Compute conversion rate and base USD amounts; enforce USD-based ranges
+    const { getUsdRateFor } = await import('../../utils/currency.util');
+    const currency = strategyInput.currency;
+    const rateToUSD = await getUsdRateFor(currency);
+
+    // Hourly or fixed
+    let hourlyRateBaseUSD: number | undefined;
+    let budgetBaseUSD: number | undefined;
+    if (strategyInput.payment_type === 'hourly' && typeof strategyInput.hourly_rate === 'number') {
+      hourlyRateBaseUSD = strategyInput.hourly_rate * rateToUSD;
+      if (hourlyRateBaseUSD < 5 || hourlyRateBaseUSD > 999) {
+        throw new AppError(
+          'Hourly rate must be between $5 and $999 after conversion',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    } else if (
+      (strategyInput.payment_type === 'fixed' ||
+        strategyInput.payment_type === 'fixed_with_milestones') &&
+      typeof strategyInput.budget === 'number'
+    ) {
+      budgetBaseUSD = strategyInput.budget * rateToUSD;
+      if (budgetBaseUSD < 5 || budgetBaseUSD > 100000) {
+        throw new AppError(
+          'Fixed budget must be between $5 and $100000 after conversion',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
+
+    // Milestones: ensure each >= $5 and total <= $100000
+    const milestonesWithBase = baseOffer.milestones?.map((m) => ({
+      ...m,
+      amountBaseUSD: typeof m.amount === 'number' ? m.amount * rateToUSD : undefined,
+    }));
+    if (milestonesWithBase && milestonesWithBase.length > 0) {
+      const amounts = milestonesWithBase
+        .map((m) => m.amountBaseUSD || 0)
+        .filter((n) => typeof n === 'number');
+      if (amounts.some((n) => n < 5)) {
+        throw new AppError('Each milestone must be at least $5 after conversion', HttpStatus.BAD_REQUEST);
+      }
+      const total = amounts.reduce((a, b) => a + b, 0);
+      if (total > 100000) {
+        throw new AppError('Total milestones exceed $100000 after conversion', HttpStatus.BAD_REQUEST);
+      }
+    }
+
+    const created = await this._offerRepository.createOffer({
+      ...baseOffer,
+      conversionRate: rateToUSD,
+      hourlyRateBaseUSD,
+      budgetBaseUSD,
+      milestones: milestonesWithBase ?? baseOffer.milestones,
+    });
     if (inferredOfferType === 'proposal' && parsed.proposalId) {
+      console.log(parsed.proposalId);
       await this._proposalRepository.updateStatusById(parsed.proposalId, 'offer_sent');
     }
 
-    const created = await this._offerRepository.createOffer(baseOffer);
     return mapOfferModelToClientOfferResponseDTO(created);
+  }
+
+  async withdrawOffer(clientId: string, offerId: string): Promise<{ withdrawn: boolean }> {
+    if (!Types.ObjectId.isValid(clientId)) {
+      throw new AppError('Invalid clientId', HttpStatus.BAD_REQUEST);
+    }
+
+    if (!Types.ObjectId.isValid(offerId)) {
+      throw new AppError('Invalid offerId', HttpStatus.BAD_REQUEST);
+    }
+
+    const existing = await this._offerRepository.findOneForClient(clientId, offerId);
+    if (!existing) {
+      throw new AppError('Offer not found or not owned by client', HttpStatus.NOT_FOUND);
+    }
+
+    // Prevent withdrawing accepted offers
+    if (existing.status === 'accepted') {
+      throw new AppError('Cannot withdraw an accepted offer', HttpStatus.BAD_REQUEST);
+    }
+
+    await this._offerRepository.updateStatusById(offerId, 'withdrawn');
+    return { withdrawn: true };
   }
 }

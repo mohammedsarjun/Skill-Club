@@ -4,6 +4,9 @@ import { useRouter } from 'next/navigation';
 import { clientActionApi } from '@/api/action/ClientActionApi';
 import Pagination from '@/components/common/Pagination';
 import { FaArrowLeft, FaHeart, FaMapMarkerAlt, FaMoneyBillWave, FaSpinner, FaUserTie } from 'react-icons/fa';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
+import { formatCurrency, SupportedCurrency } from '@/utils/currency';
 
 interface SavedFreelancerItemDTO {
 	id: string;
@@ -26,6 +29,8 @@ export default function SavedFreelancerPage() {
 	const [totalPages, setTotalPages] = useState(1);
 	const [loading, setLoading] = useState(true);
 	const [removingId, setRemovingId] = useState<string | null>(null);
+
+	const preferredCurrency = (useSelector((s: RootState) => s.auth.user?.preferredCurrency) || 'USD') as SupportedCurrency;
 
 	useEffect(() => {
 		let active = true;
@@ -126,7 +131,7 @@ export default function SavedFreelancerPage() {
 									</div>
 									<div className="flex items-center gap-2 text-gray-600">
 										<FaMoneyBillWave className="text-gray-400" />
-										<span>{typeof f.hourlyRate === 'number' ? `₹${f.hourlyRate}/hr` : '-'}</span>
+										<span>{typeof f.hourlyRate === 'number' ? `${formatCurrency(Number(f.hourlyRate || 0), preferredCurrency)}/hr` : '-'}</span>
 									</div>
 								</div>
 

@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { z } from "zod";
 import DynamicFormModal from "@/components/common/Form";
 import { Field } from "@/types/interfaces/forms";
 import { proposalSchema } from "@/utils/validations/freelancerValidation";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { CURRENCY_SYMBOLS, SupportedCurrency, getUsdRateFor } from "@/utils/currency";
 
 interface ProposalFormModalProps {
   jobType: "hourly" | "fixed";
@@ -15,11 +18,25 @@ const ProposalFormModal: React.FC<ProposalFormModalProps> = ({
   onSubmit,
   onClose,
 }) => {
+  const preferredCurrency = (useSelector((s: RootState) => s.auth.user?.preferredCurrency) || 'USD') as SupportedCurrency;
+  const [rateToUSD, setRateToUSD] = useState<number>(1);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const r = await getUsdRateFor(preferredCurrency);
+        if (active) setRateToUSD(r || 1);
+      } catch { if (active) setRateToUSD(1); }
+    })();
+    return () => { active = false; };
+  }, [preferredCurrency]);
+
   // ✅ Fields based on job type
   const hourlyFields: Field[] = [
     {
       name: "hourlyRate",
-      label: "Your Hourly Rate ($)",
+      label: `Your Hourly Rate (${CURRENCY_SYMBOLS[preferredCurrency]})`,
       type: "number",
       placeholder: "Enter your hourly rate",
       group: "payment",
@@ -43,7 +60,7 @@ const ProposalFormModal: React.FC<ProposalFormModalProps> = ({
   const fixedFields: Field[] = [
     {
       name: "proposedBudget",
-      label: "Proposed Budget (₹)",
+      label: `Proposed Budget (${CURRENCY_SYMBOLS[preferredCurrency]})`,
       type: "number",
       placeholder: "Enter total project amount",
       group: "payment",
@@ -73,7 +90,7 @@ const ProposalFormModal: React.FC<ProposalFormModalProps> = ({
       title="Submit Proposal"
       onSubmit={onSubmit}
       onClose={onClose}
-      validationSchema={proposalSchema(jobType)}
+      validationSchema={proposalSchema(jobType, rateToUSD)}
       mode="create"
       layout="vertical"
       submitContent="Submit"

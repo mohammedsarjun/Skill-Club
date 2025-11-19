@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import GenericTable, { Column, Filter } from "@/components/admin/Table";
 import ViewProposalDialog from "./ProposalDialog";
+import toast from 'react-hot-toast';
 import { useParams } from "next/navigation";
 import { clientActionApi } from "@/api/action/ClientActionApi";
 
@@ -52,6 +53,7 @@ export default function ProposalManagementTable() {
   const [search, setSearch] = useState<string>("");
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
   const [totalCount, setTotalCount] = useState<number | undefined>(undefined);
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
 
   const pageSize = 10;
 
@@ -84,7 +86,7 @@ export default function ProposalManagementTable() {
 
         // Map backend proposal shape into the UI Proposal shape
         const proposalItems: Proposal[] = items.map((raw: any) => ({
-          id: raw?._id?.toString() ?? raw?.id?.toString() ?? "",
+          id: raw?.proposalId?.toString() ?? "",
           proposalId: raw?._id?.toString() ?? raw?.id?.toString() ?? "",
           freelancerId: raw?.freelancer?.freelancerId?.toString() ?? raw?.freelancerId,
           jobId: raw?.jobId ?? jobId,
@@ -146,9 +148,8 @@ export default function ProposalManagementTable() {
       options: [
         { id: "", name: "All" },
         { id: "pending_verification", name: "Pending" },
-        { id: "accepted", name: "Approved" },
+        { id: "offer_sent", name: "Offer Sent" },
         { id: "rejected", name: "Rejected" },
-        { id: "under_review", name: "Under Review" },
       ],
     },
   ];
@@ -173,6 +174,37 @@ export default function ProposalManagementTable() {
     setSelectedProposal(fullProposal || null);
   };
 
+  const handleReject = async (proposal: Proposal) => {
+    // allow fallback between proposal.proposalId and proposal.id
+    const pid = (proposal && (proposal.proposalId || proposal.id)) as string | undefined;
+    console.log('handleReject invoked for', { proposal, pid });
+    if (!pid) {
+      console.warn('No proposal id available to reject');
+      toast.error('Unable to determine proposal id');
+      return;
+    }
+
+    setRejectingId(pid);
+    try {
+      const resp = await clientActionApi.rejectProposal(pid);
+      const payload = resp && resp.data ? resp.data : resp;
+      console.log('reject response', resp, payload);
+      if (payload?.rejected) {
+        // mark locally as rejected
+        setProposalsData((prev) => prev.map((p) => (p.id === proposal.id ? { ...p, status: 'rejected' } : p)));
+        toast.success('Proposal rejected');
+        setSelectedProposal((prev) => (prev && prev.id === proposal.id ? { ...prev, status: 'rejected' } : prev));
+      } else {
+        toast.error(resp?.message || 'Failed to reject proposal');
+      }
+    } catch (err) {
+      console.error('Reject failed', err);
+      toast.error('Failed to reject proposal');
+    } finally {
+      setRejectingId(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <GenericTable<Proposal>
@@ -195,6 +227,7 @@ export default function ProposalManagementTable() {
         badgeColors={{
           pending: "#f59e0b",
           approved: "#10b981",
+          offer_sent: "#7c3aed",
           rejected: "#ef4444",
           under_review: "#3b82f6",
         }}
@@ -207,7 +240,7 @@ export default function ProposalManagementTable() {
           onClose={() => setSelectedProposal(null)}
           onAccept={() => {}}
           onMessage={() => {}}
-          onReject={() => {}}
+          onReject={(p) => handleReject(p)}
           isOpen={!!selectedProposal}
         />
       )}

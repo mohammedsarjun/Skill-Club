@@ -11,6 +11,9 @@ declare module 'express-serve-static-core' {
       activeRole: string;
       isClientBlocked: boolean;
       isFreelancerBlocked: boolean;
+      clientProfile?: string | undefined;
+      freelancerProfile?: string | undefined;
+      preferredCurrency?: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
     };
   }
 }

@@ -7,6 +7,8 @@ export interface JobData {
   specialities: Types.ObjectId[]; // 1–3 items
   skills: Types.ObjectId[]; // 1–10 items
   rateType: 'hourly' | 'fixed';
+  currency?: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
+  conversionRate?: number; // USD per 1 unit of currency
 
   // Rates
   hourlyRate?: {
@@ -20,15 +22,19 @@ export interface JobData {
     max: number;
   };
 
+  // Normalized base USD ranges for validation/analytics
+  hourlyRateBaseUSD?: {
+    min?: number;
+    max?: number;
+  };
+  fixedRateBaseUSD?: {
+    min?: number;
+    max?: number;
+  };
+
   clientId: Types.ObjectId;
 
-  status:
-    'pending_verification'|
-        'rejected'|
-        'open'|
-        'closed'|
-        'archived'|
-        'suspended';
+  status: 'pending_verification' | 'rejected' | 'open' | 'closed' | 'archived' | 'suspended';
 
   verifiedBy?: Types.ObjectId;
   rejectedReason?: string;
@@ -57,11 +63,10 @@ export interface IJobDetail
     clientProfile: {
       companyName: string;
       logo: string;
-      country?:string
+      country?: string;
     };
   };
 }
-
 
 export interface IJobResponse
   extends Omit<IJob, 'category' | 'clientId' | 'specialities' | 'skills'> {
@@ -69,8 +74,8 @@ export interface IJobResponse
   specialities: { _id: string; name: string }[];
   skills: { _id: string; name: string }[];
   client: {
-      companyName: string;
-      logo: string;
-      country?:string
+    companyName: string;
+    logo: string;
+    country?: string;
   };
 }

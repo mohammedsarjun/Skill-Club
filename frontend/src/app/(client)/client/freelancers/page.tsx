@@ -7,6 +7,9 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { debounce } from "lodash";
 import { IFreelancerQueryParams } from "@/types/interfaces/IFreelancer";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { formatCurrency, SupportedCurrency, convertCurrency } from "@/utils/currency";
 interface Skill {
   skillId: string;
   skillName: string;
@@ -199,14 +202,13 @@ const Freelancers = () => {
   });
 
   useEffect(() => {
-    console.log("hi");
-    console.log(filters);
+
   }, [filters]);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const router = useRouter();
-  const itemsPerPage = 5;
+  const itemsPerPage = 10; // page size sent to backend
   const [localSearch, setLocalSearch] = useState(filters.search || "");
 
   const handleFilterUpdate = (key: keyof FilterState, value: any) => {
@@ -271,6 +273,10 @@ const Freelancers = () => {
 
   // Store backend freelancers data
   const [freelancers, setFreelancers] = useState<any[]>([]);
+  const [loadingFreelancers, setLoadingFreelancers] = useState(false);
+  const [freelancersError, setFreelancersError] = useState<string | null>(null);
+  const preferredCurrency = (useSelector((s: RootState) => s.auth.user?.preferredCurrency) || 'USD') as SupportedCurrency;
+  const [converted, setConverted] = useState<Record<string, { hourly?: number; earned?: number }>>({});
   const [totalPages, setTotalPages] = useState(1);
 
   // When backend data arrives, update freelancers and totalPages
@@ -306,23 +312,35 @@ const Freelancers = () => {
   const debouncedSendToBackend = useMemo(
     () =>
       debounce(async (f: IFreelancerQueryParams) => {
+        setLoadingFreelancers(true);
+        setFreelancersError(null);
         try {
           const res = await clientActionApi.getAllFreelancers(f);
-          // Expect res.data to be an array of freelancers
-          console.log(res);
-          setFreelancers(Array.isArray(res.data) ? res.data : []);
-          // If backend provides total count, update totalPages
-          if (typeof res.totalCount === "number") {
-            setTotalPages(
-              Math.max(1, Math.ceil(res.totalCount / itemsPerPage))
-            );
-          } else {
-            setTotalPages(1);
-          }
-        } catch (err) {
+          console.log(res)
+          // Flexible shape handling
+          // Possible shapes:
+          // { success, data: [...], totalCount }
+          // { success, data: { freelancers: [...], totalCount } }
+          // { success, freelancers: [...], totalCount }
+          const rawData = (res?.data && Array.isArray(res.data) ? res.data :
+            res?.data?.freelancers && Array.isArray(res.data.freelancers) ? res.data.freelancers :
+            Array.isArray(res?.freelancers) ? res.freelancers :
+            Array.isArray(res) ? res : []);
+          setFreelancers(rawData);
+
+          // Derive total count from multiple possible locations
+            const totalCount = typeof res?.totalCount === 'number' ? res.totalCount :
+              (res?.data && typeof res.data.totalCount === 'number' ? res.data.totalCount :
+              (typeof res?.count === 'number' ? res.count : rawData.length));
+
+          setTotalPages(Math.max(1, Math.ceil(totalCount / itemsPerPage)));
+        } catch (err: any) {
           console.error("Error sending filters to backend:", err);
+          setFreelancersError(err?.message || 'Failed to load freelancers');
           setFreelancers([]);
           setTotalPages(1);
+        } finally {
+          setLoadingFreelancers(false);
         }
       }, 500),
     [itemsPerPage]
@@ -341,6 +359,26 @@ const Freelancers = () => {
       debouncedSendToBackend.cancel();
     };
   }, [filters, currentPage, itemsPerPage, debouncedSendToBackend]);
+
+  // Convert money fields to the user's preferred currency when data or preference changes
+  // useEffect(() => {
+  //   let active = true;
+  //   (async () => {
+  //     const map: Record<string, { hourly?: number; earned?: number }> = {};
+  //     for (const f of freelancers) {
+  //       try {
+  //         const fromCur = (f.hourlyRateCurrency || f.currency || 'USD') as SupportedCurrency;
+  //         const hourly = typeof f.hourlyRate === 'number' ? await convertCurrency(Number(f.hourlyRate), fromCur, preferredCurrency) : undefined;
+  //         const earned = typeof f.totalEarnedAmount === 'number' ? await convertCurrency(Number(f.totalEarnedAmount), fromCur, preferredCurrency) : undefined;
+  //         map[f.freelancerId] = { hourly, earned };
+  //       } catch {
+  //         // ignore conversion failures for this item
+  //       }
+  //     }
+  //     if (active) setConverted(map);
+  //   })();
+  //   return () => { active = false; };
+  // }, [freelancers, preferredCurrency]);
 
   useEffect(() => {
     async function fetchCategories() {
@@ -734,12 +772,19 @@ const Freelancers = () => {
           <main className="flex-1 space-y-6">
             <div className="flex items-center justify-between">
               <p className="text-gray-600">
-                {freelancers.length} freelancer
-                {freelancers.length !== 1 ? "s" : ""} found
+                {loadingFreelancers ? 'Loading freelancers...' : `${freelancers.length} freelancer${freelancers.length !== 1 ? 's' : ''} found`}
               </p>
+              {freelancersError && (
+                <span className="text-sm text-red-600 font-medium">{freelancersError}</span>
+              )}
             </div>
 
-            {freelancers.length > 0 ? (
+            {loadingFreelancers ? (
+              <div className="bg-white border border-gray-200 rounded-lg p-6 text-center">
+                <div className="animate-spin w-8 h-8 border-4 border-gray-200 border-t-[#14A800] rounded-full mx-auto mb-2" />
+                <p className="text-sm text-gray-600">Fetching page {currentPage}...</p>
+              </div>
+            ) : freelancers.length > 0 ? (
               <>
                 <div className="space-y-4">
                   {paginatedFreelancers.map((freelancer) => (
@@ -818,7 +863,7 @@ const Freelancers = () => {
                                 />
                               </svg>
                               <span className="font-medium text-gray-900">
-                                ${freelancer.hourlyRate}/hr
+                                {formatCurrency(Number(converted[freelancer.freelancerId]?.hourly ?? freelancer.hourlyRate ?? 0), preferredCurrency)}/hr
                               </span>
                             </div>
                             <div className="flex items-center gap-1.5">
@@ -847,8 +892,7 @@ const Freelancers = () => {
                                 />
                               </svg>
                               <span className="font-medium text-gray-900">
-                                ${freelancer.totalEarnedAmount.toLocaleString()}{" "}
-                                earned
+                                {formatCurrency(Number(converted[freelancer.freelancerId]?.earned ?? freelancer.totalEarnedAmount ?? 0), preferredCurrency)} earned
                               </span>
                             </div>
                           </div>

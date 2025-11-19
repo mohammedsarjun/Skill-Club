@@ -1,7 +1,6 @@
-
 import { AdminJobDetailResponseDTO, AdminJobResponseDTO } from '../../dto/adminDTO/admin-job.dto';
 import { IJobDetail, IJobWithCategoryDetail } from '../../models/interfaces/job.model.interface';
-
+import { SupportedCurrency } from '../../contants/currency.constants';
 
 export function mapJobModelToAdminJobResponseDTO(dto: IJobWithCategoryDetail): AdminJobResponseDTO {
   return {
@@ -9,33 +8,32 @@ export function mapJobModelToAdminJobResponseDTO(dto: IJobWithCategoryDetail): A
     jobTitle: dto.title,
     companyName: dto?.clientId?.companyName,
     category: { categoryId: dto.category._id, categoryName: dto.category.name },
-    totalProposal:0,
+    totalProposal: 0,
     status: dto.status,
     budget: {
       rateType: dto.rateType,
-      min: (dto.rateType == "fixed" ? dto?.fixedRate?.min : dto?.hourlyRate?.min) || 0,
-      max: (dto.rateType == "fixed" ? dto?.fixedRate?.max : dto?.hourlyRate?.max) || 0,
+      min: (dto.rateType == 'fixed' ? dto?.fixedRate?.min : dto?.hourlyRate?.min) || 0,
+      max: (dto.rateType == 'fixed' ? dto?.fixedRate?.max : dto?.hourlyRate?.max) || 0,
+      currency: dto.currency as SupportedCurrency,
     },
   };
 }
 
-
-
 export function mapJobModelToAdminJobDetailResponseDTO(dto: IJobDetail): AdminJobDetailResponseDTO {
-
   return {
     jobId: dto._id?.toString()!,
     jobTitle: dto.title,
     jobDescription: dto.description,
     category: { categoryId: dto.category._id, categoryName: dto.category.name },
-    totalProposal:0,
+    totalProposal: 0,
     status: dto.status,
     budget: {
       rateType: dto.rateType,
-      min: (dto.rateType == "fixed" ? dto?.fixedRate?.min : dto?.hourlyRate?.min) || 0,
-      max: (dto.rateType == "fixed" ? dto?.fixedRate?.max : dto?.hourlyRate?.max) || 0,
-      hoursPerWeek: dto.rateType == "hourly" ? dto?.hourlyRate?.hoursPerWeek : undefined,
-      estimatedDuration: dto.rateType == "hourly" ? dto?.hourlyRate?.estimatedDuration : undefined,
+      min: (dto.rateType == 'fixed' ? dto?.fixedRate?.min : dto?.hourlyRate?.min) || 0,
+      max: (dto.rateType == 'fixed' ? dto?.fixedRate?.max : dto?.hourlyRate?.max) || 0,
+      currency: dto.currency as SupportedCurrency,
+      hoursPerWeek: dto.rateType == 'hourly' ? dto?.hourlyRate?.hoursPerWeek : undefined,
+      estimatedDuration: dto.rateType == 'hourly' ? dto?.hourlyRate?.estimatedDuration : undefined,
     },
     specialities: dto.specialities.map((spec) => ({
       specialityId: spec._id.toString(),
@@ -49,7 +47,6 @@ export function mapJobModelToAdminJobDetailResponseDTO(dto: IJobDetail): AdminJo
       clientId: dto?.clientId?._id.toString() || '',
       companyName: dto?.clientId?.clientProfile?.companyName || '',
       companyLogo: dto?.clientId?.clientProfile?.logo || '',
-  }
+    },
+  };
 }
-}
-

@@ -1,4 +1,5 @@
-import { Types } from "mongoose";
+import { Types } from 'mongoose';
+import { SupportedCurrency } from 'src/contants/currency.constants';
 
 export interface freelancerParams {
   search: string;
@@ -13,7 +14,6 @@ export interface freelancerParams {
   page: number;
   limit: number;
 }
-
 
 export interface ClientFreelancerSkill {
   skillId: string;
@@ -34,15 +34,15 @@ export interface ClientFreelancerResponseDto {
   skills: ClientFreelancerSkill[];
   bio: string;
   language: string[];
+  hourlyRateCurrency?: SupportedCurrency;
 }
-
 
 // DTO for sending freelancer profile data
 export interface FetchClientFreelancerDTO {
   name: string;
-  address: {country:string};
+  address: { country: string };
   logo?: string; // optional, as it can be undefined
-  workCategory?:Types.ObjectId;
+  workCategory?: Types.ObjectId;
   specialties: { id: string; name: string }[];
   skills: { id: string; name: string }[];
   professionalRole: string;
@@ -52,6 +52,7 @@ export interface FetchClientFreelancerDTO {
   bio: string;
   hourlyRate: number;
   portfolio: null;
+  hourlyRateCurrency?: SupportedCurrency;
 }
 
 // Experience DTO
@@ -77,8 +78,6 @@ export interface IClientFreelancerEducationDTO {
   startYear: number;
   endYear: number;
 }
-
-
 
 export interface IClientFreelancerLanguageDTO {
   name: string;

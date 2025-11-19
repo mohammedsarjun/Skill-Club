@@ -227,6 +227,9 @@ const ViewProposalDialog: React.FC<ViewProposalDialogProps> = ({
   onReject,
   onMessage,
 }) => {
+
+  console.log(proposalProp)
+
   // Prefer provided proposal object, otherwise fall back to dummy lookup by id
   const proposal = proposalProp ?? (proposalId ? DUMMY_PROPOSALS.find((p) => p.id === proposalId) : null);
   const router=useRouter()
@@ -385,23 +388,55 @@ const ViewProposalDialog: React.FC<ViewProposalDialogProps> = ({
 
         {/* Action Buttons */}
         <div className="flex gap-3 pt-4 border-t border-gray-200">
+          {/** Disable Accept when offer already sent or when proposal rejected */}
           <button
             onClick={() => {
-              onAccept(proposal);
-              onClose();
+              if (proposal.status !== 'offer_sent' && proposal.status !== 'rejected') {
+                router.push(`/client/offers/create/proposals/${proposalId}`);
+              }
             }}
-            className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium shadow-md hover:shadow-lg"
+            disabled={proposal.status === 'offer_sent' || proposal.status === 'rejected'}
+            title={
+              proposal.status === 'offer_sent'
+                ? 'Offer already sent for this proposal'
+                : proposal.status === 'rejected'
+                ? 'This proposal has been rejected'
+                : 'Accept Proposal'
+            }
+            className={`flex-1 px-6 py-3 rounded-lg transition-colors font-medium shadow-md ${
+              proposal.status === 'offer_sent' || proposal.status === 'rejected'
+                ? 'bg-gray-200 text-gray-600 cursor-not-allowed'
+                : 'bg-green-600 text-white hover:bg-green-700 hover:shadow-lg'
+            }`}
           >
-            Accept Proposal
+            {proposal.status === 'offer_sent' ? 'Offer Sent' : proposal.status === 'rejected' ? 'Rejected' : 'Accept Proposal'}
           </button>
           <button
-            onClick={() => {
-              onReject(proposal);
-              onClose();
+            onClick={async () => {
+              if (proposal.status !== 'offer_sent' && proposal.status !== 'rejected') {
+                try {
+                  await onReject(proposal as Proposal);
+                } catch (e) {
+                  // swallow — table handler shows toasts
+                }
+                onClose();
+              }
             }}
-            className="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium shadow-md hover:shadow-lg"
+            disabled={proposal.status === 'offer_sent' || proposal.status === 'rejected'}
+            title={
+              proposal.status === 'offer_sent'
+                ? 'Offer already sent for this proposal'
+                : proposal.status === 'rejected'
+                ? 'This proposal has been rejected'
+                : 'Reject Proposal'
+            }
+            className={`flex-1 px-6 py-3 rounded-lg transition-colors font-medium shadow-md ${
+              proposal.status === 'offer_sent' || proposal.status === 'rejected'
+                ? 'bg-gray-200 text-gray-600 cursor-not-allowed'
+                : 'bg-red-600 text-white hover:bg-red-700 hover:shadow-lg'
+            }`}
           >
-            Reject Proposal
+            {proposal.status === 'rejected' ? 'Rejected' : 'Reject Proposal'}
           </button>
           <button
             onClick={() => onMessage(proposal)}

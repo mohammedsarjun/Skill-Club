@@ -3,6 +3,7 @@ import { Document, Types } from 'mongoose';
 export interface OfferMilestone {
   title: string;
   amount: number;
+  amountBaseUSD?: number;
   expectedDelivery: Date;
 }
 
@@ -35,8 +36,11 @@ export interface OfferDetail {
   description: string;
   paymentType: 'fixed' | 'fixed_with_milestones' | 'hourly';
   budget?: number;
-  currency: 'USD' | 'EUR' | 'GBP' | 'INR';
+  currency: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
+  budgetBaseUSD?: number;
   hourlyRate?: number;
+  hourlyRateBaseUSD?: number;
+  conversionRate?: number; // USD per 1 unit of `currency`
   estimatedHoursPerWeek?: number;
   milestones?: OfferMilestone[];
   expectedStartDate: Date;
@@ -44,14 +48,28 @@ export interface OfferDetail {
   communication: {
     preferredMethod: 'chat' | 'video_call' | 'email' | 'mixed';
     meetingFrequency?: 'daily' | 'weekly' | 'monthly';
-    meetingDayOfWeek?: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+    meetingDayOfWeek?:
+      | 'monday'
+      | 'tuesday'
+      | 'wednesday'
+      | 'thursday'
+      | 'friday'
+      | 'saturday'
+      | 'sunday';
     meetingDayOfMonth?: number; // 1..31 when monthly
     meetingTimeUtc?: string; // HH:mm
   };
   reporting: {
     frequency: 'daily' | 'weekly' | 'monthly';
     dueTimeUtc: string; // HH:mm
-    dueDayOfWeek?: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+    dueDayOfWeek?:
+      | 'monday'
+      | 'tuesday'
+      | 'wednesday'
+      | 'thursday'
+      | 'friday'
+      | 'saturday'
+      | 'sunday';
     dueDayOfMonth?: number; // 1..31 when monthly
     format: 'text_with_attachments' | 'text_only' | 'video';
   };
@@ -62,6 +80,7 @@ export interface OfferDetail {
   timeline: OfferTimelineEvent[];
   createdAt?: Date;
   updatedAt?: Date;
+  rejectedReason?: string;
 }
 
 export interface IOffer extends OfferDetail, Document {}

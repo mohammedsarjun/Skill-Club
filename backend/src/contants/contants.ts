@@ -51,7 +51,7 @@ export const MESSAGES = {
     UPDATED: 'Speciality Edited successfully',
     FETCH_SUCCESS: 'Speciality data fetched successfully',
   },
-  JOB:{
+  JOB: {
     CREATED: 'Job created successfully',
     UPDATED: 'Job Edited successfully',
     FETCH_SUCCESS: 'Job data fetched successfully',
@@ -60,12 +60,11 @@ export const MESSAGES = {
     SUSPEND_SUCCESS: 'Job suspended successfully',
     CLOSED: 'Job closed successfully',
   },
-    PROPOSAL:{
+  PROPOSAL: {
     CREATED: 'Proposal created successfully',
     FETCH_SUCCESS: 'Proposal data fetched successfully',
   },
-  PORTFOLIO:{
-      
+  PORTFOLIO: {
     PORTFOLIO_FETCH_SUCCESS: 'Freelancer portfolio fetched successfully',
-  }
+  },
 };

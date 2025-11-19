@@ -1,4 +1,4 @@
-import { JobQueryParams } from "../../dto/commonDTO/job-common.dto";
+import { JobQueryParams } from '../../dto/commonDTO/job-common.dto';
 
 export function mapJobQuery(dto: JobQueryParams): JobQueryParams {
   // Normalize and clean up query parameters
@@ -8,16 +8,14 @@ export function mapJobQuery(dto: JobQueryParams): JobQueryParams {
 
   // Prepare filters safely
   const status =
-    dto?.filters?.status && dto.filters.status.trim() !== ''
-      ? dto.filters.status
-      : undefined;
+    dto?.filters?.status && dto.filters.status.trim() !== '' ? dto.filters.status : undefined;
 
   return {
     search,
     page,
     limit,
     filters: {
-      ...(status && { status }), 
+      ...(status && { status }),
     },
   };
 }

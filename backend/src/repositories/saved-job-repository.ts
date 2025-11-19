@@ -1,7 +1,10 @@
 import BaseRepository from './baseRepositories/base-repository';
 import SavedJob from '../models/saved-job.model';
 import { ISavedJob } from '../models/interfaces/saved-job.model.interface';
-import { ISavedJobRepository, SavedJobWithJobAggregation } from './interfaces/saved-job-repository.interface';
+import {
+  ISavedJobRepository,
+  SavedJobWithJobAggregation,
+} from './interfaces/saved-job-repository.interface';
 import { PipelineStage, Types } from 'mongoose';
 
 export class SavedJobRepository extends BaseRepository<ISavedJob> implements ISavedJobRepository {
@@ -113,7 +116,11 @@ export class SavedJobRepository extends BaseRepository<ISavedJob> implements ISa
               name: '$categoryDoc.name',
             },
             specialities: {
-              $map: { input: '$specialitiesDocs', as: 's', in: { _id: '$$s._id', name: '$$s.name' } },
+              $map: {
+                input: '$specialitiesDocs',
+                as: 's',
+                in: { _id: '$$s._id', name: '$$s.name' },
+              },
             },
             skills: {
               $map: { input: '$skillsDocs', as: 'k', in: { _id: '$$k._id', name: '$$k.name' } },

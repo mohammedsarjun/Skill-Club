@@ -1,22 +1,28 @@
 import { IOffer } from '../../models/interfaces/offer.model.interface';
-import { FreelancerOfferListItemDTO, FreelancerOfferDetailDTO } from '../../dto/freelancerDTO/freelancer-offer.dto';
+import {
+  FreelancerOfferListItemDTO,
+  FreelancerOfferDetailDTO,
+} from '../../dto/freelancerDTO/freelancer-offer.dto';
 
-export const mapOfferModelToFreelancerOfferListItemDTO = (offer: IOffer): FreelancerOfferListItemDTO => {
+export const mapOfferModelToFreelancerOfferListItemDTO = (
+  offer: IOffer,
+): FreelancerOfferListItemDTO => {
   const rawId = (offer as unknown as { _id?: { toString(): string } })._id?.toString() ?? '';
-  const clientPop = (offer.clientId as unknown) as Partial<{
+  const clientPop = offer.clientId as unknown as Partial<{
     firstName?: string;
     lastName?: string;
     clientProfile?: { logo?: string };
     toString?: () => string;
   }>;
-  const client = typeof offer.clientId === 'object' && offer.clientId !== null
-    ? {
-        clientId: (clientPop as { toString?: () => string }).toString?.() || '',
-        firstName: clientPop.firstName,
-        lastName: clientPop.lastName,
-        logo: clientPop.clientProfile?.logo,
-      }
-    : undefined;
+  const client =
+    typeof offer.clientId === 'object' && offer.clientId !== null
+      ? {
+          clientId: (clientPop as { toString?: () => string }).toString?.() || '',
+          firstName: clientPop.firstName,
+          lastName: clientPop.lastName,
+          logo: clientPop.clientProfile?.logo,
+        }
+      : undefined;
   return {
     offerId: rawId,
     title: offer.title,
@@ -32,16 +38,18 @@ export const mapOfferModelToFreelancerOfferListItemDTO = (offer: IOffer): Freela
   };
 };
 
-export const mapOfferModelToFreelancerOfferDetailDTO = (offer: IOffer): FreelancerOfferDetailDTO => {
+export const mapOfferModelToFreelancerOfferDetailDTO = (
+  offer: IOffer,
+): FreelancerOfferDetailDTO => {
   const base = mapOfferModelToFreelancerOfferListItemDTO(offer);
-  const clientPop = (offer.clientId as unknown) as Partial<{
+  const clientPop = offer.clientId as unknown as Partial<{
     firstName?: string;
     lastName?: string;
     clientProfile?: { logo?: string; companyName?: string };
     address?: { country?: string };
     toString?: () => string;
   }>;
-  const jobPop = (offer.jobId as unknown) as Partial<{ title?: string; toString?: () => string }>;
+  const jobPop = offer.jobId as unknown as Partial<{ title?: string; toString?: () => string }>;
   return {
     ...base,
     jobId: offer.jobId?.toString(),
@@ -70,8 +78,11 @@ export const mapOfferModelToFreelancerOfferDetailDTO = (offer: IOffer): Freelanc
       dueDayOfMonth: offer.reporting.dueDayOfMonth,
       format: offer.reporting.format,
     },
-    referenceFiles: offer.referenceFiles?.map((f) => ({ fileName: f.fileName, fileUrl: f.fileUrl })) ?? [],
-    referenceLinks: offer.referenceLinks?.map((l) => ({ description: l.description, link: l.link })) ?? [],
+    referenceFiles:
+      offer.referenceFiles?.map((f) => ({ fileName: f.fileName, fileUrl: f.fileUrl })) ?? [],
+    referenceLinks:
+      offer.referenceLinks?.map((l) => ({ description: l.description, link: l.link })) ?? [],
     timeline: offer.timeline?.map((t) => ({ status: t.status, at: t.at, note: t.note })) ?? [],
+    rejectedReason: (offer as unknown as { rejectedReason?: string }).rejectedReason,
   };
 };

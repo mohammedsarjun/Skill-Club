@@ -17,9 +17,11 @@ const clientRouterEndPoints = {
   createOffer: "/client/offers",
   getOffers: "/client/offers",
   getOfferDetail: (offerId: string) => `/client/offers/${offerId}`,
+  withdrawOffer: (offerId: string) => `/client/offers/${offerId}/withdraw`,
   getAllFreelancerPortfolio:(freelancerId:string)=>`/client/freelancers/${freelancerId}/portfolio`,
   getAllJobProposals:(jobId:string)=>`/client/jobs/${jobId}/proposals`,
   getProposalDetail:(proposalId:string)=>`/client/proposals/${proposalId}`,
+  rejectProposal:(proposalId:string)=>`/client/proposals/${proposalId}/reject`,
 };
 
 export default clientRouterEndPoints;

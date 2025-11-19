@@ -48,6 +48,10 @@ class GoogleAuthService implements IGoogleAuthService {
       user = await this._userRepository.create(googleUserDto);
     }
 
+    if (!user) {
+      throw new Error('Failed to create or fetch Google user');
+    }
+
     return mapUserModelToUserDto(user);
   }
 }

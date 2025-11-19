@@ -7,7 +7,7 @@ export interface ClientOfferRequestDTO {
   description: string;
   payment_type: 'fixed' | 'fixed_with_milestones' | 'hourly';
   budget?: number;
-  currency: 'USD' | 'EUR' | 'GBP' | 'INR';
+  currency: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
   hourly_rate?: number;
   estimated_hours_per_week?: number;
   milestones?: {
@@ -20,14 +20,28 @@ export interface ClientOfferRequestDTO {
   communication: {
     preferred_method: 'chat' | 'video_call' | 'email' | 'mixed';
     meeting_frequency?: 'daily' | 'weekly' | 'monthly';
-    meeting_day_of_week?: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+    meeting_day_of_week?:
+      | 'monday'
+      | 'tuesday'
+      | 'wednesday'
+      | 'thursday'
+      | 'friday'
+      | 'saturday'
+      | 'sunday';
     meeting_day_of_month?: number;
     meeting_time_utc?: string; // HH:mm
   };
   reporting: {
     frequency: 'daily' | 'weekly' | 'monthly';
     due_time_utc: string; // HH:mm
-    due_day_of_week?: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+    due_day_of_week?:
+      | 'monday'
+      | 'tuesday'
+      | 'wednesday'
+      | 'thursday'
+      | 'friday'
+      | 'saturday'
+      | 'sunday';
     due_day_of_month?: number;
     format: 'text_with_attachments' | 'text_only' | 'video';
   };
@@ -133,4 +147,5 @@ export interface ClientOfferDetailDTO extends ClientOfferListItemDTO {
   referenceFiles?: { fileName: string; fileUrl: string }[];
   referenceLinks?: { description: string; link: string }[];
   timeline?: { status: string; at: Date; note?: string }[];
+  rejectedReason?: string;
 }

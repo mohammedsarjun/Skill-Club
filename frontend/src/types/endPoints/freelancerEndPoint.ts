@@ -27,6 +27,7 @@ const freelancerRouterEndPoints = {
   getMyProposals:(jobId:string)=> `/freelancer/jobs/${jobId}/proposals`,
   getOffers: '/freelancer/offers',
   getOfferDetail: (offerId: string) => `/freelancer/offers/${offerId}`,
+  rejectOffer: (offerId: string) => `/freelancer/offers/${offerId}/reject`,
 };
 
 export default freelancerRouterEndPoints;

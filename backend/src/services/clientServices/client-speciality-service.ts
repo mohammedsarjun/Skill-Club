@@ -1,4 +1,3 @@
-
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { IClientSpecialityService } from './interfaces/client-speciality-service.interface';
@@ -17,7 +16,6 @@ export class ClientSpecialityService implements IClientSpecialityService {
   async getSpecialityWithSkills(
     selectedCategory: string,
   ): Promise<GetClientSpecialityWithSkillsDTO[]> {
-
     const specialitiesWithSkills: ISpecialityWithSkill[] | null =
       await this._specialityRepository.getAllSpecialitiesWithSkills(selectedCategory);
 

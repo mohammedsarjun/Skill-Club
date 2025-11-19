@@ -67,9 +67,21 @@ export default function OnboardingStepPage() {
 
     if (response.success) {
       const roleSelectionResponse = await userApi.roleSelection("freelancer")
-      dispatch(setUser(roleSelectionResponse.data))
-      router.push("/freelancer/profile");
-      console.log(roleSelectionResponse)
+      
+      if (roleSelectionResponse.success && roleSelectionResponse.data) {
+        // Update Redux
+        dispatch(setUser(roleSelectionResponse.data))
+        
+        // Update localStorage to persist the onboarding status
+        localStorage.setItem("user", JSON.stringify(roleSelectionResponse.data));
+        
+        // Small delay to ensure state is updated before redirect
+        setTimeout(() => {
+          router.push("/freelancer/profile");
+        }, 100);
+      } else {
+        toast.error(roleSelectionResponse.message || "Failed to complete onboarding");
+      }
     } else {
       toast.error(response.message)
     }

@@ -60,8 +60,8 @@ export const ERROR_MESSAGES = {
     NOT_FOUND: 'Job not found',
     INVALID_STATUS: 'Job status is not valid for this operation',
   },
-  PROPOSAL:{
-    ALREADY_EXIST:"Proposal already sent",
-    NOT_FOUND:"Proposal Not Found"
-  }
+  PROPOSAL: {
+    ALREADY_EXIST: 'Proposal already sent',
+    NOT_FOUND: 'Proposal Not Found',
+  },
 };

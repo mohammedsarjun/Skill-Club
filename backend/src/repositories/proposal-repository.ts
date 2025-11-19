@@ -1,9 +1,13 @@
 import { proposalModel } from '../models/proposal.model';
 import BaseRepository from './baseRepositories/base-repository';
-import { IProposal, ProposalDetail, ProposalDetailWithFreelancerDetail, ProposalDetailWithJobDetail } from '../models/interfaces/proposal.model.interface';
+import {
+  IProposal,
+  ProposalDetail,
+  ProposalDetailWithFreelancerDetail,
+  ProposalDetailWithJobDetail,
+} from '../models/interfaces/proposal.model.interface';
 import { IProposalRepository } from './interfaces/proposal-repository.interface';
 import { ProposalQueryParamsDTO } from '../dto/clientDTO/client-proposal.dto';
-
 
 export class ProposalRepository extends BaseRepository<IProposal> implements IProposalRepository {
   constructor() {
@@ -21,86 +25,95 @@ export class ProposalRepository extends BaseRepository<IProposal> implements IPr
     return await super.findOne({ freelancerId, jobId });
   }
 
-async findAllByJobAndClientId(
-  _clientId: string,
-  jobId: string,
-  proposalFilterQuery: ProposalQueryParamsDTO,
-  skip: number,
-): Promise<ProposalDetailWithFreelancerDetail[] | null> {
-  console.log(jobId,proposalFilterQuery)
-  const proposals = await super.findAll(
-    { jobId: jobId, status: proposalFilterQuery.filters.status },
-    {
+  async findAllByJobAndClientId(
+    _clientId: string,
+    jobId: string,
+    proposalFilterQuery: ProposalQueryParamsDTO,
+    skip: number,
+  ): Promise<ProposalDetailWithFreelancerDetail[] | null> {
+    console.log(jobId, proposalFilterQuery);
+    const status: ProposalQueryParamsDTO['status'] | undefined = proposalFilterQuery?.status;
+    const query: Partial<{
+      jobId: string;
+      freelancerId: string;
+      status: ProposalQueryParamsDTO['status'];
+    }> = { jobId: jobId };
+    if (status) query.status = status;
+
+    const proposals = await super.findAll(query, {
       skip,
       limit: proposalFilterQuery.limit,
       populate: {
         path: 'freelancerId',
         select: '_id firstName lastName freelancerProfile.logo address.country',
       },
-    },
-  );
+    });
 
-  // Rename freelancerId → freelancer
-  const formattedProposals = proposals?.map((proposal) => ({
-    ...proposal.toObject(),
-    freelancer: proposal.freelancerId,
-  }));
+    // Rename freelancerId → freelancer
+    const formattedProposals = proposals?.map((proposal) => ({
+      ...proposal.toObject(),
+      freelancer: proposal.freelancerId,
+    }));
 
-  return formattedProposals || null;
-}
+    return formattedProposals || null;
+  }
 
-async findAllByJobAndFreelancerId(
-  freelancerId: string,
-  jobId: string,
-  proposalFilterQuery: ProposalQueryParamsDTO,
-  skip: number,
-): Promise<ProposalDetailWithJobDetail[] | null> {
-  console.log(jobId)
-  const proposals = await super.findAll(
-    {  freelancerId: freelancerId, status: proposalFilterQuery.filters.status },
-    {
+  async findAllByJobAndFreelancerId(
+    freelancerId: string,
+    jobId: string,
+    proposalFilterQuery: ProposalQueryParamsDTO,
+    skip: number,
+  ): Promise<ProposalDetailWithJobDetail[] | null> {
+    console.log(jobId);
+    const status: ProposalQueryParamsDTO['status'] | undefined = proposalFilterQuery?.status;
+    const query: Partial<{
+      jobId: string;
+      freelancerId: string;
+      status: ProposalQueryParamsDTO['status'];
+    }> = { freelancerId: freelancerId };
+    if (status) query.status = status;
+
+    const proposals = await super.findAll(query, {
       skip,
       limit: proposalFilterQuery.limit,
       populate: {
         path: 'jobId',
         select: '_id title description clientId',
       },
-    },
-  );
+    });
 
-  // Rename freelancerId → freelancer
-  const formattedProposals = proposals?.map((proposal) => ({
-    ...proposal.toObject(),
-    freelancer: proposal.freelancerId,
-    jobDetail: proposal.jobId,
-  }));
+    // Rename freelancerId → freelancer
+    const formattedProposals = proposals?.map((proposal) => ({
+      ...proposal.toObject(),
+      freelancer: proposal.freelancerId,
+      jobDetail: proposal.jobId,
+    }));
 
-  return formattedProposals || null;
-}
+    return formattedProposals || null;
+  }
 
-async findOneById(proposalId:string): Promise<ProposalDetailWithFreelancerDetail|null> {
-  const proposal = await super.findOne(
-    { _id: proposalId},
-    {
-      populate: {
-        path: 'freelancerId',
-        select: '_id firstName lastName freelancerProfile.logo address.country',
+  async findOneById(proposalId: string): Promise<ProposalDetailWithFreelancerDetail | null> {
+    const proposal = await super.findOne(
+      { _id: proposalId },
+      {
+        populate: {
+          path: 'freelancerId',
+          select: '_id firstName lastName freelancerProfile.logo address.country',
+        },
       },
-    },
-  );
+    );
 
+    if (!proposal) return null;
 
+    const formattedProposal = {
+      ...proposal.toObject(),
+      freelancer: proposal.freelancerId,
+    };
 
+    return formattedProposal;
+  }
 
-  const formattedProposal = {
-    ...proposal?.toObject(),
-    freelancer: proposal?.freelancerId,
-  };
-
-  return formattedProposal; 
-}
-
-async updateStatusById(proposalId: string, status: string): Promise<IProposal | null> {
-  return await super.updateById(proposalId, { $set: { status } });
-}
+  async updateStatusById(proposalId: string, status: string): Promise<IProposal | null> {
+    return await super.updateById(proposalId, { $set: { status } });
+  }
 }

@@ -3,7 +3,11 @@ import { cloudinary } from '../../config/cloudinary';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
 import type { UploadApiErrorResponse, UploadApiResponse } from 'cloudinary';
-import type { IFileUploadService, UploadOptions, UploadResult } from './interfaces/file-upload-service.interface';
+import type {
+  IFileUploadService,
+  UploadOptions,
+  UploadResult,
+} from './interfaces/file-upload-service.interface';
 
 @injectable()
 export class FileUploadService implements IFileUploadService {

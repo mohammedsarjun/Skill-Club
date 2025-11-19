@@ -1,10 +1,10 @@
-
 import { FreelancerClientMinimalDTO } from '../../dto/freelancerDTO/freelancer-client.dto';
 import {
   FreelancerJobDetailResponseDto,
   FreelancerJobFiltersDto,
   FreelancerJobResponseDto,
 } from '../../dto/freelancerDTO/freelancer-job.dto';
+import { SupportedCurrency } from '../../contants/currency.constants';
 import { IJobDetail, IJobResponse } from '../../models/interfaces/job.model.interface';
 
 export function mapJobModelToFreelancerJobDetailResponseDTO(
@@ -19,8 +19,25 @@ export function mapJobModelToFreelancerJobDetailResponseDTO(
     specialities: jobDetailDto.specialities.map((spec) => spec.name),
     skills: jobDetailDto.skills.map((skill) => skill.name),
     rateType: jobDetailDto.rateType,
-    hourlyRate: jobDetailDto.rateType == 'hourly' ? jobDetailDto.hourlyRate : null,
-    fixedRate: jobDetailDto.rateType == 'fixed' ? jobDetailDto.fixedRate : null,
+    hourlyRate:
+      jobDetailDto.rateType == 'hourly'
+        ? {
+            min: jobDetailDto.hourlyRate!.min,
+            max: jobDetailDto.hourlyRate!.max,
+            hoursPerWeek: jobDetailDto.hourlyRate!.hoursPerWeek,
+            estimatedDuration: jobDetailDto.hourlyRate!.estimatedDuration,
+            currency: jobDetailDto.currency as SupportedCurrency,
+          }
+        : null,
+    fixedRate:
+      jobDetailDto.rateType == 'fixed'
+        ? {
+            min: jobDetailDto.fixedRate!.min,
+            max: jobDetailDto.fixedRate!.max,
+            currency: jobDetailDto.currency as SupportedCurrency,
+          }
+        : null,
+   
     postedAt: jobDetailDto.createdAt.toString(),
     proposalReceived: 0,
     client: {
@@ -29,6 +46,7 @@ export function mapJobModelToFreelancerJobDetailResponseDTO(
       rating: clientData.rating,
       totalJobsPosted: clientData.totalJobsPosted,
     },
+    status: jobDetailDto.status,
   };
 }
 
@@ -38,8 +56,10 @@ export function mapFreelancerJobRawFilterToFreelancerJobFiltersDto(
   return {
     searchQuery: rawFilter?.searchQuery,
     selectedCategory: rawFilter?.selectedCategory,
-    selectedSpecialty: rawFilter?.selectedSpecialty.toString(),
-    selectedSkills: rawFilter?.selectedSkills?.map((id) => id.toString()),
+    selectedSpecialty: rawFilter?.selectedSpecialty ? rawFilter.selectedSpecialty.toString() : undefined,
+    selectedSkills: Array.isArray(rawFilter?.selectedSkills)
+      ? rawFilter!.selectedSkills.map((id) => id.toString())
+      : undefined,
     rateType: rawFilter?.rateType,
     minHourlyRate: rawFilter?.minHourlyRate,
     maxHourlyRate: rawFilter?.maxHourlyRate,
@@ -77,7 +97,7 @@ export function mapFreelancerJobFilterDtoToJobAggregationQuery(
   }
 
   // Skills filter
-  
+
   if (filters.selectedSkills && filters.selectedSkills.length > 0) {
     matchStage.skills = {
       $in: filters.selectedSkills.map((id: string) => id),
@@ -91,14 +111,14 @@ export function mapFreelancerJobFilterDtoToJobAggregationQuery(
 
   // Hourly rate filters
   if (filters.rateType === 'hourly' || !filters.rateType) {
-    if (filters.minHourlyRate && filters.minHourlyRate) {
+    if (typeof filters.minHourlyRate === 'number' && !isNaN(filters.minHourlyRate)) {
       matchStage['hourlyRate.min'] = {
         ...((matchStage['hourlyRate.min'] as Record<string, unknown>) || {}),
         $gte: filters.minHourlyRate,
       };
     }
 
-    if (filters.maxHourlyRate && filters.maxHourlyRate) {
+    if (typeof filters.maxHourlyRate === 'number' && !isNaN(filters.maxHourlyRate)) {
       matchStage['hourlyRate.max'] = {
         ...((matchStage['hourlyRate.max'] as Record<string, unknown>) || {}),
         $lte: filters.maxHourlyRate,
@@ -108,14 +128,14 @@ export function mapFreelancerJobFilterDtoToJobAggregationQuery(
 
   // Fixed rate filters
   if (filters.rateType === 'fixed' || !filters.rateType) {
-    if (filters.minFixedRate && filters.minFixedRate) {
+    if (typeof filters.minFixedRate === 'number' && !isNaN(filters.minFixedRate)) {
       matchStage['fixedRate.min'] = {
         ...((matchStage['fixedRate.min'] as Record<string, unknown>) || {}),
         $gte: filters.minFixedRate,
       };
     }
 
-    if (filters.maxFixedRate && filters.maxFixedRate) {
+    if (typeof filters.maxFixedRate === 'number' && !isNaN(filters.maxFixedRate)) {
       matchStage['fixedRate.max'] = {
         ...((matchStage['fixedRate.max'] as Record<string, unknown>) || {}),
         $lte: filters.maxFixedRate,
@@ -129,6 +149,7 @@ export function mapFreelancerJobFilterDtoToJobAggregationQuery(
 export function mapJobModelToFreelancerJobResponseDTO(
   jobDetailDto: IJobResponse,
 ): FreelancerJobResponseDto {
+
   return {
     jobId: jobDetailDto?._id?.toString() as string,
     jobTitle: jobDetailDto.title,
@@ -137,10 +158,24 @@ export function mapJobModelToFreelancerJobResponseDTO(
     specialities: jobDetailDto.specialities.map((spec) => spec.name),
     skills: jobDetailDto.skills.map((skill) => skill.name),
     jobRateType: jobDetailDto.rateType,
-    minHourlyRate: jobDetailDto.rateType == 'hourly' ? jobDetailDto.hourlyRate?.min : undefined,
-    maxHourlyRate: jobDetailDto.rateType == 'hourly' ? jobDetailDto.hourlyRate?.max : undefined,
-    minFixedRate: jobDetailDto.rateType == 'fixed' ? jobDetailDto.fixedRate?.min : undefined,
-    maxFixedRate: jobDetailDto.rateType == 'fixed' ? jobDetailDto.fixedRate?.max : undefined,
+    hourlyRate:
+      jobDetailDto.rateType == 'hourly'
+        ? {
+            min: jobDetailDto.hourlyRate!.min,
+            max: jobDetailDto.hourlyRate!.max,
+            hoursPerWeek: jobDetailDto.hourlyRate!.hoursPerWeek,
+            estimatedDuration: jobDetailDto.hourlyRate!.estimatedDuration,
+            currency: jobDetailDto.currency as SupportedCurrency,
+          }
+        : null,
+    fixedRate:
+      jobDetailDto.rateType == 'fixed'
+        ? {
+            min: jobDetailDto.fixedRate!.min,
+            max: jobDetailDto.fixedRate!.max,
+            currency: jobDetailDto.currency as SupportedCurrency,
+          }
+        : null,
     postedAt: jobDetailDto.createdAt.toString(),
     totalProposalReceived: 0,
     client: {

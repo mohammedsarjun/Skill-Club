@@ -26,7 +26,7 @@ export class DirectOfferStrategy implements IOfferCreationStrategy {
       currency: dto.currency,
       hourlyRate: dto.hourly_rate,
       estimatedHoursPerWeek: dto.estimated_hours_per_week,
-      milestones: dto.milestones?.map(m => ({
+      milestones: dto.milestones?.map((m) => ({
         title: m.title,
         amount: m.amount,
         expectedDelivery: new Date(m.expected_delivery),
@@ -47,13 +47,17 @@ export class DirectOfferStrategy implements IOfferCreationStrategy {
         dueDayOfMonth: dto.reporting.due_day_of_month,
         format: dto.reporting.format,
       },
-      referenceFiles: dto.reference_files.map(f => ({ fileName: f.file_name, fileUrl: f.file_url })),
-      referenceLinks: dto.reference_links.map(l => ({ description: l.description, link: l.link })),
+      referenceFiles: dto.reference_files.map((f) => ({
+        fileName: f.file_name,
+        fileUrl: f.file_url,
+      })),
+      referenceLinks: dto.reference_links.map((l) => ({
+        description: l.description,
+        link: l.link,
+      })),
       expiresAt: new Date(dto.expires_at),
       status: 'pending',
-      timeline: [
-        { status: 'pending', at: new Date(), note: 'Offer created' },
-      ],
+      timeline: [{ status: 'pending', at: new Date(), note: 'Offer created' }],
     };
   }
 }

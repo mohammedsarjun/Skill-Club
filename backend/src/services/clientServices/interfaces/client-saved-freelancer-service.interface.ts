@@ -4,7 +4,9 @@ export interface IClientSavedFreelancerService {
   getSavedFreelancers(
     clientId: string,
     query: { page?: number; limit?: number },
-  ): Promise<import('../../../dto/clientDTO/client-saved-freelancer.dto').ClientSavedFreelancerListResultDTO>;
+  ): Promise<
+    import('../../../dto/clientDTO/client-saved-freelancer.dto').ClientSavedFreelancerListResultDTO
+  >;
 }
 
 export default IClientSavedFreelancerService;

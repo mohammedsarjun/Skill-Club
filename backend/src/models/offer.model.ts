@@ -1,10 +1,17 @@
 import mongoose, { Model, Schema } from 'mongoose';
-import { IOffer, OfferMilestone, OfferReferenceFile, OfferReferenceLink, OfferTimelineEvent } from './interfaces/offer.model.interface';
+import {
+  IOffer,
+  OfferMilestone,
+  OfferReferenceFile,
+  OfferReferenceLink,
+  OfferTimelineEvent,
+} from './interfaces/offer.model.interface';
 
 const milestoneSchema = new Schema<OfferMilestone>(
   {
     title: { type: String, required: true, trim: true },
     amount: { type: Number, required: true },
+    amountBaseUSD: { type: Number },
     expectedDelivery: { type: Date, required: true },
   },
   { _id: false },
@@ -54,8 +61,15 @@ const offerSchema = new Schema<IOffer>(
       required: true,
     },
     budget: { type: Number },
-    currency: { type: String, enum: ['USD', 'EUR', 'GBP', 'INR'], required: true },
+    currency: {
+      type: String,
+      enum: ['USD', 'EUR', 'GBP', 'INR', 'AUD', 'CAD', 'SGD', 'JPY'],
+      required: true,
+    },
+    budgetBaseUSD: { type: Number },
     hourlyRate: { type: Number },
+    hourlyRateBaseUSD: { type: Number },
+    conversionRate: { type: Number }, // USD per 1 unit of `currency`
     estimatedHoursPerWeek: { type: Number },
     milestones: [milestoneSchema],
     expectedStartDate: { type: Date, required: true },
@@ -69,7 +83,7 @@ const offerSchema = new Schema<IOffer>(
       meetingFrequency: { type: String, enum: ['daily', 'weekly', 'monthly'], required: false },
       meetingDayOfWeek: {
         type: String,
-        enum: ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'],
+        enum: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
         required: false,
       },
       meetingDayOfMonth: { type: Number, min: 1, max: 31, required: false },
@@ -80,7 +94,7 @@ const offerSchema = new Schema<IOffer>(
       dueTimeUtc: { type: String, required: true },
       dueDayOfWeek: {
         type: String,
-        enum: ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'],
+        enum: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
         required: false,
       },
       dueDayOfMonth: { type: Number, min: 1, max: 31, required: false },
@@ -98,6 +112,7 @@ const offerSchema = new Schema<IOffer>(
       enum: ['pending', 'accepted', 'rejected', 'withdrawn', 'expired'],
       default: 'pending',
     },
+    rejectedReason: { type: String },
     timeline: [timelineEventSchema],
   },
   { timestamps: true },

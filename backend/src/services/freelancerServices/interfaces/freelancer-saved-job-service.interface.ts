@@ -5,7 +5,9 @@ export interface IFreelancerSavedJobService {
   getSavedJobs(
     freelancerId: string,
     query: { page?: number; limit?: number },
-  ): Promise<import('../../../dto/freelancerDTO/freelancer-saved-job.dto').FreelancerSavedJobListResultDTO>;
+  ): Promise<
+    import('../../../dto/freelancerDTO/freelancer-saved-job.dto').FreelancerSavedJobListResultDTO
+  >;
 }
 
 export default IFreelancerSavedJobService;

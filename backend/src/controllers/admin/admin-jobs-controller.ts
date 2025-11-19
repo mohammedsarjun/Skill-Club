@@ -5,12 +5,11 @@ import { HttpStatus } from '../../enums/http-status.enum';
 import { MESSAGES } from '../../contants/contants';
 import { IAdminJobController } from './interfaces/admin-jobs-controller.interface';
 
-
 import { IAdminJobService } from 'src/services/adminServices/interfaces/admin-job-service.interface';
 import { JobQueryParams } from 'src/dto/commonDTO/job-common.dto';
 
 @injectable()
-export class  AdminJobController implements IAdminJobController {
+export class AdminJobController implements IAdminJobController {
   private adminJobService: IAdminJobService;
 
   constructor(
@@ -71,5 +70,4 @@ export class  AdminJobController implements IAdminJobController {
       data: result,
     });
   }
-
 }

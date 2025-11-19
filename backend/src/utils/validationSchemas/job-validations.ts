@@ -4,12 +4,10 @@ const hourlyRateSchema = z
   .object({
     min: z
       .number()
-      .min(100, 'Minimum hourly rate must be at least ₹100')
-      .max(100000, 'Minimum hourly rate cannot exceed ₹100,000'),
+      .positive('Minimum hourly rate must be greater than 0'),
     max: z
       .number()
-      .min(100, 'Maximum hourly rate must be at least ₹100')
-      .max(100000, 'Maximum hourly rate cannot exceed ₹100,000'),
+      .positive('Maximum hourly rate must be greater than 0'),
     hoursPerWeek: z
       .number()
       .min(1, 'Hours per week must be at least 1')
@@ -25,12 +23,10 @@ const fixedRateSchema = z
   .object({
     min: z
       .number()
-      .min(100, 'Minimum budget must be at least ₹100')
-      .max(100000, 'Minimum budget cannot exceed ₹100,000'),
+      .positive('Minimum budget must be greater than 0'),
     max: z
       .number()
-      .min(100, 'Maximum budget must be at least ₹100')
-      .max(100000, 'Maximum budget cannot exceed ₹100,000'),
+      .positive('Maximum budget must be greater than 0'),
   })
   .refine((data) => data.max >= data.min, {
     message: 'Maximum budget must be greater than or equal to minimum budget',
@@ -69,6 +65,7 @@ export const createJobSchema = z
       .max(3, { message: 'Select at most 3 specialities.' }),
     skills: z.array(z.string()).min(1, 'Select at least one skills.'),
     rateType: z.enum(['hourly', 'fixed']),
+    currency: z.enum(['USD', 'EUR', 'GBP', 'INR', 'AUD', 'CAD', 'SGD', 'JPY']),
     hourlyRate: hourlyRateSchema.optional(),
     fixedRate: fixedRateSchema.optional(),
   })
@@ -122,6 +119,7 @@ export const updateJobSchema = z
       .max(3, { message: 'Select at most 3 specialities.' }),
     skills: z.array(z.string()).min(1, 'Select at least one skills.'),
     rateType: z.enum(['hourly', 'fixed']),
+    currency: z.enum(['USD', 'EUR', 'GBP', 'INR', 'AUD', 'CAD', 'SGD', 'JPY']),
     hourlyRate: hourlyRateSchema.optional(),
     fixedRate: fixedRateSchema.optional(),
   })

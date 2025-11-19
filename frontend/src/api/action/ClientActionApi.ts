@@ -264,6 +264,18 @@ export const clientActionApi = {
       }
     }
   },
+  async withdrawOffer(offerId: string) {
+    try {
+      const response = await axiosClient.patch(clientRouterEndPoints.withdrawOffer(offerId));
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
   async getAllFreelancerPortfolio(freelancerId: string) {
     try {
       const response = await axiosClient.get(
@@ -309,5 +321,17 @@ export const clientActionApi = {
       }
     }
   },
+    async rejectProposal(proposalId: string) {
+      try {
+        const response = await axiosClient.post(clientRouterEndPoints.rejectProposal(proposalId));
+        return response.data;
+      } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+          return error.response?.data || "Something went wrong";
+        } else {
+          return "Unexpected error";
+        }
+      }
+    },
 
 }

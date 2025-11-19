@@ -24,6 +24,7 @@ export default function Layout({ children }: LayoutProps) {
         
           <Providers>
             <RouteLoader/>
+            <ClientInit />
             <GlobalSpinner/>
             {children}
             <script

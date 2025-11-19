@@ -29,7 +29,7 @@ export class FreelancerProposalController implements IFreelancerProposalControll
   async getAllProposal(req: Request, res: Response): Promise<void> {
     const userId = req.user?.userId;
     const jobId = req.params.jobId;
-    const queryFilters = req.query as unknown as Record<string, unknown>;;
+    const queryFilters = req.query as unknown as Record<string, unknown>;
     const result = await this._freelancerProposalService.getAllProposal(
       userId as string,
       jobId as string,

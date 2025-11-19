@@ -22,34 +22,47 @@ export class ClientOfferController implements IClientOfferController {
     res.status(201).json({ success: true, message: 'Offer created successfully', data: result });
   }
 
-
   async getAllOffers(req: Request, res: Response): Promise<void> {
-        const clientId = req.user?.userId as string;
-        const { search, page, limit, status, offerType } = req.query as Record<string, string>;
-        const query: ClientOfferQueryParamsDTO = {
-          search: search || undefined,
-          page: page ? Number(page) : undefined,
-          limit: limit ? Number(limit) : undefined,
-          filters: {
-            status: (status as unknown as OfferStatus) || undefined,
-            offerType: (offerType as unknown as OfferType) || undefined,
-          },
-        };
+    const clientId = req.user?.userId as string;
+    const { search, page, limit, status, offerType } = req.query as Record<string, string>;
+    const query: ClientOfferQueryParamsDTO = {
+      search: search || undefined,
+      page: page ? Number(page) : undefined,
+      limit: limit ? Number(limit) : undefined,
+      filters: {
+        status: (status as unknown as OfferStatus) || undefined,
+        offerType: (offerType as unknown as OfferType) || undefined,
+      },
+    };
 
-        const result = await this._clientOfferService.getAllOffers(clientId, query);
-        res.status(HttpStatus.OK).json({ success: true, message: 'Offers fetched successfully', data: result });
-}
+    const result = await this._clientOfferService.getAllOffers(clientId, query);
+    res
+      .status(HttpStatus.OK)
+      .json({ success: true, message: 'Offers fetched successfully', data: result });
+  }
 
-async getOfferDetail(req: Request, res: Response): Promise<void> {
+  async getOfferDetail(req: Request, res: Response): Promise<void> {
     const clientId = req.user?.userId as string;
     const { offerId } = req.params;
-    console.log(offerId,clientId)
+    console.log(offerId, clientId);
     const result = await this._clientOfferService.getOfferDetail(clientId, offerId);
     if (!result) {
       res.status(HttpStatus.NOT_FOUND).json({ success: false, message: 'Offer not found' });
       return;
     }
-    res.status(HttpStatus.OK).json({ success: true, message: 'Offer detail fetched successfully', data: result });
-}
+    res
+      .status(HttpStatus.OK)
+      .json({ success: true, message: 'Offer detail fetched successfully', data: result });
+  }
 
+  async withdrawOffer(req: Request, res: Response): Promise<void> {
+    const clientId = req.user?.userId as string;
+    const { offerId } = req.params;
+    try {
+      const result = await this._clientOfferService.withdrawOffer(clientId, offerId);
+      res.status(HttpStatus.OK).json({ success: true, message: 'Offer withdrawn', data: result });
+    } catch (e) {
+      res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: (e as Error).message || 'Failed to withdraw' });
+    }
+  }
 }

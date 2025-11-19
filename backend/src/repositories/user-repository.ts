@@ -63,10 +63,17 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
   }
 
   async addRoleAndCompleteOnboarding(userId: string | Types.ObjectId, role: string) {
-    const update = {
+    const update: any = {
       $addToSet: { roles: role },
       $set: { activeRole: role, isOnboardingCompleted: true },
     };
+
+    // Set role-specific onboarding flag
+    if (role === 'freelancer') {
+      update.$set.isFreelancerOnboarded = true;
+    } else if (role === 'client') {
+      update.$set.isClientOnboarded = true;
+    }
 
     return await this.model.findByIdAndUpdate(userId, update, { new: true });
   }

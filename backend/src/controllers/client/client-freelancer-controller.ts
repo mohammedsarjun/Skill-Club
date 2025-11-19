@@ -23,17 +23,26 @@ export class ClientFreelancerController implements IClientFreelancerController {
       userId as string,
       queryFilter as freelancerParams,
     );
+
+    // Ensure response always includes freelancers array and totalCount
+    const responsePayload = freelancerData
+      ? { freelancers: freelancerData.freelancers, totalCount: freelancerData.totalCount }
+      : { freelancers: [], totalCount: 0 };
+
     res.status(HttpStatus.OK).json({
       success: true,
       message: MESSAGES.Freelancer.FETCH_SUCCESS,
-      data: freelancerData,
+      data: responsePayload,
     });
   }
 
   async getFreelancerDetail(req: Request, res: Response): Promise<void> {
     const userClientId = req.user?.userId;
-    const freelancerId = req.params.freelancerId
-    const freelancerData = await this._clientFreelancerService.getFreelancerDetail(userClientId as string,freelancerId as string);
+    const freelancerId = req.params.freelancerId;
+    const freelancerData = await this._clientFreelancerService.getFreelancerDetail(
+      userClientId as string,
+      freelancerId as string,
+    );
     res.status(HttpStatus.OK).json({
       success: true,
       message: MESSAGES.Freelancer.FETCH_SUCCESS,
@@ -44,12 +53,14 @@ export class ClientFreelancerController implements IClientFreelancerController {
   async getFreelancerPortfolio(req: Request, res: Response): Promise<void> {
     const userClientId = req.user?.userId;
     const freelancerId = req.params.freelancerId;
-    const portfolioData = await this._clientFreelancerService.getFreelancerPortfolio(userClientId as string, freelancerId as string);
+    const portfolioData = await this._clientFreelancerService.getFreelancerPortfolio(
+      userClientId as string,
+      freelancerId as string,
+    );
     res.status(HttpStatus.OK).json({
       success: true,
       message: MESSAGES.PORTFOLIO.PORTFOLIO_FETCH_SUCCESS,
       data: portfolioData,
     });
   }
-  
 }

@@ -1,5 +1,3 @@
-
-
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { IClientCategoryService } from './interfaces/client-category-service.interface';
@@ -13,7 +11,6 @@ export class ClientCategoryService implements IClientCategoryService {
   constructor(@inject('ICategoryRepository') categoryRepository: ICategoryRepository) {
     this._categoryRepository = categoryRepository;
   }
-
 
   async getAllCategories(): Promise<GetClientCategoryDTO[]> {
     const categories = await this._categoryRepository.getCategories();

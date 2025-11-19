@@ -4,16 +4,25 @@ import { ISavedFreelancer } from '../models/interfaces/saved-freelancer.model.in
 import { ISavedFreelancerRepository } from './interfaces/saved-freelancer-repository.interface';
 import { PipelineStage, Types } from 'mongoose';
 
-export class SavedFreelancerRepository extends BaseRepository<ISavedFreelancer> implements ISavedFreelancerRepository {
+export class SavedFreelancerRepository
+  extends BaseRepository<ISavedFreelancer>
+  implements ISavedFreelancerRepository
+{
   constructor() {
     super(SavedFreelancer);
   }
 
-  async findByClientAndFreelancer(clientId: string, freelancerId: string): Promise<ISavedFreelancer | null> {
+  async findByClientAndFreelancer(
+    clientId: string,
+    freelancerId: string,
+  ): Promise<ISavedFreelancer | null> {
     return await this.model.findOne({ clientId, freelancerId }).exec();
   }
 
-  async deleteByClientAndFreelancer(clientId: string, freelancerId: string): Promise<ISavedFreelancer | null> {
+  async deleteByClientAndFreelancer(
+    clientId: string,
+    freelancerId: string,
+  ): Promise<ISavedFreelancer | null> {
     return await this.model.findOneAndDelete({ clientId, freelancerId }).exec();
   }
 
@@ -25,20 +34,22 @@ export class SavedFreelancerRepository extends BaseRepository<ISavedFreelancer> 
     clientId: string,
     page: number,
     limit: number,
-  ): Promise<{
-    _id: string;
-    savedAt: Date;
-    freelancer: {
+  ): Promise<
+    {
       _id: string;
-      firstName?: string;
-      lastName?: string;
-      logo?: string;
-      professionalRole?: string;
-      country?: string;
-      hourlyRate?: number;
-      skills: string[];
-    } | null;
-  }[]> {
+      savedAt: Date;
+      freelancer: {
+        _id: string;
+        firstName?: string;
+        lastName?: string;
+        logo?: string;
+        professionalRole?: string;
+        country?: string;
+        hourlyRate?: number;
+        skills: string[];
+      } | null;
+    }[]
+  > {
     const skip = (page - 1) * limit;
     const pipeline: PipelineStage[] = [
       { $match: { clientId: new Types.ObjectId(clientId) } },

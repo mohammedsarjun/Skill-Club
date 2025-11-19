@@ -13,19 +13,19 @@ type RawFilters = {
 export const mapRawQueryFiltersToProposalQueryParamsDTO = (
   rawQuery: Record<string, unknown>,
 ): ProposalQueryParamsDTO => {
-  let filters: RawFilters = {};
+  let parsedFilters: RawFilters | undefined;
 
   if (typeof rawQuery?.filters === 'string') {
     try {
-      const parsed = JSON.parse(rawQuery?.filters);
+      const parsed = JSON.parse(rawQuery.filters as string);
       if (typeof parsed === 'object' && parsed !== null) {
-        filters = parsed as RawFilters;
+        parsedFilters = parsed as RawFilters;
       }
     } catch {
-      filters = {};
+      parsedFilters = undefined;
     }
   } else if (typeof rawQuery?.filters === 'object' && rawQuery?.filters !== null) {
-    filters = rawQuery.filters as RawFilters;
+    parsedFilters = rawQuery.filters as RawFilters;
   }
 
   const allowedStatuses: readonly ProposalStatus[] = [
@@ -34,16 +34,18 @@ export const mapRawQueryFiltersToProposalQueryParamsDTO = (
     'rejected',
   ];
 
-  const status =
-    filters?.status && allowedStatuses.includes(filters?.status)
-      ? filters?.status
-      : 'pending_verification';
+  const statusFromFrontend = parsedFilters?.status;
+  const validStatus =
+    typeof statusFromFrontend === 'string' &&
+    allowedStatuses.includes(statusFromFrontend as ProposalStatus)
+      ? (statusFromFrontend as ProposalStatus)
+      : undefined;
 
   return {
     search: typeof rawQuery?.search === 'string' ? rawQuery.search : '',
     page: Number(rawQuery?.page) > 0 ? Number(rawQuery?.page) : 1,
     limit: Number(rawQuery?.limit) > 0 ? Number(rawQuery?.limit) : 10,
-    filters: { status: status },
+    filters: validStatus ? { status: validStatus } : {},
   };
 };
 

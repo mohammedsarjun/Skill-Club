@@ -15,6 +15,9 @@ import { ActionButtons } from './components/ActionButtons';
 import { ClientCard } from './components/ClientCard';
 import { OfferTimeline } from './components/OfferTimeline';
 import { AcceptOfferModal, RejectOfferModal } from './components/Modals';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
+import { formatCurrency as formatCurrencyUtil, SupportedCurrency, convertCurrency } from '@/utils/currency';
 interface OfferMilestone { title: string; amount: number; expectedDelivery: string; }
 interface OfferReferenceFile { fileName: string; fileUrl: string; }
 interface OfferReferenceLink { description: string; link: string; }
@@ -58,16 +61,25 @@ interface OfferDetail {
   timeline: OfferTimelineEvent[];
   client: ClientInfo;
   jobTitle?: string;
+  rejectedReason?: string;
 }
 
 function OfferDetails() {
   const [offerDetail, setOfferDetail] = useState<OfferDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [converted, setConverted] = useState<{
+    currency: SupportedCurrency;
+    hourlyRate?: number;
+    budget?: number;
+    totalMilestones?: number;
+    milestones?: OfferMilestone[];
+  }>({ currency: 'USD' });
   const [showAcceptModal, setShowAcceptModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const params = useParams();
   const offerId = params.offerId;
+  const preferredCurrency = (useSelector((s: RootState) => s.auth.user?.preferredCurrency) || 'USD') as SupportedCurrency;
   const handleGoBack = () => {
     console.log('Navigate back to offers list');
   };
@@ -85,15 +97,9 @@ function OfferDetails() {
     });
   };
 
-  const formatCurrency = (amount: number, currency: string) => {
-    const symbols: Record<string, string> = {
-      INR: '₹',
-      USD: '$',
-      EUR: '€',
-      GBP: '£',
-    };
-    return `${symbols[currency] || currency}${amount.toLocaleString()}`;
-  };
+  const formatCurrency = (amount: number, _currency: string) => (
+    formatCurrencyUtil(Number(amount || 0), converted.currency || preferredCurrency)
+  );
 
   const getCommunicationIcon = (method: string) => {
     switch (method) {
@@ -173,6 +179,7 @@ function OfferDetails() {
                 totalJobsPosted: d.clientTotalJobsPosted || 0,
               },
               jobTitle: d.jobTitle,
+              rejectedReason: d.rejectedReason,
             };
             setOfferDetail(mapped);
         } else {
@@ -187,6 +194,56 @@ function OfferDetails() {
     load();
     return () => { cancelled = true; };
   }, [offerId]);
+
+  // Convert monetary fields to preferred currency for display
+  useEffect(() => {
+    let cancelled = false;
+    const doConvert = async () => {
+      if (!offerDetail) return;
+      const srcCur = (offerDetail.currency || 'USD') as SupportedCurrency;
+      const tgtCur = preferredCurrency as SupportedCurrency;
+
+      try {
+        const [hr, bdg, msConverted] = await Promise.all([
+          offerDetail.hourlyRate != null
+            ? convertCurrency(offerDetail.hourlyRate, srcCur, tgtCur)
+            : Promise.resolve(undefined),
+          offerDetail.budget != null
+            ? convertCurrency(offerDetail.budget, srcCur, tgtCur)
+            : Promise.resolve(undefined),
+          Array.isArray(offerDetail.milestones)
+            ? Promise.all(
+                offerDetail.milestones.map(async (m) => ({
+                  ...m,
+                  amount: await convertCurrency(m.amount || 0, srcCur, tgtCur),
+                }))
+              )
+            : Promise.resolve(undefined),
+        ]);
+
+        const totalMs = Array.isArray(msConverted)
+          ? msConverted.reduce((s, m) => s + (m.amount || 0), 0)
+          : undefined;
+
+        if (!cancelled) {
+          setConverted({
+            currency: tgtCur,
+            hourlyRate: hr,
+            budget: bdg,
+            milestones: msConverted as any,
+            totalMilestones: totalMs,
+          });
+        }
+      } catch {
+        if (!cancelled) {
+          // Fallback: show raw with original currency if conversion fails
+          setConverted({ currency: srcCur as SupportedCurrency });
+        }
+      }
+    };
+    doConvert();
+    return () => { cancelled = true; };
+  }, [offerDetail, preferredCurrency]);
 
   return (
     <>
@@ -218,11 +275,11 @@ function OfferDetails() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
               <OfferBudget
                 paymentType={offerDetail.paymentType}
-                hourlyRate={offerDetail.hourlyRate}
+                hourlyRate={converted.hourlyRate ?? offerDetail.hourlyRate}
                 estimatedHoursPerWeek={offerDetail.estimatedHoursPerWeek}
-                budget={offerDetail.budget}
-                totalMilestones={calculateTotalMilestones()}
-                currency={offerDetail.currency}
+                budget={converted.budget ?? offerDetail.budget}
+                totalMilestones={converted.totalMilestones ?? calculateTotalMilestones()}
+                currency={converted.currency}
                 formatCurrency={formatCurrency}
               />
             </div>
@@ -230,8 +287,8 @@ function OfferDetails() {
             <OfferDescription description={offerDetail.description} />
 
             <OfferMilestones
-              milestones={offerDetail.milestones || []}
-              currency={offerDetail.currency}
+              milestones={(converted.milestones ?? offerDetail.milestones) || []}
+              currency={converted.currency}
               formatDate={formatDate}
               formatCurrency={formatCurrency}
             />
@@ -250,12 +307,17 @@ function OfferDetails() {
 
           <div className="lg:col-span-1">
             <div className="sticky top-6 space-y-6">
-              <ActionButtons
-                status={offerDetail.status}
-                daysUntilExpiry={getDaysUntilExpiry()}
-                onAccept={() => setShowAcceptModal(true)}
-                onReject={() => setShowRejectModal(true)}
-              />
+                {offerDetail.status === 'rejected' && (
+                  <div className="bg-white rounded-xl shadow p-4 border">
+                    <span className={`inline-block px-3 py-1 text-sm font-medium rounded-full bg-red-100 text-red-700 border border-red-300`}>{`Rejected: ${offerDetail.rejectedReason || 'No reason provided'}`}</span>
+                  </div>
+                )}
+                <ActionButtons
+                  status={offerDetail.status}
+                  daysUntilExpiry={getDaysUntilExpiry()}
+                  onAccept={() => setShowAcceptModal(true)}
+                  onReject={() => setShowRejectModal(true)}
+                />
 
               <ClientCard
                 client={offerDetail.client}
@@ -284,8 +346,19 @@ function OfferDetails() {
           <RejectOfferModal
             isOpen={showRejectModal}
             onClose={() => setShowRejectModal(false)}
-            onConfirm={(reason: any) => {
-              console.log('Offer declined with reason:', reason);
+            onConfirm={async (reason?: string) => {
+              try {
+                const resp = await freelancerActionApi.rejectOffer(String(offerId), reason);
+                if (resp?.success) {
+                  setOfferDetail((prev) => prev ? { ...prev, status: 'rejected' } : prev);
+                } else {
+                  alert(resp?.message || 'Failed to reject offer');
+                }
+              } catch (e) {
+                alert('Unexpected error while rejecting offer');
+              } finally {
+                setShowRejectModal(false);
+              }
             }}
           />
         </>

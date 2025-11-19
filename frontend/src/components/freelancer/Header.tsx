@@ -3,25 +3,33 @@
 import { authApi } from "@/api/authApi";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
-import { setUser } from "@/store/slices/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser, clearUser } from "@/store/slices/authSlice";
 import { FaBars, FaChevronDown, FaTimes, FaUser } from "react-icons/fa";
 import { userApi } from "@/api/userApi";
 import toast from "react-hot-toast";
 import { useState } from "react";
+import { SUPPORTED_CURRENCIES } from "@/utils/currency";
+import { userPreferenceApi } from "@/api/userPreferenceApi";
+import { RootState } from "@/store";
 
 export default function FreelancerHeader() {
   const router = useRouter();
   const dispatch = useDispatch();
+  const user=localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user") as string) : null;
+  const preferredCurrency =
+    useSelector((s: RootState) => s.auth.user?.preferredCurrency) || "USD";
+    console.log(preferredCurrency)
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isHireTalentOpen, setIsHireTalentOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [updatingCurrency, setUpdatingCurrency] = useState(false);
 
   const handleLogout = async () => {
     try {
       const respone = await authApi.logout();
       if (respone.success) {
-        dispatch(setUser(null));
+        dispatch(clearUser());
         localStorage.removeItem("user");
         router.push("/login");
       }
@@ -44,6 +52,28 @@ export default function FreelancerHeader() {
 
   const handleOpenAccountSettings = async () => {
     router.replace("/account/settings");
+  };
+
+  const handleCurrencyChange = async (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const next = e.target.value;
+    if (next === preferredCurrency || updatingCurrency) return;
+    try {
+      setUpdatingCurrency(true);
+      const resp = await userPreferenceApi.updatePreferredCurrency(next);
+      if (resp?.success) {
+        dispatch(setUser(resp.data));
+        try { localStorage.setItem("user", JSON.stringify(resp.data)); } catch {}
+        toast.success("Currency updated");
+      } else {
+        toast.error(resp?.message || "Failed to update currency");
+      }
+    } catch (err) {
+      toast.error("Failed to update currency");
+    } finally {
+      setUpdatingCurrency(false);
+    }
   };
 
   return (
@@ -119,6 +149,22 @@ export default function FreelancerHeader() {
             className="px-3 py-1 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black placeholder-black"
           />
 
+          {/* Currency Switcher */}
+          <select
+            aria-label="Preferred currency"
+            value={preferredCurrency}
+            onChange={handleCurrencyChange}
+            disabled={updatingCurrency}
+            className="px-2 py-1 border border-gray-300 rounded-md text-sm text-black bg-white disabled:opacity-60"
+            title={updatingCurrency ? "Updating..." : "Change currency"}
+          >
+            {SUPPORTED_CURRENCIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+
           {/* User Menu */}
           <div className="relative group">
             <div className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-gray-700 hover:scale-105">
@@ -168,6 +214,22 @@ export default function FreelancerHeader() {
             placeholder="Search..."
             className="hidden sm:block px-3 py-1 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black placeholder-black text-sm"
           />
+
+          {/* Currency Switcher (Mobile) */}
+          <select
+            aria-label="Preferred currency"
+            value={preferredCurrency}
+            onChange={handleCurrencyChange}
+            disabled={updatingCurrency}
+            className="px-2 py-1 border border-gray-300 rounded-md text-sm text-black bg-white disabled:opacity-60"
+            title={updatingCurrency ? "Updating..." : "Change currency"}
+          >
+            {SUPPORTED_CURRENCIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
 
           {/* User Icon Mobile */}
           <div className="relative group">

@@ -18,7 +18,10 @@ import { clientActionApi } from "@/api/action/ClientActionApi";
 import toast from "react-hot-toast";
 import debounce from 'lodash/debounce';
 import { FaSpinner } from 'react-icons/fa';
-
+import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { formatCurrency, SupportedCurrency } from "@/utils/currency";
 const FreelancerProfile = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const params = useParams();
@@ -51,12 +54,13 @@ const FreelancerProfile = () => {
   const [selectedPortfolio, setSelectedPortfolio] = useState<IPortfolio | null>(null);
   const [saved, setSaved] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
-
+  const router=useRouter()
   useEffect(() => {
     // Simple, robust fetch that tolerates multiple API shapes
     async function load() {
       try {
         const resp = await clientActionApi.getFreelancerDetail(freelancerId as any);
+        console.log(resp)
         if (resp && resp.success && resp.data) {
           const d = resp.data;
           // minimal mapping
@@ -221,7 +225,7 @@ const FreelancerProfile = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <FaDollarSign size={14} className="text-gray-400" />
-                    <span className="font-semibold text-gray-900">${freelancer.freelancerProfile.hourlyRate}/hr</span>
+                    <span className="font-semibold text-gray-900">{formatCurrency(Number(freelancer.freelancerProfile.hourlyRate || 0), (useSelector((s: RootState) => s.auth.user?.preferredCurrency) || 'USD') as SupportedCurrency)}/hr</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <FaStar size={14} className="text-yellow-400" />
@@ -233,7 +237,7 @@ const FreelancerProfile = () => {
             </div>
 
             <div className="flex flex-col gap-3 md:ml-auto">
-              <button className="bg-[#108A00] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#0d7000] transition-colors shadow-sm">Hire Now</button>
+              <button onClick={()=>router.push(`/client/offers/create/freelancer/${freelancerId}`)} className="bg-[#108A00] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#0d7000] transition-colors shadow-sm">Hire Now</button>
               <button className="border-2 border-[#108A00] text-[#108A00] px-8 py-3 rounded-lg font-semibold hover:bg-[#108A00] hover:text-white transition-colors"><FaEnvelope className="inline mr-2" size={16} />Message</button>
               <button
                 onClick={() => {
@@ -276,7 +280,7 @@ const FreelancerProfile = () => {
             <div className="lg:col-span-2 space-y-6">
               <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">About</h2>
-                <p className="text-gray-700 leading-relaxed">{freelancer.freelancerProfile.bio}</p>
+                <p className="text-gray-700 leading-relaxed prose max-w-none whitespace-pre-line  break-words break-all min-w-0">{freelancer.freelancerProfile.bio}</p>
               </div>
 
               <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">

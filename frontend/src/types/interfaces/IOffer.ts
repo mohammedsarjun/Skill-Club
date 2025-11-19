@@ -2,7 +2,7 @@ export type PaymentType = "fixed" | "fixed_with_milestones" | "hourly";
 export type CommunicationMethod = "chat" | "video_call" | "email" | "mixed";
 export type ReportingFrequency = "daily" | "weekly" | "monthly";
 export type ReportingFormat = "text_with_attachments" | "text_only" | "video";
-export type Currency = "USD" | "EUR" | "GBP" | "INR";
+export type Currency = "USD" | "EUR" | "GBP" | "INR" | "AUD" | "CAD" | "SGD" | "JPY";
 
 export interface MilestonePayload {
   title: string;

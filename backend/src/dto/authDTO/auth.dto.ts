@@ -22,4 +22,5 @@ export interface GetUserDto {
   lastName?: string;
   email?: string;
   phone?: number;
+  preferredCurrency?: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
 }

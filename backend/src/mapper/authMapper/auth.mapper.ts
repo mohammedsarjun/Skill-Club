@@ -1,12 +1,22 @@
 import { CreateUserDTO, GetUserDto } from '../../dto/authDTO/auth.dto';
 import { IUser } from '../../models/interfaces/user.model.interface';
+import { SUPPORTED_CURRENCIES, SupportedCurrency } from '../../contants/currency.constants';
 
 export const mapCreateUserDtoToUserModel = (
   dto: CreateUserDTO,
-): Pick<IUser, 'firstName' | 'lastName' | 'email' | 'phone' | 'password' | 'preferredCurrency' | 'preferredTimezone' | 'address'> & {
+): Pick<
+  IUser,
+  | 'firstName'
+  | 'lastName'
+  | 'email'
+  | 'phone'
+  | 'password'
+  | 'preferredCurrency'
+  | 'preferredTimezone'
+  | 'address'
+> & {
   agreement: boolean;
 } => {
-
   console.log('Mapping CreateUserDTO to UserModel:');
   console.log(dto);
   return {
@@ -35,5 +45,8 @@ export const mapUserModelToGetUserDto = (modelData: IUser): GetUserDto => {
     lastName: modelData.lastName,
     email: modelData.email,
     phone: modelData.phone!,
+    preferredCurrency: SUPPORTED_CURRENCIES.includes(modelData.preferredCurrency as SupportedCurrency)
+      ? (modelData.preferredCurrency as SupportedCurrency)
+      : undefined,
   };
 };

@@ -18,7 +18,7 @@ export class AuthController implements IAuthController {
     this._authService = authService;
   }
   async signup(req: Request, res: Response): Promise<void> {
-    console.log(req.body)
+    console.log(req.body);
     const user: GetUserDto = await this._authService.signup(req.body);
     res.status(HttpStatus.CREATED).json({
       success: true,

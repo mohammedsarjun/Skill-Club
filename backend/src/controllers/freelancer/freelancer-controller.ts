@@ -6,6 +6,7 @@ import { IFreelancerController } from './interfaces/freelancer-controller.interf
 import type { IFreelancerService } from '../../services/freelancerServices/interfaces/freelancer-services.interface';
 import { MESSAGES } from '../../contants/contants';
 import { IFreelancerProfile } from '../../models/interfaces/user.model.interface';
+import { SupportedCurrency } from '../../contants/currency.constants';
 
 @injectable()
 export class FreelancerController implements IFreelancerController {
@@ -132,11 +133,12 @@ export class FreelancerController implements IFreelancerController {
 
   async updateFreelancerHourlyRate(req: Request, res: Response): Promise<void> {
     const userId = req.user?.userId;
-    const hourlyRate = req.body.hourlyRate;
-    const result = await this._freelancerService.updateFreelancerHourlyRate(
-      userId as string,
+    const hourlyRate: number = req.body.hourlyRate;
+    const currency = req.body.currency as SupportedCurrency | undefined;
+    const result = await this._freelancerService.updateFreelancerHourlyRate(userId as string, {
       hourlyRate,
-    );
+      currency,
+    });
 
     res.status(HttpStatus.OK).json({
       success: true,

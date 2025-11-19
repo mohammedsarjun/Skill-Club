@@ -1,15 +1,15 @@
-import {  Schema, model } from "mongoose";
-import { ISavedJob } from "./interfaces/saved-job.model.interface";
+import { Schema, model } from 'mongoose';
+import { ISavedJob } from './interfaces/saved-job.model.interface';
 
 const savedJobSchema = new Schema<ISavedJob>({
   freelancerId: {
     type: Schema.Types.ObjectId,
-    ref: "User",
+    ref: 'User',
     required: true,
   },
   jobId: {
     type: Schema.Types.ObjectId,
-    ref: "Job",
+    ref: 'Job',
     required: true,
   },
   createdAt: {
@@ -22,6 +22,6 @@ const savedJobSchema = new Schema<ISavedJob>({
 savedJobSchema.index({ freelancerId: 1, jobId: 1 }, { unique: true });
 
 // 4. Create model
-const SavedJob = model<ISavedJob>("SavedJob", savedJobSchema);
+const SavedJob = model<ISavedJob>('SavedJob', savedJobSchema);
 
 export default SavedJob;

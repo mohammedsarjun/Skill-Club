@@ -3,16 +3,16 @@
 import { authApi } from "@/api/authApi";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useDispatch, UseDispatch } from "react-redux";
-import { setUser } from "@/store/slices/authSlice";
+import { useDispatch } from "react-redux";
+import { setUser, clearUser } from "@/store/slices/authSlice";
 export default function AuthHeader() {
   const router = useRouter();
   const dispatch=useDispatch()
   const handleLogout = async () => {
     try {
 
-      authApi.logout()
-      dispatch(setUser(null))
+      await authApi.logout();
+      dispatch(clearUser());
       router.push("/login");
     } catch (err) {
       console.error("Logout failed", err);

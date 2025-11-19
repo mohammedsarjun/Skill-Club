@@ -3,7 +3,7 @@ import type { IUserRepository } from '../../repositories/interfaces/user-reposit
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { CreateUserDTO, GetUserDto, LoginUserDto } from '../../dto/authDTO/auth.dto';
-import { mapCreateUserDtoToUserModel } from '../../mapper/authMapper/auth.mapper';
+import { mapCreateUserDtoToUserModel, mapUserModelToGetUserDto } from '../../mapper/authMapper/auth.mapper';
 import bcrypt from 'bcryptjs';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
@@ -61,13 +61,11 @@ export class AuthService implements IAuthService {
       user = await this._userRepository.create(dto);
     }
 
-    return {
-      id: user!._id.toString(),
-      firstName: user!.firstName,
-      lastName: user!.lastName,
-      email: user!.email,
-      phone: user!.phone!,
-    };
+    if (!user) {
+      throw new AppError('Failed to create or update user', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    return mapUserModelToGetUserDto(user);
   }
 
   async login(userData: LoginUserDto): Promise<UserDto> {
@@ -209,7 +207,7 @@ export class AuthService implements IAuthService {
     await this._otpService.verifyOtp(newEmail as string, otp);
     const user = await this._userRepository.updateEmail(userId, newEmail as string);
     await this._actionVerificationRepository.changeActionVerificationStatus(userId, 'completed');
-    return user ? mapUserModelToUserProfileDto(user) : user;
+    return user ? mapUserModelToUserProfileDto(user) : null;
   }
 
   async resendChangeEmailOtp(userId: string): Promise<{ expiresAt: Date }> {

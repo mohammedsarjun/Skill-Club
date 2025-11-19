@@ -14,7 +14,7 @@ export class FileUploadController {
   ) {}
 
   async uploadSingle(req: Request, res: Response): Promise<void> {
-  const file = (req as Request & { file?: Express.Multer.File }).file;
+    const file = (req as Request & { file?: Express.Multer.File }).file;
 
     if (!file) {
       throw new AppError('No file provided', HttpStatus.BAD_REQUEST);

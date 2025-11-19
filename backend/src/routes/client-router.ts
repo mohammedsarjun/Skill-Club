@@ -133,6 +133,14 @@ clientRouter.get(
   clientProposalController.getProposalDetail.bind(clientProposalController),
 );
 
+clientRouter.post(
+  '/proposals/:proposalId/reject',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientProposalController.rejectProposal.bind(clientProposalController),
+);
+
 // Offer routes
 clientRouter.get(
   '/offers',
@@ -158,13 +166,20 @@ clientRouter.get(
   clientOfferController.getOfferDetail.bind(clientOfferController),
 );
 
-
 clientRouter.post(
   '/offers',
   authMiddleware,
   roleGuard('client'),
   clientBlockMiddleware,
   clientOfferController.createOffer.bind(clientOfferController),
+);
+
+clientRouter.patch(
+  '/offers/:offerId/withdraw',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientOfferController.withdrawOffer.bind(clientOfferController),
 );
 
 clientRouter.post(

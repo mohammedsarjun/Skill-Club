@@ -10,12 +10,17 @@ import { mapSavedFreelancerAggToDTO } from '../../mapper/clientMapper/client-sav
 export class ClientSavedFreelancerService implements IClientSavedFreelancerService {
   private _savedFreelancerRepository: ISavedFreelancerRepository;
 
-  constructor(@inject('ISavedFreelancerRepository') savedFreelancerRepository: ISavedFreelancerRepository) {
+  constructor(
+    @inject('ISavedFreelancerRepository') savedFreelancerRepository: ISavedFreelancerRepository,
+  ) {
     this._savedFreelancerRepository = savedFreelancerRepository;
   }
 
   async toggleSaveFreelancer(clientId: string, freelancerId: string): Promise<{ saved: boolean }> {
-    const existing = await this._savedFreelancerRepository.findByClientAndFreelancer(clientId, freelancerId);
+    const existing = await this._savedFreelancerRepository.findByClientAndFreelancer(
+      clientId,
+      freelancerId,
+    );
     if (existing) {
       await this._savedFreelancerRepository.deleteByClientAndFreelancer(clientId, freelancerId);
       return { saved: false };
@@ -30,7 +35,10 @@ export class ClientSavedFreelancerService implements IClientSavedFreelancerServi
   }
 
   async isFreelancerSaved(clientId: string, freelancerId: string): Promise<boolean> {
-    const existing = await this._savedFreelancerRepository.findByClientAndFreelancer(clientId, freelancerId);
+    const existing = await this._savedFreelancerRepository.findByClientAndFreelancer(
+      clientId,
+      freelancerId,
+    );
     return !!existing;
   }
 

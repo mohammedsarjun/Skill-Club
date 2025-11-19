@@ -10,6 +10,7 @@ import {
 } from '../dto/user.dto';
 import { IExperience, IUser } from '../models/interfaces/user.model.interface';
 import { Types } from 'mongoose';
+import { SUPPORTED_CURRENCIES, SupportedCurrency } from '../contants/currency.constants';
 
 export const mapUserModelToUserDto = (modelData: IUser): UserDto => {
   return {
@@ -17,10 +18,15 @@ export const mapUserModelToUserDto = (modelData: IUser): UserDto => {
     roles: modelData.roles,
     activeRole: modelData.activeRole,
     isOnboardingCompleted: modelData.isOnboardingCompleted,
+    isFreelancerOnboarded: modelData.isFreelancerOnboarded ?? false,
+    isClientOnboarded: modelData.isClientOnboarded ?? false,
     clientProfile: modelData?.clientProfile?.logo,
     freelancerProfile: modelData?.freelancerProfile?.logo,
     isClientBlocked: modelData?.isClientBlocked,
     isFreelancerBlocked: modelData?.isFreelancerBlocked,
+    preferredCurrency: SUPPORTED_CURRENCIES.includes(modelData?.preferredCurrency as SupportedCurrency)
+      ? (modelData?.preferredCurrency as SupportedCurrency)
+      : undefined,
   };
 };
 

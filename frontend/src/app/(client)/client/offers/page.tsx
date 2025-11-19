@@ -7,6 +7,10 @@ import { Offer } from "@/types/interfaces/IOffer";
 import { FaTimes } from "react-icons/fa";
 import { clientActionApi } from '@/api/action/ClientActionApi';
 import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { formatCurrency, SupportedCurrency } from "@/utils/currency";
+import Swal from 'sweetalert2';
 
 type OfferRow = {
   id: string;
@@ -39,6 +43,8 @@ const ClientOffersPage: React.FC = () => {
       timeout = setTimeout(() => cb(value), 400);
     };
   }, []);
+
+  const preferredCurrency = (useSelector((s: RootState) => s.auth.user?.preferredCurrency) || 'USD') as SupportedCurrency;
 
   useEffect(() => {
     let cancelled = false;
@@ -114,11 +120,11 @@ const ClientOffersPage: React.FC = () => {
     created: o.createdAt ? new Date(o.createdAt).toLocaleDateString() : "",
     payment:
       o.paymentType === "hourly"
-        ? `$${o.hourlyRate}/hr • est ${o.estimatedHoursPerWeek ?? 0} hrs/wk`
+        ? `${formatCurrency(Number(o.hourlyRate || 0), preferredCurrency)} /hr • est ${o.estimatedHoursPerWeek ?? 0} hrs/wk`
         : o.paymentType === "fixed_with_milestones"
-        ? `$${o.budget?.toLocaleString() ?? 0} (Milestones: ${o.milestones?.length ?? 0})`
+        ? `${formatCurrency(Number(o.budget || 0), preferredCurrency)} (Milestones: ${o.milestones?.length ?? 0})`
         : o.budget
-        ? `$${o.budget.toLocaleString()} (Fixed)`
+        ? `${formatCurrency(Number(o.budget || 0), preferredCurrency)} (Fixed)`
         : "-",
     status: o.status,
     original: o,
@@ -134,8 +140,41 @@ const ClientOffersPage: React.FC = () => {
   }
 
   function handleWithdraw(offer: Offer) {
-    setOffers((prev) => prev.map((p) => (p._id === offer._id ? { ...p, status: "withdrawn" } : p)));
-    closeDetail();
+    // Guard: do nothing if already withdrawn
+    if (offer.status === 'withdrawn') {
+      closeDetail();
+      return;
+    }
+
+    (async () => {
+      const result = await Swal.fire({
+        title: 'Withdraw Offer',
+        text: 'Are you sure you want to withdraw this offer?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, withdraw',
+        cancelButtonText: 'Cancel',
+      });
+
+      if (!result.isConfirmed) {
+        closeDetail();
+        return;
+      }
+
+      try {
+        const resp = await clientActionApi.withdrawOffer(String(offer._id));
+        if (resp?.success) {
+          setOffers((prev) => prev.map((p) => (p._id === offer._id ? { ...p, status: 'withdrawn' } : p)));
+          Swal.fire('Withdrawn', 'Offer has been withdrawn.', 'success');
+        } else {
+          Swal.fire('Error', resp?.message || 'Failed to withdraw offer', 'error');
+        }
+      } catch (e) {
+        Swal.fire('Error', 'Unexpected error while withdrawing', 'error');
+      } finally {
+        closeDetail();
+      }
+    })();
   }
 
   return (
@@ -178,7 +217,7 @@ const ClientOffersPage: React.FC = () => {
                 <div className="mt-4 grid grid-cols-2 gap-4">
                   <div className="bg-gray-50 p-4 rounded-lg border">
                     <p className="text-xs text-gray-500">Payment</p>
-                    <p className="font-medium mt-1">{selected.paymentType === "hourly" ? `$${selected.hourlyRate}/hr` : selected.budget ? `$${selected.budget}` : "-"}</p>
+                    <p className="font-medium mt-1">{selected.paymentType === "hourly" ? `${formatCurrency(Number(selected.hourlyRate || 0), preferredCurrency)} /hr` : selected.budget ? `${formatCurrency(Number(selected.budget), preferredCurrency)}` : "-"}</p>
                   </div>
 
                   <div className="bg-gray-50 p-4 rounded-lg border">

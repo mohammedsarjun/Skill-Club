@@ -4,7 +4,12 @@ import { ClientOfferResponseDTO } from '../../dto/clientDTO/client-offer.dto';
 function docIdToString(id: unknown): string | undefined {
   if (!id) return undefined;
   if (typeof id === 'string') return id;
-  if (typeof id === 'object' && id !== null && 'toString' in id && typeof (id as { toString: unknown }).toString === 'function') {
+  if (
+    typeof id === 'object' &&
+    id !== null &&
+    'toString' in id &&
+    typeof (id as { toString: unknown }).toString === 'function'
+  ) {
     return (id as { toString(): string }).toString();
   }
   return undefined;
@@ -24,7 +29,7 @@ export const mapOfferModelToClientOfferResponseDTO = (offer: IOffer): ClientOffe
     paymentType: offer.paymentType,
     budget: offer.budget,
     hourlyRate: offer.hourlyRate,
-    milestones: offer.milestones?.map(m => ({
+    milestones: offer.milestones?.map((m) => ({
       title: m.title,
       amount: m.amount,
       expectedDelivery: m.expectedDelivery,

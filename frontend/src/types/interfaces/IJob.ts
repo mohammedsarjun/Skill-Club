@@ -107,6 +107,11 @@ export interface FreelancerJobDetailResponse {
     min: number;
     max: number;
   } | null;
+  // Optional FX fields returned from backend
+  currency?: string;
+  conversionRate?: number; // USD per 1 unit of `currency`
+  hourlyRateBaseUSD?: { min?: number; max?: number };
+  fixedRateBaseUSD?: { min?: number; max?: number };
   proposalReceived: number;
   postedAt: string; // ISO date string
   client: {
@@ -115,6 +120,7 @@ export interface FreelancerJobDetailResponse {
     rating: number;
     totalJobsPosted: number;
   };
+  status:string
 }
 
 export interface FreelancerJobResponse {

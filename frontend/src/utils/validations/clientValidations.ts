@@ -17,43 +17,57 @@ export const SelectedSpecialitiesSchema = z
   .min(1, { message: "Select at least one speciality." })
   .max(3, { message: "Select at most 3 specialities." });
 
-export const HourlyBudgetSchema = z
-  .object({
-    min: z
-      .number()
-      .min(100, "Minimum hourly rate must be at least ₹100")
-      .max(100000, "Minimum hourly rate cannot exceed ₹100,000"),
-    max: z
-      .number()
-      .min(100, "Maximum hourly rate must be at least ₹100")
-      .max(100000, "Maximum hourly rate cannot exceed ₹100,000"),
-    hoursPerWeek: z
-      .number()
-      .min(1, "Hours per week must be at least 1")
-      .max(60, "Hours per week cannot exceed 60"),
-    estimatedDuration: z.enum(["1 To 3 Months", "3 To 6 Months"]),
-  })
-  .refine((data) => data.max >= data.min, {
-    message:
-      "Maximum hourly rate must be greater than or equal to minimum rate",
-    path: ["max"],
-  });
+export function createHourlyBudgetSchema(rateToUSD: number) {
+  const toLocal = (usd: number) => (rateToUSD > 0 ? usd / rateToUSD : usd);
+  const minLocal = toLocal(5);
+  const maxLocal = toLocal(999);
+  return z
+    .object({
+      min: z
+        .number()
+        .min(minLocal, `Minimum hourly rate must be at least $5 (≈ ${minLocal.toFixed(2)})`),
+      max: z
+        .number()
+        .min(minLocal, `Maximum hourly rate must be at least $5 (≈ ${minLocal.toFixed(2)})`),
+      hoursPerWeek: z
+        .number()
+        .min(1, "Hours per week must be at least 1")
+        .max(60, "Hours per week cannot exceed 60"),
+      estimatedDuration: z.enum(["1 To 3 Months", "3 To 6 Months"]),
+    })
+    .refine((data) => data.max >= data.min, {
+      message:
+        "Maximum hourly rate must be greater than or equal to minimum rate",
+      path: ["max"],
+    })
+    .refine((data) => data.min <= maxLocal && data.max <= maxLocal, {
+      message: `Hourly rate cannot exceed $999 (≈ ${maxLocal.toFixed(2)})`,
+      path: ["max"],
+    });
+}
 
-export const FixedBudgetSchema = z
-  .object({
-    min: z
-      .number()
-      .min(100, "Minimum budget must be at least ₹100")
-      .max(100000, "Minimum budget cannot exceed ₹100,000"),
-    max: z
-      .number()
-      .min(100, "Maximum budget must be at least ₹100")
-      .max(100000, "Maximum budget cannot exceed ₹100,000"),
-  })
-  .refine((data) => data.max >= data.min, {
-    message: "Maximum budget must be greater than or equal to minimum budget",
-    path: ["max"],
-  });
+export function createFixedBudgetSchema(rateToUSD: number) {
+  const toLocal = (usd: number) => (rateToUSD > 0 ? usd / rateToUSD : usd);
+  const minLocal = toLocal(5);
+  const maxLocal = toLocal(100000);
+  return z
+    .object({
+      min: z
+        .number()
+        .min(minLocal, `Minimum budget must be at least $5 (≈ ${minLocal.toFixed(2)})`),
+      max: z
+        .number()
+        .min(minLocal, `Maximum budget must be at least $5 (≈ ${minLocal.toFixed(2)})`),
+    })
+    .refine((data) => data.max >= data.min, {
+      message: "Maximum budget must be greater than or equal to minimum budget",
+      path: ["max"],
+    })
+    .refine((data) => data.min <= maxLocal && data.max <= maxLocal, {
+      message: `Budget cannot exceed $100000 (≈ ${maxLocal.toFixed(2)})`,
+      path: ["max"],
+    });
+}
 
 // ✅ Schema for validation (checks for minimum words and space patterns)
 export const JobDescriptionSchema = z

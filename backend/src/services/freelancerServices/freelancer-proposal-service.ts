@@ -2,7 +2,10 @@ import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { IFreelancerProposalService } from './interfaces/freelancer-proposal-service.interface';
 import { IProposalRepository } from '../../repositories/interfaces/proposal-repository.interface';
-import { CreateProposalRequestDto, FreelancerProposalResponseDTO } from '../../dto/freelancerDTO/freelancer-proposal.dto';
+import {
+  CreateProposalRequestDto,
+  FreelancerProposalResponseDTO,
+} from '../../dto/freelancerDTO/freelancer-proposal.dto';
 import { validateData } from '../../utils/validation';
 import {
   fixedProposalSchema,
@@ -12,7 +15,10 @@ import { IJobRepository } from '../../repositories/interfaces/job-repository.int
 import AppError from '../../utils/app-error';
 import { ERROR_MESSAGES } from '../../contants/error-constants';
 import { HttpStatus } from '../../enums/http-status.enum';
-import { mapCreateProposalRequestDtoToProposalModel, mapProposalModelToFreelancerProposalResponseDTO } from '../../mapper/freelancerMapper/freelancer-proposal.mapper';
+import {
+  mapCreateProposalRequestDtoToProposalModel,
+  mapProposalModelToFreelancerProposalResponseDTO,
+} from '../../mapper/freelancerMapper/freelancer-proposal.mapper';
 import { mapRawQueryFiltersToProposalQueryParamsDTO } from '../../mapper/clientMapper/client-proposal.mapper';
 // import AppError from '../../utils/app-error';
 // import { HttpStatus } from '../../enums/http-status.enum';
@@ -33,13 +39,12 @@ export class FreelancerProposalService implements IFreelancerProposalService {
     freelancerId: string,
     proposalData: CreateProposalRequestDto,
   ): Promise<void> {
-      console.log(proposalData)
+    console.log(proposalData);
     const jobData = await this._jobRepository.getJobById(proposalData.jobId);
     if (!jobData) {
       throw new AppError(ERROR_MESSAGES.JOB.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
     const jobRateType = jobData.rateType;
-  
 
     if (jobRateType == 'hourly') {
       validateData(hourlyProposalSchema, proposalData);
@@ -61,29 +66,68 @@ export class FreelancerProposalService implements IFreelancerProposalService {
       jobRateType,
       freelancerId,
     );
+    // Compute base USD amount and conversion rate
+    const currency = proposalDbData.currency ?? 'USD';
+    let conversionRate = 1;
+    try {
+      const { getUsdRateFor } = await import('../../utils/currency.util');
+      // getUsdRateFor returns USD per 1 unit of currency
+      conversionRate = await getUsdRateFor(currency);
+    } catch (e) {
+      // Fallback to 1 when FX fetch fails
+      conversionRate = currency === 'USD' ? 1 : conversionRate;
+    }
 
-    await this._proposalRepository.createProposal(proposalDbData);
+    const amount =
+      proposalDbData.hourlyRate ?? proposalDbData.proposedBudget ?? undefined;
+    const amountBaseUSD = typeof amount === 'number' ? amount * conversionRate : undefined;
+
+    if (jobRateType === 'hourly' && typeof amountBaseUSD === 'number') {
+      if (amountBaseUSD < 5 || amountBaseUSD > 999) {
+        throw new AppError(
+          'Hourly rate must be between $5 and $999 after conversion',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
+    if (jobRateType === 'fixed' && typeof amountBaseUSD === 'number') {
+      if (amountBaseUSD < 5 || amountBaseUSD > 100000) {
+        throw new AppError(
+          'Proposed budget must be between $5 and $100000 after conversion',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
+
+    await this._proposalRepository.createProposal({
+      ...proposalDbData,
+      conversionRate,
+      amountBaseUSD,
+    });
   }
 
   async getAllProposal(
     freelancerId: string,
     jobId: string,
     queryFilters: Record<string, unknown>,
-  ): Promise<FreelancerProposalResponseDTO[]|null> {
-       const proposalQueryDto = mapRawQueryFiltersToProposalQueryParamsDTO(queryFilters);
-       console.log(jobId)
-       const skip =
-         (proposalQueryDto?.page ? proposalQueryDto?.page - 1 : 0) * (proposalQueryDto.limit ? proposalQueryDto?.limit : 5);
-   
-       const proposalResponse = await this._proposalRepository.findAllByJobAndFreelancerId(
-         freelancerId,
-         jobId,
-         proposalQueryDto,
-         skip,
-       );
-   
-       const proposalResponseDTO = proposalResponse?.map(mapProposalModelToFreelancerProposalResponseDTO)
-       console.log(proposalResponseDTO);
-       return proposalResponseDTO || null;
+  ): Promise<FreelancerProposalResponseDTO[] | null> {
+    const proposalQueryDto = mapRawQueryFiltersToProposalQueryParamsDTO(queryFilters);
+    console.log(jobId);
+    const skip =
+      (proposalQueryDto?.page ? proposalQueryDto?.page - 1 : 0) *
+      (proposalQueryDto.limit ? proposalQueryDto?.limit : 5);
+
+    const proposalResponse = await this._proposalRepository.findAllByJobAndFreelancerId(
+      freelancerId,
+      jobId,
+      proposalQueryDto,
+      skip,
+    );
+
+    const proposalResponseDTO = proposalResponse?.map(
+      mapProposalModelToFreelancerProposalResponseDTO,
+    );
+    console.log(proposalResponseDTO);
+    return proposalResponseDTO || null;
   }
 }

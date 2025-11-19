@@ -1,7 +1,9 @@
 import { SavedJobWithJobAggregation } from '../../repositories/interfaces/saved-job-repository.interface';
 import { FreelancerSavedJobListItemDTO } from '../../dto/freelancerDTO/freelancer-saved-job.dto';
 
-export function mapSavedJobAggToListItemDTO(doc: SavedJobWithJobAggregation): FreelancerSavedJobListItemDTO {
+export function mapSavedJobAggToListItemDTO(
+  doc: SavedJobWithJobAggregation,
+): FreelancerSavedJobListItemDTO {
   const job = doc.job;
   const categoryName = job?.category ? job.category.name : null;
   return {
@@ -13,8 +15,8 @@ export function mapSavedJobAggToListItemDTO(doc: SavedJobWithJobAggregation): Fr
     specialities: (job?.specialities ?? []).map((s) => s.name),
     skills: (job?.skills ?? []).map((k) => k.name),
     rateType: job?.rateType ?? 'fixed',
-    hourlyRate: job && job.rateType === 'hourly' ? job.hourlyRate ?? null : null,
-    fixedRate: job && job.rateType === 'fixed' ? job.fixedRate ?? null : null,
+    hourlyRate: job && job.rateType === 'hourly' ? (job.hourlyRate ?? null) : null,
+    fixedRate: job && job.rateType === 'fixed' ? (job.fixedRate ?? null) : null,
     client: {
       companyName: job?.client?.companyName,
       country: job?.client?.country,

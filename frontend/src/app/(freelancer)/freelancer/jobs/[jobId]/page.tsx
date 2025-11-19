@@ -26,6 +26,9 @@ import {
 import ProposalFormModal from "./components/ProposalModal";
 import { ICreateProposal } from "@/types/interfaces/IProposal";
 import toast from "react-hot-toast";
+import { formatCurrency, SupportedCurrency, convertCurrency } from "@/utils/currency";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 // TypeScript Interfaces
 interface HourlyRate {
@@ -33,11 +36,13 @@ interface HourlyRate {
   max: number;
   hoursPerWeek: number;
   estimatedDuration: "1 To 3 Months" | "3 To 6 Months";
+  currency?: SupportedCurrency;
 }
 
 interface FixedRate {
   min: number;
   max: number;
+  currency?: SupportedCurrency;
 }
 
 interface Client {
@@ -78,68 +83,6 @@ interface StatusConfig {
   label: string;
 }
 
-// Sample job detail data
-// const jobDetail: JobDetailResponse = {
-//   jobId: "job-12345",
-//   title: "Full Stack Web Application Development",
-//   description: `We are seeking an experienced full-stack developer to build a comprehensive web application from the ground up. This project involves creating a scalable, modern web platform with both frontend and backend components.
-
-// **Project Overview:**
-// The application will serve as a comprehensive management system for our growing business operations. We need someone who can handle everything from database design to user interface implementation.
-
-// **Key Responsibilities:**
-// - Design and implement a scalable architecture using modern frameworks
-// - Develop RESTful APIs for seamless frontend-backend communication
-// - Create responsive and intuitive user interfaces
-// - Implement real-time features using WebSocket technology
-// - Integrate third-party services and payment gateways
-// - Write clean, maintainable, and well-documented code
-// - Perform thorough testing and debugging
-// - Deploy and maintain the application on cloud infrastructure
-
-// **Technical Requirements:**
-// - Strong proficiency in React.js and modern JavaScript (ES6+)
-// - Extensive experience with Node.js and Express.js
-// - Deep understanding of MongoDB and database design
-// - Experience with AWS services (EC2, S3, Lambda, etc.)
-// - Knowledge of TypeScript and its benefits
-// - Familiarity with Git version control
-// - Understanding of security best practices
-// - Experience with CI/CD pipelines
-
-// **What We're Looking For:**
-// - Proven track record of delivering complex web applications
-// - Strong problem-solving and analytical skills
-// - Excellent communication skills and ability to work independently
-// - Attention to detail and commitment to quality
-// - Portfolio showcasing previous full-stack projects
-
-// **Project Timeline:**
-// We're looking to start immediately and expect the project to take approximately 3-4 months for the initial version. There will be ongoing maintenance and feature additions after the initial launch.
-
-// **Communication:**
-// We prefer daily updates and weekly progress meetings. You should be comfortable using project management tools like Jira or Trello and communication platforms like Slack.`,
-//   category: "Web Development",
-//   specialities: ["Full Stack Development", "Backend Development", "Frontend Development"],
-//   skills: ["React", "Node.js", "MongoDB", "AWS", "TypeScript", "Express.js", "REST API"],
-//   rateType: "hourly",
-//   hourlyRate: {
-//     min: 50,
-//     max: 100,
-//     hoursPerWeek: 40,
-//     estimatedDuration: "3 To 6 Months",
-//   },
-//   fixedRate: null,
-//   status: "open",
-//   proposalReceived: 28,
-//   postedAt: "2024-11-01T10:30:00Z",
-//   client: {
-//     name: "TechVenture Solutions",
-//     country: "United States",
-//     rating: 4.9,
-//     totalJobsPosted: 47,
-//   },
-// };
 
 const JobDetailPage: React.FC = () => {
   const [isSaved, setIsSaved] = useState<boolean>(false);
@@ -149,6 +92,7 @@ const JobDetailPage: React.FC = () => {
   const [coverLetter, setCoverLetter] = useState<string>("");
   const [deliveryTime, setDeliveryTime] = useState<string>("1-2 weeks");
   const [jobDetail, setJobDetail] = useState<FreelancerJobDetailResponse>();
+  const [jobStatus, setJobStatus] = useState<JobStatus | undefined>();
   const params = useParams();
   const { jobId } = params;
   const formatDate = (dateString: string): string => {
@@ -167,6 +111,39 @@ const JobDetailPage: React.FC = () => {
       year: "numeric",
     });
   };
+  const preferredCurrency = (useSelector((s: RootState) => s.auth.user?.preferredCurrency) || 'USD') as SupportedCurrency;
+
+  const [convertedMin, setConvertedMin] = useState<number>(0);
+  const [convertedMax, setConvertedMax] = useState<number>(0);
+
+  useEffect(() => {
+    let mounted = true;
+    if (!jobDetail) return;
+
+    (async () => {
+      try {
+        const jobCurrency = ((jobDetail as any).hourlyRate?.currency || (jobDetail as any).fixedRate?.currency || (jobDetail as any).currency || 'USD') as SupportedCurrency;
+        const rawMin = jobDetail?.fixedRate?.min ?? jobDetail?.hourlyRate?.min ?? 0;
+        const rawMax = jobDetail?.hourlyRate?.max ?? jobDetail?.fixedRate?.max ?? 0;
+
+        const [minConverted, maxConverted] = await Promise.all([
+          convertCurrency(rawMin, jobCurrency, preferredCurrency),
+          convertCurrency(rawMax, jobCurrency, preferredCurrency),
+        ]);
+
+        if (!mounted) return;
+        setConvertedMin(Number(minConverted || 0));
+        setConvertedMax(Number(maxConverted || 0));
+      } catch (err) {
+        if (!mounted) return;
+        setConvertedMin(0);
+        setConvertedMax(0);
+      }
+    })();
+
+    return () => { mounted = false; };
+  }, [jobDetail, preferredCurrency]);
+
 
   const getStatusBadge = (status: JobStatus): JSX.Element => {
     const statusConfig: Record<JobStatus, StatusConfig> = {
@@ -206,7 +183,6 @@ const JobDetailPage: React.FC = () => {
   };
 
   const handleSaveJob = (): void => {
-    // optimistic toggle handled by debounced API call
     const optimistic = !isSaved;
     setIsSaved(optimistic);
     setIsSaving(true);
@@ -236,7 +212,7 @@ const JobDetailPage: React.FC = () => {
         jobId as string
       );
       const jobDetail = jobDetailResponse.data;
-
+      console.log('DEBUG jobDetail (raw API data):', jobDetail);
       setJobDetail({
         jobId: jobId as string,
         title: jobDetail.title,
@@ -248,6 +224,12 @@ const JobDetailPage: React.FC = () => {
         hourlyRate:
           jobDetail.rateType == "hourly" ? jobDetail.hourlyRate : null,
         fixedRate: jobDetail.rateType == "fixed" ? jobDetail.fixedRate : null,
+        // FX metadata (optional) returned by backend mapper
+        currency: jobDetail.currency,
+        conversionRate: jobDetail.conversionRate,
+        hourlyRateBaseUSD: jobDetail.hourlyRateBaseUSD,
+        fixedRateBaseUSD: jobDetail.fixedRateBaseUSD,
+        status: jobDetail.status,
         proposalReceived: jobDetail.proposalReceived,
         postedAt: jobDetail.postedAt,
         client: {
@@ -257,6 +239,9 @@ const JobDetailPage: React.FC = () => {
           totalJobsPosted: jobDetail.client.totalJobsPosted,
         },
       });
+      // Some API shapes may return status under different keys — try common variants
+      const inferredStatus = (jobDetail as any).status || (jobDetail as any).jobStatus || (jobDetail as any).state || undefined;
+      setJobStatus(inferredStatus as JobStatus | undefined);
       console.log(jobDetail);
     }
 
@@ -310,6 +295,7 @@ const JobDetailPage: React.FC = () => {
 
   async function handleProposalSubmit(submittedData:any):Promise<void>{
     submittedData.jobId=jobId
+    submittedData.currency = preferredCurrency
     const response=await freelancerActionApi.createProposal(submittedData)
     if(response.success){
       toast.success(response.message)
@@ -396,9 +382,9 @@ const JobDetailPage: React.FC = () => {
                         : "Fixed Budget"}
                     </div>
                     <div className="text-3xl font-bold text-gray-900">
-                      ₹{jobDetail?.fixedRate?.min || jobDetail?.hourlyRate?.min}{""}
-                      -₹
-                      {jobDetail?.hourlyRate?.max || jobDetail?.fixedRate?.max}
+                      {formatCurrency(Number(convertedMin || 0), preferredCurrency)}
+                      {" - "}
+                      {formatCurrency(Number(convertedMax || 0), preferredCurrency)}
                       {jobDetail?.rateType === "hourly" && (
                         <span className="text-lg">/hr</span>
                       )}
@@ -479,22 +465,44 @@ const JobDetailPage: React.FC = () => {
             <div className="sticky top-6 space-y-6">
               {/* Action Buttons */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                {(jobStatus === 'suspended' || jobStatus === 'closed') && (
+                  <div className={`mb-3 px-3 py-2 rounded text-sm font-medium ${
+                    jobStatus === 'suspended' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-800'
+                  }`}>
+                    {jobStatus === 'suspended'
+                      ? 'This job has been suspended by the admin. Applications are paused.'
+                      : 'This job has been closed by the client — no longer accepting applicants.'}
+                  </div>
+                )}
                 <button
-                  onClick={() => setShowProposalModal(true)}
-                  className="w-full bg-[#108A00] text-white px-6 py-4 rounded-lg font-bold text-lg hover:bg-[#0d7000] transition-colors mb-3 shadow-lg shadow-[#108A00]/20"
+                  onClick={() => {
+                    if (!(jobStatus === 'suspended' || jobStatus === 'closed')) {
+                      setShowProposalModal(true);
+                    }
+                  }}
+                  disabled={jobStatus === 'suspended' || jobStatus === 'closed'}
+                  title={jobStatus === 'suspended' ? 'This job has been suspended by the admin. Applications are paused.' : jobStatus === 'closed' ? 'This job has been closed by the client — no longer accepting applicants.' : 'Submit Proposal'}
+                  className={`w-full px-6 py-4 rounded-lg font-bold text-lg transition-colors mb-3 shadow-lg shadow-[#108A00]/20 ${
+                    jobStatus === 'suspended' || jobStatus === 'closed'
+                      ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                      : 'bg-[#108A00] text-white hover:bg-[#0d7000]'
+                  }`}
                 >
-                  Submit Proposal
+                  {(jobStatus === 'suspended' && 'Suspended') || (jobStatus === 'closed' && 'Closed') || 'Submit Proposal'}
                 </button>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={handleSaveJob}
-                    disabled={isSaving}
+                    disabled={isSaving || jobStatus === 'suspended' || jobStatus === 'closed'}
                     aria-pressed={isSaved}
                     aria-label={isSaved ? 'Unsave job' : 'Save job'}
+                    title={jobStatus === 'suspended' ? 'Cannot save — job suspended by admin' : jobStatus === 'closed' ? 'Cannot save — job closed by client' : isSaved ? 'Unsave job' : 'Save job'}
                     className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold transition-colors ${
-                      isSaved
-                        ? "bg-red-50 text-red-600 border-2 border-red-200"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      jobStatus === 'suspended' || jobStatus === 'closed'
+                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed border border-gray-200'
+                        : isSaved
+                        ? 'bg-red-50 text-red-600 border-2 border-red-200'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     } ${isSaving ? 'opacity-80 cursor-wait' : ''}`}
                   >
                     <FaHeart className={isSaved ? "fill-current" : ""} />

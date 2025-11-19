@@ -14,7 +14,6 @@ export class ClientCategoryController implements IClientCategoryController {
     this._clientCategoryService = clientCategoryService;
   }
 
-
   async getAllCategories(_req: Request, res: Response): Promise<void> {
     const categoryData: GetClientCategoryDTO[] =
       await this._clientCategoryService.getAllCategories();

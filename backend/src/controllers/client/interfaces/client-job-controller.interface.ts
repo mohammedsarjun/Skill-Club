@@ -6,5 +6,4 @@ export interface IClientJobController {
   getJobDetail(req: Request, res: Response): Promise<void>;
   updateJobDetail(req: Request, res: Response): Promise<void>;
   closeJob(req: Request, res: Response): Promise<void>;
-
 }

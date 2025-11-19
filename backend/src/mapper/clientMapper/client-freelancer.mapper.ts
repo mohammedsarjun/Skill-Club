@@ -1,17 +1,28 @@
 // import { IUser } from 'src/models/interfaces/user.model.interface';
-import { IExperience, IFreelancerData, IFreelancerDetailData, ILanguage } from '../../models/interfaces/user.model.interface';
-import { ClientFreelancerResponseDto, FetchClientFreelancerDTO, FetchClientFreelancerPortfolioDTO, freelancerParams } from '../../dto/clientDTO/client-freelancer.dto';
+import {
+  IExperience,
+  IFreelancerData,
+  IFreelancerDetailData,
+  ILanguage,
+} from '../../models/interfaces/user.model.interface';
+import {
+  ClientFreelancerResponseDto,
+  FetchClientFreelancerDTO,
+  FetchClientFreelancerPortfolioDTO,
+  freelancerParams,
+} from '../../dto/clientDTO/client-freelancer.dto';
 import { Types } from 'mongoose';
 import { EducationDTO, ExperienceDTO, IEducationDTO } from 'src/dto/freelancer.dto';
 import { mapEducationModelToDTO } from '../freelancer.mapper';
 import { LanguageDTO } from 'src/dto/user.dto';
 import { IPortfolio } from 'src/models/interfaces/portfolio.model.interface';
+import { SupportedCurrency } from 'src/contants/currency.constants';
 
 export interface FreelancerModelQuery {
   roles?: string;
   $or?: Record<string, unknown>[];
-  _id?: { $ne: string; };
-  isFreelancerBlocked?:boolean
+  _id?: { $ne: string };
+  isFreelancerBlocked?: boolean;
   'freelancerProfile.workCategory'?: Types.ObjectId;
   'freelancerProfile.specialties'?: Types.ObjectId;
   'freelancerProfile.skills'?: { $in: Types.ObjectId[] };
@@ -28,7 +39,7 @@ export const mapClientQueryToFreelancerModelQuery = (
   const query: FreelancerModelQuery = {};
 
   query.roles = 'freelancer';
-  query.isFreelancerBlocked=false
+  query.isFreelancerBlocked = false;
   if (clientUserId) {
     query._id = { $ne: clientUserId };
   }
@@ -47,28 +58,28 @@ export const mapClientQueryToFreelancerModelQuery = (
   }
 
   if (freelancerQuery.categoryId) {
-    console.log(freelancerQuery.categoryId)
-    console.log("this is category id")
+    console.log(freelancerQuery.categoryId);
+    console.log('this is category id');
     query['freelancerProfile.workCategory'] = new Types.ObjectId(freelancerQuery.categoryId);
   }
 
   if (freelancerQuery.specialityId) {
-    query['freelancerProfile.specialties'] =  new Types.ObjectId(freelancerQuery.specialityId);
+    query['freelancerProfile.specialties'] = new Types.ObjectId(freelancerQuery.specialityId);
   }
 
   if (freelancerQuery.skillIds?.length) {
-    query['freelancerProfile.skills'] = { $in: freelancerQuery.skillIds.map((skillId)=> new Types.ObjectId(skillId)) };
+    query['freelancerProfile.skills'] = {
+      $in: freelancerQuery.skillIds.map((skillId) => new Types.ObjectId(skillId)),
+    };
   }
 
-if (freelancerQuery.languages?.length) {
-  query['freelancerProfile.languages.name'] = {
-    $in: freelancerQuery.languages.map(
-      (lang) => new RegExp(`^${lang}$`, 'i')
-    ) as unknown as string[],
-  };
-}
-
-
+  if (freelancerQuery.languages?.length) {
+    query['freelancerProfile.languages.name'] = {
+      $in: freelancerQuery.languages.map(
+        (lang) => new RegExp(`^${lang}$`, 'i'),
+      ) as unknown as string[],
+    };
+  }
 
   if (freelancerQuery.minHourlyRate || freelancerQuery.maxHourlyRate) {
     query['freelancerProfile.hourlyRate'] = {};
@@ -91,17 +102,15 @@ if (freelancerQuery.languages?.length) {
   //   };
   // }
 
-
   return query;
 };
 
-
 export const mapUserModelToClientFreelancerResponseDto = (
-  userData: IFreelancerData
+  userData: IFreelancerData,
 ): ClientFreelancerResponseDto => ({
   freelancerId: userData.freelancerId,
   logo: userData.logo,
-  freelancerName:   `${userData.firstName} ${userData?.lastName}`,
+  freelancerName: `${userData.firstName} ${userData?.lastName}`,
   professionalRole: userData.professionalRole,
   country: userData.country,
   hourlyRate: userData.hourlyRate,
@@ -111,18 +120,22 @@ export const mapUserModelToClientFreelancerResponseDto = (
   specialityIds: userData.specialityIds,
   skills: userData.skills,
   bio: userData.bio,
+  hourlyRateCurrency: (userData.hourlyRateCurrency as SupportedCurrency),
   language: userData.language,
 });
 
-
-export const mapFreelancerToFetchClientFreelancerDTO= (user: IFreelancerDetailData): FetchClientFreelancerDTO => {
+export const mapFreelancerToFetchClientFreelancerDTO = (
+  user: IFreelancerDetailData,
+): FetchClientFreelancerDTO => {
+  console.log(user)
   return {
     name: `${user?.firstName} ${user?.lastName}`,
     address: user.address!,
     logo: user?.logo || '',
     workCategory: user?.workCategory,
-    specialties: user?.specialties?.map((spec) => ({id:spec.id.toString(),name:spec.name})) || [],
-    skills: user?.skills?.map((skill) => ({id:skill.id.toString(),name:skill.name})) || [],
+    specialties:
+      user?.specialties?.map((spec) => ({ id: spec.id.toString(), name: spec.name })) || [],
+    skills: user?.skills?.map((skill) => ({ id: skill.id.toString(), name: skill.name })) || [],
     professionalRole: user?.professionalRole || '',
     experiences: user?.experiences?.map(mapExperienceToDTO) || [],
     education: user?.education?.map((edu) => mapEducationModelToDTO(edu)) || [],
@@ -130,6 +143,7 @@ export const mapFreelancerToFetchClientFreelancerDTO= (user: IFreelancerDetailDa
     bio: user?.bio || '',
     hourlyRate: user?.hourlyRate || 0,
     portfolio: null,
+     hourlyRateCurrency: (user.hourlyRateCurrency as SupportedCurrency)
   };
 };
 
@@ -164,8 +178,9 @@ export const mapLanguageToDTO = (lang: ILanguage): LanguageDTO => ({
   proficiency: lang.proficiency,
 });
 
-
-export const mapPortfolioToFetchClientPortfolioDTO = (data: IPortfolio): FetchClientFreelancerPortfolioDTO => ({
+export const mapPortfolioToFetchClientPortfolioDTO = (
+  data: IPortfolio,
+): FetchClientFreelancerPortfolioDTO => ({
   id: data._id.toString(),
   title: data.title,
   description: data.description,

@@ -9,22 +9,28 @@ const proposalSchema = new Schema<IProposal>(
     hourlyRate: { type: Number },
     availableHoursPerWeek: { type: Number },
 
-    proposedBudget: { type: Number }, 
+    proposedBudget: { type: Number },
     deadline: { type: Date },
-    status:{
-        type:String,
-        enum:["pending_verification","accepted","rejected","offer_sent"],
-        default:"pending_verification"
+    status: {
+      type: String,
+      enum: ['pending_verification', 'rejected', 'offer_sent'],
+      default: 'pending_verification',
     },
     coverLetter: { type: String, required: true, trim: true },
+    currency: {
+      type: String,
+      enum: ['USD', 'EUR', 'GBP', 'INR', 'AUD', 'CAD', 'SGD', 'JPY'],
+      default: 'USD',
+    },
+    amountBaseUSD: { type: Number },
+    conversionRate: { type: Number }, // USD per 1 unit of `currency`
   },
-  { timestamps: true }
+  { timestamps: true },
 );
-
 
 proposalSchema.index({ freelancerId: 1, jobId: 1 }, { unique: true });
 
 export const proposalModel: Model<IProposal> = mongoose.model<IProposal>(
   'proposal',
-  proposalSchema
+  proposalSchema,
 );

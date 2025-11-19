@@ -28,7 +28,6 @@ export class AdminSpecialityServices implements IAdminSpecialityServices {
   ) {
     this._adminSpecialityRepository = adminSpecialityRepository;
   }
-  
 
   async addSpeciality(specialityData: CreateSpecialityDTO): Promise<SpecialityDto> {
     const specialityDataDto = mapCreateSpecialityDtoToSpecialityModel(specialityData);
@@ -78,7 +77,6 @@ export class AdminSpecialityServices implements IAdminSpecialityServices {
 
     const total = await this._adminSpecialityRepository.countTotalSpecialities();
 
-
     // Map to DTO
 
     const data: SpecialityDto[] = result!.map(mapSpecialityModelToSpecialityDto);
@@ -118,5 +116,4 @@ export class AdminSpecialityServices implements IAdminSpecialityServices {
 
     return result;
   }
-  
 }

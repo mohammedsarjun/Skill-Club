@@ -1,4 +1,3 @@
-
 interface Skill {
   skillId: string;
   skillName: string;

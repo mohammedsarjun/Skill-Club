@@ -52,6 +52,6 @@ export class AdminSpecialityRepository
   }
 
   async countTotalSpecialities(): Promise<number> {
-    return super.count()
-}
+    return super.count();
+  }
 }

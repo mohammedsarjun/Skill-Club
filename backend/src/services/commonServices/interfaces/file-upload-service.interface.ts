@@ -16,5 +16,3 @@ export interface UploadResult {
 export interface IFileUploadService {
   uploadFile(file: Express.Multer.File, options?: UploadOptions): Promise<UploadResult>;
 }
-
-

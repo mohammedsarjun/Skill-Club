@@ -14,13 +14,8 @@ const memoryStorage = multer({
 
 const fileUploadController = container.resolve(FileUploadController);
 
-uploadRouter.post(
-  '/',
-  authMiddleware,
-  memoryStorage.single('file'),
-  (req, res, next) => {
-    fileUploadController.uploadSingle(req, res).catch(next);
-  },
-);
+uploadRouter.post('/', authMiddleware, memoryStorage.single('file'), (req, res, next) => {
+  fileUploadController.uploadSingle(req, res).catch(next);
+});
 
 export default uploadRouter;

@@ -11,8 +11,13 @@ export const validateData = <T>(schema: ZodType<T>, data: unknown): T => {
       // Log all issues to make debugging easier in dev
       console.error('Validation issues:', err.issues);
       // include issues in the error message to return a clearer error in dev
-      const details = JSON.stringify(err.issues.map((i) => ({ path: i.path, message: i.message, code: i.code })));
-      throw new AppError(`${ERROR_MESSAGES.VALIDATION.FAILED} - ${details}`, HttpStatus.BAD_REQUEST);
+      const details = JSON.stringify(
+        err.issues.map((i) => ({ path: i.path, message: i.message, code: i.code })),
+      );
+      throw new AppError(
+        `${ERROR_MESSAGES.VALIDATION.FAILED} - ${details}`,
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     // Rethrow other types of errors

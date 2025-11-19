@@ -64,12 +64,11 @@ export class ClientJobController implements IClientJobController {
 
   async closeJob(req: Request, res: Response): Promise<void> {
     const userId = req.user?.userId;
-    const jobId = req.params.jobId; 
-     await this._clientJobService.closeJob(userId as string, jobId);
+    const jobId = req.params.jobId;
+    await this._clientJobService.closeJob(userId as string, jobId);
     res.status(HttpStatus.OK).json({
       success: true,
       message: MESSAGES.JOB.CLOSED,
     });
   }
-
 }

@@ -12,6 +12,7 @@ export interface JobData {
   specialities?: string[];
   skills?: string[];
   rateType?: "fixed" | "hourly";
+  currency?: "USD" | "EUR" | "GBP" | "INR" | "AUD" | "CAD" | "SGD" | "JPY";
   hourlyRate?: {
     min: number;
     max: number;

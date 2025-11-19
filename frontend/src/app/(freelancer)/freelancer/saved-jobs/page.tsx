@@ -11,6 +11,9 @@ import {
 import { freelancerActionApi } from '@/api/action/FreelancerActionApi';
 import Pagination from '@/components/common/Pagination';
 import { useRouter } from 'next/navigation';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
+import { formatCurrency, SupportedCurrency } from '@/utils/currency';
 
 interface SavedJobItemDTO {
   id: string;
@@ -37,12 +40,14 @@ function SavedJobs() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [removingJobId, setRemovingJobId] = useState<string | null>(null);
+  const preferredCurrency = (useSelector((s: RootState) => s.auth.user?.preferredCurrency) || 'USD') as SupportedCurrency;
 
   useEffect(() => {
     let active = true;
     async function fetchSavedJobs() {
       setLoading(true);
       const resp = await freelancerActionApi.getSavedJobs({ page, limit });
+
       if (!active) return;
       if (resp?.success && resp?.data) {
         const data = resp.data as { items: SavedJobItemDTO[]; page: number; pages: number };
@@ -126,11 +131,29 @@ function SavedJobs() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {savedJobs.map((savedJob) => (
-              <div
-                key={savedJob.id}
-                className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-shadow flex flex-col"
-              >
+            {savedJobs.map((savedJob) => {
+              const isDisabled = ['suspended', 'closed'].includes(savedJob.status);
+              const cardClass = `bg-white rounded-lg shadow-sm border p-6 transition-shadow flex flex-col ${
+                savedJob.status === 'suspended'
+                  ? 'ring-2 ring-amber-200 bg-amber-50 border-amber-200'
+                  : savedJob.status === 'closed'
+                  ? 'ring-2 ring-slate-200 bg-slate-50 border-slate-200'
+                  : 'border-gray-200 hover:shadow-lg'
+              }`;
+
+              return (
+                <div key={savedJob.id} className={cardClass}>
+                  {/* Highlight banner for suspended/closed */}
+                  {savedJob.status === 'suspended' && (
+                    <div className="mb-3 px-3 py-2 bg-amber-100 text-amber-800 rounded text-sm font-medium">
+                      This job has been suspended by the admin. Applications are paused.
+                    </div>
+                  )}
+                  {savedJob.status === 'closed' && (
+                    <div className="mb-3 px-3 py-2 bg-slate-100 text-slate-800 rounded text-sm font-medium">
+                      This job is closed — no longer accepting applicants.
+                    </div>
+                  )}
                 <div className="flex-1 mb-4">
                   <h2 className="text-lg font-bold text-gray-900 mb-3 line-clamp-2">
                     {savedJob.title}
@@ -158,16 +181,19 @@ function SavedJobs() {
                         : 'Fixed Budget'}
                     </div>
                     <div className="text-lg font-bold text-gray-900">
-                      ₹
-                      {savedJob.rateType === 'hourly'
-                        ? savedJob.hourlyRate?.min
-                        : savedJob.fixedRate?.min}{' '}
-                      - ₹
-                      {savedJob.rateType === 'hourly'
-                        ? savedJob.hourlyRate?.max
-                        : savedJob.fixedRate?.max}
-                      {savedJob.rateType === 'hourly' && (
-                        <span className="text-sm">/hr</span>
+                      {savedJob.rateType === 'hourly' ? (
+                        <>
+                          <span>{formatCurrency(Number(savedJob.hourlyRate?.min || 0), preferredCurrency)}</span>
+                          <span className="text-gray-600"> - </span>
+                          <span>{formatCurrency(Number(savedJob.hourlyRate?.max || 0), preferredCurrency)}</span>
+                          <span className="text-sm">/hr</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>{formatCurrency(Number(savedJob.fixedRate?.min || 0), preferredCurrency)}</span>
+                          <span className="text-gray-600"> - </span>
+                          <span>{formatCurrency(Number(savedJob.fixedRate?.max || 0), preferredCurrency)}</span>
+                        </>
                       )}
                     </div>
                   </div>
@@ -214,10 +240,19 @@ function SavedJobs() {
 
                 <div className="flex flex-col gap-2 pt-4 border-t border-gray-100">
                   <button
-                    onClick={() => handleViewJob(savedJob.jobId)}
-                    className="bg-[#108A00] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#0d7000] transition-colors text-sm text-center"
+                    onClick={() => {
+                      if (!isDisabled) handleViewJob(savedJob.jobId);
+                    }}
+                    disabled={isDisabled}
+                    aria-disabled={isDisabled}
+                    title={isDisabled ? (savedJob.status === 'suspended' ? 'This job has been suspended by admin' : 'This job is closed') : 'View Job'}
+                    className={`px-4 py-2 rounded-lg font-semibold transition-colors text-sm text-center ${
+                      isDisabled
+                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed border border-gray-200'
+                        : 'bg-[#108A00] text-white hover:bg-[#0d7000]'
+                    }`}
                   >
-                    View Job
+                    {isDisabled ? (savedJob.status === 'suspended' ? 'Suspended' : 'Closed') : 'View Job'}
                   </button>
                   <button
                     onClick={() => handleUnsaveJob(savedJob.jobId)}
@@ -238,7 +273,8 @@ function SavedJobs() {
                   </button>
                 </div>
               </div>
-            ))}
+            );
+            })}
           </div>
         )}
         <Pagination

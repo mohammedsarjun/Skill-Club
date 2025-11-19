@@ -5,6 +5,9 @@ import React, { useEffect, useState } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { useRouter } from "next/navigation";
 import GenericTable, { Column, Filter } from "@/components/admin/Table";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { formatCurrency, SupportedCurrency } from "@/utils/currency";
 
 // Backend DTO shape
 export interface FreelancerProposalResponseDTO {
@@ -87,6 +90,7 @@ export default function FreelancerProposalPage() {
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
   const pageSize = 10;
+  const preferredCurrency = (useSelector((s: RootState) => s.auth.user?.preferredCurrency) || 'USD') as SupportedCurrency;
 
   useEffect(() => {
     (async () => {
@@ -178,14 +182,6 @@ export default function FreelancerProposalPage() {
     setSelected(null);
   }
 
-  function handleWithdraw(proposalId?: string) {
-    // TODO: call API to withdraw proposal
-    alert(`Withdraw proposal ${proposalId}`);
-    // remove from list locally for demo
-    setProposals((prev) => prev.filter((p) => p.proposalId !== proposalId));
-    closeModal();
-  }
-
   function viewJob(jobId: string) {
     // Redirect to client job detail (adjust path if your route differs)
     router.push(`/freelancer/jobs/${jobId}`);
@@ -235,9 +231,8 @@ export default function FreelancerProposalPage() {
                   options: [
                     { id: "", name: "All" },
                     { id: "pending_verification", name: "Pending" },
-                    { id: "accepted", name: "Approved" },
                     { id: "rejected", name: "Rejected" },
-                    { id: "under_review", name: "Under Review" },
+                    { id: "offer_sent", name: "Offer Sent" },
                   ],
                 },
               ];
@@ -247,9 +242,9 @@ export default function FreelancerProposalPage() {
                 jobTitle: p.jobDetail.title,
                 proposedDate: new Date(p.proposedAt).toLocaleDateString(),
                 rate: p.hourlyRate
-                  ? `$${p.hourlyRate}/hr`
+                  ? `${formatCurrency(Number(p.hourlyRate || 0), preferredCurrency)}/hr`
                   : p.proposedBudget
-                  ? `$${p.proposedBudget} (Fixed)`
+                  ? `${formatCurrency(Number(p.proposedBudget || 0), preferredCurrency)} (Fixed)`
                   : "-",
                 status: p.status,
                 original: p,
@@ -292,18 +287,14 @@ export default function FreelancerProposalPage() {
                 <h2 className="text-xl font-bold mb-2">
                   Proposal to: {selected.jobDetail.title}
                 </h2>
-                <p className="text-sm text-gray-700 mb-4">
-                  {selected.jobDetail.description}
-                </p>
+      
 
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   {selected.proposedBudget ? (
                     <>
                       <div className="bg-gray-50 p-4 rounded-lg">
                         <p className="text-xs text-gray-500">Fixed Budget</p>
-                        <p className="font-medium">
-                          ${selected.proposedBudget}
-                        </p>
+                        <p className="font-medium">{formatCurrency(Number(selected.proposedBudget || 0), preferredCurrency)}</p>
                       </div>
                       <div className="bg-gray-50 p-4 rounded-lg">
                         <p className="text-xs text-gray-500">Deadline</p>
@@ -318,7 +309,7 @@ export default function FreelancerProposalPage() {
                     <>
                       <div className="bg-gray-50 p-4 rounded-lg">
                         <p className="text-xs text-gray-500">Hourly Rate</p>
-                        <p className="font-medium">${selected.hourlyRate}/hr</p>
+                        <p className="font-medium">{formatCurrency(Number(selected.hourlyRate || 0), preferredCurrency)}/hr</p>
                       </div>
                       <div className="bg-gray-50 p-4 rounded-lg">
                         <p className="text-xs text-gray-500">Available Hours</p>
@@ -340,12 +331,6 @@ export default function FreelancerProposalPage() {
                 </div>
 
                 <div className="flex gap-3 mt-4">
-                  <button
-                    onClick={() => handleWithdraw(selected.proposalId)}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg"
-                  >
-                    Withdraw Proposal
-                  </button>
                   <button
                     onClick={() => viewJob(selected.jobDetail._id)}
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg"

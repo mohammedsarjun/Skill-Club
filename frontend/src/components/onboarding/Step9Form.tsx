@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from "react";
 import Button from "../common/Button";
 import Input from "../common/Input";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { CURRENCY_SYMBOLS, SupportedCurrency, getUsdRateFor, formatCurrency } from "@/utils/currency";
 
 interface StepSevenProps {
   onBack: () => void;
-  onNext: (data: { hourlyRate: number }) => void;
+  onNext: (data: { hourlyRate: number; preferredCurrency?: SupportedCurrency }) => void;
   savedData?: { hourlyRate?: number }; // ✅ get saved data from Redux/persist
 }
 
 export default function StepSevenForm({ onBack, onNext, savedData }: StepSevenProps) {
   const [hourlyRate, setHourlyRate] = useState<number | "">("");
+  const preferredCurrency = (useSelector((s: RootState) => s.auth.user?.preferredCurrency) || 'USD') as SupportedCurrency;
+  const [rateToUSD, setRateToUSD] = useState<number>(1);
+  const [error, setError] = useState<string>("");
 
   // ✅ Restore saved hourly rate on mount
   useEffect(() => {
@@ -17,6 +23,32 @@ export default function StepSevenForm({ onBack, onNext, savedData }: StepSevenPr
       setHourlyRate(savedData.hourlyRate);
     }
   }, [savedData]);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const r = await getUsdRateFor(preferredCurrency);
+        if (mounted) setRateToUSD(r);
+      } catch {
+        if (mounted) setRateToUSD(1);
+      }
+    })();
+    return () => { mounted = false; };
+  }, [preferredCurrency]);
+
+  useEffect(() => {
+    if (hourlyRate === "" || typeof hourlyRate !== 'number') { setError(""); return; }
+    const minLocal = 5 / (rateToUSD || 1);
+    const maxLocal = 999 / (rateToUSD || 1);
+    if (hourlyRate < minLocal) {
+      setError(`Hourly rate must be at least ${formatCurrency(minLocal, preferredCurrency)}`);
+    } else if (hourlyRate > maxLocal) {
+      setError(`Hourly rate cannot exceed ${formatCurrency(maxLocal, preferredCurrency)}`);
+    } else {
+      setError("");
+    }
+  }, [hourlyRate, rateToUSD, preferredCurrency]);
 
   return (
     <div>
@@ -45,14 +77,16 @@ export default function StepSevenForm({ onBack, onNext, savedData }: StepSevenPr
         className="w-1/2"
         fullWidth={false}
       />
+      <p className="text-sm text-gray-600 mt-2">Currency: {preferredCurrency} ({CURRENCY_SYMBOLS[preferredCurrency]})</p>
+      {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
 
       <div className="flex justify-between mt-6">
         <Button content="Back" type="submit" color="gray" onClick={onBack} />
         <Button
           content="Next"
           type="submit"
-          onClick={() => onNext({ hourlyRate: Number(hourlyRate) })}
-          disabled={hourlyRate === "" || Number(hourlyRate) <= 0} // ✅ disabled if empty or zero
+          onClick={() => onNext({ hourlyRate: Number(hourlyRate), preferredCurrency })}
+          disabled={hourlyRate === "" || Number(hourlyRate) <= 0 || !!error}
         />
       </div>
     </div>

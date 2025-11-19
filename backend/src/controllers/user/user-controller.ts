@@ -7,6 +7,7 @@ import type { IUserServices } from '../../services/userServices/interfaces/user-
 import { jwtService } from '../../utils/jwt';
 import { MESSAGES } from '../../contants/contants';
 import { jwtConfig } from '../../config/jwt.config';
+import { SUPPORTED_CURRENCIES } from '../../contants/currency.constants';
 
 @injectable()
 export class UserController implements IUserController {
@@ -161,6 +162,33 @@ export class UserController implements IUserController {
     res.status(HttpStatus.OK).json({
       success: true,
       message: 'User Profile Updated Successfully',
+      data: user,
+    });
+  }
+
+  async updatePreferredCurrency(req: Request, res: Response): Promise<void> {
+    const userId = req.user?.userId;
+    const { preferredCurrency } = req.body as {
+      preferredCurrency: (typeof SUPPORTED_CURRENCIES)[number];
+    };
+
+    const user = await this._userService.updatePreferredCurrency(
+      userId as string,
+      preferredCurrency,
+    );
+
+    // Issue new JWT so client gets updated currency in payload
+    const accessToken = jwtService.createToken(user, jwtConfig.accessTokenMaxAge);
+    res.cookie('accessToken', accessToken, {
+      httpOnly: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: jwtConfig.accessTokenMaxAge * 1000,
+    });
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Preferred currency updated',
       data: user,
     });
   }

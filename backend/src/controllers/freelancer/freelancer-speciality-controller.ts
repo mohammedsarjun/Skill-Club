@@ -1,9 +1,7 @@
-
 import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { HttpStatus } from '../../enums/http-status.enum';
-
 
 import { MESSAGES } from '../../contants/contants';
 
@@ -15,7 +13,8 @@ import { GetFreelancerSpecialityWithSkillsDTO } from '../../dto/freelancerDTO/fr
 export class FreelancerSpecialityController implements IFreelancerSpecialityController {
   private _freelancerSpecialityService: IFreelancerSpecialityService;
   constructor(
-    @inject('IFreelancerSpecialityService') freelancerSpecialityService: IFreelancerSpecialityService,
+    @inject('IFreelancerSpecialityService')
+    freelancerSpecialityService: IFreelancerSpecialityService,
   ) {
     this._freelancerSpecialityService = freelancerSpecialityService;
   }

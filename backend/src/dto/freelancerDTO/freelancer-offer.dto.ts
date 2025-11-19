@@ -54,18 +54,33 @@ export interface FreelancerOfferDetailDTO extends FreelancerOfferListItemDTO {
   communication: {
     preferredMethod: 'chat' | 'video_call' | 'email' | 'mixed';
     meetingFrequency?: 'daily' | 'weekly' | 'monthly';
-    meetingDayOfWeek?: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+    meetingDayOfWeek?:
+      | 'monday'
+      | 'tuesday'
+      | 'wednesday'
+      | 'thursday'
+      | 'friday'
+      | 'saturday'
+      | 'sunday';
     meetingDayOfMonth?: number;
     meetingTimeUtc?: string;
   };
   reporting: {
     frequency: 'daily' | 'weekly' | 'monthly';
     dueTimeUtc: string;
-    dueDayOfWeek?: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+    dueDayOfWeek?:
+      | 'monday'
+      | 'tuesday'
+      | 'wednesday'
+      | 'thursday'
+      | 'friday'
+      | 'saturday'
+      | 'sunday';
     dueDayOfMonth?: number;
     format: 'text_with_attachments' | 'text_only' | 'video';
   };
   referenceFiles: { fileName: string; fileUrl: string }[];
   referenceLinks: { description: string; link: string }[];
   timeline: { status: OfferStatus; at: Date; note?: string }[];
+  rejectedReason?: string;
 }

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { clientActionApi } from "@/api/action/ClientActionApi";
 import { OfferPayload, PaymentType, CommunicationMethod, ReportingFrequency, ReportingFormat, Currency } from "@/types/interfaces/IOffer";
 import { validateOffer } from "@/utils/validations/offerValidations";
@@ -21,6 +21,9 @@ import {
 } from "react-icons/fa";
 import { useParams } from "next/navigation";
 import { uploadApi } from "@/api/uploadApi";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+import toast from "react-hot-toast";
 
 // Local UI-only types reused where needed
 
@@ -90,7 +93,9 @@ const SendOfferToFreelancer: React.FC = () => {
   // Payment Details
   const [paymentType, setPaymentType] = useState<PaymentType>("fixed");
   const [budget, setBudget] = useState<string>("");
-  const [currency, setCurrency] = useState<Currency>("USD");
+  const preferredCurrency =
+    useSelector((s: RootState) => s.auth.user?.preferredCurrency) || "USD";
+  const [currency, setCurrency] = useState<Currency>(preferredCurrency as Currency);
   const [hourlyRate, setHourlyRate] = useState<string>("");
   const [estimatedHoursPerWeek, setEstimatedHoursPerWeek] = useState<string>("");
 
@@ -269,7 +274,7 @@ const SendOfferToFreelancer: React.FC = () => {
     };
 
     // Validate with zod
-    const result = validateOffer(coreOffer);
+    const result = await validateOffer(coreOffer);
     if (!result.success) {
       setErrors(result.errors);
       return;
@@ -284,11 +289,14 @@ const SendOfferToFreelancer: React.FC = () => {
 
     try {
       const res = await clientActionApi.createOffer(payload);
-      console.log("Offer created:", res);
-      alert("Offer sent successfully!");
+
+      if(res.success){
+        toast.success("Offer sent successfully!");
+      }else{
+        toast.error(res.message);
+      }
     } catch (e) {
-      console.error(e);
-      alert("Failed to send offer.");
+      console.log(e)
     }
   };
 
@@ -424,6 +432,10 @@ const SendOfferToFreelancer: React.FC = () => {
                     <option value="EUR">EUR (€)</option>
                     <option value="GBP">GBP (£)</option>
                     <option value="INR">INR (₹)</option>
+                    <option value="AUD">AUD (A$)</option>
+                    <option value="CAD">CAD (C$)</option>
+                    <option value="SGD">SGD (S$)</option>
+                    <option value="JPY">JPY (¥)</option>
                   </select>
                 </div>
 

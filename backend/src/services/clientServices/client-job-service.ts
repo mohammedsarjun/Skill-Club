@@ -59,6 +59,36 @@ export class ClientJobService implements IClientJobService {
     }
     const jobModelData = mapCreateJobDtoToJobModel(jobData, clientId);
 
+    // USD-normalized validations for budgets
+    const { getUsdRateFor } = await import('../../utils/currency.util');
+    const currency = jobModelData.currency || 'USD';
+    const rateToUSD = await getUsdRateFor(currency);
+
+    if (jobModelData.rateType === 'hourly' && jobModelData.hourlyRate) {
+      const minUSD = jobModelData.hourlyRate.min * rateToUSD;
+      const maxUSD = jobModelData.hourlyRate.max * rateToUSD;
+      if (minUSD < 5 || maxUSD > 999) {
+        throw new AppError(
+          'Hourly rate must be between $5 and $999 (USD equivalent).',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      jobModelData.conversionRate = rateToUSD;
+      jobModelData.hourlyRateBaseUSD = { min: minUSD, max: maxUSD };
+    }
+    if (jobModelData.rateType === 'fixed' && jobModelData.fixedRate) {
+      const minUSD = jobModelData.fixedRate.min * rateToUSD;
+      const maxUSD = jobModelData.fixedRate.max * rateToUSD;
+      if (minUSD < 5 || maxUSD > 100000) {
+        throw new AppError(
+          'Fixed budget must be between $5 and $100,000 (USD equivalent).',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      jobModelData.conversionRate = rateToUSD;
+      jobModelData.fixedRateBaseUSD = { min: minUSD, max: maxUSD };
+    }
+
     const foundCategories = await this._categoryRepository.getCategory(
       jobModelData.category as string,
     );
@@ -145,7 +175,6 @@ export class ClientJobService implements IClientJobService {
     jobId: string,
     jobData: UpdateJobDto,
   ): Promise<ClientJobDetailResponseDTO> {
-    console.log(jobData);
     validateData(updateJobSchema, jobData);
     const clientData = await this._clientRepository.getClientById(clientId);
     if (!clientData || !clientData.clientProfile) {
@@ -158,6 +187,35 @@ export class ClientJobService implements IClientJobService {
     }
 
     const jobDataDto = mapUpdateJobDtoToJobModel(jobData);
+
+    // USD-normalized validations for budgets on update as well
+    const { getUsdRateFor } = await import('../../utils/currency.util');
+    const currency = jobDataDto.currency || 'USD';
+    const rateToUSD = await getUsdRateFor(currency);
+    if (jobDataDto.rateType === 'hourly' && jobDataDto.hourlyRate) {
+      const minUSD = jobDataDto.hourlyRate.min * rateToUSD;
+      const maxUSD = jobDataDto.hourlyRate.max * rateToUSD;
+      if (minUSD < 5 || maxUSD > 999) {
+        throw new AppError(
+          'Hourly rate must be between $5 and $999 (USD equivalent).',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      jobDataDto.conversionRate = rateToUSD;
+      jobDataDto.hourlyRateBaseUSD = { min: minUSD, max: maxUSD };
+    }
+    if (jobDataDto.rateType === 'fixed' && jobDataDto.fixedRate) {
+      const minUSD = jobDataDto.fixedRate.min * rateToUSD;
+      const maxUSD = jobDataDto.fixedRate.max * rateToUSD;
+      if (minUSD < 5 || maxUSD > 100000) {
+        throw new AppError(
+          'Fixed budget must be between $5 and $100,000 (USD equivalent).',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      jobDataDto.conversionRate = rateToUSD;
+      jobDataDto.fixedRateBaseUSD = { min: minUSD, max: maxUSD };
+    }
 
     await this._jobRepository.updateJobById(jobId, jobDataDto);
 
@@ -188,5 +246,4 @@ export class ClientJobService implements IClientJobService {
 
     await this._jobRepository.updateJobStatus(jobId, 'closed');
   }
-
- }
+}

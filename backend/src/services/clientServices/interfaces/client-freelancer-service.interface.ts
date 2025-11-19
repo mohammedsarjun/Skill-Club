@@ -9,11 +9,11 @@ export interface IClientFreelancerService {
   getAllFreelancers(
     clientUserId: string,
     queryFilter: freelancerParams,
-  ): Promise<ClientFreelancerResponseDto[] | null>;
+  ): Promise<{ freelancers: ClientFreelancerResponseDto[]; totalCount: number } | null>;
   getFreelancerDetail(
     clientUserId: string,
     freelancerId: string,
-  ): Promise<FetchClientFreelancerDTO| null>;
+  ): Promise<FetchClientFreelancerDTO | null>;
   getFreelancerPortfolio(
     clientUserId: string,
     freelancerId: string,
