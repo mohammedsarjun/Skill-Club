@@ -228,7 +228,6 @@ const ViewProposalDialog: React.FC<ViewProposalDialogProps> = ({
   onMessage,
 }) => {
 
-  console.log(proposalProp)
 
   // Prefer provided proposal object, otherwise fall back to dummy lookup by id
   const proposal = proposalProp ?? (proposalId ? DUMMY_PROPOSALS.find((p) => p.id === proposalId) : null);

@@ -3,7 +3,10 @@ import type { IUserRepository } from '../../repositories/interfaces/user-reposit
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { CreateUserDTO, GetUserDto, LoginUserDto } from '../../dto/authDTO/auth.dto';
-import { mapCreateUserDtoToUserModel, mapUserModelToGetUserDto } from '../../mapper/authMapper/auth.mapper';
+import {
+  mapCreateUserDtoToUserModel,
+  mapUserModelToGetUserDto,
+} from '../../mapper/authMapper/auth.mapper';
 import bcrypt from 'bcryptjs';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';

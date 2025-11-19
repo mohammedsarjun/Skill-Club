@@ -87,14 +87,16 @@ export class userServices implements IUserServices {
     }
 
     try {
-     
       type FreelancerPayload = Partial<IUser> & { preferredCurrency?: string; currency?: string };
       const payload = freelancerData as FreelancerPayload;
-      const currencyFromPayload = payload.preferredCurrency || payload.currency || payload.freelancerProfile?.hourlyRateCurrency || 'USD';
+      const currencyFromPayload =
+        payload.preferredCurrency ||
+        payload.currency ||
+        payload.freelancerProfile?.hourlyRateCurrency ||
+        'USD';
 
       const { getUsdRateFor } = await import('../../utils/currency.util');
       const rateToUSD = await getUsdRateFor(currencyFromPayload as SupportedCurrency);
-
 
       dto.preferredCurrency = currencyFromPayload as SupportedCurrency;
       if (!dto.freelancerProfile) dto.freelancerProfile = {} as IUser['freelancerProfile'];

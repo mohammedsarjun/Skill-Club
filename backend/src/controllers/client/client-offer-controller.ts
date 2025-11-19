@@ -62,7 +62,9 @@ export class ClientOfferController implements IClientOfferController {
       const result = await this._clientOfferService.withdrawOffer(clientId, offerId);
       res.status(HttpStatus.OK).json({ success: true, message: 'Offer withdrawn', data: result });
     } catch (e) {
-      res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: (e as Error).message || 'Failed to withdraw' });
+      res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ success: false, message: (e as Error).message || 'Failed to withdraw' });
     }
   }
 }

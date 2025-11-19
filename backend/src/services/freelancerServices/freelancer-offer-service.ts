@@ -27,7 +27,11 @@ export class FreelancerOfferService implements IFreelancerOfferService {
     this._jobRepository = jobRepository;
   }
 
-  async rejectOffer(freelancerId: string, offerId: string, reason?: string): Promise<{ rejected: boolean }> {
+  async rejectOffer(
+    freelancerId: string,
+    offerId: string,
+    reason?: string,
+  ): Promise<{ rejected: boolean }> {
     if (!Types.ObjectId.isValid(freelancerId)) {
       throw new AppError('Invalid freelancerId', HttpStatus.BAD_REQUEST);
     }

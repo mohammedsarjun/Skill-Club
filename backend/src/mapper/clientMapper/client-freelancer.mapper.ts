@@ -120,14 +120,14 @@ export const mapUserModelToClientFreelancerResponseDto = (
   specialityIds: userData.specialityIds,
   skills: userData.skills,
   bio: userData.bio,
-  hourlyRateCurrency: (userData.hourlyRateCurrency as SupportedCurrency),
+  hourlyRateCurrency: userData.hourlyRateCurrency as SupportedCurrency,
   language: userData.language,
 });
 
 export const mapFreelancerToFetchClientFreelancerDTO = (
   user: IFreelancerDetailData,
 ): FetchClientFreelancerDTO => {
-  console.log(user)
+  console.log(user);
   return {
     name: `${user?.firstName} ${user?.lastName}`,
     address: user.address!,
@@ -143,7 +143,7 @@ export const mapFreelancerToFetchClientFreelancerDTO = (
     bio: user?.bio || '',
     hourlyRate: user?.hourlyRate || 0,
     portfolio: null,
-     hourlyRateCurrency: (user.hourlyRateCurrency as SupportedCurrency)
+    hourlyRateCurrency: user.hourlyRateCurrency as SupportedCurrency,
   };
 };
 

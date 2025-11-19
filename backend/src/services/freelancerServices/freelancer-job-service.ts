@@ -48,7 +48,7 @@ export class FreelancerJobService implements IFreelancerJobService {
       paginationData,
     );
 
-    console.log(jobData)
+    console.log(jobData);
 
     const freelancerJobResponseDto = jobData
       ? jobData.map(mapJobModelToFreelancerJobResponseDTO)

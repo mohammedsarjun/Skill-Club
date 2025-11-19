@@ -24,7 +24,9 @@ export const mapUserModelToUserDto = (modelData: IUser): UserDto => {
     freelancerProfile: modelData?.freelancerProfile?.logo,
     isClientBlocked: modelData?.isClientBlocked,
     isFreelancerBlocked: modelData?.isFreelancerBlocked,
-    preferredCurrency: SUPPORTED_CURRENCIES.includes(modelData?.preferredCurrency as SupportedCurrency)
+    preferredCurrency: SUPPORTED_CURRENCIES.includes(
+      modelData?.preferredCurrency as SupportedCurrency,
+    )
       ? (modelData?.preferredCurrency as SupportedCurrency)
       : undefined,
   };

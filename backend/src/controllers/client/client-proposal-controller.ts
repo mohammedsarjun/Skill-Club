@@ -41,6 +41,8 @@ export class ClientProposalController implements IClientProposalController {
     const clientId = req.user?.userId as string;
     const proposalId = req.params.proposalId as string;
     const result = await this._clientProposalService.rejectProposal(clientId, proposalId);
-    res.status(200).json({ success: true, message: 'Proposal rejected successfully', data: result });
+    res
+      .status(200)
+      .json({ success: true, message: 'Proposal rejected successfully', data: result });
   }
 }

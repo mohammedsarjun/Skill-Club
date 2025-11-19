@@ -109,7 +109,10 @@ export class ClientOfferService implements IClientOfferService {
 
     // Prevent duplicate proposal-based offers: allow resend only if previous offer was withdrawn or expired
     if (inferredOfferType === 'proposal' && parsed.proposalId) {
-      const existing = await this._offerRepository.findOne({ proposalId: parsed.proposalId, clientId });
+      const existing = await this._offerRepository.findOne({
+        proposalId: parsed.proposalId,
+        clientId,
+      });
       if (existing && !['withdrawn', 'expired'].includes(existing.status)) {
         throw new AppError('An active offer for this proposal already exists', HttpStatus.CONFLICT);
       }
@@ -161,11 +164,17 @@ export class ClientOfferService implements IClientOfferService {
         .map((m) => m.amountBaseUSD || 0)
         .filter((n) => typeof n === 'number');
       if (amounts.some((n) => n < 5)) {
-        throw new AppError('Each milestone must be at least $5 after conversion', HttpStatus.BAD_REQUEST);
+        throw new AppError(
+          'Each milestone must be at least $5 after conversion',
+          HttpStatus.BAD_REQUEST,
+        );
       }
       const total = amounts.reduce((a, b) => a + b, 0);
       if (total > 100000) {
-        throw new AppError('Total milestones exceed $100000 after conversion', HttpStatus.BAD_REQUEST);
+        throw new AppError(
+          'Total milestones exceed $100000 after conversion',
+          HttpStatus.BAD_REQUEST,
+        );
       }
     }
 

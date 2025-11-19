@@ -27,7 +27,7 @@ export const mapOfferModelToClientOfferDetailDTO = (offer: IOffer): ClientOfferD
     toString?: () => string;
   }>;
   const jobPop = offer.jobId as unknown as Partial<{ title?: string }>;
-  console.log((offer as unknown as { rejectedReason?: string }).rejectedReason)
+  console.log((offer as unknown as { rejectedReason?: string }).rejectedReason);
   return {
     offerId: rawId,
     title: offer.title,

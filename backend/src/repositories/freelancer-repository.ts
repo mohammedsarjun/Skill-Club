@@ -124,7 +124,6 @@ export class FreelancerRepository extends BaseRepository<IUser> implements IFree
     const mongoQuery = mapClientQueryToFreelancerModelQuery(clientUserId, queryFilter);
     console.log(mongoQuery);
 
-
     const page = Number(queryFilter.page) || 1;
     const limit = 5;
     const skip = (page - 1) * limit;
@@ -257,7 +256,7 @@ export class FreelancerRepository extends BaseRepository<IUser> implements IFree
           address: '$address',
           logo: '$freelancerProfile.logo',
           workCategory: '$freelancerProfile.workCategory',
-           hourlyRateCurrency:"$freelancerProfile.hourlyRateCurrency",
+          hourlyRateCurrency: '$freelancerProfile.hourlyRateCurrency',
           specialties: {
             $map: {
               input: { $ifNull: ['$specialtiesData', []] },
@@ -285,8 +284,7 @@ export class FreelancerRepository extends BaseRepository<IUser> implements IFree
     return freelancer as unknown as IFreelancerDetailData;
   }
 
-
   async countAllFreelancers(): Promise<number> {
-    return await this.count()
+    return await this.count();
   }
 }

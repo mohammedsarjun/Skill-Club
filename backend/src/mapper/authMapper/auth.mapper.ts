@@ -45,7 +45,9 @@ export const mapUserModelToGetUserDto = (modelData: IUser): GetUserDto => {
     lastName: modelData.lastName,
     email: modelData.email,
     phone: modelData.phone!,
-    preferredCurrency: SUPPORTED_CURRENCIES.includes(modelData.preferredCurrency as SupportedCurrency)
+    preferredCurrency: SUPPORTED_CURRENCIES.includes(
+      modelData.preferredCurrency as SupportedCurrency,
+    )
       ? (modelData.preferredCurrency as SupportedCurrency)
       : undefined,
   };

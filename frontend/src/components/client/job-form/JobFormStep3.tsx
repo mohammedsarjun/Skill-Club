@@ -8,6 +8,7 @@ import { JobData } from "@/types/interfaces/IClient";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { CURRENCY_SYMBOLS, SUPPORTED_CURRENCIES, SupportedCurrency, getUsdRateFor } from "@/utils/currency";
+import { currencyApi } from "@/api/currencyApi";
 // ============= TYPES =============
 
 interface JobCreationStep3Props {
@@ -101,7 +102,7 @@ function JobFormStep3({
   // ============= VALIDATION =============
 
   const validateHourlyForm = (showErrors = false) => {
-    const schema = createHourlyBudgetSchema(rateToUSD);
+    const schema = createHourlyBudgetSchema(rateToUSD, CURRENCY_SYMBOLS[currency]);
     const result = schema.safeParse(hourlyRateForm);
     const errors = { minError: "", maxError: "", hoursPerWeekError: "" };
 
@@ -120,7 +121,7 @@ function JobFormStep3({
   };
 
   const validateFixedForm = (showErrors = false) => {
-    const schema = createFixedBudgetSchema(rateToUSD);
+    const schema = createFixedBudgetSchema(rateToUSD, CURRENCY_SYMBOLS[currency]);
     const result = schema.safeParse(fixedRateForm);
     const errors = { minError: "", maxError: "" };
 
@@ -206,9 +207,15 @@ function JobFormStep3({
     let mounted = true;
     (async () => {
       try {
-        const rate = await getUsdRateFor(currency);
-        if (mounted) setRateToUSD(rate);
-      } catch {
+        const response = await currencyApi.getRate("USD");
+
+        if (mounted && response?.data?.rates) {
+          setRateToUSD(response.data.rates[currency]);
+        } else if (mounted) {
+          setRateToUSD(1);
+        }
+      } catch (error) {
+        console.error('Failed to fetch currency rate:', error);
         if (mounted) setRateToUSD(1);
       }
     })();

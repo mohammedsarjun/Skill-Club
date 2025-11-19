@@ -16,13 +16,28 @@ export class FreelancerOfferController implements IFreelancerOfferController {
 
   async getAllOffers(req: Request, res: Response): Promise<void> {
     const freelancerId = req.user?.userId as string;
-    const { search, page, limit, status, offerType } = req.query as Record<string, string | undefined>;
+    const { search, page, limit, status, offerType } = req.query as Record<
+      string,
+      string | undefined
+    >;
 
-    const allowedStatuses: OfferStatus[] = ['pending', 'accepted', 'rejected', 'withdrawn', 'expired'];
+    const allowedStatuses: OfferStatus[] = [
+      'pending',
+      'accepted',
+      'rejected',
+      'withdrawn',
+      'expired',
+    ];
     const allowedOfferTypes: OfferType[] = ['direct', 'proposal'];
 
-    const parsedStatus: OfferStatus | undefined = status && allowedStatuses.includes(status as OfferStatus) ? (status as OfferStatus) : undefined;
-    const parsedOfferType: OfferType | undefined = offerType && allowedOfferTypes.includes(offerType as OfferType) ? (offerType as OfferType) : undefined;
+    const parsedStatus: OfferStatus | undefined =
+      status && allowedStatuses.includes(status as OfferStatus)
+        ? (status as OfferStatus)
+        : undefined;
+    const parsedOfferType: OfferType | undefined =
+      offerType && allowedOfferTypes.includes(offerType as OfferType)
+        ? (offerType as OfferType)
+        : undefined;
 
     const query: FreelancerOfferQueryParamsDTO = {
       search,
@@ -64,7 +79,9 @@ export class FreelancerOfferController implements IFreelancerOfferController {
       const result = await this._freelancerOfferService.rejectOffer(freelancerId, offerId, reason);
       res.status(HttpStatus.OK).json({ success: true, message: 'Offer rejected', data: result });
     } catch (e) {
-      res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: (e as Error).message || 'Failed to reject offer' });
+      res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ success: false, message: (e as Error).message || 'Failed to reject offer' });
     }
   }
 }

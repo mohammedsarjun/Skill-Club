@@ -11,7 +11,6 @@ export class GetRatesService implements IGetRatesService {
   private lastFetched = 0;
   private cacheBase: string | null = null;
 
-
   async getRates(base = 'USD'): Promise<Record<string, number>> {
     const oneHour = 1000 * 60 * 60;
 
@@ -24,7 +23,6 @@ export class GetRatesService implements IGetRatesService {
     const primaryUrl = `https://api.exchangerate.host/latest?base=${encodeURIComponent(
       base,
     )}&symbols=${encodeURIComponent(symbols)}`;
-    
 
     let data: { rates: Record<string, number> } | null = null;
     try {
@@ -54,7 +52,10 @@ export class GetRatesService implements IGetRatesService {
 
     if (!data || !data.rates) {
       const payload = data ? JSON.stringify(data).slice(0, 2000) : 'no-payload';
-      throw new AppError(`Failed to fetch rates from FX provider: ${payload}`, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new AppError(
+        `Failed to fetch rates from FX provider: ${payload}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
 
     // Build rates object only for supported currencies

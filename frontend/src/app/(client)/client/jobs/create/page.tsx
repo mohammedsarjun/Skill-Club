@@ -18,7 +18,7 @@ function CreateJobPost() {
   const totalSteps = 4;
   const [jobSavedData, setJobSavedData] = useState<JobData>();
   const nextContent = step == totalSteps ? "Submit" : "Next";
-  const route=useRouter()
+  const route = useRouter();
   // Map of step number to component
   const stepComponents: Record<number, any> = {
     1: JobFormStep1,
@@ -50,10 +50,11 @@ function CreateJobPost() {
       }
 
       const jobCreateResponse = await clientActionApi.createJob(parsedJobData);
-      sessionStorage.removeItem("jobSavedData");
+
       if (jobCreateResponse.success) {
         toast.success(jobCreateResponse.message);
-        route.push("/client/")
+        sessionStorage.removeItem("jobSavedData");
+        route.push("/client/");
       } else {
         toast.error(jobCreateResponse?.message);
         return;

@@ -2,12 +2,8 @@ import { z } from 'zod';
 
 const hourlyRateSchema = z
   .object({
-    min: z
-      .number()
-      .positive('Minimum hourly rate must be greater than 0'),
-    max: z
-      .number()
-      .positive('Maximum hourly rate must be greater than 0'),
+    min: z.number().positive('Minimum hourly rate must be greater than 0'),
+    max: z.number().positive('Maximum hourly rate must be greater than 0'),
     hoursPerWeek: z
       .number()
       .min(1, 'Hours per week must be at least 1')
@@ -21,12 +17,8 @@ const hourlyRateSchema = z
 
 const fixedRateSchema = z
   .object({
-    min: z
-      .number()
-      .positive('Minimum budget must be greater than 0'),
-    max: z
-      .number()
-      .positive('Maximum budget must be greater than 0'),
+    min: z.number().positive('Minimum budget must be greater than 0'),
+    max: z.number().positive('Maximum budget must be greater than 0'),
   })
   .refine((data) => data.max >= data.min, {
     message: 'Maximum budget must be greater than or equal to minimum budget',

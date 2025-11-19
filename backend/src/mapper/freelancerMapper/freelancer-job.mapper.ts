@@ -37,7 +37,7 @@ export function mapJobModelToFreelancerJobDetailResponseDTO(
             currency: jobDetailDto.currency as SupportedCurrency,
           }
         : null,
-   
+
     postedAt: jobDetailDto.createdAt.toString(),
     proposalReceived: 0,
     client: {
@@ -56,7 +56,9 @@ export function mapFreelancerJobRawFilterToFreelancerJobFiltersDto(
   return {
     searchQuery: rawFilter?.searchQuery,
     selectedCategory: rawFilter?.selectedCategory,
-    selectedSpecialty: rawFilter?.selectedSpecialty ? rawFilter.selectedSpecialty.toString() : undefined,
+    selectedSpecialty: rawFilter?.selectedSpecialty
+      ? rawFilter.selectedSpecialty.toString()
+      : undefined,
     selectedSkills: Array.isArray(rawFilter?.selectedSkills)
       ? rawFilter!.selectedSkills.map((id) => id.toString())
       : undefined,
@@ -149,7 +151,6 @@ export function mapFreelancerJobFilterDtoToJobAggregationQuery(
 export function mapJobModelToFreelancerJobResponseDTO(
   jobDetailDto: IJobResponse,
 ): FreelancerJobResponseDto {
-
   return {
     jobId: jobDetailDto?._id?.toString() as string,
     jobTitle: jobDetailDto.title,

@@ -7,6 +7,5 @@ const currencyRouter = express.Router();
 
 const getRatesController = container.resolve(GetRatesController);
 
-
-currencyRouter.get("/rates", getRatesController.getRatesController.bind(getRatesController));
+currencyRouter.get('/rates', getRatesController.getRatesController.bind(getRatesController));
 export default currencyRouter;

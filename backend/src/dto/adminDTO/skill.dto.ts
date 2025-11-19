@@ -5,6 +5,7 @@ export interface CreateSkillDTO {
   name: string;
   specialities: Types.ObjectId[];
   status: string;
+  specialties?: string[];
 }
 
 export interface GetSkillDto {

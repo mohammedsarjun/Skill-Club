@@ -132,14 +132,23 @@ export class OfferRepository extends BaseRepository<IOffer> implements IOfferRep
 
   async updateStatusById(offerId: string, status: string): Promise<IOffer | null> {
     const now = new Date().toISOString();
-    return await super.updateById(offerId, { $set: { status }, $push: { timeline: { status, at: now } } });
+    return await super.updateById(offerId, {
+      $set: { status },
+      $push: { timeline: { status, at: now } },
+    });
   }
 
-  async updateStatusWithReason(offerId: string, status: string, reason?: string): Promise<IOffer | null> {
+  async updateStatusWithReason(
+    offerId: string,
+    status: string,
+    reason?: string,
+  ): Promise<IOffer | null> {
     const now = new Date().toISOString();
     const update: UpdateQuery<IOffer> = {
       $set: { status } as Partial<IOffer> & Record<string, unknown>,
-      $push: { timeline: { status, at: now, note: reason || '' } } as unknown as UpdateQuery<IOffer>['$push'],
+      $push: {
+        timeline: { status, at: now, note: reason || '' },
+      } as unknown as UpdateQuery<IOffer>['$push'],
     };
 
     if (typeof reason === 'string' && reason.trim().length > 0) {

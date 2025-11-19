@@ -10,5 +10,9 @@ export interface IFreelancerOfferService {
     query: FreelancerOfferQueryParamsDTO,
   ): Promise<FreelancerOfferListResultDTO>;
   getOfferDetail(freelancerId: string, offerId: string): Promise<FreelancerOfferDetailDTO | null>;
-  rejectOffer(freelancerId: string, offerId: string, reason?: string): Promise<{ rejected: boolean }>;
+  rejectOffer(
+    freelancerId: string,
+    offerId: string,
+    reason?: string,
+  ): Promise<{ rejected: boolean }>;
 }

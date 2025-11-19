@@ -52,8 +52,7 @@ app.use('/api/client', clientRouter);
 
 app.use('/api/uploads', uploadRouter);
 
-
-app.use("/api/currency", currencyRouter);
+app.use('/api/currency', currencyRouter);
 
 app.use(errorHandler);
 

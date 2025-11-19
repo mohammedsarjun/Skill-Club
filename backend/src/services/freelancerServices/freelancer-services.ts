@@ -197,7 +197,10 @@ export class FreelancerService implements IFreelancerService {
 
   async updateFreelancerHourlyRate(
     freelancerId: string,
-    hourlyRateData: { hourlyRate: number; currency?: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY' },
+    hourlyRateData: {
+      hourlyRate: number;
+      currency?: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
+    },
   ): Promise<number | null> {
     const freelancerData = await this._freelancerRepository.getFreelancerById(freelancerId);
 
@@ -205,7 +208,9 @@ export class FreelancerService implements IFreelancerService {
       throw new AppError(ERROR_MESSAGES.FREELANCER.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
-    let currencyCandidate = (hourlyRateData.currency ?? freelancerData.preferredCurrency ?? 'USD') as string;
+    let currencyCandidate = (hourlyRateData.currency ??
+      freelancerData.preferredCurrency ??
+      'USD') as string;
     if (!SUPPORTED_CURRENCIES.includes(currencyCandidate as SupportedCurrency)) {
       currencyCandidate = 'USD';
     }

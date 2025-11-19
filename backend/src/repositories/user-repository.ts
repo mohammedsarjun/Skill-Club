@@ -1,6 +1,6 @@
 import { User } from '../models/user.model';
 import { IUser } from '../models/interfaces/user.model.interface';
-import { FilterQuery, Types } from 'mongoose';
+import { FilterQuery, Types, UpdateQuery } from 'mongoose';
 import BaseRepository from './baseRepositories/base-repository';
 import { IUserRepository } from './interfaces/user-repository.interface';
 import { AddressDTO } from 'src/dto/user.dto';
@@ -63,7 +63,7 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
   }
 
   async addRoleAndCompleteOnboarding(userId: string | Types.ObjectId, role: string) {
-    const update: any = {
+    const update: UpdateQuery<IUser> = {
       $addToSet: { roles: role },
       $set: { activeRole: role, isOnboardingCompleted: true },
     };

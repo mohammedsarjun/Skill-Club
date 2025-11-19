@@ -180,6 +180,7 @@ const AdminActionApi = {
   },
   createSkill: async (data: ISkills) => {
     try {
+      console.log(data)
       const response = await axiosClient.post(
         adminEndPoint.adminCreateSkills,
         data

@@ -78,8 +78,7 @@ export class FreelancerProposalService implements IFreelancerProposalService {
       conversionRate = currency === 'USD' ? 1 : conversionRate;
     }
 
-    const amount =
-      proposalDbData.hourlyRate ?? proposalDbData.proposedBudget ?? undefined;
+    const amount = proposalDbData.hourlyRate ?? proposalDbData.proposedBudget ?? undefined;
     const amountBaseUSD = typeof amount === 'number' ? amount * conversionRate : undefined;
 
     if (jobRateType === 'hourly' && typeof amountBaseUSD === 'number') {

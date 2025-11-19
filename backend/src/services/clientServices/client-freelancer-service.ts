@@ -39,7 +39,7 @@ export class ClientFreelancerService implements IClientFreelancerService {
       queryFilter,
     );
 
-    console.log(repoResult)
+    console.log(repoResult);
 
     if (!repoResult) return null;
 
@@ -47,7 +47,7 @@ export class ClientFreelancerService implements IClientFreelancerService {
 
     const mapped = freelancersArray.map(mapUserModelToClientFreelancerResponseDto);
 
-    const totalCount = await this._freelancerRepository.countAllFreelancers()
+    const totalCount = await this._freelancerRepository.countAllFreelancers();
 
     return { freelancers: mapped, totalCount };
   }
