@@ -117,6 +117,20 @@ export class FreelancerRepository extends BaseRepository<IUser> implements IFree
       $pull: { 'freelancerProfile.experiences': { _id: new Types.ObjectId(workHistoryId) } },
     });
   }
+
+  async updateFreelancerExpertise(
+    userId: string,
+    category: string,
+    specialities: string[],
+    skills: string[],
+  ): Promise<IUser | null> {
+    return super.updateById(userId, {
+      'freelancerProfile.workCategory': new Types.ObjectId(category),
+      'freelancerProfile.specialties': specialities.map((id) => new Types.ObjectId(id)),
+      'freelancerProfile.skills': skills.map((id) => new Types.ObjectId(id)),
+    });
+  }
+
   async getAllFreelancers(
     clientUserId: string,
     queryFilter: freelancerParams,

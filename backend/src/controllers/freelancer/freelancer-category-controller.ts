@@ -22,6 +22,7 @@ export class FreelancerCategoryController implements IFreelancerCategoryControll
     const categoryData: GetFreelancerCategoryDTO[] =
       await this._freelancerCategoryService.getAllCategories();
 
+      console.log(categoryData)
     res.status(HttpStatus.OK).json({
       success: true,
       message: MESSAGES.CATEGORY.FETCH_SUCCESS,

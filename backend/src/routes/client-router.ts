@@ -12,6 +12,7 @@ import { ClientFreelancerController } from '../controllers/client/client-freelan
 import { ClientProposalController } from '../controllers/client/client-proposal-controller';
 import { ClientOfferController } from '../controllers/client/client-offer-controller';
 import { ClientSavedFreelancerController } from '../controllers/client/client-saved-freelancer-controller';
+import { ClientContractController } from '../controllers/client/client-contract-controller';
 const clientRouter = express.Router();
 
 const clientController = container.resolve(ClientController);
@@ -22,6 +23,7 @@ const clientFreelancerController = container.resolve(ClientFreelancerController)
 const clientProposalController = container.resolve(ClientProposalController);
 const clientOfferController = container.resolve(ClientOfferController);
 const clientSavedFreelancerController = container.resolve(ClientSavedFreelancerController);
+const clientContractController = container.resolve(ClientContractController);
 clientRouter.get(
   '/me',
   authMiddleware,
@@ -204,6 +206,30 @@ clientRouter.get(
   roleGuard('client'),
   clientBlockMiddleware,
   clientSavedFreelancerController.getSavedFreelancers.bind(clientSavedFreelancerController),
+);
+
+clientRouter.get(
+  '/contracts',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientContractController.getContracts.bind(clientContractController),
+);
+
+clientRouter.get(
+  '/contracts/:contractId',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientContractController.getContractDetail.bind(clientContractController),
+);
+
+clientRouter.post(
+  '/contracts/:contractId/cancel',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientContractController.cancelContract.bind(clientContractController),
 );
 
 export default clientRouter;

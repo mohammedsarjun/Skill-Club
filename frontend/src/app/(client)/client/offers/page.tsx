@@ -139,42 +139,60 @@ const ClientOffersPage: React.FC = () => {
     setSelected(null);
   }
 
-  function handleWithdraw(offer: Offer) {
-    // Guard: do nothing if already withdrawn
+  async function handleWithdraw(offer: Offer) {
+    // If already withdrawn, just close
     if (offer.status === 'withdrawn') {
       closeDetail();
       return;
     }
 
-    (async () => {
+    // If offer is already accepted by freelancer, remove locally from list instead of calling withdraw API
+    if (offer.status === 'accepted') {
       const result = await Swal.fire({
-        title: 'Withdraw Offer',
-        text: 'Are you sure you want to withdraw this offer?',
-        icon: 'warning',
+        title: 'Remove Offer',
+        text: 'This offer is already accepted — remove it from your list? This action only removes it from your view.',
+        icon: 'question',
         showCancelButton: true,
-        confirmButtonText: 'Yes, withdraw',
+        confirmButtonText: 'Remove',
         cancelButtonText: 'Cancel',
       });
 
-      if (!result.isConfirmed) {
-        closeDetail();
-        return;
+      if (result.isConfirmed) {
+        setOffers((prev) => prev.filter((p) => p._id !== offer._id));
+        Swal.fire('Removed', 'Offer removed from the list.', 'success');
       }
+      closeDetail();
+      return;
+    }
 
-      try {
-        const resp = await clientActionApi.withdrawOffer(String(offer._id));
-        if (resp?.success) {
-          setOffers((prev) => prev.map((p) => (p._id === offer._id ? { ...p, status: 'withdrawn' } : p)));
-          Swal.fire('Withdrawn', 'Offer has been withdrawn.', 'success');
-        } else {
-          Swal.fire('Error', resp?.message || 'Failed to withdraw offer', 'error');
-        }
-      } catch (e) {
-        Swal.fire('Error', 'Unexpected error while withdrawing', 'error');
-      } finally {
-        closeDetail();
+    // Normal withdraw flow for pending/rejected/expired
+    const result = await Swal.fire({
+      title: 'Withdraw Offer',
+      text: 'Are you sure you want to withdraw this offer?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, withdraw',
+      cancelButtonText: 'Cancel',
+    });
+
+    if (!result.isConfirmed) {
+      closeDetail();
+      return;
+    }
+
+    try {
+      const resp = await clientActionApi.withdrawOffer(String(offer._id));
+      if (resp?.success) {
+        setOffers((prev) => prev.map((p) => (p._id === offer._id ? { ...p, status: 'withdrawn' } : p)));
+        Swal.fire('Withdrawn', 'Offer has been withdrawn.', 'success');
+      } else {
+        Swal.fire('Error', resp?.message || 'Failed to withdraw offer', 'error');
       }
-    })();
+    } catch (e) {
+      Swal.fire('Error', 'Unexpected error while withdrawing', 'error');
+    } finally {
+      closeDetail();
+    }
   }
 
   return (

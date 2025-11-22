@@ -70,7 +70,7 @@ export function createFixedBudgetSchema(rateToUSD: number, currencySymbol: strin
     });
 }
 
-// ✅ Schema for validation (checks for minimum words and space patterns)
+
 export const JobDescriptionSchema = z
   .string()
   .min(50, "Description must be at least 50 characters long")

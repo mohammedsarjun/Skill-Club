@@ -206,4 +206,21 @@ export class FreelancerController implements IFreelancerController {
       data: result,
     });
   }
+
+  async updateFreelancerExpertise(req: Request, res: Response): Promise<void> {
+    const userId = req.user?.userId;
+    const { category, specialities, skills } = req.body;
+
+    const result = await this._freelancerService.updateFreelancerExpertise(userId as string, {
+      category,
+      specialities,
+      skills,
+    });
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Expertise updated successfully',
+      data: result,
+    });
+  }
 }

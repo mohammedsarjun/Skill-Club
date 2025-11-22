@@ -11,6 +11,8 @@ import {
 } from "@/types/interfaces/IFreelancerData";
 import { FreelancerJobFilters } from "@/types/interfaces/IJob";
 import { ICreateProposal } from "@/types/interfaces/IProposal";
+import { IFreelancerContractQueryParams } from "@/types/interfaces/IFreelancerContractList";
+import { IUpdateExpertise } from "@/types/interfaces/IExpertise";
 
 export const freelancerActionApi = {
   async getFreelancerData() {
@@ -255,6 +257,13 @@ export const freelancerActionApi = {
         freelancerRouterEndPoints.getAllCategories
       );
 
+      // Normalize backend DTO { categoryId, categoryName } -> { _id, name }
+      const payload = response.data;
+      if (payload && payload.success && Array.isArray(payload.data)) {
+        const mapped = payload.data.map((c: any) => ({ _id: c.categoryId, name: c.categoryName }));
+        return { ...payload, data: mapped };
+      }
+
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
@@ -270,6 +279,21 @@ export const freelancerActionApi = {
         freelancerRouterEndPoints.getSpecialitiesWithSkills,
         { params: { selectedCategory } }
       );
+
+      // Normalize backend DTO {
+      //   specialityId, specialityName, skills: [{ skillId, skillName }]
+      // } -> { _id, name, skills: [{ _id, name }] }
+      const payload = response.data;
+      if (payload && payload.success && Array.isArray(payload.data)) {
+        const mapped = payload.data.map((s: any) => ({
+          _id: s.specialityId,
+          name: s.specialityName,
+          skills: Array.isArray(s.skills)
+            ? s.skills.map((sk: any) => ({ _id: sk.skillId, name: sk.skillName }))
+            : [],
+        }));
+        return { ...payload, data: mapped };
+      }
 
       return response.data;
     } catch (error: unknown) {
@@ -398,6 +422,18 @@ export const freelancerActionApi = {
       }
     }
   },
+  async acceptOffer(offerId: string) {
+    try {
+      const response = await axiosClient.post(freelancerRouterEndPoints.acceptOffer(offerId));
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
   async toggleSaveJob(jobId: string) {
     try {
       const response = await axiosClient.post(freelancerRouterEndPoints.saveJob(jobId));
@@ -426,6 +462,36 @@ export const freelancerActionApi = {
     try {
       const params = { page: query?.page, limit: query?.limit };
       const response = await axiosClient.get(freelancerRouterEndPoints.getSavedJobs(), { params });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+  async getContracts(query?: IFreelancerContractQueryParams) {
+    try {
+      const params = {
+        search: query?.search,
+        page: query?.page,
+        limit: query?.limit,
+        status: query?.filters?.status,
+      };
+      const response = await axiosClient.get(freelancerRouterEndPoints.getContracts, { params });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+  async updateExpertise(expertise: IUpdateExpertise) {
+    try {
+      const response = await axiosClient.patch(freelancerRouterEndPoints.updateExpertise, expertise);
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {

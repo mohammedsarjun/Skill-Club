@@ -190,9 +190,9 @@ function OfferDetails() {
     };
     load();
     return () => { cancelled = true; };
-  }, [offerId]);
+  }, [offerId]); 
 
-  // Convert monetary fields to preferred currency for display
+  
   useEffect(() => {
     let cancelled = false;
     const doConvert = async () => {
@@ -326,6 +326,25 @@ function OfferDetails() {
                     onClick={async () => {
                       if (offerDetail.status === 'withdrawn') return;
 
+                      // If accepted, only remove from UI (no backend withdraw)
+                      if (offerDetail.status === 'accepted') {
+                        const result = await Swal.fire({
+                          title: 'Remove Offer',
+                          text: 'This offer is already accepted — remove it from your view? This will not change freelancer records.',
+                          icon: 'question',
+                          showCancelButton: true,
+                          confirmButtonText: 'Remove',
+                          cancelButtonText: 'Cancel',
+                        });
+
+                        if (result.isConfirmed) {
+                          // Navigate back to list and show confirmation
+                          router.push('/client/offers');
+                          Swal.fire('Removed', 'Offer removed from your list.', 'success');
+                        }
+                        return;
+                      }
+
                       const result = await Swal.fire({
                         title: 'Withdraw Offer',
                         text: 'Are you sure you want to withdraw this offer?',
@@ -350,9 +369,9 @@ function OfferDetails() {
                       }
                     }}
                     disabled={offerDetail.status === 'withdrawn'}
-                    title={offerDetail.status === 'withdrawn' ? 'Offer already withdrawn' : 'Withdraw Offer'}
+                    title={offerDetail.status === 'withdrawn' ? 'Offer already withdrawn' : offerDetail.status === 'accepted' ? 'Remove Offer' : 'Withdraw Offer'}
                     className={`w-full px-4 py-2 rounded text-white ${offerDetail.status === 'withdrawn' ? 'bg-gray-200 text-gray-600 cursor-not-allowed' : 'bg-yellow-500'}`}>
-                    {offerDetail.status === 'withdrawn' ? 'Withdrawn' : 'Withdraw Offer'}
+                    {offerDetail.status === 'withdrawn' ? 'Withdrawn' : offerDetail.status === 'accepted' ? 'Remove' : 'Withdraw Offer'}
                   </button>
                 </div>
               </div>

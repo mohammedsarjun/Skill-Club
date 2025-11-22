@@ -215,6 +215,95 @@ function GenericTable<T extends Record<string, any> = any>(props: TableProps<T>)
     return filteredData.slice(start, end);
   }, [isServerPaginated, data, filteredData, page, pageSize]);
 
+  // Memoized table row to avoid re-rendering unchanged rows when table-level
+  // state (search, filters, page) changes. It relies on the row object
+  // reference identity remaining stable when the underlying data hasn't
+  // changed (server or parent should keep object references stable).
+  const TableRow = React.useMemo(() => {
+    type RowProps = { row: T };
+    const RowComponent = ({ row }: RowProps) => {
+      return (
+        <tr className="hover:bg-gray-50 transition-colors">
+          {columns.map((col) => {
+            const cellValue = (row as any)[col.key];
+            const shouldBadge = badgeKeys.some((k) => String(k) === String(col.key));
+            const cellText =
+              Array.isArray(cellValue)
+                ? cellValue.map((it: any) => (typeof it === "string" ? it : it?.name ?? JSON.stringify(it))).join(", ")
+                : typeof cellValue === "object" && cellValue !== null
+                ? (cellValue as any).name ?? JSON.stringify(cellValue)
+                : String(cellValue ?? "");
+
+            return (
+              <td key={String(col.key)} className="px-6 py-4 whitespace-nowrap">
+                <div className="text-sm text-gray-900">
+                  {shouldBadge ? (
+                    <span
+                      className="inline-block px-3 py-1 rounded-full text-xs font-medium text-white"
+                      style={{ background: badgeColors[cellText] ?? badgeColors[String(cellValue)] ?? defaultBadgeColor(cellText) }}
+                    >
+                      {cellText}
+                    </span>
+                  ) : (
+                    renderCell(cellValue)
+                  )}
+                </div>
+              </td>
+            );
+          })}
+
+          {(onEdit || handleEditModal || onDelete || handleDelete || onView || handleOpenViewModal) && (
+            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              <div className="flex items-center gap-3">
+                {viewOnly && (handleOpenViewModal || onView) ? (
+                  <button
+                    className="text-green-600 hover:text-green-800 transition-colors"
+                    onClick={() => {
+                      if (handleOpenViewModal) handleOpenViewModal(row);
+                      else if (onView) (onView as any)(row);
+                    }}
+                  >
+                    View
+                  </button>
+                ) : (
+                  <>
+                    {(handleEditModal || onEdit) && (
+                      <button
+                        className="text-blue-600 hover:text-blue-800 transition-colors"
+                        onClick={() => {
+                          if (handleEditModal) handleEditModal(row);
+                          else if (onEdit) (onEdit as any)(row);
+                        }}
+                        title="Edit"
+                      >
+                        <EditIcon />
+                      </button>
+                    )}
+
+                    {canDelete && (handleDelete || onDelete) && (
+                      <button
+                        className="text-red-600 hover:text-red-800 transition-colors"
+                        onClick={() => {
+                          if (handleDelete) handleDelete(row);
+                          else if (onDelete) (onDelete as any)(row);
+                        }}
+                        title="Delete"
+                      >
+                        <TrashIcon />
+                      </button>
+                    )}
+                  </>
+                )}
+              </div>
+            </td>
+          )}
+        </tr>
+      );
+    };
+
+    return React.memo(RowComponent, (prev, next) => prev.row === next.row);
+  }, [columns, badgeKeys, badgeColors, viewOnly, handleOpenViewModal, onView, handleEditModal, onEdit, canDelete, handleDelete, onDelete]);
+
   // Derive total pages safely from provided metadata. Avoid computing from a
   // possibly-undefined `controlledTotalCount` with a forced non-null assertion
   // which could produce NaN. If we don't have totals, derivedTotalPages will
@@ -348,86 +437,8 @@ function GenericTable<T extends Record<string, any> = any>(props: TableProps<T>)
               {paginatedData.length > 0 ? (
                 paginatedData.map((row: T, _idx: number) => {
                   const rowKey = (row as any).id ?? (row as any).jobId ?? (row as any).job_id ?? (row as any).key ?? _idx;
-                  return (
-                    <tr key={String(rowKey)} className="hover:bg-gray-50 transition-colors">
-                      {columns.map((col) => {
-                        const cellValue = (row as any)[col.key];
-                        const shouldBadge = badgeKeys.some((k) => String(k) === String(col.key));
-                        const cellText =
-                          Array.isArray(cellValue)
-                            ? cellValue.map((it: any) => (typeof it === "string" ? it : it?.name ?? JSON.stringify(it))).join(", ")
-                            : typeof cellValue === "object" && cellValue !== null
-                            ? (cellValue as any).name ?? JSON.stringify(cellValue)
-                            : String(cellValue ?? "");
-
-                        return (
-                          <td
-                            key={String(col.key)}
-                            className="px-6 py-4 whitespace-nowrap"
-                          >
-                            <div className="text-sm text-gray-900">
-                              {shouldBadge ? (
-                                <span
-                                  className="inline-block px-3 py-1 rounded-full text-xs font-medium text-white"
-                                  style={{ background: badgeColors[cellText] ?? badgeColors[String(cellValue)] ?? defaultBadgeColor(cellText) }}
-                                >
-                                  {cellText}
-                                </span>
-                              ) : (
-                                renderCell(cellValue)
-                              )}
-                            </div>
-                          </td>
-                        );
-                      })}
-
-                      {(onEdit || handleEditModal || onDelete || handleDelete || onView || handleOpenViewModal) && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <div className="flex items-center gap-3">
-                            {viewOnly && (handleOpenViewModal || onView) ? (
-                              <button
-                                className="text-green-600 hover:text-green-800 transition-colors"
-                                onClick={() => {
-                                  if (handleOpenViewModal) handleOpenViewModal(row);
-                                  else if (onView) (onView as any)(row);
-                                }}
-                              >
-                                View
-                              </button>
-                            ) : (
-                              <>
-                                {(handleEditModal || onEdit) && (
-                                  <button
-                                    className="text-blue-600 hover:text-blue-800 transition-colors"
-                                    onClick={() => {
-                                      if (handleEditModal) handleEditModal(row);
-                                      else if (onEdit) (onEdit as any)(row);
-                                    }}
-                                    title="Edit"
-                                  >
-                                    <EditIcon />
-                                  </button>
-                                )}
-
-                                {canDelete && (handleDelete || onDelete) && (
-                                  <button
-                                    className="text-red-600 hover:text-red-800 transition-colors"
-                                    onClick={() => {
-                                      if (handleDelete) handleDelete(row);
-                                      else if (onDelete) (onDelete as any)(row);
-                                    }}
-                                    title="Delete"
-                                  >
-                                    <TrashIcon />
-                                  </button>
-                                )}
-                              </>
-                            )}
-                          </div>
-                        </td>
-                      )}
-                    </tr>
-                  );
+                  const MemoRow = TableRow as React.ComponentType<{ row: T }>;
+                  return <MemoRow key={String(rowKey)} row={row} />;
                 })
               ) : (
                 <tr>

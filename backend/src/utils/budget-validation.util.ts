@@ -20,51 +20,48 @@ interface BudgetValidationResult {
   fixedRateBaseUSD?: { min: number; max: number };
 }
 
-
 export async function validateHourlyBudget(
-  rateToUSD:number,
+  rateToUSD: number,
   hourlyRate: HourlyRate,
   currency: SupportedCurrency,
 ): Promise<BudgetValidationResult> {
-
-  
   // Convert USD limits to local currency for validation
   const toLocal = (usd: number) => (rateToUSD > 0 ? usd * rateToUSD : usd);
-  
+
   const minLocal = toLocal(5);
   const maxLocal = toLocal(999);
-  
+
   if (hourlyRate.min < minLocal) {
     throw new AppError(
       `Minimum hourly rate must be at least ${minLocal.toFixed(2)} ${currency}`,
       HttpStatus.BAD_REQUEST,
     );
   }
-  
+
   if (hourlyRate.max < minLocal) {
     throw new AppError(
       `Maximum hourly rate must be at least ${minLocal.toFixed(2)} ${currency}`,
       HttpStatus.BAD_REQUEST,
     );
   }
-  
+
   if (hourlyRate.max < hourlyRate.min) {
     throw new AppError(
       'Maximum hourly rate must be greater than or equal to minimum rate',
       HttpStatus.BAD_REQUEST,
     );
   }
-  
+
   if (hourlyRate.min > maxLocal || hourlyRate.max > maxLocal) {
     throw new AppError(
       `Hourly rate cannot exceed ${maxLocal.toFixed(2)} ${currency}`,
       HttpStatus.BAD_REQUEST,
     );
   }
-  
+
   const minUSD = hourlyRate.min / rateToUSD;
   const maxUSD = hourlyRate.max / rateToUSD;
-  
+
   return {
     conversionRate: rateToUSD,
     hourlyRateBaseUSD: { min: minUSD, max: maxUSD },

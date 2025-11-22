@@ -28,6 +28,9 @@ const freelancerRouterEndPoints = {
   getOffers: '/freelancer/offers',
   getOfferDetail: (offerId: string) => `/freelancer/offers/${offerId}`,
   rejectOffer: (offerId: string) => `/freelancer/offers/${offerId}/reject`,
+  acceptOffer: (offerId: string) => `/freelancer/offers/${offerId}/accept`,
+  getContracts: '/freelancer/contracts',
+  updateExpertise: '/freelancer/profile/expertise',
 };
 
 export default freelancerRouterEndPoints;

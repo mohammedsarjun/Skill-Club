@@ -137,7 +137,7 @@ export default function ClientHeader() {
           <a href="#" className="text-black hover:text-gray-700">
             Finance
           </a>
-          <a href="#" className="text-black hover:text-gray-700">
+          <a onClick={()=>router.push("/client/contracts")} className="text-black hover:text-gray-700">
             Contract
           </a>
           <a href="#" className="text-black hover:text-gray-700">

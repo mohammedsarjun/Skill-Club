@@ -84,4 +84,17 @@ export class FreelancerOfferController implements IFreelancerOfferController {
         .json({ success: false, message: (e as Error).message || 'Failed to reject offer' });
     }
   }
+
+  async acceptOffer(req: Request, res: Response): Promise<void> {
+    const freelancerId = req.user?.userId as string;
+    const { offerId } = req.params;
+    try {
+      const result = await this._freelancerOfferService.acceptOffer(freelancerId, offerId);
+      res.status(HttpStatus.OK).json({ success: true, message: 'Offer accepted', data: result });
+    } catch (e) {
+      res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ success: false, message: (e as Error).message || 'Failed to accept offer' });
+    }
+  }
 }

@@ -103,16 +103,16 @@ const JobManagementPage: React.FC = () => {
   }, [localSearch, debouncedSetSearch]);
 
   // ===== Columns =====
-  const columns: Column<any>[] = [
+  const columns: Column<any>[] = useMemo(() => [
     { key: "jobTitle", label: "Job" },
     { key: "category", label: "Category" },
     { key: "budget", label: "Budget" },
     { key: "totalProposal", label: "Total Proposal" },
     { key: "status", label: "Status" },
-  ];
+  ], []);
 
   // ===== Filters =====
-  const filtersConfig: Filter[] = [
+  const filtersConfig: Filter[] = useMemo(() => [
     {
       key: "status",
       label: "Status",
@@ -123,21 +123,29 @@ const JobManagementPage: React.FC = () => {
         { id: "suspended", name: "Suspended" },
       ],
     },
-  ];
+  ], []);
 
   // ===== View / Navigation Handlers =====
   const router = useRouter();
 
   // When viewing a row from the Jobs table, navigate to the job detail route
-  const handleViewModal = (row: any) => {
-    const id =
-      row?.id ?? row?.jobId ?? row?.raw?.jobId ?? row?.raw?._id ?? row?.raw?.id;
-    if (!id) {
-      toast.error("Missing job id");
-      return;
-    }
-    router.push(`/admin/jobs/${id}`);
-  };
+  const handleViewModal = useMemo(() => {
+    return (row: any) => {
+      const id = row?.id ?? row?.jobId ?? row?.raw?.jobId ?? row?.raw?._id ?? row?.raw?.id;
+      if (!id) {
+        toast.error("Missing job id");
+        return;
+      }
+      router.push(`/admin/jobs/${id}`);
+    };
+  }, [router]);
+
+  const badgeColorMap = useMemo(() => ({
+    pending_verification: "#f59e0bb4",
+    open: "#10b981b4",
+    rejected: "#ef4444b4",
+    suspended: "#6B7280",
+  }), []);
 
   // ===== Render =====
   return (
@@ -171,12 +179,7 @@ const JobManagementPage: React.FC = () => {
         data={jobs}
         filters={filtersConfig}
         badgeKeys={["status"]}
-        badgeColors={{
-          pending_verification: "#f59e0bb4",
-          open: "#10b981b4",
-          rejected: "#ef4444b4",
-          suspended: "#6B7280",
-        }}
+        badgeColors={badgeColorMap}
         handleOpenViewModal={handleViewModal}
         page={page}
         setPage={setPage}

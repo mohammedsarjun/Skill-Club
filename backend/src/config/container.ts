@@ -21,6 +21,8 @@ import { IProposalRepository } from '../repositories/interfaces/proposal-reposit
 import { ProposalRepository } from '../repositories/proposal-repository';
 import { IOfferRepository } from '../repositories/interfaces/offer-repository.interface';
 import { OfferRepository } from '../repositories/offer-repository';
+import { IContractRepository } from '../repositories/interfaces/contract-repository.interface';
+import { ContractRepository } from '../repositories/contract-repository';
 import { IFileUploadService } from '../services/commonServices/interfaces/file-upload-service.interface';
 import { FileUploadService } from '../services/commonServices/file-upload-service';
 import { IGetRatesService } from '../services/commonServices/interfaces/get-rates-service.interface';
@@ -38,6 +40,7 @@ container.register<IJobRepository>('IJobRepository', { useClass: JobRepository }
 container.register<IClientRepository>('IClientRepository', { useClass: ClientRepository });
 container.register<IProposalRepository>('IProposalRepository', { useClass: ProposalRepository });
 container.register<IOfferRepository>('IOfferRepository', { useClass: OfferRepository });
+container.register<IContractRepository>('IContractRepository', { useClass: ContractRepository });
 container.register<IFileUploadService>('IFileUploadService', { useClass: FileUploadService });
 container.register<IGetRatesService>('IGetRatesService', { useClass: GetRatesService });
 //Auth
@@ -252,6 +255,19 @@ container.register<IClientProposalService>('IClientProposalService', {
 import { IClientOfferService } from '../services/clientServices/interfaces/client-offer-service.interface';
 import { ClientOfferService } from '../services/clientServices/client-offer-service';
 container.register<IClientOfferService>('IClientOfferService', { useClass: ClientOfferService });
+
+import { IClientContractService } from '../services/clientServices/interfaces/client-contract-service.interface';
+import { ClientContractService } from '../services/clientServices/client-contract-service';
+container.register<IClientContractService>('IClientContractService', {
+  useClass: ClientContractService,
+});
+
+import { IFreelancerContractService } from '../services/freelancerServices/interfaces/freelancer-contract-service.interface';
+import { FreelancerContractService } from '../services/freelancerServices/freelancer-contract-service';
+container.register<IFreelancerContractService>('IFreelancerContractService', {
+  useClass: FreelancerContractService,
+});
+
 // Client Saved Freelancer
 import { ISavedFreelancerRepository } from '../repositories/interfaces/saved-freelancer-repository.interface';
 import { SavedFreelancerRepository } from '../repositories/saved-freelancer-repository';

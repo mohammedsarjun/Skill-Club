@@ -28,17 +28,32 @@ import { educationSchema } from '../../utils/validationSchemas/validations';
 import { workExperienceSchema } from '../../utils/validationSchemas/freelancer-validations';
 import { SUPPORTED_CURRENCIES, SupportedCurrency } from '../../contants/currency.constants';
 import { mapWorkHistoryToUserModel } from '../../mapper/user.mapper';
+import { ExpertiseResponseDTO, UpdateExpertiseDTO, updateExpertiseSchema } from '../../dto/freelancerDTO/freelancer-expertise.dto';
+import { mapExpertiseToResponseDTO } from '../../mapper/freelancerMapper/freelancer-expertise.mapper';
+import { ICategoryRepository } from '../../repositories/interfaces/category-repository.interface';
+import { ISpecialityRepository } from '../../repositories/interfaces/speciality-repository.interface';
+import { ISkillRepository } from '../../repositories/interfaces/skill-repository.interface';
+import { Types } from 'mongoose';
 
 @injectable()
 export class FreelancerService implements IFreelancerService {
   private _freelancerRepository: IFreelancerRepository;
   private _portfolioRepository: IPortfolioRepository;
+  private _categoryRepository: ICategoryRepository;
+  private _specialityRepository: ISpecialityRepository;
+  private _skillRepository: ISkillRepository;
   constructor(
     @inject('IFreelancerRepository') freelancerRepository: IFreelancerRepository,
     @inject('IPortfolioRepository') portfolioRepository: IPortfolioRepository,
+    @inject('ICategoryRepository') categoryRepository: ICategoryRepository,
+    @inject('ISpecialityRepository') specialityRepository: ISpecialityRepository,
+    @inject('ISkillRepository') skillRepository: ISkillRepository,
   ) {
     this._freelancerRepository = freelancerRepository;
     this._portfolioRepository = portfolioRepository;
+    this._categoryRepository = categoryRepository;
+    this._specialityRepository = specialityRepository;
+    this._skillRepository = skillRepository;
   }
 
   async getFreelancerData(id: string): Promise<FetchFreelancerDTO> {
@@ -324,5 +339,67 @@ export class FreelancerService implements IFreelancerService {
       freelancerId,
       workHistoryId,
     );
+  }
+
+  async updateFreelancerExpertise(
+    freelancerId: string,
+    expertiseData: UpdateExpertiseDTO,
+  ): Promise<ExpertiseResponseDTO> {
+    validateData(updateExpertiseSchema, expertiseData);
+
+    const freelancerData = await this._freelancerRepository.getFreelancerById(freelancerId);
+    if (!freelancerData?.freelancerProfile) {
+      throw new AppError(ERROR_MESSAGES.FREELANCER.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+
+    const categoryExists = await this._categoryRepository.findById(expertiseData.category);
+    if (!categoryExists || categoryExists.status !== 'list') {
+      throw new AppError('Invalid or unlisted category', HttpStatus.BAD_REQUEST);
+    }
+
+    const specialityIds = expertiseData.specialities.map((id) => new Types.ObjectId(id));
+    const specialities = await this._specialityRepository.getListedSpecialitiesByIds(specialityIds);
+    if (!specialities || specialities.length !== expertiseData.specialities.length) {
+      throw new AppError('Invalid or unlisted specialities', HttpStatus.BAD_REQUEST);
+    }
+
+    const invalidSpecialities = specialities.filter(
+      (spec) => spec.category.toString() !== expertiseData.category,
+    );
+    if (invalidSpecialities.length > 0) {
+      throw new AppError('Specialities must belong to the selected category', HttpStatus.BAD_REQUEST);
+    }
+
+    const skillIds = expertiseData.skills.map((id) => new Types.ObjectId(id));
+    const skills = await this._skillRepository.getListedSkillsByIds(skillIds);
+    if (!skills || skills.length !== expertiseData.skills.length) {
+      throw new AppError('Invalid or unlisted skills', HttpStatus.BAD_REQUEST);
+    }
+
+    const invalidSkills = skills.filter((skill) => {
+      return !skill.specialities.some((specId) =>
+        specialityIds.some((selectedSpecId) => selectedSpecId.toString() === specId.toString()),
+      );
+    });
+    if (invalidSkills.length > 0) {
+      throw new AppError('Skills must belong to the selected specialities', HttpStatus.BAD_REQUEST);
+    }
+
+    const updatedUser = await this._freelancerRepository.updateFreelancerExpertise(
+      freelancerId,
+      expertiseData.category,
+      expertiseData.specialities,
+      expertiseData.skills,
+    );
+
+    if (!updatedUser) {
+      throw new AppError('Failed to update expertise', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    return mapExpertiseToResponseDTO({
+      workCategory: updatedUser.freelancerProfile.workCategory as Types.ObjectId,
+      specialties: updatedUser.freelancerProfile.specialties as Types.ObjectId[],
+      skills: updatedUser.freelancerProfile.skills as Types.ObjectId[],
+    });
   }
 }

@@ -125,7 +125,7 @@ export default function FreelancerHeader() {
             </div>
           </div>
 
-          <a href="#" className="text-black hover:text-gray-700">
+          <a onClick={()=>router.push("/freelancer/contracts")} className="text-black hover:text-gray-700">
             Contract
           </a>
           <a href="#" className="text-black hover:text-gray-700"></a>

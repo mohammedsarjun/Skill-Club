@@ -10,6 +10,7 @@ import { FreelancerJobController } from '../controllers/freelancer/freelancer-jo
 import { FreelancerProposalController } from '../controllers/freelancer/freelancer-proposal-controller';
 import { FreelancerOfferController } from '../controllers/freelancer/freelancer-offer-controller';
 import { FreelancerSavedJobController } from '../controllers/freelancer/freelancer-saved-job-controller';
+import { FreelancerContractController } from '../controllers/freelancer/freelancer-contract-controller';
 const freelancerRouter = express.Router();
 
 const freelancerController = container.resolve(FreelancerController);
@@ -19,6 +20,7 @@ const freelancerJobController = container.resolve(FreelancerJobController);
 const freelancerProposalController = container.resolve(FreelancerProposalController);
 const freelancerOfferController = container.resolve(FreelancerOfferController);
 const freelancerSavedJobController = container.resolve(FreelancerSavedJobController);
+const freelancerContractController = container.resolve(FreelancerContractController);
 freelancerRouter.get(
   '/me',
   authMiddleware,
@@ -126,6 +128,14 @@ freelancerRouter.delete(
   freelancerController.deleteFreelancerWorkHistory.bind(freelancerController),
 );
 
+freelancerRouter.patch(
+  '/profile/expertise',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerController.updateFreelancerExpertise.bind(freelancerController),
+);
+
 freelancerRouter.get(
   '/categories',
   authMiddleware,
@@ -198,6 +208,14 @@ freelancerRouter.post(
 );
 
 freelancerRouter.post(
+  '/offers/:offerId/accept',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerOfferController.acceptOffer.bind(freelancerOfferController),
+);
+
+freelancerRouter.post(
   '/jobs/:jobId/save',
   authMiddleware,
   roleGuard('freelancer'),
@@ -219,6 +237,14 @@ freelancerRouter.get(
   roleGuard('freelancer'),
   freelancerBlockMiddleware,
   freelancerSavedJobController.getSavedJobs.bind(freelancerSavedJobController),
+);
+
+freelancerRouter.get(
+  '/contracts',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerContractController.getContracts.bind(freelancerContractController),
 );
 
 export default freelancerRouter;

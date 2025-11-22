@@ -334,4 +334,57 @@ export const clientActionApi = {
       }
     },
 
+  async getContracts(query?: {
+    search?: string;
+    page?: number;
+    limit?: number;
+    filters?: { status?: string };
+  }) {
+    try {
+      const response = await axiosClient.get(clientRouterEndPoints.getContracts, {
+        params: {
+          search: query?.search,
+          page: query?.page,
+          limit: query?.limit,
+          status: query?.filters?.status,
+        },
+      });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getContractDetail(contractId: string) {
+    try {
+      const response = await axiosClient.get(
+        clientRouterEndPoints.getContractDetail(contractId)
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async cancelContract(contractId: string) {
+    try {
+      const response = await axiosClient.post(clientRouterEndPoints.cancelContract(contractId));
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
 }

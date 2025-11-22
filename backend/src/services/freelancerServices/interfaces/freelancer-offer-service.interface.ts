@@ -15,4 +15,8 @@ export interface IFreelancerOfferService {
     offerId: string,
     reason?: string,
   ): Promise<{ rejected: boolean }>;
+  acceptOffer(
+    freelancerId: string,
+    offerId: string,
+  ): Promise<{ accepted: boolean; contractId: string }>;
 }

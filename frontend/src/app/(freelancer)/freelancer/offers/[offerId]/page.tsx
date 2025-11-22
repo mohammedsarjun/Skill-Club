@@ -339,8 +339,22 @@ function OfferDetails() {
           <AcceptOfferModal
             isOpen={showAcceptModal}
             onClose={() => setShowAcceptModal(false)}
-            onConfirm={() => {
-              console.log('Offer accepted');
+            onConfirm={async () => {
+              try {
+                const resp = await freelancerActionApi.acceptOffer(String(offerId));
+                if (resp?.success) {
+                  setOfferDetail((prev) => prev ? { ...prev, status: 'accepted' } : prev);
+                  // Show success toast
+                  // You can add toast notification here if available
+                  console.log('Offer accepted successfully');
+                } else {
+                  alert(resp?.message || 'Failed to accept offer');
+                }
+              } catch (e) {
+                alert('Unexpected error while accepting offer');
+              } finally {
+                setShowAcceptModal(false);
+              }
             }}
           />
           <RejectOfferModal

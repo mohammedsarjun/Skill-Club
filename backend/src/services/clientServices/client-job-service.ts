@@ -32,7 +32,6 @@ import { JobQueryParams } from '../../dto/commonDTO/job-common.dto';
 import { mapJobQuery } from '../../mapper/commonMapper/common-job-mapper';
 import IGetRatesService from '../commonServices/interfaces/get-rates-service.interface';
 
-
 @injectable()
 export class ClientJobService implements IClientJobService {
   private _jobRepository: IJobRepository;
@@ -40,21 +39,21 @@ export class ClientJobService implements IClientJobService {
   private _skillRepository: ISkillRepository;
   private _specialityRespository: ISpecialityRepository;
   private _categoryRepository: ICategoryRepository;
-  private _getRatesService:IGetRatesService;
+  private _getRatesService: IGetRatesService;
   constructor(
     @inject('IJobRepository') jobRepository: IJobRepository,
     @inject('IClientRepository') clientRepository: IClientRepository,
     @inject('ISkillRepository') skillRepository: ISkillRepository,
     @inject('ISpecialityRepository') specialityRespository: ISpecialityRepository,
     @inject('ICategoryRepository') categoryRepository: ICategoryRepository,
-    @inject('IGetRatesService') getRatesService: IGetRatesService
+    @inject('IGetRatesService') getRatesService: IGetRatesService,
   ) {
     this._jobRepository = jobRepository;
     this._clientRepository = clientRepository;
     this._skillRepository = skillRepository;
     this._specialityRespository = specialityRespository;
     this._categoryRepository = categoryRepository;
-    this._getRatesService=getRatesService;
+    this._getRatesService = getRatesService;
   }
 
   async createJob(clientId: string, jobData: CreateJobDto): Promise<ClientJobDetailResponseDTO> {
@@ -69,7 +68,7 @@ export class ClientJobService implements IClientJobService {
     const currency = jobModelData.currency || 'USD';
 
     // Fetch rates once and compute rateToUSD (local -> USD multiplier)
-    const usdRate = await this._getRatesService.getRates("USD");
+    const usdRate = await this._getRatesService.getRates('USD');
     const rateToUSD = usdRate[currency] || 1;
 
     if (jobModelData.rateType === 'hourly' && jobModelData.hourlyRate) {
@@ -77,7 +76,7 @@ export class ClientJobService implements IClientJobService {
       jobModelData.conversionRate = result.conversionRate;
       jobModelData.hourlyRateBaseUSD = result.hourlyRateBaseUSD;
     }
-    
+
     if (jobModelData.rateType === 'fixed' && jobModelData.fixedRate) {
       const result = await validateFixedBudget(rateToUSD, jobModelData.fixedRate, currency);
       jobModelData.conversionRate = result.conversionRate;
@@ -185,15 +184,15 @@ export class ClientJobService implements IClientJobService {
 
     // Validate budgets and get USD-normalized values
     const currency = jobDataDto.currency || 'USD';
-    const usdRate = await this._getRatesService.getRates("USD");
+    const usdRate = await this._getRatesService.getRates('USD');
     const rateToUSD = usdRate[currency] || 1;
-    
+
     if (jobDataDto.rateType === 'hourly' && jobDataDto.hourlyRate) {
       const result = await validateHourlyBudget(rateToUSD, jobDataDto.hourlyRate, currency);
       jobDataDto.conversionRate = result.conversionRate;
       jobDataDto.hourlyRateBaseUSD = result.hourlyRateBaseUSD;
     }
-    
+
     if (jobDataDto.rateType === 'fixed' && jobDataDto.fixedRate) {
       const result = await validateFixedBudget(rateToUSD, jobDataDto.fixedRate, currency);
       jobDataDto.conversionRate = result.conversionRate;

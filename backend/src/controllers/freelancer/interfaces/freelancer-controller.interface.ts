@@ -15,4 +15,5 @@ export interface IFreelancerController {
   getPortfolio(req: Request, res: Response): Promise<void>;
   getPortfolioDetail(req: Request, res: Response): Promise<void>;
   deleteFreelancerEducation(req: Request, res: Response): Promise<void>;
+  updateFreelancerExpertise(req: Request, res: Response): Promise<void>;
 }

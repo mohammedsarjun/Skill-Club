@@ -40,6 +40,12 @@ export interface IFreelancerRepository extends BaseRepository<IUser> {
     userId: string,
     workHistoryId: string,
   ): Promise<IUser | null>;
+  updateFreelancerExpertise(
+    userId: string,
+    category: string,
+    specialities: string[],
+    skills: string[],
+  ): Promise<IUser | null>;
 
   getAllFreelancers(
     clientUserId: string,
