@@ -11,12 +11,14 @@ import { AdminUserController } from '../controllers/admin/admin-user-controller'
 import { AdminSkillController } from '../controllers/admin/admin-skill-controller';
 import { skillSchema } from '../utils/validationSchemas/skill-validation';
 import { AdminJobController } from '../controllers/admin/admin-jobs-controller';
+import { AdminContractController } from '../controllers/admin/admin-contract-controller';
 
 const adminRouter = express.Router();
 
 const categoryController = container.resolve(AdminCategoryController);
 const adminAuthController = container.resolve(AdminAuthController);
 const adminJobController = container.resolve(AdminJobController);
+const adminContractController = container.resolve(AdminContractController);
 //auth
 adminRouter.post('/login', adminAuthController.login.bind(adminAuthController));
 adminRouter.get(
@@ -143,4 +145,19 @@ adminRouter.patch(
   roleGuard('admin'),
   adminJobController.suspendJob.bind(adminJobController),
 );
+
+adminRouter.get(
+  '/contracts',
+  authMiddleware,
+  roleGuard('admin'),
+  adminContractController.getContracts.bind(adminContractController),
+);
+
+adminRouter.get(
+  '/contracts/:contractId',
+  authMiddleware,
+  roleGuard('admin'),
+  adminContractController.getContractDetail.bind(adminContractController),
+);
+
 export default adminRouter;

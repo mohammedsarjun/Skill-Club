@@ -1,42 +1,4 @@
-import { ContractStatus } from '../../models/interfaces/contract.model.interface';
-
-export interface FreelancerContractQueryParamsDTO {
-  search?: string;
-  page?: number;
-  limit?: number;
-  filters: {
-    status?: ContractStatus;
-  };
-}
-
-export interface FreelancerContractListItemDTO {
-  id: string;
-  contractId: string;
-  title: string;
-  paymentType: 'fixed' | 'fixed_with_milestones' | 'hourly';
-  budget?: number;
-  hourlyRate?: number;
-  currency: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
-  status: string;
-  createdAt: Date;
-  client?: {
-    clientId: string;
-    firstName?: string;
-    lastName?: string;
-    companyName?: string;
-    logo?: string;
-  };
-}
-
-export interface FreelancerContractListResultDTO {
-  items: FreelancerContractListItemDTO[];
-  page: number;
-  limit: number;
-  total: number;
-  pages: number;
-}
-
-export interface FreelancerContractDetailDTO {
+export interface IFreelancerContractDetail {
   contractId: string;
   offerId: string;
   offerType?: 'direct' | 'proposal';
@@ -67,15 +29,15 @@ export interface FreelancerContractDetailDTO {
     title: string;
     amount: number;
     amountBaseUSD?: number;
-    expectedDelivery: Date;
+    expectedDelivery: string;
     status: 'pending' | 'funded' | 'submitted' | 'approved' | 'paid';
-    submittedAt?: Date;
-    approvedAt?: Date;
+    submittedAt?: string;
+    approvedAt?: string;
   }[];
 
   timesheets?: {
-    weekStart: Date;
-    weekEnd: Date;
+    weekStart: string;
+    weekEnd: string;
     totalHours: number;
     totalAmount: number;
     status: 'pending' | 'approved' | 'paid';
@@ -86,14 +48,14 @@ export interface FreelancerContractDetailDTO {
     files: { fileName: string; fileUrl: string }[];
     message?: string;
     status: 'submitted' | 'approved' | 'changes_requested';
-    submittedAt: Date;
-    approvedAt?: Date;
+    submittedAt: string;
+    approvedAt?: string;
   }[];
 
   title: string;
   description: string;
-  expectedStartDate: Date;
-  expectedEndDate: Date;
+  expectedStartDate: string;
+  expectedEndDate: string;
   referenceFiles: { fileName: string; fileUrl: string }[];
   referenceLinks: { description: string; link: string }[];
   
@@ -118,6 +80,6 @@ export interface FreelancerContractDetailDTO {
   totalPaid: number;
   balance: number;
   
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt?: string;
+  updatedAt?: string;
 }

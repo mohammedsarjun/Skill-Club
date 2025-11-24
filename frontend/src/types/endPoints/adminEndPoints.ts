@@ -32,6 +32,10 @@ const adminRouterEndPoints ={
     adminRejectJob:(jobId:string) => `/admin/jobs/${jobId}/reject`,
     adminSuspendJob:(jobId:string) => `/admin/jobs/${jobId}/suspend`,
 
+    //contracts
+    adminGetAllContracts:"/admin/contracts",
+    adminGetContractDetail:(contractId:string) => `/admin/contracts/${contractId}`,
+
 }
 
 export default adminRouterEndPoints

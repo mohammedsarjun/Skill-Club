@@ -35,4 +35,17 @@ export class FreelancerContractController implements IFreelancerContractControll
       data: result,
     });
   }
+
+  async getContractDetail(req: Request, res: Response): Promise<void> {
+    const freelancerId = req.user?.userId as string;
+    const { contractId } = req.params;
+
+    const result = await this._freelancerContractService.getContractDetail(freelancerId, contractId);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Contract detail fetched successfully',
+      data: result,
+    });
+  }
 }

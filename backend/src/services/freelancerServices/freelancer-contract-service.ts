@@ -5,8 +5,10 @@ import { IContractRepository } from '../../repositories/interfaces/contract-repo
 import {
   FreelancerContractListResultDTO,
   FreelancerContractQueryParamsDTO,
+  FreelancerContractDetailDTO,
 } from '../../dto/freelancerDTO/freelancer-contract.dto';
 import { mapContractModelToFreelancerContractListItemDTO } from '../../mapper/freelancerMapper/freelancer-contract-list.mapper';
+import { mapContractToFreelancerDetailDTO } from '../../mapper/freelancerMapper/freelancer-contract.mapper';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { Types } from 'mongoose';
@@ -48,5 +50,23 @@ export class FreelancerContractService implements IFreelancerContractService {
       total,
       pages: Math.ceil(total / normalizedQuery.limit!),
     };
+  }
+
+  async getContractDetail(freelancerId: string, contractId: string): Promise<FreelancerContractDetailDTO> {
+    if (!Types.ObjectId.isValid(freelancerId)) {
+      throw new AppError('Invalid freelancerId', HttpStatus.BAD_REQUEST);
+    }
+
+    if (!Types.ObjectId.isValid(contractId)) {
+      throw new AppError('Invalid contractId', HttpStatus.BAD_REQUEST);
+    }
+
+    const contract = await this._contractRepository.findDetailByIdForFreelancer(contractId, freelancerId);
+
+    if (!contract) {
+      throw new AppError('Contract not found or you are not authorized to view it', HttpStatus.NOT_FOUND);
+    }
+
+    return mapContractToFreelancerDetailDTO(contract);
   }
 }

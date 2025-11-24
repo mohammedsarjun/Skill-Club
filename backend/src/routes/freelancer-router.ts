@@ -247,4 +247,12 @@ freelancerRouter.get(
   freelancerContractController.getContracts.bind(freelancerContractController),
 );
 
+freelancerRouter.get(
+  '/contracts/:contractId',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerContractController.getContractDetail.bind(freelancerContractController),
+);
+
 export default freelancerRouter;

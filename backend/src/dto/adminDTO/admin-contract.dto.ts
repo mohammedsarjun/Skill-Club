@@ -1,6 +1,6 @@
 import { ContractStatus } from '../../models/interfaces/contract.model.interface';
 
-export interface FreelancerContractQueryParamsDTO {
+export interface AdminContractQueryParamsDTO {
   search?: string;
   page?: number;
   limit?: number;
@@ -9,7 +9,7 @@ export interface FreelancerContractQueryParamsDTO {
   };
 }
 
-export interface FreelancerContractListItemDTO {
+export interface AdminContractListItemDTO {
   id: string;
   contractId: string;
   title: string;
@@ -26,17 +26,23 @@ export interface FreelancerContractListItemDTO {
     companyName?: string;
     logo?: string;
   };
+  freelancer?: {
+    freelancerId: string;
+    firstName?: string;
+    lastName?: string;
+    logo?: string;
+  };
 }
 
-export interface FreelancerContractListResultDTO {
-  items: FreelancerContractListItemDTO[];
+export interface AdminContractListResultDTO {
+  items: AdminContractListItemDTO[];
   page: number;
   limit: number;
   total: number;
   pages: number;
 }
 
-export interface FreelancerContractDetailDTO {
+export interface AdminContractDetailDTO {
   contractId: string;
   offerId: string;
   offerType?: 'direct' | 'proposal';
@@ -51,6 +57,15 @@ export interface FreelancerContractDetailDTO {
     companyName?: string;
     logo?: string;
     country?: string;
+  };
+
+  freelancer?: {
+    freelancerId: string;
+    firstName?: string;
+    lastName?: string;
+    logo?: string;
+    country?: string;
+    rating?: number;
   };
 
   paymentType: 'fixed' | 'fixed_with_milestones' | 'hourly';

@@ -51,7 +51,7 @@ function AdminLayout({ children }: LayoutProps) {
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white h-16 flex items-center justify-between px-6 shadow-lg border-b border-gray-200">
+      <div className="bg-white h-16 flex items-center justify-between px-6 shadow-lg border-b border-gray-200 z-50 relative">
         <div className="flex items-center space-x-3">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -101,8 +101,8 @@ function AdminLayout({ children }: LayoutProps) {
             fixed lg:static inset-y-0 left-0  w-64 bg-white text-gray-900 h-full shadow-xl border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:transform-none
             ${
               sidebarOpen
-                ? "translate-x-0"
-                : "-translate-x-full lg:translate-x-0"
+                    ? "translate-x-0 z-40"
+                    : "-translate-x-full lg:translate-x-0"
             }
           `}
         >
@@ -126,6 +126,15 @@ function AdminLayout({ children }: LayoutProps) {
               >
                 <FaBookOpen className="w-5 h-5" />
                 <span className="font-medium">Categories</span>
+              </Link>
+
+              <Link
+                href="/admin/contracts"
+                onClick={() => setSidebarOpen(false)}
+                className={`${linkClasses("/admin/contracts")} w-full text-left`}
+              >
+                <FaBookOpen className="w-5 h-5" />
+                <span className="font-medium">Contracts</span>
               </Link>
 
               <Link
@@ -155,7 +164,7 @@ function AdminLayout({ children }: LayoutProps) {
         {/* Overlay for mobile */}
         {sidebarOpen && (
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            className="fixed inset-0 bg-black bg-opacity-20 z-30 lg:hidden transition-opacity duration-200"
             onClick={() => setSidebarOpen(false)}
           />
         )}

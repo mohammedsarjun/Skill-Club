@@ -67,4 +67,7 @@ export const MESSAGES = {
   PORTFOLIO: {
     PORTFOLIO_FETCH_SUCCESS: 'Freelancer portfolio fetched successfully',
   },
+  CONTRACT: {
+    FETCH_SUCCESS: 'Contract data fetched successfully',
+  },
 };

@@ -346,6 +346,34 @@ const AdminActionApi = {
       }
     }
   },
+
+  getContracts: async (query: { search?: string; page?: number; limit?: number; status?: string }) => {
+    try {
+      const response = await axiosClient.get(adminEndPoint.adminGetAllContracts, {
+        params: query,
+      });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  getContractDetail: async (contractId: string) => {
+    try {
+      const response = await axiosClient.get(adminEndPoint.adminGetContractDetail(contractId));
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
 }
 
 export default AdminActionApi;

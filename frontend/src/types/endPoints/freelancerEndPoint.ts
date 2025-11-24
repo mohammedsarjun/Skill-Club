@@ -30,6 +30,7 @@ const freelancerRouterEndPoints = {
   rejectOffer: (offerId: string) => `/freelancer/offers/${offerId}/reject`,
   acceptOffer: (offerId: string) => `/freelancer/offers/${offerId}/accept`,
   getContracts: '/freelancer/contracts',
+  getContractDetail: (contractId: string) => `/freelancer/contracts/${contractId}`,
   updateExpertise: '/freelancer/profile/expertise',
 };
 

@@ -1,6 +1,7 @@
 import {
   FreelancerContractListResultDTO,
   FreelancerContractQueryParamsDTO,
+  FreelancerContractDetailDTO,
 } from '../../../dto/freelancerDTO/freelancer-contract.dto';
 
 export interface IFreelancerContractService {
@@ -8,4 +9,5 @@ export interface IFreelancerContractService {
     freelancerId: string,
     query: FreelancerContractQueryParamsDTO,
   ): Promise<FreelancerContractListResultDTO>;
+  getContractDetail(freelancerId: string, contractId: string): Promise<FreelancerContractDetailDTO>;
 }

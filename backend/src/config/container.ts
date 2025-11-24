@@ -163,6 +163,14 @@ container.register<IAdminJobService>('IAdminJobService', {
   useClass: AdminJobService,
 });
 
+//admin contract management
+import { IAdminContractService } from '../services/adminServices/interfaces/admin-contract-service.interface';
+import { AdminContractService } from '../services/adminServices/admin-contract-service';
+
+container.register<IAdminContractService>('IAdminContractService', {
+  useClass: AdminContractService,
+});
+
 //client job management
 import { IClientJobService } from '../services/clientServices/interfaces/client-job-service.interface';
 import { ClientJobService } from '../services/clientServices/client-job-service';

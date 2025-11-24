@@ -18,7 +18,7 @@ export class FreelancerCategoryController implements IFreelancerCategoryControll
     this._freelancerCategoryService = freelancerCategoryService;
   }
 
-  async getAllCategories(_req: Request, res: Response): Promise<void> {
+  async getAllCategories(_req: Request, res: Response): Promise<void> { 
     const categoryData: GetFreelancerCategoryDTO[] =
       await this._freelancerCategoryService.getAllCategories();
 

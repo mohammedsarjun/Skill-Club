@@ -489,6 +489,18 @@ export const freelancerActionApi = {
       }
     }
   },
+  async getContractDetail(contractId: string) {
+    try {
+      const response = await axiosClient.get(freelancerRouterEndPoints.getContractDetail(contractId));
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
   async updateExpertise(expertise: IUpdateExpertise) {
     try {
       const response = await axiosClient.patch(freelancerRouterEndPoints.updateExpertise, expertise);

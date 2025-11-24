@@ -2,6 +2,7 @@ import BaseRepository from '../baseRepositories/base-repository';
 import { IContract } from '../../models/interfaces/contract.model.interface';
 import { ClientContractQueryParamsDTO } from '../../dto/clientDTO/client-contract.dto';
 import { FreelancerContractQueryParamsDTO } from '../../dto/freelancerDTO/freelancer-contract.dto';
+import { AdminContractQueryParamsDTO } from '../../dto/adminDTO/admin-contract.dto';
 
 export interface IContractRepository extends BaseRepository<IContract> {
   createContract(data: Partial<IContract>): Promise<IContract>;
@@ -12,4 +13,8 @@ export interface IContractRepository extends BaseRepository<IContract> {
   countForClient(clientId: string, query: ClientContractQueryParamsDTO): Promise<number>;
   findAllForFreelancer(freelancerId: string, query: FreelancerContractQueryParamsDTO): Promise<IContract[]>;
   countForFreelancer(freelancerId: string, query: FreelancerContractQueryParamsDTO): Promise<number>;
+  findAllForAdmin(query: AdminContractQueryParamsDTO): Promise<IContract[]>;
+  countForAdmin(query: AdminContractQueryParamsDTO): Promise<number>;
+  findDetailByIdForAdmin(contractId: string): Promise<IContract | null>;
+  findDetailByIdForFreelancer(contractId: string, freelancerId: string): Promise<IContract | null>;
 }

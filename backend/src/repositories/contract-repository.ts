@@ -4,6 +4,7 @@ import { Contract } from '../models/contract.model';
 import { IContractRepository } from './interfaces/contract-repository.interface';
 import { ClientContractQueryParamsDTO } from '../dto/clientDTO/client-contract.dto';
 import { FreelancerContractQueryParamsDTO } from '../dto/freelancerDTO/freelancer-contract.dto';
+import { AdminContractQueryParamsDTO } from '../dto/adminDTO/admin-contract.dto';
 
 export class ContractRepository extends BaseRepository<IContract> implements IContractRepository {
   constructor() {
@@ -104,5 +105,72 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
       ];
     }
     return await super.count(filter);
+  }
+
+  async findAllForAdmin(query: AdminContractQueryParamsDTO): Promise<IContract[]> {
+    const { search, filters } = query;
+    const page = query.page && query.page > 0 ? query.page : 1;
+    const limit = query.limit && query.limit > 0 ? query.limit : 10;
+    const skip = (page - 1) * limit;
+
+    const filter: Record<string, unknown> = {};
+    if (filters?.status) filter.status = filters.status;
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+        { contractId: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    return await super.findAll(filter, {
+      skip,
+      limit,
+      populate: [
+        { path: 'clientId', select: '_id firstName lastName companyName logo' },
+        { path: 'freelancerId', select: '_id firstName lastName freelancerProfile.logo' },
+      ],
+    });
+  }
+
+  async countForAdmin(query: AdminContractQueryParamsDTO): Promise<number> {
+    const { search, filters } = query;
+    const filter: Record<string, unknown> = {};
+    if (filters?.status) filter.status = filters.status;
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+        { contractId: { $regex: search, $options: 'i' } },
+      ];
+    }
+    return await super.count(filter);
+  }
+
+  async findDetailByIdForAdmin(contractId: string): Promise<IContract | null> {
+    return await this.findOne(
+      { _id: contractId },
+      {
+        populate: [
+          { path: 'clientId', select: 'firstName lastName logo companyName country' },
+          { path: 'freelancerId', select: 'firstName lastName logo country rating' },
+          { path: 'jobId', select: 'title' },
+          { path: 'offerId', select: 'offerType' },
+        ],
+      },
+    );
+  }
+
+  async findDetailByIdForFreelancer(contractId: string, freelancerId: string): Promise<IContract | null> {
+    return await this.findOne(
+      { _id: contractId, freelancerId },
+      {
+        populate: [
+          { path: 'clientId', select: 'firstName lastName logo companyName country' },
+          { path: 'jobId', select: 'title' },
+          { path: 'offerId', select: 'offerType' },
+        ],
+      },
+    );
   }
 }
