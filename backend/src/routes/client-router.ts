@@ -13,6 +13,7 @@ import { ClientProposalController } from '../controllers/client/client-proposal-
 import { ClientOfferController } from '../controllers/client/client-offer-controller';
 import { ClientSavedFreelancerController } from '../controllers/client/client-saved-freelancer-controller';
 import { ClientContractController } from '../controllers/client/client-contract-controller';
+import { ClientPaymentController } from '../controllers/client/client-payment-controller';
 const clientRouter = express.Router();
 
 const clientController = container.resolve(ClientController);
@@ -24,6 +25,7 @@ const clientProposalController = container.resolve(ClientProposalController);
 const clientOfferController = container.resolve(ClientOfferController);
 const clientSavedFreelancerController = container.resolve(ClientSavedFreelancerController);
 const clientContractController = container.resolve(ClientContractController);
+const clientPaymentController = container.resolve(ClientPaymentController);
 clientRouter.get(
   '/me',
   authMiddleware,
@@ -230,6 +232,19 @@ clientRouter.post(
   roleGuard('client'),
   clientBlockMiddleware,
   clientContractController.cancelContract.bind(clientContractController),
+);
+
+clientRouter.post(
+  '/payments/initiate',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientPaymentController.initiatePayment.bind(clientPaymentController),
+);
+
+clientRouter.post(
+  '/payments/callback',
+  clientPaymentController.handleCallback.bind(clientPaymentController),
 );
 
 export default clientRouter;

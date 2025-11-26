@@ -28,7 +28,7 @@ if (process.env.NODE_ENV === 'production') {
 } else {
   app.use(morgan('dev'));
 }
-
+app.use(express.urlencoded({ extended: true }));
 app.set('query parser', (str: string) => qs.parse(str));
 app.use(express.json());
 app.use(cookieParser());

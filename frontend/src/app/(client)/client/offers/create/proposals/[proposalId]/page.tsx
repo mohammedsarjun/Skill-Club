@@ -732,10 +732,10 @@ const SendOfferToFreelancer: React.FC = () => {
                     <input
                       type="time"
                       value={meetingTime}
-                      onChange={(e) => { setMeetingTime(e.target.value); clearError('communication.meeting_schedule'); }}
+                      onChange={(e) => { setMeetingTime(e.target.value); clearError('communication.meeting_time_utc'); }}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent"
                     />
-                    {errors["communication.meeting_schedule"] && (<p className="text-red-600 text-sm mt-1">{errors["communication.meeting_schedule"]}</p>)}
+                    {errors["communication.meeting_time_utc"] && (<p className="text-red-600 text-sm mt-1">{errors["communication.meeting_time_utc"]}</p>)}
                   </div>
                 </div>
               )}
@@ -792,10 +792,10 @@ const SendOfferToFreelancer: React.FC = () => {
                 <input
                   type="time"
                   value={reportingDueTime}
-                  onChange={(e) => { setReportingDueTime(e.target.value); clearError('reporting.due_time'); }}
+                  onChange={(e) => { setReportingDueTime(e.target.value); clearError('reporting.due_time_utc'); }}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent"
                 />
-                {errors["reporting.due_time"] && (<p className="text-red-600 text-sm mt-1">{errors["reporting.due_time"]}</p>)}
+                {errors["reporting.due_time_utc"] && (<p className="text-red-600 text-sm mt-1">{errors["reporting.due_time_utc"]}</p>)}
               </div>
 
               <div>

@@ -25,6 +25,8 @@ const clientRouterEndPoints = {
   getContracts:"/client/contracts",
   getContractDetail:(contractId:string)=>`/client/contracts/${contractId}`,
   cancelContract:(contractId:string)=>`/client/contracts/${contractId}/cancel`,
+  initiatePayment:"/client/payments/initiate",
+  paymentCallback:"/client/payments/callback",
 };
 
 export default clientRouterEndPoints;

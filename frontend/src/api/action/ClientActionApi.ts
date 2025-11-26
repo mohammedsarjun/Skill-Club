@@ -6,6 +6,7 @@ import { IJobQueryParams } from "@/types/interfaces/IJob";
 import { IFreelancerData } from "@/types/interfaces/IFreelancerData";
 import { IFreelancerQueryParams } from "@/types/interfaces/IFreelancer";
 import { OfferPayload } from "@/types/interfaces/IOffer";
+import { IInitiatePayment, IPaymentResponse } from "@/types/interfaces/IPayment";
 export const clientActionApi = {
   async getClientData() {
     try {
@@ -383,6 +384,19 @@ export const clientActionApi = {
         return error.response?.data || "Something went wrong";
       } else {
         return "Unexpected error";
+      }
+    }
+  },
+
+  async initiatePayment(data: IInitiatePayment): Promise<{ success: boolean; message: string; data?: IPaymentResponse }> {
+    try {
+      const response = await axiosClient.post(clientRouterEndPoints.initiatePayment, data);
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || { success: false, message: "Something went wrong" };
+      } else {
+        return { success: false, message: "Unexpected error" };
       }
     }
   },

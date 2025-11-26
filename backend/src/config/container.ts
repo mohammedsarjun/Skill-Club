@@ -23,6 +23,8 @@ import { IOfferRepository } from '../repositories/interfaces/offer-repository.in
 import { OfferRepository } from '../repositories/offer-repository';
 import { IContractRepository } from '../repositories/interfaces/contract-repository.interface';
 import { ContractRepository } from '../repositories/contract-repository';
+import { IPaymentRepository, ITransactionRepository, IEscrowRepository } from '../repositories/interfaces/payment-repository.interface';
+import { PaymentRepository, TransactionRepository, EscrowRepository } from '../repositories/payment-repository';
 import { IFileUploadService } from '../services/commonServices/interfaces/file-upload-service.interface';
 import { FileUploadService } from '../services/commonServices/file-upload-service';
 import { IGetRatesService } from '../services/commonServices/interfaces/get-rates-service.interface';
@@ -41,6 +43,9 @@ container.register<IClientRepository>('IClientRepository', { useClass: ClientRep
 container.register<IProposalRepository>('IProposalRepository', { useClass: ProposalRepository });
 container.register<IOfferRepository>('IOfferRepository', { useClass: OfferRepository });
 container.register<IContractRepository>('IContractRepository', { useClass: ContractRepository });
+container.register<IPaymentRepository>('IPaymentRepository', { useClass: PaymentRepository });
+container.register<ITransactionRepository>('ITransactionRepository', { useClass: TransactionRepository });
+container.register<IEscrowRepository>('IEscrowRepository', { useClass: EscrowRepository });
 container.register<IFileUploadService>('IFileUploadService', { useClass: FileUploadService });
 container.register<IGetRatesService>('IGetRatesService', { useClass: GetRatesService });
 //Auth
@@ -266,9 +271,16 @@ container.register<IClientOfferService>('IClientOfferService', { useClass: Clien
 
 import { IClientContractService } from '../services/clientServices/interfaces/client-contract-service.interface';
 import { ClientContractService } from '../services/clientServices/client-contract-service';
+import { IClientPaymentService } from '../services/clientServices/interfaces/client-payment-service.interface';
+import { ClientPaymentService } from '../services/clientServices/client-payment-service';
+import { PayUService } from '../utils/payu.service';
 container.register<IClientContractService>('IClientContractService', {
   useClass: ClientContractService,
 });
+container.register<IClientPaymentService>('IClientPaymentService', {
+  useClass: ClientPaymentService,
+});
+container.registerSingleton<PayUService>(PayUService);
 
 import { IFreelancerContractService } from '../services/freelancerServices/interfaces/freelancer-contract-service.interface';
 import { FreelancerContractService } from '../services/freelancerServices/freelancer-contract-service';
