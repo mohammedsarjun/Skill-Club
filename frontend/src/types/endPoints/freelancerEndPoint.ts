@@ -32,6 +32,10 @@ const freelancerRouterEndPoints = {
   getContracts: '/freelancer/contracts',
   getContractDetail: (contractId: string) => `/freelancer/contracts/${contractId}`,
   updateExpertise: '/freelancer/profile/expertise',
+  sendChatMessage: "/freelancer/chat/send",
+  getChatMessages: (contractId: string) => `/freelancer/chat/${contractId}/messages`,
+  markChatAsRead: "/freelancer/chat/read",
+  getChatUnreadCount: (contractId: string) => `/freelancer/chat/${contractId}/unread-count`,
 };
 
 export default freelancerRouterEndPoints;

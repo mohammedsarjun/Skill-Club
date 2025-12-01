@@ -27,6 +27,10 @@ const clientRouterEndPoints = {
   cancelContract:(contractId:string)=>`/client/contracts/${contractId}/cancel`,
   initiatePayment:"/client/payments/initiate",
   paymentCallback:"/client/payments/callback",
+  sendChatMessage: "/client/chat/send",
+  getChatMessages: (contractId: string) => `/client/chat/${contractId}/messages`,
+  markChatAsRead: "/client/chat/read",
+  getChatUnreadCount: (contractId: string) => `/client/chat/${contractId}/unread-count`,
 };
 
 export default clientRouterEndPoints;

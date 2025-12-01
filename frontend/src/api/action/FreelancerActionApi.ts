@@ -13,6 +13,7 @@ import { FreelancerJobFilters } from "@/types/interfaces/IJob";
 import { ICreateProposal } from "@/types/interfaces/IProposal";
 import { IFreelancerContractQueryParams } from "@/types/interfaces/IFreelancerContractList";
 import { IUpdateExpertise } from "@/types/interfaces/IExpertise";
+import { ISubmitDeliverableRequest } from "@/types/interfaces/IDeliverable";
 
 export const freelancerActionApi = {
   async getFreelancerData() {
@@ -504,6 +505,76 @@ export const freelancerActionApi = {
   async updateExpertise(expertise: IUpdateExpertise) {
     try {
       const response = await axiosClient.patch(freelancerRouterEndPoints.updateExpertise, expertise);
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async sendChatMessage(data: { contractId: string; message: string; attachments?: Array<{ fileName: string; fileUrl: string; fileSize: number; fileType: string }> }) {
+    try {
+      const response = await axiosClient.post(freelancerRouterEndPoints.sendChatMessage, data);
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getChatMessages(contractId: string, limit = 50, skip = 0) {
+    try {
+      const response = await axiosClient.get(freelancerRouterEndPoints.getChatMessages(contractId), {
+        params: { limit, skip },
+      });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async markChatAsRead(contractId: string) {
+    try {
+      const response = await axiosClient.put(freelancerRouterEndPoints.markChatAsRead, { contractId });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getChatUnreadCount(contractId: string) {
+    try {
+      const response = await axiosClient.get(freelancerRouterEndPoints.getChatUnreadCount(contractId));
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async submitDeliverable(contractId: string, data: ISubmitDeliverableRequest,message?: string) {
+    try {
+      const response = await axiosClient.post(
+        `/freelancer/contracts/${contractId}/deliverables`,
+        {files: data, message  }
+      );
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {

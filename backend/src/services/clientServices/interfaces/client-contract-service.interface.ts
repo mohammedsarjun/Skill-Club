@@ -3,6 +3,11 @@ import {
   ClientContractListResultDTO,
   ClientContractQueryParamsDTO,
 } from '../../../dto/clientDTO/client-contract.dto';
+import {
+  DeliverableResponseDTO,
+  ApproveDeliverableDTO,
+  RequestChangesDTO,
+} from '../../../dto/clientDTO/client-deliverable.dto';
 
 export interface IClientContractService {
   getContractDetail(clientId: string, contractId: string): Promise<ClientContractDetailDTO>;
@@ -11,4 +16,14 @@ export interface IClientContractService {
     clientId: string,
     query: ClientContractQueryParamsDTO,
   ): Promise<ClientContractListResultDTO>;
+  approveDeliverable(
+    clientId: string,
+    contractId: string,
+    data: ApproveDeliverableDTO,
+  ): Promise<DeliverableResponseDTO>;
+  requestDeliverableChanges(
+    clientId: string,
+    contractId: string,
+    data: RequestChangesDTO,
+  ): Promise<DeliverableResponseDTO>;
 }

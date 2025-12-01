@@ -31,6 +31,7 @@ const ContractDeliverableSchema = new Schema<ContractDeliverable>({
     enum: ['submitted', 'approved', 'changes_requested'],
     default: 'submitted',
   },
+  version: { type: Number, required: true },
   submittedAt: { type: Date, default: Date.now },
   approvedAt: Date,
 });

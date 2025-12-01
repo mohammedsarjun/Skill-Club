@@ -5,6 +5,7 @@ import { IClientContractController } from './interfaces/client-contract-controll
 import { IClientContractService } from '../../services/clientServices/interfaces/client-contract-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { ClientContractQueryParamsDTO } from '../../dto/clientDTO/client-contract.dto';
+import { ApproveDeliverableDTO, RequestChangesDTO } from '../../dto/clientDTO/client-deliverable.dto';
 
 @injectable()
 export class ClientContractController implements IClientContractController {
@@ -56,5 +57,33 @@ export class ClientContractController implements IClientContractController {
     const result = await this._clientContractService.cancelContract(clientId, contractId);
 
     res.status(HttpStatus.OK).json({ success: true, message: 'Contract cancelled', data: result });
+  }
+
+  async approveDeliverable(req: Request, res: Response): Promise<void> {
+    const clientId = req.user?.userId as string;
+    const { contractId } = req.params;
+    const data: ApproveDeliverableDTO = req.body;
+
+    const result = await this._clientContractService.approveDeliverable(clientId, contractId, data);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Deliverable approved successfully',
+      data: result,
+    });
+  }
+
+  async requestDeliverableChanges(req: Request, res: Response): Promise<void> {
+    const clientId = req.user?.userId as string;
+    const { contractId } = req.params;
+    const data: RequestChangesDTO = req.body;
+
+    const result = await this._clientContractService.requestDeliverableChanges(clientId, contractId, data);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Changes requested successfully',
+      data: result,
+    });
   }
 }

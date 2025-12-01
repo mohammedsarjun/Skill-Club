@@ -72,6 +72,22 @@ export interface ClientContractDetailDTO {
     approvedAt?: Date;
   }[];
 
+  deliverables?: {
+    deliverableId: string;
+    submittedBy: {
+      id: string;
+      firstName?: string;
+      lastName?: string;
+      avatar?: string;
+    } | null;
+    files: { fileName: string; fileUrl: string }[];
+    message?: string;
+    status: 'submitted' | 'approved' | 'changes_requested';
+    version: number;
+    submittedAt?: Date;
+    approvedAt?: Date;
+  }[];
+
   title: string;
   description: string;
   expectedStartDate: Date;

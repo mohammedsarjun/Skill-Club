@@ -16,10 +16,12 @@ export interface ContractMilestone {
 }
 
 export interface ContractDeliverable {
+  _id?: Types.ObjectId;
   submittedBy: Types.ObjectId;
   files: { fileName: string; fileUrl: string }[];
   message?: string;
   status: 'submitted' | 'approved' | 'changes_requested';
+  version: number;
   submittedAt: Date;
   approvedAt?: Date;
 }

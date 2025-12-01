@@ -11,6 +11,7 @@ import { FreelancerProposalController } from '../controllers/freelancer/freelanc
 import { FreelancerOfferController } from '../controllers/freelancer/freelancer-offer-controller';
 import { FreelancerSavedJobController } from '../controllers/freelancer/freelancer-saved-job-controller';
 import { FreelancerContractController } from '../controllers/freelancer/freelancer-contract-controller';
+import { FreelancerChatController } from '../controllers/freelancer/freelancer-chat-controller';
 const freelancerRouter = express.Router();
 
 const freelancerController = container.resolve(FreelancerController);
@@ -21,6 +22,7 @@ const freelancerProposalController = container.resolve(FreelancerProposalControl
 const freelancerOfferController = container.resolve(FreelancerOfferController);
 const freelancerSavedJobController = container.resolve(FreelancerSavedJobController);
 const freelancerContractController = container.resolve(FreelancerContractController);
+const freelancerChatController = container.resolve(FreelancerChatController);
 freelancerRouter.get(
   '/me',
   authMiddleware,
@@ -253,6 +255,46 @@ freelancerRouter.get(
   roleGuard('freelancer'),
   freelancerBlockMiddleware,
   freelancerContractController.getContractDetail.bind(freelancerContractController),
+);
+
+freelancerRouter.post(
+  '/contracts/:contractId/deliverables',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerContractController.submitDeliverable.bind(freelancerContractController),
+);
+
+freelancerRouter.post(
+  '/chat/send',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerChatController.sendMessage.bind(freelancerChatController),
+);
+
+freelancerRouter.get(
+  '/chat/:contractId/messages',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerChatController.getMessages.bind(freelancerChatController),
+);
+
+freelancerRouter.put(
+  '/chat/read',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerChatController.markAsRead.bind(freelancerChatController),
+);
+
+freelancerRouter.get(
+  '/chat/:contractId/unread-count',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerChatController.getUnreadCount.bind(freelancerChatController),
 );
 
 export default freelancerRouter;

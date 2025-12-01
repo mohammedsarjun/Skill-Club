@@ -26,12 +26,25 @@ export const uploadApi = {
       formData.append("resourceType", options.resourceType);
     }
 
-    const response = await axiosClient.post("/uploads", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    try {
+      const response = await axiosClient.post("/uploads", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        // increase timeout for file uploads (override default 10s)
+        timeout: 60000,
+        // allow large payloads where supported
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity,
+      });
 
-    return response.data.data as UploadResponse;
+      return response.data.data as UploadResponse;
+    } catch (err) {
+      // surface a clearer error for the UI
+      // preserve original axios error shape when possible
+      const errAny = err as any;
+      const message = errAny?.response?.data?.message || errAny?.message || 'Upload failed';
+      throw new Error(message);
+    }
   },
 };

@@ -4,4 +4,6 @@ export interface IClientContractController {
   getContractDetail(req: Request, res: Response): Promise<void>;
   cancelContract(req: Request, res: Response): Promise<void>;
   getContracts(req: Request, res: Response): Promise<void>;
+  approveDeliverable(req: Request, res: Response): Promise<void>;
+  requestDeliverableChanges(req: Request, res: Response): Promise<void>;
 }

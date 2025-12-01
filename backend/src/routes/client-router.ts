@@ -14,6 +14,7 @@ import { ClientOfferController } from '../controllers/client/client-offer-contro
 import { ClientSavedFreelancerController } from '../controllers/client/client-saved-freelancer-controller';
 import { ClientContractController } from '../controllers/client/client-contract-controller';
 import { ClientPaymentController } from '../controllers/client/client-payment-controller';
+import { ClientChatController } from '../controllers/client/client-chat-controller';
 const clientRouter = express.Router();
 
 const clientController = container.resolve(ClientController);
@@ -26,6 +27,7 @@ const clientOfferController = container.resolve(ClientOfferController);
 const clientSavedFreelancerController = container.resolve(ClientSavedFreelancerController);
 const clientContractController = container.resolve(ClientContractController);
 const clientPaymentController = container.resolve(ClientPaymentController);
+const clientChatController = container.resolve(ClientChatController);
 clientRouter.get(
   '/me',
   authMiddleware,
@@ -234,6 +236,22 @@ clientRouter.post(
   clientContractController.cancelContract.bind(clientContractController),
 );
 
+clientRouter.put(
+  '/contracts/:contractId/deliverables/approve',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientContractController.approveDeliverable.bind(clientContractController),
+);
+
+clientRouter.put(
+  '/contracts/:contractId/deliverables/request-changes',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientContractController.requestDeliverableChanges.bind(clientContractController),
+);
+
 clientRouter.post(
   '/payments/initiate',
   authMiddleware,
@@ -245,6 +263,38 @@ clientRouter.post(
 clientRouter.post(
   '/payments/callback',
   clientPaymentController.handleCallback.bind(clientPaymentController),
+);
+
+clientRouter.post(
+  '/chat/send',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientChatController.sendMessage.bind(clientChatController),
+);
+
+clientRouter.get(
+  '/chat/:contractId/messages',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientChatController.getMessages.bind(clientChatController),
+);
+
+clientRouter.put(
+  '/chat/read',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientChatController.markAsRead.bind(clientChatController),
+);
+
+clientRouter.get(
+  '/chat/:contractId/unread-count',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientChatController.getUnreadCount.bind(clientChatController),
 );
 
 export default clientRouter;

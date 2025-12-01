@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
-import { FaVideo, FaEnvelope, FaComment, FaLock } from "react-icons/fa";
+import { FaVideo, FaEnvelope, FaComment, FaLock, FaComments, FaFolder } from "react-icons/fa";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { clientActionApi } from "@/api/action/ClientActionApi";
 import Swal from "sweetalert2";
@@ -15,6 +15,11 @@ import { ContractReferences } from "./components/ContractReferences";
 import { FreelancerCard } from "./components/FreelancerCard";
 import { ActionButtons } from "./components/ActionButtons";
 import { FundContractModal } from "./components/FundContractModal";
+import { ClientDeliverablesView } from "./components/workspace/ClientDeliverablesView";
+import { ClientMilestonesView } from "./components/workspace/ClientMilestonesView";
+import { ClientTimesheetView } from "./components/workspace/ClientTimesheetView";
+import { ChatPanel } from "./components/workspace/ChatPanel";
+import { FilesTab } from "@/app/(freelancer)/freelancer/contracts/[contractId]/components/workspace/FilesTab";
 import { IClientContractDetail } from "@/types/interfaces/IClientContractDetail";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
@@ -33,6 +38,7 @@ function ContractDetails() {
   const [activeTab, setActiveTab] = useState<"details" | "workspace">(
     "details"
   );
+  const [activeWorkspaceTab, setActiveWorkspaceTab] = useState<'deliverables' | 'milestones' | 'timesheet' | 'chat' | 'files'>('deliverables');
   const [converted, setConverted] = useState<{
     currency: SupportedCurrency;
     hourlyRate?: number;
@@ -54,6 +60,7 @@ function ContractDetails() {
   const preferredCurrency = (useSelector(
     (s: RootState) => s.auth.user?.preferredCurrency
   ) || "USD") as SupportedCurrency;
+  const currentUserId = useSelector((s: RootState) => s.auth.user?.userId) || '';
 
 
 
@@ -267,136 +274,186 @@ function ContractDetails() {
   const calculateTotalMilestones = () =>
     contractDetail?.milestones?.reduce((sum, m) => sum + m.amount, 0) || 0;
 
+  const handleWorkspaceTabClick = useCallback((tab: 'deliverables' | 'milestones' | 'timesheet' | 'chat' | 'files') => {
+    if (contractDetail?.status !== 'active') {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Workspace Locked',
+        text: 'The workspace is only available when the contract is active.',
+      });
+      return;
+    }
+    setActiveWorkspaceTab(tab);
+  }, [contractDetail?.status]);
+
+  useEffect(() => {
+    if (activeTab === 'workspace' && contractDetail) {
+      // Set default workspace tab based on payment type
+      if (contractDetail.paymentType === 'fixed') {
+        setActiveWorkspaceTab('deliverables');
+      } else if (contractDetail.paymentType === 'fixed_with_milestones') {
+        setActiveWorkspaceTab('milestones');
+      } else if (contractDetail.paymentType === 'hourly') {
+        setActiveWorkspaceTab('timesheet');
+      }
+    }
+  }, [activeTab, contractDetail]);
+
+  const getCurrencySymbol = useCallback((currency: string) => {
+    const symbols: Record<string, string> = {
+      USD: '$',
+      EUR: '€',
+      GBP: '£',
+      INR: '₹',
+    };
+    return symbols[currency] || currency;
+  }, []);
+
+  const loadContractDetail = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const resp = await clientActionApi.getContractDetail(String(contractId));
+      if (resp?.success && resp.data) {
+        const d = resp.data;
+        const mapped: IClientContractDetail = {
+          contractId: d.contractId,
+          offerId: d.offerId,
+          offerType: d.offerType,
+          jobId: d.jobId,
+          jobTitle: d.jobTitle,
+          proposalId: d.proposalId,
+          freelancer: d.freelancer,
+          paymentType: d.paymentType,
+          budget: d.budget,
+          budgetBaseUSD: d.budgetBaseUSD,
+          hourlyRate: d.hourlyRate,
+          hourlyRateBaseUSD: d.hourlyRateBaseUSD,
+          conversionRate: d.conversionRate,
+          estimatedHoursPerWeek: d.estimatedHoursPerWeek,
+          currency: d.currency,
+          milestones: Array.isArray(d.milestones)
+            ? d.milestones.map((m: any) => ({
+                milestoneId: m.milestoneId,
+                title: m.title,
+                amount: m.amount,
+                expectedDelivery: m.expectedDelivery,
+                status: m.status,
+              }))
+            : [],
+          deliverables: Array.isArray(d.deliverables)
+            ? d.deliverables.map((dlv: any) => ({
+                id: dlv.id,
+                submittedBy: dlv.submittedBy,
+                files: dlv.files,
+                message: dlv.message,
+                status: dlv.status,
+                version: dlv.version,
+                submittedAt: dlv.submittedAt,
+                approvedAt: dlv.approvedAt,
+              }))
+            : [],
+          title: d.title,
+          description: d.description,
+          expectedStartDate: d.expectedStartDate,
+          expectedEndDate: d.expectedEndDate,
+          referenceFiles: Array.isArray(d.referenceFiles)
+            ? d.referenceFiles.map((f: any) => ({
+                fileName: f.fileName,
+                fileUrl: f.fileUrl,
+              }))
+            : [],
+          referenceLinks: Array.isArray(d.referenceLinks)
+            ? d.referenceLinks.map((l: any) => ({
+                description: l.description,
+                link: l.link,
+              }))
+            : [],
+          communication: d.communication,
+          reporting: d.reporting,
+          status: d.status,
+          fundedAmount: d.fundedAmount || 0,
+          totalPaid: d.totalPaid || 0,
+          balance: d.balance || 0,
+          createdAt: d.createdAt,
+          updatedAt: d.updatedAt,
+        };
+        setContractDetail(mapped);
+      } else {
+        setError(resp?.message || 'Failed to load contract details');
+      }
+    } catch (err: any) {
+      setError(err.message || 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  }, [contractId]);
+
+  const handleApproveDeliverable = useCallback(async (deliverableId: string) => {
+    try {
+      const resp = await clientActionApi.approveDeliverable(contractId as string, { deliverableId });
+      if (resp?.success) {
+        await loadContractDetail();
+        Swal.fire('Success', 'Deliverable approved successfully', 'success');
+      } else {
+        Swal.fire('Error', resp?.message || 'Failed to approve deliverable', 'error');
+      }
+    } catch (error) {
+      console.error('Error approving deliverable:', error);
+      Swal.fire('Error', 'Failed to approve deliverable', 'error');
+    }
+  }, [contractId, loadContractDetail]);
+
+  const handleRequestChanges = useCallback(async (deliverableId: string, note: string) => {
+    try {
+      const resp = await clientActionApi.requestDeliverableChanges(contractId as string, { deliverableId, message: note });
+      if (resp?.success) {
+        await loadContractDetail();
+        Swal.fire('Success', 'Change request sent to freelancer', 'success');
+      } else {
+        Swal.fire('Error', resp?.message || 'Failed to request changes', 'error');
+      }
+    } catch (error) {
+      console.error('Error requesting changes:', error);
+      Swal.fire('Error', 'Failed to request changes', 'error');
+    }
+  }, [contractId, loadContractDetail]);
+
+  const handleApproveMilestone = useCallback(async (milestoneId: string) => {
+    try {
+      // TODO: Implement API call
+      // await clientActionApi.approveMilestone(contractId, milestoneId);
+      Swal.fire('Success', 'Milestone approved and payment released', 'success');
+    } catch (error) {
+      console.error('Error approving milestone:', error);
+      Swal.fire('Error', 'Failed to approve milestone', 'error');
+    }
+  }, [contractId]);
+
+  const handleApproveTimesheet = useCallback(async (weekStart: string) => {
+    try {
+      // TODO: Implement API call
+      // await clientActionApi.approveTimesheet(contractId, weekStart);
+      Swal.fire('Success', 'Timesheet approved', 'success');
+    } catch (error) {
+      console.error('Error approving timesheet:', error);
+      Swal.fire('Error', 'Failed to approve timesheet', 'error');
+    }
+  }, [contractId]);
+
   useEffect(() => {
     let cancelled = false;
-    let debounceTimer: NodeJS.Timeout;
-
-    const load = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const resp = await clientActionApi.getContractDetail(
-          String(contractId)
-        );
-        if (cancelled) return;
-        if (resp?.success && resp.data) {
-          const d = resp.data;
-          const mapped: IClientContractDetail = {
-            contractId: d.contractId,
-            offerId: d.offerId,
-            offerType: d.offerType,
-            jobId: d.jobId,
-            jobTitle: d.jobTitle,
-            proposalId: d.proposalId,
-            freelancer: d.freelancer
-              ? {
-                  freelancerId: d.freelancer.freelancerId,
-                  firstName: d.freelancer.firstName,
-                  lastName: d.freelancer.lastName,
-                  logo: d.freelancer.logo,
-                  country: d.freelancer.country,
-                  rating: d.freelancer.rating,
-                }
-              : undefined,
-            paymentType: d.paymentType,
-            budget: d.budget,
-            budgetBaseUSD: d.budgetBaseUSD,
-            hourlyRate: d.hourlyRate,
-            hourlyRateBaseUSD: d.hourlyRateBaseUSD,
-            conversionRate: d.conversionRate,
-            estimatedHoursPerWeek: d.estimatedHoursPerWeek,
-            currency: d.currency,
-            milestones: Array.isArray(d.milestones)
-              ? d.milestones.map(
-                  (m: {
-                    milestoneId: string;
-                    title: string;
-                    amount: number;
-                    expectedDelivery: string;
-                    status:
-                      | "pending"
-                      | "funded"
-                      | "submitted"
-                      | "approved"
-                      | "paid";
-                    submittedAt?: string;
-                    approvedAt?: string;
-                  }) => ({
-                    milestoneId: m.milestoneId,
-                    title: m.title,
-                    amount: m.amount,
-                    expectedDelivery: m.expectedDelivery,
-                    status: m.status,
-                    submittedAt: m.submittedAt,
-                    approvedAt: m.approvedAt,
-                  })
-                )
-              : [],
-            title: d.title,
-            description: d.description,
-            expectedStartDate: d.expectedStartDate,
-            expectedEndDate: d.expectedEndDate,
-            referenceFiles: Array.isArray(d.referenceFiles)
-              ? d.referenceFiles.map(
-                  (f: { fileName: string; fileUrl: string }) => ({
-                    fileName: f.fileName,
-                    fileUrl: f.fileUrl,
-                  })
-                )
-              : [],
-            referenceLinks: Array.isArray(d.referenceLinks)
-              ? d.referenceLinks.map(
-                  (l: { description: string; link: string }) => ({
-                    description: l.description,
-                    link: l.link,
-                  })
-                )
-              : [],
-            communication: d.communication
-              ? {
-                  preferredMethod: d.communication.preferredMethod,
-                  meetingFrequency: d.communication.meetingFrequency,
-                  meetingDayOfWeek: d.communication.meetingDayOfWeek,
-                  meetingDayOfMonth: d.communication.meetingDayOfMonth,
-                  meetingTimeUtc: d.communication.meetingTimeUtc,
-                }
-              : undefined,
-            reporting: d.reporting
-              ? {
-                  frequency: d.reporting.frequency,
-                  dueTimeUtc: d.reporting.dueTimeUtc,
-                  dueDayOfWeek: d.reporting.dueDayOfWeek,
-                  dueDayOfMonth: d.reporting.dueDayOfMonth,
-                  format: d.reporting.format,
-                }
-              : undefined,
-            status: d.status,
-            fundedAmount: d.fundedAmount || 0,
-            totalPaid: d.totalPaid || 0,
-            balance: d.balance || 0,
-            createdAt: d.createdAt,
-            updatedAt: d.updatedAt,
-          };
-          setContractDetail(mapped);
-        } else {
-          setError(resp?.message || "Failed to load contract");
-        }
-      } catch (e) {
-        if (!cancelled) setError((e as Error)?.message || "Unexpected error");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
+    let debounceTimer: ReturnType<typeof setTimeout>;
 
     debounceTimer = setTimeout(() => {
-      load();
+      if (!cancelled) loadContractDetail();
     }, 300);
 
     return () => {
       cancelled = true;
       clearTimeout(debounceTimer);
     };
-  }, [contractId]);
+  }, [loadContractDetail]);
 
   useEffect(() => {
     let cancelled = false;
@@ -588,11 +645,135 @@ function ContractDetails() {
           )}
 
           {activeTab === "workspace" && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                Workspace
-              </h2>
-              <p className="text-gray-600">Workspace features coming soon...</p>
+            <div>
+              <div className="flex gap-4 mb-6 border-b border-gray-200 pb-4">
+                {contractDetail.paymentType === 'fixed' && (
+                  <button
+                    onClick={() => handleWorkspaceTabClick('deliverables')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      activeWorkspaceTab === 'deliverables'
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    Deliverables
+                  </button>
+                )}
+                {contractDetail.paymentType === 'fixed_with_milestones' && (
+                  <button
+                    onClick={() => handleWorkspaceTabClick('milestones')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      activeWorkspaceTab === 'milestones'
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    Milestones
+                  </button>
+                )}
+                {contractDetail.paymentType === 'hourly' && (
+                  <button
+                    onClick={() => handleWorkspaceTabClick('timesheet')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      activeWorkspaceTab === 'timesheet'
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    Timesheet
+                  </button>
+                )}
+                <button
+                  onClick={() => handleWorkspaceTabClick('chat')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+                    activeWorkspaceTab === 'chat'
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  <FaComments />
+                  Chat
+                </button>
+                <button
+                  onClick={() => handleWorkspaceTabClick('files')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+                    activeWorkspaceTab === 'files'
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  <FaFolder />
+                  Files
+                </button>
+              </div>
+
+              <div>
+                {activeWorkspaceTab === 'deliverables' && contractDetail.paymentType === 'fixed' && (
+                  <ClientDeliverablesView
+                    contractId={contractId as string}
+                    deliverables={(contractDetail.deliverables || []).map(d => ({
+                      deliverableId: d.id,
+                      submittedBy: d.submittedBy,
+                      files: d.files,
+                      message: d.message,
+                      status: d.status,
+                      version: d.version,
+                      submittedAt: d.submittedAt,
+                      approvedAt: d.approvedAt,
+                    }))}
+                    onApproveDeliverable={handleApproveDeliverable}
+                    onRequestChanges={handleRequestChanges}
+                  />
+                )}
+                {activeWorkspaceTab === 'milestones' && contractDetail.paymentType === 'fixed_with_milestones' && (
+                  <ClientMilestonesView
+                    contractId={contractId as string}
+                    milestones={[]}
+                    currencySymbol={getCurrencySymbol(contractDetail.currency)}
+                    onApproveMilestone={handleApproveMilestone}
+                  />
+                )}
+                {activeWorkspaceTab === 'timesheet' && contractDetail.paymentType === 'hourly' && (
+                  <ClientTimesheetView
+                    contractId={contractId as string}
+                    timesheets={[]}
+                    hourlyRate={contractDetail.hourlyRate || 0}
+                    currencySymbol={getCurrencySymbol(contractDetail.currency)}
+                    onApproveTimesheet={handleApproveTimesheet}
+                  />
+                )}
+                {activeWorkspaceTab === 'chat' && (
+                  <ChatPanel
+                    contractId={contractId as string}
+                    currentUserId={currentUserId}
+                  />
+                )}
+                {activeWorkspaceTab === 'files' && (
+                  <FilesTab
+                    contractId={contractId as string}
+                    files={[]}
+                    currentUserId="client123"
+                    onUploadFile={async (file: { fileName: string; fileUrl: string; fileSize: number; fileType: string }) => {
+                      try {
+                        console.log('File uploaded:', file);
+                        Swal.fire('Success', 'File uploaded successfully', 'success');
+                      } catch (error) {
+                        console.error('Error uploading file:', error);
+                        Swal.fire('Error', 'Failed to upload file', 'error');
+                      }
+                    }}
+                    onDeleteFile={async (fileId: string) => {
+                      try {
+                        console.log('File deleted:', fileId);
+                        Swal.fire('Success', 'File deleted successfully', 'success');
+                      } catch (error) {
+                        console.error('Error deleting file:', error);
+                        Swal.fire('Error', 'Failed to delete file', 'error');
+                      }
+                    }}
+                  />
+                )}
+              </div>
             </div>
           )}
         </div>

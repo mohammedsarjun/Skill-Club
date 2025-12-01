@@ -139,6 +139,78 @@ const SendOfferToFreelancer: React.FC = () => {
     return next;
   });
 
+  const clearErrorsWithPrefix = (prefix: string) => setErrors((prev) => {
+    const next = { ...prev };
+    Object.keys(next).forEach(k => {
+      if (k === prefix || k.startsWith(`${prefix}.`) || k.startsWith(`${prefix}[`)) {
+        delete next[k];
+      }
+    });
+    return next;
+  });
+
+  // Helpers to normalize and flatten validation errors from different shapes
+  const flattenObject = (obj: any, prefix = ""): Record<string, string> => {
+    const out: Record<string, string> = {};
+    if (!obj || typeof obj !== "object") return out;
+    const stack: Array<[any, string]> = [[obj, prefix]];
+    while (stack.length) {
+      const [current, pre] = stack.pop()!;
+      Object.entries(current).forEach(([k, v]) => {
+        const key = pre ? `${pre}.${k}` : k;
+        if (v && typeof v === "object" && !Array.isArray(v)) {
+          stack.push([v, key]);
+        } else if (Array.isArray(v)) {
+          out[key] = v.filter(Boolean).join(", ");
+        } else {
+          out[key] = String(v ?? "");
+        }
+      });
+    }
+    return out;
+  };
+
+  const normalizeValidationErrors = (err: any): Record<string, string> => {
+    if (!err) return {};
+
+    // Zod thrown error
+    if (err?.name === "ZodError" && typeof err.flatten === "function") {
+      const flat = err.flatten();
+      const fieldErrors = flat.fieldErrors || {};
+      const parsed: Record<string, string> = {};
+      Object.entries(fieldErrors).forEach(([k, v]) => {
+        const msg = Array.isArray(v) ? v.filter(Boolean).join(", ") : String(v ?? "");
+        parsed[k] = msg;
+      });
+      if (Array.isArray(flat.formErrors) && flat.formErrors.length) {
+        parsed["_form"] = flat.formErrors.join(", ");
+      }
+      return parsed;
+    }
+
+    // If result has errors key (array or object)
+    if (err?.errors && typeof err.errors === "object") {
+      if (Array.isArray(err.errors)) {
+        const out: Record<string, string> = {};
+        err.errors.forEach((e: any) => {
+          const path = Array.isArray(e.path) ? e.path.join(".") : e.path || "_form";
+          const msg = e.message || String(e);
+          out[path] = out[path] ? `${out[path]}; ${msg}` : msg;
+        });
+        return out;
+      }
+      return flattenObject(err.errors);
+    }
+
+    // Plain object
+    if (typeof err === "object") {
+      return flattenObject(err);
+    }
+
+    // fallback to single form error
+    return { _form: String(err) };
+  };
+
   // Milestone handlers
   const addMilestone = (): void => {
     setMilestones([
@@ -194,8 +266,6 @@ const SendOfferToFreelancer: React.FC = () => {
   };
 
   const handleSubmit = async (): Promise<void> => {
-    // Basic validation
-
     let preparedReferenceFiles = referenceFiles;
     const pendingUploads = referenceFiles.filter((file) => file.file);
 
@@ -226,7 +296,7 @@ const SendOfferToFreelancer: React.FC = () => {
         setReferenceFiles(preparedReferenceFiles);
       } catch (error) {
         console.error("File upload failed", error);
-        alert("Failed to upload reference files. Please try again.");
+        toast.error("Failed to upload reference files. Please try again.");
         return;
       }
     }
@@ -235,12 +305,12 @@ const SendOfferToFreelancer: React.FC = () => {
       title,
       description,
       payment_type: paymentType,
-      budget: paymentType !== "hourly" ? parseFloat(budget) : undefined,
+      budget: paymentType !== "hourly" ? (budget ? parseFloat(budget) : undefined) : undefined,
       currency,
-      hourly_rate: paymentType === "hourly" ? parseFloat(hourlyRate) : undefined,
+      hourly_rate: paymentType === "hourly" ? (hourlyRate ? parseFloat(hourlyRate) : undefined) : undefined,
       estimated_hours_per_week:
         paymentType === "hourly"
-          ? parseFloat(estimatedHoursPerWeek)
+          ? (estimatedHoursPerWeek ? parseFloat(estimatedHoursPerWeek) : undefined)
           : undefined,
       milestones:
         paymentType === "fixed_with_milestones"
@@ -254,7 +324,7 @@ const SendOfferToFreelancer: React.FC = () => {
               preferred_method: preferredMethod,
               meeting_frequency: meetingFrequency,
               meeting_day_of_week: meetingFrequency === "weekly" ? (meetingDay as any) : undefined,
-              meeting_day_of_month: meetingFrequency === "monthly" ? parseInt(meetingDate) : undefined,
+              meeting_day_of_month: meetingFrequency === "monthly" ? (meetingDate ? parseInt(meetingDate) : undefined) : undefined,
               meeting_time_utc: meetingTime || undefined,
             }
           : { preferred_method: preferredMethod }
@@ -273,30 +343,64 @@ const SendOfferToFreelancer: React.FC = () => {
       status: "pending",
     };
 
-    // Validate with zod
-    const result = await validateOffer(coreOffer);
-    if (!result.success) {
-      setErrors(result.errors);
-      return;
-    }
-
-    // If valid, attach IDs and submit to API
-    const payload: OfferPayload = {
-      freelancerId:freelancerId,
-      offerType:"direct",
-      ...result.data,
-    } as OfferPayload;
-
     try {
-      const res = await clientActionApi.createOffer(payload);
+      const result: any = await validateOffer(coreOffer);
 
-      if(res.success){
-        toast.success("Offer sent successfully!");
-      }else{
-        toast.error(res.message);
+      // If validation function returns falsy
+      if (!result) {
+        const parsed = { _form: "Validation failed" };
+        console.error("Validation result falsy:", parsed, { coreOffer });
+        setErrors(parsed);
+        toast.error("Please fix validation errors and try again.");
+        return;
       }
-    } catch (e) {
-      console.log(e)
+
+      // If explicit success flag present and false
+      if (result && result.success === false) {
+        const source = result.errors || result.error || result;
+        const parsed = normalizeValidationErrors(source);
+        console.error("Validation errors (result.success === false):", parsed, source);
+        setErrors(parsed);
+        toast.error("Please fix validation errors and try again.");
+        return;
+      }
+
+      // If result is an error-like shape (Zod thrown error) OR contains non-empty errors
+      const hasErrorsObj = result?.errors && typeof result.errors === 'object' && Object.keys(result.errors).length > 0;
+      if (result?.name === "ZodError" || hasErrorsObj || result?.error) {
+        const parsed = normalizeValidationErrors(result);
+        console.error("Validation errors (zod-like result):", parsed, result);
+        setErrors(parsed);
+        toast.error("Please fix validation errors and try again.");
+        return;
+      }
+
+      // Otherwise assume validation passed and either result.data exists or use coreOffer
+      const validatedData = result.data ? result.data : coreOffer;
+
+      const payload: OfferPayload = {
+        freelancerId: freelancerId,
+        offerType: "direct",
+        ...(validatedData as any),
+      } as OfferPayload;
+
+      try {
+        const res = await clientActionApi.createOffer(payload);
+        if (res && res.success) {
+          toast.success("Offer sent successfully!");
+        } else {
+          toast.error(res?.message || "Failed to send offer");
+        }
+      } catch (e) {
+        console.error("Create offer failed", e);
+        toast.error("Failed to send offer. Please try again.");
+      }
+    } catch (validationErr: any) {
+      const parsed = normalizeValidationErrors(validationErr);
+      console.error("Validation thrown error:", parsed, validationErr);
+      setErrors(parsed);
+      toast.error("Please fix validation errors and try again.");
+      return;
     }
   };
 
@@ -447,7 +551,7 @@ const SendOfferToFreelancer: React.FC = () => {
                     <input
                       type="number"
                       value={budget}
-                      onChange={(e) => { setBudget(e.target.value); clearError('budget'); clearError('milestones'); }}
+                      onChange={(e) => { setBudget(e.target.value); clearError('budget'); clearErrorsWithPrefix('milestones'); }}
                       placeholder="1200"
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent"
                     />
@@ -516,30 +620,42 @@ const SendOfferToFreelancer: React.FC = () => {
                             <input
                               type="text"
                               value={milestone.title}
-                              onChange={(e) =>
-                                { updateMilestone(index, "title", e.target.value); clearError('milestones'); }
-                              }
+                              onChange={(e) => {
+                                updateMilestone(index, "title", e.target.value);
+                                clearError(`milestones.${index}.title`);
+                              }}
                               placeholder="Milestone title"
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent text-sm"
                             />
+                            {errors[`milestones.${index}.title`] && (
+                              <p className="text-red-600 text-sm mt-1">{errors[`milestones.${index}.title`]}</p>
+                            )}
                             <div className="grid grid-cols-2 gap-3">
                               <input
                                 type="number"
                                 value={milestone.amount}
-                                onChange={(e) =>
-                                  { updateMilestone(index, "amount", e.target.value); clearError('milestones'); }
-                                }
+                                onChange={(e) => {
+                                  updateMilestone(index, "amount", e.target.value);
+                                  clearError(`milestones.${index}.amount`);
+                                }}
                                 placeholder="Amount"
                                 className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent text-sm"
                               />
+                              {errors[`milestones.${index}.amount`] && (
+                                <p className="text-red-600 text-sm mt-1">{errors[`milestones.${index}.amount`]}</p>
+                              )}
                               <input
                                 type="date"
                                 value={milestone.expected_delivery}
-                                onChange={(e) =>
-                                  { updateMilestone(index, "expected_delivery", e.target.value); clearError('milestones'); }
-                                }
+                                onChange={(e) => {
+                                  updateMilestone(index, "expected_delivery", e.target.value);
+                                  clearError(`milestones.${index}.expected_delivery`);
+                                }}
                                 className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent text-sm"
                               />
+                              {errors[`milestones.${index}.expected_delivery`] && (
+                                <p className="text-red-600 text-sm mt-1">{errors[`milestones.${index}.expected_delivery`]}</p>
+                              )}
                             </div>
                           </div>
                           {milestones.length > 1 && (

@@ -7,6 +7,7 @@ import { IFreelancerData } from "@/types/interfaces/IFreelancerData";
 import { IFreelancerQueryParams } from "@/types/interfaces/IFreelancer";
 import { OfferPayload } from "@/types/interfaces/IOffer";
 import { IInitiatePayment, IPaymentResponse } from "@/types/interfaces/IPayment";
+import { IApproveDeliverableRequest, IRequestChangesRequest } from "@/types/interfaces/IDeliverable";
 export const clientActionApi = {
   async getClientData() {
     try {
@@ -401,4 +402,89 @@ export const clientActionApi = {
     }
   },
 
+  async sendChatMessage(data: { contractId: string; message: string; attachments?: Array<{ fileName: string; fileUrl: string; fileSize: number; fileType: string }> }) {
+    try {
+      const response = await axiosClient.post(clientRouterEndPoints.sendChatMessage, data);
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getChatMessages(contractId: string, limit = 50, skip = 0) {
+    try {
+      const response = await axiosClient.get(clientRouterEndPoints.getChatMessages(contractId), {
+        params: { limit, skip },
+      });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async markChatAsRead(contractId: string) {
+    try {
+      const response = await axiosClient.put(clientRouterEndPoints.markChatAsRead, { contractId });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getChatUnreadCount(contractId: string) {
+    try {
+      const response = await axiosClient.get(clientRouterEndPoints.getChatUnreadCount(contractId));
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async approveDeliverable(contractId: string, data: IApproveDeliverableRequest) {
+    try {
+      const response = await axiosClient.put(
+        `/client/contracts/${contractId}/deliverables/approve`,
+        data
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async requestDeliverableChanges(contractId: string, data: IRequestChangesRequest) {
+    try {
+      const response = await axiosClient.put(
+        `/client/contracts/${contractId}/deliverables/request-changes`,
+        data
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
 }

@@ -1,4 +1,4 @@
-import { IContract } from '../../models/interfaces/contract.model.interface';
+import { IContract, ContractDeliverable } from '../../models/interfaces/contract.model.interface';
 import { ClientContractDetailDTO } from '../../dto/clientDTO/client-contract.dto';
 
 function docIdToString(id: unknown): string | undefined {
@@ -69,6 +69,40 @@ export const mapContractModelToClientContractDetailDTO = (
       submittedAt: m.submittedAt,
       approvedAt: m.approvedAt,
     })),
+
+    deliverables: contract.deliverables?.map((d: ContractDeliverable) => {
+      const submittedByRaw = (d as unknown as Record<string, unknown>).submittedBy;
+
+      let submittedBy:
+        | { id: string; firstName?: string; lastName?: string; avatar?: string }
+        | null = null;
+
+      if (submittedByRaw) {
+        if (typeof submittedByRaw === 'string') {
+          submittedBy = { id: submittedByRaw };
+        } else if (typeof submittedByRaw === 'object' && submittedByRaw !== null) {
+          const obj = submittedByRaw as Record<string, unknown>;
+          const idStr = docIdToString(obj._id) || docIdToString(obj.id) || '';
+          submittedBy = {
+            id: idStr,
+            firstName: (obj.firstName as string) || undefined,
+            lastName: (obj.lastName as string) || undefined,
+            avatar: (obj.avatar as string) || undefined,
+          };
+        }
+      }
+
+      return {
+        deliverableId: docIdToString(d._id) || '',
+        submittedBy: submittedBy,
+        files: d.files || [],
+        message: d.message,
+        status: d.status,
+        version: d.version,
+        submittedAt: d.submittedAt,
+        approvedAt: d.approvedAt,
+      };
+    }),
 
     title: contract.title,
     description: contract.description,

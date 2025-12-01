@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
+import { createServer } from 'http';
 import { connectDB } from './config/db';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -17,10 +18,13 @@ import uploadRouter from './routes/upload-router';
 import morgan from 'morgan';
 import { appLogger, accessLogStream } from './utils/logger';
 import currencyRouter from './routes/currency-router';
+import { initializeSocket } from './config/socket';
 const PORT = process.env.PORT;
 
 connectDB();
 const app = express();
+const httpServer = createServer(app);
+initializeSocket(httpServer);
 
 // HTTP request logging
 if (process.env.NODE_ENV === 'production') {
@@ -56,6 +60,6 @@ app.use('/api/currency', currencyRouter);
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   appLogger.info(`Server is running on port: ${PORT}`);
 });

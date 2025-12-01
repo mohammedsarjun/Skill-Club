@@ -25,7 +25,7 @@ function OtpPage() {
     if (!expiry) return;
 
     const expiryTime = new Date(expiry).getTime();
-    let timer: NodeJS.Timeout;
+    let timer: ReturnType<typeof setTimeout>;
 
     const updateCountdown = () => {
       const now = Date.now();

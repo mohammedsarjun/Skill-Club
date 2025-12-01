@@ -10,31 +10,31 @@ import RouteLoader from "../components/common/RouteLoader";
 import GlobalSpinner from "@/components/common/Spinner";
 import "react-quill-new/dist/quill.snow.css";
 import ClientInit from "@/components/UserInit";
-
 type LayoutProps = {
   children: React.ReactNode;
 };
 
+import { SocketProvider } from "@/hooks/useSocket";
 
 
 export default function Layout({ children }: LayoutProps) {
   return (
     <html>
       <body className="bg-background min-h-screen">
-        
           <Providers>
-            <RouteLoader/>
-            <ClientInit />
-            <GlobalSpinner/>
-            {children}
-            <script
-              src="https://accounts.google.com/gsi/client"
-              async
-              defer
-            ></script>
-            <Toaster position="top-right" reverseOrder={false} />
+            <SocketProvider>
+              <RouteLoader />
+              <ClientInit />
+              <GlobalSpinner />
+              {children}
+              <script
+                src="https://accounts.google.com/gsi/client"
+                async
+                defer
+              ></script>
+              <Toaster position="top-right" reverseOrder={false} />
+            </SocketProvider>
           </Providers>
-        
       </body>
     </html>
   );

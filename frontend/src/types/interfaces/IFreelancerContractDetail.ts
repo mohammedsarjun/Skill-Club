@@ -44,10 +44,12 @@ export interface IFreelancerContractDetail {
   }[];
 
   deliverables?: {
+    id: string;
     submittedBy: string;
     files: { fileName: string; fileUrl: string }[];
     message?: string;
     status: 'submitted' | 'approved' | 'changes_requested';
+    version: number;
     submittedAt: string;
     approvedAt?: string;
   }[];

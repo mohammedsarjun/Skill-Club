@@ -294,6 +294,12 @@ import { SavedFreelancerRepository } from '../repositories/saved-freelancer-repo
 import { IClientSavedFreelancerService } from '../services/clientServices/interfaces/client-saved-freelancer-service.interface';
 import { ClientSavedFreelancerService } from '../services/clientServices/client-saved-freelancer-service';
 import { ClientSavedFreelancerController } from '../controllers/client/client-saved-freelancer-controller';
+import { IChatRepository } from '../repositories/chat-repository.interface';
+import { ChatRepository } from '../repositories/chat-repository';
+import { IClientChatService } from '../services/clientServices/interfaces/client-chat-service.interface';
+import { ClientChatService } from '../services/clientServices/client-chat-service';
+import { IFreelancerChatService } from '../services/freelancerServices/interfaces/freelancer-chat-service.interface';
+import { FreelancerChatService } from '../services/freelancerServices/freelancer-chat-service';
 
 container.register<ISavedFreelancerRepository>('ISavedFreelancerRepository', {
   useClass: SavedFreelancerRepository,
@@ -303,4 +309,9 @@ container.register<IClientSavedFreelancerService>('IClientSavedFreelancerService
 });
 container.register<ClientSavedFreelancerController>(ClientSavedFreelancerController, {
   useClass: ClientSavedFreelancerController,
+});
+container.register<IChatRepository>('IChatRepository', { useClass: ChatRepository });
+container.register<IClientChatService>('IClientChatService', { useClass: ClientChatService });
+container.register<IFreelancerChatService>('IFreelancerChatService', {
+  useClass: FreelancerChatService,
 });

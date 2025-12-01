@@ -35,6 +35,17 @@ export interface IClientContractDetail {
     approvedAt?: string;
   }[];
 
+  deliverables?: {
+    id: string;
+    submittedBy: string;
+    files: { fileName: string; fileUrl: string }[];
+    message?: string;
+    status: 'submitted' | 'approved' | 'changes_requested';
+    version: number;
+    submittedAt: string;
+    approvedAt?: string;
+  }[];
+
   title: string;
   description: string;
   expectedStartDate: string;

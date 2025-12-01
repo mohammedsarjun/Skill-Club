@@ -5,6 +5,7 @@ import { IContractRepository } from './interfaces/contract-repository.interface'
 import { ClientContractQueryParamsDTO } from '../dto/clientDTO/client-contract.dto';
 import { FreelancerContractQueryParamsDTO } from '../dto/freelancerDTO/freelancer-contract.dto';
 import { AdminContractQueryParamsDTO } from '../dto/adminDTO/admin-contract.dto';
+import { UpdateQuery } from 'mongoose';
 
 export class ContractRepository extends BaseRepository<IContract> implements IContractRepository {
   constructor() {
@@ -28,6 +29,8 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
           { path: 'freelancerId', select: 'firstName lastName logo country rating' },
           { path: 'jobId', select: 'title' },
           { path: 'offerId', select: 'offerType' },
+          // Populate the user who submitted each deliverable so frontend can display submitter info
+          { path: 'deliverables.submittedBy', select: 'firstName lastName avatar' },
         ],
       },
     );
@@ -169,8 +172,74 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
           { path: 'clientId', select: 'firstName lastName logo companyName country' },
           { path: 'jobId', select: 'title' },
           { path: 'offerId', select: 'offerType' },
+          { path: 'deliverables.submittedBy', select: 'firstName lastName avatar' },
         ],
       },
     );
+  }
+
+  async submitDeliverable(
+    contractId: string,
+    submittedBy: string,
+    files: { fileName: string; fileUrl: string }[],
+    message: string | undefined,
+  ): Promise<IContract | null> {
+    const contract = await this.findById(contractId);
+    if (!contract) return null;
+
+    const version = (contract.deliverables?.length || 0) + 1;
+
+    return await this.updateById(contractId, {
+      $push: {
+        deliverables: {
+          submittedBy,
+          files,
+          message,
+          status: 'submitted',
+          version,
+          submittedAt: new Date(),
+        },
+      },
+    } as UpdateQuery<IContract>);
+  }
+
+  async approveDeliverable(contractId: string, deliverableId: string): Promise<IContract | null> {
+    return (await this.model
+      .findByIdAndUpdate(
+        contractId,
+        {
+          $set: {
+            'deliverables.$[elem].status': 'approved',
+            'deliverables.$[elem].approvedAt': new Date(),
+          },
+        },
+        {
+          new: true,
+          arrayFilters: [{ 'elem._id': deliverableId }],
+        },
+      )
+      .exec()) as IContract | null;
+  }
+
+  async requestDeliverableChanges(
+    contractId: string,
+    deliverableId: string,
+    message: string,
+  ): Promise<IContract | null> {
+    return (await this.model
+      .findByIdAndUpdate(
+        contractId,
+        {
+          $set: {
+            'deliverables.$[elem].status': 'changes_requested',
+            'deliverables.$[elem].message': message,
+          },
+        },
+        {
+          new: true,
+          arrayFilters: [{ 'elem._id': deliverableId }],
+        },
+      )
+      .exec()) as IContract | null;
   }
 }

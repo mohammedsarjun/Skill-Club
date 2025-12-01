@@ -372,7 +372,7 @@ export default function ClientHeader() {
               Finance
             </a>
             <a
-              href="#"
+             onClick={()=>router.push("/client/contracts")}
               className="block py-2 text-black hover:text-gray-700 border-b border-gray-200"
             >
               Contract

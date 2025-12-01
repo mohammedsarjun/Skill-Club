@@ -17,4 +17,16 @@ export interface IContractRepository extends BaseRepository<IContract> {
   countForAdmin(query: AdminContractQueryParamsDTO): Promise<number>;
   findDetailByIdForAdmin(contractId: string): Promise<IContract | null>;
   findDetailByIdForFreelancer(contractId: string, freelancerId: string): Promise<IContract | null>;
+  submitDeliverable(
+    contractId: string,
+    submittedBy: string,
+    files: { fileName: string; fileUrl: string }[],
+    message: string | undefined,
+  ): Promise<IContract | null>;
+  approveDeliverable(contractId: string, deliverableId: string): Promise<IContract | null>;
+  requestDeliverableChanges(
+    contractId: string,
+    deliverableId: string,
+    message: string,
+  ): Promise<IContract | null>;
 }

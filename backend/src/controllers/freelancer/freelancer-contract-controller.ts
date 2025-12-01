@@ -5,6 +5,7 @@ import { IFreelancerContractController } from './interfaces/freelancer-contract-
 import { IFreelancerContractService } from '../../services/freelancerServices/interfaces/freelancer-contract-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { FreelancerContractQueryParamsDTO } from '../../dto/freelancerDTO/freelancer-contract.dto';
+import { SubmitDeliverableDTO } from '../../dto/freelancerDTO/freelancer-deliverable.dto';
 
 @injectable()
 export class FreelancerContractController implements IFreelancerContractController {
@@ -45,6 +46,20 @@ export class FreelancerContractController implements IFreelancerContractControll
     res.status(HttpStatus.OK).json({
       success: true,
       message: 'Contract detail fetched successfully',
+      data: result,
+    });
+  }
+
+  async submitDeliverable(req: Request, res: Response): Promise<void> {
+    const freelancerId = req.user?.userId as string;
+    const { contractId } = req.params;
+    const data: SubmitDeliverableDTO = req.body;
+
+    const result = await this._freelancerContractService.submitDeliverable(freelancerId, contractId, data);
+
+    res.status(HttpStatus.CREATED).json({
+      success: true,
+      message: 'Deliverable submitted successfully',
       data: result,
     });
   }
