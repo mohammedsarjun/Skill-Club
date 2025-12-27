@@ -7,8 +7,6 @@ export interface JobData {
   specialities: Types.ObjectId[]; // 1–3 items
   skills: Types.ObjectId[]; // 1–10 items
   rateType: 'hourly' | 'fixed';
-  currency?: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
-  conversionRate?: number; // USD per 1 unit of currency
 
   // Rates
   hourlyRate?: {
@@ -20,16 +18,6 @@ export interface JobData {
   fixedRate?: {
     min: number;
     max: number;
-  };
-
-  // Normalized base USD ranges for validation/analytics
-  hourlyRateBaseUSD?: {
-    min?: number;
-    max?: number;
-  };
-  fixedRateBaseUSD?: {
-    min?: number;
-    max?: number;
   };
 
   clientId: Types.ObjectId;

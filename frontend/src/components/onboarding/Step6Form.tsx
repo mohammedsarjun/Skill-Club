@@ -119,7 +119,7 @@ export default function StepSixForm({ onBack, onNext, savedData }: StepSixProps)
       )}
 
       <div className="flex justify-between mt-6 items-center">
-        <Button content="Back" type="button" color="gray" onClick={onBack} />
+        <Button content="Back" type="button" variant="secondary" onClick={onBack} />
         <div className="flex items-center gap-4">
           <span
             className="text-green-600 cursor-pointer font-semibold"

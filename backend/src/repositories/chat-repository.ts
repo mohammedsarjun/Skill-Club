@@ -19,11 +19,12 @@ export class ChatRepository extends BaseRepository<IMessageDocument> implements 
     return message.toObject() as IMessage;
   }
 
-  async getMessagesByContract(contractId: string, limit: number = 50, skip: number = 0): Promise<IMessage[]> {
-    const messages = await this.findAll<IMessageDocument>(
-      { contractId },
-      { skip, limit }
-    );
+  async getMessagesByContract(
+    contractId: string,
+    limit: number = 50,
+    skip: number = 0,
+  ): Promise<IMessage[]> {
+    const messages = await this.findAll<IMessageDocument>({ contractId }, { skip, limit });
     return messages.map((msg: IMessageDocument) => msg.toObject() as IMessage);
   }
 
@@ -37,7 +38,7 @@ export class ChatRepository extends BaseRepository<IMessageDocument> implements 
       {
         isRead: true,
         readAt: new Date(),
-      }
+      },
     );
   }
 

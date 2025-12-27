@@ -1,19 +1,11 @@
 import { CreateUserDTO, GetUserDto } from '../../dto/authDTO/auth.dto';
 import { IUser } from '../../models/interfaces/user.model.interface';
-import { SUPPORTED_CURRENCIES, SupportedCurrency } from '../../contants/currency.constants';
 
 export const mapCreateUserDtoToUserModel = (
   dto: CreateUserDTO,
 ): Pick<
   IUser,
-  | 'firstName'
-  | 'lastName'
-  | 'email'
-  | 'phone'
-  | 'password'
-  | 'preferredCurrency'
-  | 'preferredTimezone'
-  | 'address'
+  'firstName' | 'lastName' | 'email' | 'phone' | 'password' | 'preferredTimezone' | 'address'
 > & {
   agreement: boolean;
 } => {
@@ -26,7 +18,6 @@ export const mapCreateUserDtoToUserModel = (
     phone: dto.phone,
     password: dto.password,
     agreement: dto.agreement,
-    preferredCurrency: dto.preferredCurrency || 'USD',
     preferredTimezone: dto.timezone || 'UTC',
     address: {
       country: dto.country || '',
@@ -45,10 +36,5 @@ export const mapUserModelToGetUserDto = (modelData: IUser): GetUserDto => {
     lastName: modelData.lastName,
     email: modelData.email,
     phone: modelData.phone!,
-    preferredCurrency: SUPPORTED_CURRENCIES.includes(
-      modelData.preferredCurrency as SupportedCurrency,
-    )
-      ? (modelData.preferredCurrency as SupportedCurrency)
-      : undefined,
   };
 };

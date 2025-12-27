@@ -1,4 +1,5 @@
 import { IContract, ContractDeliverable } from '../../models/interfaces/contract.model.interface';
+import { ClientDeliverableMapper } from './client-deliverable.mapper';
 import { ClientContractDetailDTO } from '../../dto/clientDTO/client-contract.dto';
 
 function docIdToString(id: unknown): string | undefined {
@@ -29,7 +30,10 @@ export const mapContractModelToClientContractDetailDTO = (
     rating?: number;
   };
   const jobPopulated = rawObj.jobId as unknown as { _id?: unknown; title?: string };
-  const offerPopulated = rawObj.offerId as unknown as { _id?: unknown; offerType?: 'direct' | 'proposal' };
+  const offerPopulated = rawObj.offerId as unknown as {
+    _id?: unknown;
+    offerType?: 'direct' | 'proposal';
+  };
 
   return {
     contractId: contract.contractId,
@@ -52,30 +56,29 @@ export const mapContractModelToClientContractDetailDTO = (
 
     paymentType: contract.paymentType,
     budget: contract.budget,
-    budgetBaseUSD: contract.budgetBaseUSD,
     hourlyRate: contract.hourlyRate,
-    hourlyRateBaseUSD: contract.hourlyRateBaseUSD,
-    conversionRate: contract.conversionRate,
     estimatedHoursPerWeek: contract.estimatedHoursPerWeek,
-    currency: contract.currency,
 
     milestones: contract.milestones?.map((m) => ({
-      milestoneId: docIdToString(m.milestoneId) || '',
+      milestoneId: docIdToString(m._id) || '',
       title: m.title,
       amount: m.amount,
-      amountBaseUSD: m.amountBaseUSD,
       expectedDelivery: m.expectedDelivery,
       status: m.status,
       submittedAt: m.submittedAt,
       approvedAt: m.approvedAt,
+      revisionsAllowed: (m as any).revisionsAllowed,
     })),
 
     deliverables: contract.deliverables?.map((d: ContractDeliverable) => {
       const submittedByRaw = (d as unknown as Record<string, unknown>).submittedBy;
 
-      let submittedBy:
-        | { id: string; firstName?: string; lastName?: string; avatar?: string }
-        | null = null;
+      let submittedBy: {
+        id: string;
+        firstName?: string;
+        lastName?: string;
+        avatar?: string;
+      } | null = null;
 
       if (submittedByRaw) {
         if (typeof submittedByRaw === 'string') {
@@ -92,15 +95,19 @@ export const mapContractModelToClientContractDetailDTO = (
         }
       }
 
+      const dto = ClientDeliverableMapper.toDeliverableResponseDTO(d, contract as IContract);
       return {
-        deliverableId: docIdToString(d._id) || '',
+        deliverableId: dto.id,
         submittedBy: submittedBy,
-        files: d.files || [],
-        message: d.message,
-        status: d.status,
-        version: d.version,
-        submittedAt: d.submittedAt,
-        approvedAt: d.approvedAt,
+        files: dto.files,
+        message: dto.message,
+        status: dto.status,
+        version: dto.version,
+        submittedAt: new Date(dto.submittedAt),
+        approvedAt: dto.approvedAt ? new Date(dto.approvedAt) : undefined,
+        revisionsRequested: dto.revisionsRequested,
+        revisionsAllowed: dto.revisionsAllowed,
+        revisionsLeft: dto.revisionsLeft,
       };
     }),
 

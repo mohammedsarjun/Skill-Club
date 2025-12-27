@@ -57,7 +57,6 @@ export const createJobSchema = z
       .max(3, { message: 'Select at most 3 specialities.' }),
     skills: z.array(z.string()).min(1, 'Select at least one skills.'),
     rateType: z.enum(['hourly', 'fixed']),
-    currency: z.enum(['USD', 'EUR', 'GBP', 'INR', 'AUD', 'CAD', 'SGD', 'JPY']),
     hourlyRate: hourlyRateSchema.optional(),
     fixedRate: fixedRateSchema.optional(),
   })
@@ -111,7 +110,6 @@ export const updateJobSchema = z
       .max(3, { message: 'Select at most 3 specialities.' }),
     skills: z.array(z.string()).min(1, 'Select at least one skills.'),
     rateType: z.enum(['hourly', 'fixed']),
-    currency: z.enum(['USD', 'EUR', 'GBP', 'INR', 'AUD', 'CAD', 'SGD', 'JPY']),
     hourlyRate: hourlyRateSchema.optional(),
     fixedRate: fixedRateSchema.optional(),
   })

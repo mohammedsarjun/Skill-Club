@@ -228,8 +228,8 @@ function AdminJobDetailPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 shadow-sm">
+      {/* Page Title Section (not a global header) */}
+      <section className="mb-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-1 h-8 bg-blue-600 rounded-full"></div>
@@ -274,7 +274,7 @@ function AdminJobDetailPage() {
             </div>
           </div>
         </div>
-      </header>
+      </section>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
         {/* Status Banner */}

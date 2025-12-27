@@ -285,7 +285,7 @@ export default function ClientDetailsForm() {
 
       {/* Navigation */}
       <div className="flex justify-between mt-8">
-        <Button content="Back" type="button" color="gray"/>
+        <Button content="Back" type="button" variant="secondary"/>
         <Button
           content={uploading ? "Uploading..." : "Save"}
           type="button"

@@ -135,7 +135,7 @@ export default function OtpModal({
           )}
 
           <h2 className="font-bold text-2xl">
-            Enter <span className="text-primary">Otp</span> Below
+            Enter <span className="text-blue-600">Otp</span> Below
           </h2>
 
           <p className="text-gray-600 font-medium">Enter Otp:</p>

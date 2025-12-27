@@ -43,7 +43,7 @@ export default function StepSevenForm({ onBack, onNext, savedData }: StepSevenPr
         <Button
           content="Back"
           type="submit"
-          color="gray"
+          variant="secondary"
           onClick={onBack}
         />
         <Button

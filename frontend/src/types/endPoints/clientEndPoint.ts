@@ -31,6 +31,16 @@ const clientRouterEndPoints = {
   getChatMessages: (contractId: string) => `/client/chat/${contractId}/messages`,
   markChatAsRead: "/client/chat/read",
   getChatUnreadCount: (contractId: string) => `/client/chat/${contractId}/unread-count`,
+  getMilestoneDetail: (contractId: string, milestoneId: string) => `/client/contracts/${contractId}/milestones/${milestoneId}`,
+  approveDeliverable: (contractId: string) => `/client/contracts/${contractId}/deliverables/approve`,
+  requestDeliverableChanges: (contractId: string) => `/client/contracts/${contractId}/deliverables/request-changes`,
+  approveMilestoneDeliverable: (contractId: string) => `/client/contracts/${contractId}/milestones/deliverables/approve`,
+  requestMilestoneChanges: (contractId: string) => `/client/contracts/${contractId}/milestones/deliverables/request-changes`,
+  respondToMilestoneExtension: (contractId: string) => `/client/contracts/${contractId}/milestones/extension/respond`,
+  getContractWorklogs: (contractId: string) => `/client/contracts/${contractId}/worklogs`,
+  getWorklogDetail: (contractId: string, worklogId: string) => `/client/contracts/${contractId}/worklogs/${worklogId}`,
+  approveWorklog: (contractId: string) => `/client/contracts/${contractId}/worklogs/approve`,
+  rejectWorklog: (contractId: string) => `/client/contracts/${contractId}/worklogs/reject`,
 };
 
 export default clientRouterEndPoints;

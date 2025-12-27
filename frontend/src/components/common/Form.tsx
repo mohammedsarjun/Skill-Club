@@ -46,7 +46,18 @@ const DynamicFormModal: React.FC<DynamicFormProps> = ({
         fieldValue = target.checked;
       }
     } else {
-      fieldValue = value;
+      // Coerce known input types so validation receives correct JS types
+      if (type === "number") {
+        // strip non-numeric characters (commas, currency symbols) then convert
+        const sanitized = value.replace(/[^0-9.-]/g, "");
+        fieldValue = sanitized === "" ? "" : Number(sanitized);
+      } else if (type === "date" || type === "datetime-local") {
+        // keep ISO string for dates (Zod preprocess will handle parsing),
+        // but trim whitespace to avoid accidental invalid parsing
+        fieldValue = typeof value === "string" ? value.trim() : value;
+      } else {
+        fieldValue = value;
+      }
     }
 
     setFormData({ ...formData, [name]: fieldValue });
@@ -101,7 +112,7 @@ const DynamicFormModal: React.FC<DynamicFormProps> = ({
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50">
       <div
-        className={`bg-secondary rounded-xl shadow-lg w-11/12 ${containerWidth} p-6 relative`}
+        className={`bg-white rounded-xl shadow-lg w-11/12 ${containerWidth} p-6 relative`}
       >
         <button
           onClick={onClose}

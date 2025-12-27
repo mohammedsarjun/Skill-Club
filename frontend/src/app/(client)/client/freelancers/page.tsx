@@ -9,7 +9,7 @@ import { debounce } from "lodash";
 import { IFreelancerQueryParams } from "@/types/interfaces/IFreelancer";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
-import { formatCurrency, SupportedCurrency, convertCurrency } from "@/utils/currency";
+import { formatCurrency } from "@/utils/currency";
 interface Skill {
   skillId: string;
   skillName: string;
@@ -190,7 +190,7 @@ const Freelancers = () => {
   const [filters, setFilters] = useState<IFreelancerQueryParams>({
     search: "",
     minHourlyRate: 0,
-    maxHourlyRate: 999,
+    maxHourlyRate: 10000,
     location: "",
     categoryId: "",
     specialityId: "",
@@ -275,7 +275,6 @@ const Freelancers = () => {
   const [freelancers, setFreelancers] = useState<any[]>([]);
   const [loadingFreelancers, setLoadingFreelancers] = useState(false);
   const [freelancersError, setFreelancersError] = useState<string | null>(null);
-  const preferredCurrency = (useSelector((s: RootState) => s.auth.user?.preferredCurrency) || 'USD') as SupportedCurrency;
   const [converted, setConverted] = useState<Record<string, { hourly?: number; earned?: number }>>({});
   const [totalPages, setTotalPages] = useState(1);
 
@@ -634,7 +633,7 @@ const Freelancers = () => {
               {/* Hourly Rate */}
               <div className="space-y-3">
                 <label className="text-sm font-medium text-gray-900">
-                  Hourly Rate: ${filters.minHourlyRate} - $
+                  Hourly Rate: ₹{filters.minHourlyRate} - ₹
                   {filters.maxHourlyRate}
                 </label>
                 <div className="space-y-4">
@@ -642,8 +641,8 @@ const Freelancers = () => {
                     <label className="text-xs text-gray-500">Min Rate</label>
                     <input
                       type="range"
-                      min="0"
-                      max="999"
+                      min="100"
+                      max="10000"
                       step="5"
                       value={filters.minHourlyRate}
                       onChange={(e) =>
@@ -659,8 +658,8 @@ const Freelancers = () => {
                     <label className="text-xs text-gray-500">Max Rate</label>
                     <input
                       type="range"
-                      min="0"
-                      max="999"
+                      min="100"
+                      max="10000"
                       step="5"
                       value={filters.maxHourlyRate}
                       onChange={(e) =>
@@ -863,7 +862,7 @@ const Freelancers = () => {
                                 />
                               </svg>
                               <span className="font-medium text-gray-900">
-                                {formatCurrency(Number(converted[freelancer.freelancerId]?.hourly ?? freelancer.hourlyRate ?? 0), preferredCurrency)}/hr
+                                {formatCurrency(Number(converted[freelancer.freelancerId]?.hourly ?? freelancer.hourlyRate ?? 0))}/hr
                               </span>
                             </div>
                             <div className="flex items-center gap-1.5">
@@ -892,7 +891,7 @@ const Freelancers = () => {
                                 />
                               </svg>
                               <span className="font-medium text-gray-900">
-                                {formatCurrency(Number(converted[freelancer.freelancerId]?.earned ?? freelancer.totalEarnedAmount ?? 0), preferredCurrency)} earned
+                                {formatCurrency(Number(converted[freelancer.freelancerId]?.earned ?? freelancer.totalEarnedAmount ?? 0))} earned
                               </span>
                             </div>
                           </div>

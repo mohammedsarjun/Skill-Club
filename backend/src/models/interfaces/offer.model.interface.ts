@@ -3,8 +3,8 @@ import { Document, Types } from 'mongoose';
 export interface OfferMilestone {
   title: string;
   amount: number;
-  amountBaseUSD?: number;
   expectedDelivery: Date;
+  revisions?: number;
 }
 
 export interface OfferReferenceFile {
@@ -36,13 +36,10 @@ export interface OfferDetail {
   description: string;
   paymentType: 'fixed' | 'fixed_with_milestones' | 'hourly';
   budget?: number;
-  currency: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
-  budgetBaseUSD?: number;
   hourlyRate?: number;
-  hourlyRateBaseUSD?: number;
-  conversionRate?: number; // USD per 1 unit of `currency`
   estimatedHoursPerWeek?: number;
   milestones?: OfferMilestone[];
+  revisions?: number;
   expectedStartDate: Date;
   expectedEndDate: Date;
   communication: {

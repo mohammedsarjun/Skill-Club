@@ -250,7 +250,7 @@ export default function StepNineForm({
 
       {/* Navigation Buttons */}
       <div className="flex justify-between mt-6">
-        <Button content="Back" type="submit" color="gray" onClick={onBack} />
+        <Button content="Back" type="submit" variant="secondary" onClick={onBack} />
         <Button
           content="Next"
           type="submit"

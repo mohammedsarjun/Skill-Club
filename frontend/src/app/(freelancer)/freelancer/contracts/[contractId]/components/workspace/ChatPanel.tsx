@@ -9,11 +9,13 @@ import { freelancerActionApi } from '@/api/action/FreelancerActionApi';
 interface ChatPanelProps {
   contractId: string;
   currentUserId: string;
+  contractStatus?: string;
 }
 
 export const ChatPanel = ({
   contractId,
   currentUserId,
+  contractStatus,
 }: ChatPanelProps) => {
   const [messages, setMessages] = useState<IChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -158,6 +160,12 @@ export const ChatPanel = ({
         <h3 className="text-lg font-semibold text-gray-900">Chat</h3>
       </div>
 
+      {contractStatus === 'completed' && (
+        <div className="mx-4 mt-4 p-3 bg-gray-100 border border-gray-300 rounded-lg text-center text-sm text-gray-700">
+          Contract is completed. Chat is no longer available.
+        </div>
+      )}
+
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {loading ? (
           <div className="text-center text-sm text-gray-500 py-12">Loading messages...</div>
@@ -235,10 +243,11 @@ export const ChatPanel = ({
             onChange={handleFileInput}
             className="hidden"
             id="chat-file-upload"
+            disabled={contractStatus === 'completed'}
           />
           <label
             htmlFor="chat-file-upload"
-            className="px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors"
+            className={`px-3 py-2 rounded-lg transition-colors ${contractStatus === 'completed' ? 'text-gray-400 bg-gray-100 cursor-not-allowed' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 cursor-pointer'}`}
           >
             <FaPaperclip />
           </label>
@@ -247,12 +256,13 @@ export const ChatPanel = ({
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Type a message..."
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder={contractStatus === 'completed' ? 'Chat disabled' : 'Type a message...'}
+            disabled={contractStatus === 'completed'}
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
           />
           <button
             onClick={handleSend}
-            disabled={sending || (!newMessage.trim() && attachments.length === 0)}
+            disabled={sending || (!newMessage.trim() && attachments.length === 0) || contractStatus === 'completed'}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
           >
             <FaPaperPlane />

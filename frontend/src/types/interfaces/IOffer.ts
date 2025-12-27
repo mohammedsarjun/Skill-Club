@@ -7,7 +7,8 @@ export type Currency = "USD" | "EUR" | "GBP" | "INR" | "AUD" | "CAD" | "SGD" | "
 export interface MilestonePayload {
   title: string;
   amount: number; // numeric after validation
-  expected_delivery: string; // ISO date
+  expected_delivery: string;
+  revisions?: number;
 }
 
 export interface ReferenceFilePayload {
@@ -42,8 +43,9 @@ export interface OfferPayload {
   // Payment
   payment_type: PaymentType;
   budget?: number; // required if fixed/fixed_with_milestones
-  currency: Currency;
+  currency?: Currency;
   hourly_rate?: number; // required if hourly
+  revisions?: number;
   estimated_hours_per_week?: number;
   milestones?: MilestonePayload[]; // required if fixed_with_milestones
 
@@ -86,6 +88,7 @@ export interface OfferMilestone {
   title: string;
   amount: number;
   expectedDelivery: string | Date;
+  revisions?: number;
 }
 
 export interface OfferReferenceFile {

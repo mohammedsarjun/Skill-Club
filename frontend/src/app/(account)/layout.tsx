@@ -6,16 +6,12 @@ import ClientHeader from "@/components/client/Header";
 import { usePreventBackAfterLogout } from "@/custom-hooks/usePreventBackAfterLogout";
 
 
-type LayoutProps = {
-  children: React.ReactNode;
-};
-
-export default function Layout({ children }: LayoutProps) {
+export default function Layout({ children, params }: { children: React.ReactNode; params?: any }) {
   usePreventBackAfterLogout();
 
   return (
 
-      <div className="bg-background min-h-screen">
+      <div className="bg-gray-50 min-h-screen">
           <ClientHeader />
           {children}
       </div>

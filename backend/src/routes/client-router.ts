@@ -15,6 +15,7 @@ import { ClientSavedFreelancerController } from '../controllers/client/client-sa
 import { ClientContractController } from '../controllers/client/client-contract-controller';
 import { ClientPaymentController } from '../controllers/client/client-payment-controller';
 import { ClientChatController } from '../controllers/client/client-chat-controller';
+import { ClientWorklogController } from '../controllers/client/client-worklog-controller';
 const clientRouter = express.Router();
 
 const clientController = container.resolve(ClientController);
@@ -28,6 +29,7 @@ const clientSavedFreelancerController = container.resolve(ClientSavedFreelancerC
 const clientContractController = container.resolve(ClientContractController);
 const clientPaymentController = container.resolve(ClientPaymentController);
 const clientChatController = container.resolve(ClientChatController);
+const clientWorklogController = container.resolve(ClientWorklogController);
 clientRouter.get(
   '/me',
   authMiddleware,
@@ -228,6 +230,15 @@ clientRouter.get(
   clientContractController.getContractDetail.bind(clientContractController),
 );
 
+clientRouter.get(
+  '/contracts/:contractId/milestones/:milestoneId',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientContractController.getMilestoneDetail.bind(clientContractController),
+);
+
+
 clientRouter.post(
   '/contracts/:contractId/cancel',
   authMiddleware,
@@ -250,6 +261,62 @@ clientRouter.put(
   roleGuard('client'),
   clientBlockMiddleware,
   clientContractController.requestDeliverableChanges.bind(clientContractController),
+);
+
+clientRouter.put(
+  '/contracts/:contractId/milestones/deliverables/approve',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientContractController.approveMilestoneDeliverable.bind(clientContractController),
+);
+
+clientRouter.put(
+  '/contracts/:contractId/milestones/deliverables/request-changes',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientContractController.requestMilestoneChanges.bind(clientContractController),
+);
+
+clientRouter.put(
+  '/contracts/:contractId/milestones/extension/respond',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientContractController.respondToMilestoneExtension.bind(clientContractController),
+);
+
+clientRouter.get(
+  '/contracts/:contractId/worklogs',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientWorklogController.getWorklogsByContract.bind(clientWorklogController),
+);
+
+clientRouter.get(
+  '/contracts/:contractId/worklogs/:worklogId',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientWorklogController.getWorklogDetail.bind(clientWorklogController),
+);
+
+clientRouter.post(
+  '/contracts/:contractId/worklogs/approve',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientWorklogController.approveWorklog.bind(clientWorklogController),
+);
+
+clientRouter.post(
+  '/contracts/:contractId/worklogs/reject',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientWorklogController.rejectWorklog.bind(clientWorklogController),
 );
 
 clientRouter.post(

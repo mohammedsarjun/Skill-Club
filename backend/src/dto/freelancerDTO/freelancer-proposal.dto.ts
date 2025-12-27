@@ -5,7 +5,6 @@ export interface CreateProposalRequestDto {
   proposedBudget?: number;
   deadline?: Date;
   coverLetter: string;
-  currency?: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
 }
 
 export interface FreelancerProposalResponseDTO {
@@ -23,6 +22,4 @@ export interface FreelancerProposalResponseDTO {
   coverLetter: string;
   status: 'pending_verification' | 'accepted' | 'rejected' | 'offer_sent';
   proposedAt: Date;
-  currency?: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
-  amountBaseUSD?: number;
 }

@@ -9,7 +9,6 @@ export interface SignUpData {
   password: string;
   agreement: string | boolean;
   timezone?: string;
-  preferredCurrency?: string;
   country?: string;
 }
 
@@ -19,7 +18,7 @@ export interface LoginData {
   rememberMe: boolean;
 }
 export const authApi = {
-  signUp: async (data: SignUpData,regionalSettings:{preferredCurrency?: string, timezone?: string, country?: string}) => {
+  signUp: async (data: SignUpData,regionalSettings:{timezone?: string, country?: string}) => {
     try {
       const response = await axiosClient.post(
         authenticationRoutes.userSignUp,

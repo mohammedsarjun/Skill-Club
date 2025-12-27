@@ -26,9 +26,12 @@ import { EducationDTO } from '../../dto/user.dto';
 import { validateData } from '../../utils/validation';
 import { educationSchema } from '../../utils/validationSchemas/validations';
 import { workExperienceSchema } from '../../utils/validationSchemas/freelancer-validations';
-import { SUPPORTED_CURRENCIES, SupportedCurrency } from '../../contants/currency.constants';
 import { mapWorkHistoryToUserModel } from '../../mapper/user.mapper';
-import { ExpertiseResponseDTO, UpdateExpertiseDTO, updateExpertiseSchema } from '../../dto/freelancerDTO/freelancer-expertise.dto';
+import {
+  ExpertiseResponseDTO,
+  UpdateExpertiseDTO,
+  updateExpertiseSchema,
+} from '../../dto/freelancerDTO/freelancer-expertise.dto';
 import { mapExpertiseToResponseDTO } from '../../mapper/freelancerMapper/freelancer-expertise.mapper';
 import { ICategoryRepository } from '../../repositories/interfaces/category-repository.interface';
 import { ISpecialityRepository } from '../../repositories/interfaces/speciality-repository.interface';
@@ -223,30 +226,8 @@ export class FreelancerService implements IFreelancerService {
       throw new AppError(ERROR_MESSAGES.FREELANCER.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
-    let currencyCandidate = (hourlyRateData.currency ??
-      freelancerData.preferredCurrency ??
-      'USD') as string;
-    if (!SUPPORTED_CURRENCIES.includes(currencyCandidate as SupportedCurrency)) {
-      currencyCandidate = 'USD';
-    }
-    const currency = currencyCandidate as SupportedCurrency;
-
-    const { getUsdRateFor } = await import('../../utils/currency.util');
-    const rateToUSD = await getUsdRateFor(currency);
-
-    const baseUSD = (Number(hourlyRateData.hourlyRate) || 0) * rateToUSD;
-    if (baseUSD < 5 || baseUSD > 999) {
-      throw new AppError(
-        'Hourly rate must be between $5 and $999 (USD equivalent).',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
     const user = await this._freelancerRepository.updateFreelancerProfile(freelancerId, {
       'freelancerProfile.hourlyRate': hourlyRateData.hourlyRate,
-      'freelancerProfile.hourlyRateCurrency': currency,
-      'freelancerProfile.hourlyRateConversionRate': rateToUSD,
-      'freelancerProfile.hourlyRateBaseUSD': baseUSD,
     });
 
     const responseHourlyRate = user?.freelancerProfile?.hourlyRate || null;
@@ -367,7 +348,10 @@ export class FreelancerService implements IFreelancerService {
       (spec) => spec.category.toString() !== expertiseData.category,
     );
     if (invalidSpecialities.length > 0) {
-      throw new AppError('Specialities must belong to the selected category', HttpStatus.BAD_REQUEST);
+      throw new AppError(
+        'Specialities must belong to the selected category',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const skillIds = expertiseData.skills.map((id) => new Types.ObjectId(id));

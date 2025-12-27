@@ -1,12 +1,13 @@
 "use client";
 import { useState } from 'react';
+import Swal from 'sweetalert2';
 import { FaCheckCircle, FaExclamationCircle, FaClock, FaFile } from 'react-icons/fa';
 import { IDeliverable } from '@/types/interfaces/IContractWorkspace';
 
 interface ClientDeliverablesViewProps {
   contractId: string;
   deliverables: IDeliverable[];
-  onApproveDeliverable: (deliverableId: string) => Promise<void>;
+  onApproveDeliverable: (deliverableId: string, message?: string) => Promise<void>;
   onRequestChanges: (deliverableId: string, note: string) => Promise<void>;
 }
 
@@ -18,6 +19,8 @@ export const ClientDeliverablesView = ({
 }: ClientDeliverablesViewProps) => {
   const [revisionNote, setRevisionNote] = useState('');
   const [selectedDeliverableId, setSelectedDeliverableId] = useState<string | null>(null);
+
+  console.log(deliverables)
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -56,115 +59,155 @@ export const ClientDeliverablesView = ({
         </div>
       ) : (
         <div className="space-y-4">
-          {deliverables.map((deliverable, index) => (
-            <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  {getStatusBadge(deliverable.status)}
-                  <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
-                    v{deliverable.version}
-                  </span>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm text-gray-500">
-                    Submitted on {new Date(deliverable.submittedAt).toLocaleDateString('en-US', {
-                      month: 'long',
-                      day: 'numeric',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </p>
-                  {deliverable.approvedAt && (
-                    <p className="text-sm text-green-600 mt-1">
-                      Approved on {new Date(deliverable.approvedAt).toLocaleDateString()}
+          {deliverables.map((deliverable, index) => {
+            const resolvedId = (deliverable as any).deliverableId || (deliverable as any).id || null;
+
+            return (
+              <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    {getStatusBadge(deliverable.status)}
+                    <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
+                      v{deliverable.version}
+                    </span>
+                    {typeof (deliverable as any).revisionsLeft === 'number' && (
+                      <span className="px-2 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-medium">
+                        Revisions left: {(deliverable as any).revisionsLeft}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-gray-500">
+                      Submitted on {new Date(deliverable.submittedAt).toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
                     </p>
-                  )}
+                    {deliverable.approvedAt && (
+                      <p className="text-sm text-green-600 mt-1">
+                        Approved on {new Date(deliverable.approvedAt).toLocaleDateString()}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              {deliverable.message && (
-                <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-                  <p className="text-sm font-medium text-gray-700 mb-1">Freelancer Note:</p>
-                  <p className="text-gray-800">{deliverable.message}</p>
+                {deliverable.message && (
+                  <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+                    <p className="text-sm font-medium text-gray-700 mb-1">Freelancer Note:</p>
+                    <p className="text-gray-800">{deliverable.message}</p>
+                  </div>
+                )}
+
+                <div className="mb-4">
+                  <p className="text-sm font-medium text-gray-700 mb-2">Files:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {deliverable.files.map((file, idx) => (
+                      <a
+                        key={idx}
+                        href={file.fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-sm transition-colors"
+                      >
+                        <FaFile className="text-blue-600" />
+                        <span className="text-blue-800">{file.fileName}</span>
+                      </a>
+                    ))}
+                  </div>
                 </div>
-              )}
 
-              <div className="mb-4">
-                <p className="text-sm font-medium text-gray-700 mb-2">Files:</p>
-                <div className="flex flex-wrap gap-2">
-                  {deliverable.files.map((file, idx) => (
-                    <a
-                      key={idx}
-                      href={file.fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-sm transition-colors"
-                    >
-                      <FaFile className="text-blue-600" />
-                      <span className="text-blue-800">{file.fileName}</span>
-                    </a>
-                  ))}
-                </div>
-              </div>
-
-              {deliverable.status === 'submitted' && (
-                <div className="border-t border-gray-200 pt-4 mt-4">
-                  {selectedDeliverableId === deliverable.deliverableId ? (
-                    <div className="space-y-3">
-                      <textarea
-                        value={revisionNote}
-                        onChange={(e) => setRevisionNote(e.target.value)}
-                        placeholder="Explain what changes are needed..."
-                        rows={3}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      />
+                {deliverable.status === 'submitted' && (
+                  <div className="border-t border-gray-200 pt-4 mt-4">
+                    {selectedDeliverableId === resolvedId ? (
+                      <div className="space-y-3">
+                        <textarea
+                          value={revisionNote}
+                          onChange={(e) => setRevisionNote(e.target.value)}
+                          placeholder="Explain what changes are needed..."
+                          rows={3}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        />
+                        <div className="flex gap-3">
+                          <button
+                            onClick={async () => {
+                              if (resolvedId && revisionNote.trim()) {
+                                await onRequestChanges(resolvedId, revisionNote);
+                                setRevisionNote('');
+                                setSelectedDeliverableId(null);
+                              }
+                            }}
+                            className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+                          >
+                            Submit Request
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedDeliverableId(null);
+                              setRevisionNote('');
+                            }}
+                            className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
                       <div className="flex gap-3">
                         <button
                           onClick={async () => {
-                            if (deliverable.deliverableId && revisionNote.trim()) {
-                              await onRequestChanges(deliverable.deliverableId, revisionNote);
-                              setRevisionNote('');
-                              setSelectedDeliverableId(null);
+                            console.log('Approve button clicked for', resolvedId);
+                            if (!resolvedId) return;
+                            try {
+                              const swalRes = await Swal.fire<string>({
+                                title: 'Approve and Pay',
+                                html: `<textarea id="approval-note" class="swal2-textarea" placeholder="Optional message to freelancer"></textarea>`,
+                                showCancelButton: true,
+                                confirmButtonText: 'Approve and Pay',
+                                cancelButtonText: 'Cancel',
+                                focusConfirm: false,
+                                preConfirm: () => {
+                                  const el = document.getElementById('approval-note') as HTMLTextAreaElement | null;
+                                  return el?.value || '';
+                                },
+                              });
+                              if (swalRes.isConfirmed) {
+                                const note = swalRes.value || undefined;
+                                console.log('Approval note:', note);
+                                await onApproveDeliverable(resolvedId, note);
+                              }
+                            } catch (err) {
+                              console.error('Error during approve flow', err);
+                              Swal.fire('Error', 'Failed to approve deliverable', 'error');
                             }
                           }}
-                          className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+                          className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center gap-2"
                         >
-                          Submit Request
+                          <FaCheckCircle />
+                          Approve and Pay
                         </button>
+
                         <button
-                          onClick={() => {
-                            setSelectedDeliverableId(null);
-                            setRevisionNote('');
-                          }}
-                          className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                          onClick={() => setSelectedDeliverableId(resolvedId || null)}
+                          disabled={typeof (deliverable as any).revisionsLeft === 'number' && (deliverable as any).revisionsLeft <= 0}
+                          className={`px-6 py-3 rounded-lg font-medium flex items-center gap-2 ${
+                            typeof (deliverable as any).revisionsLeft === 'number' && (deliverable as any).revisionsLeft <= 0
+                              ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                              : 'bg-orange-600 text-white hover:bg-orange-700 transition-colors'
+                          }`}
                         >
-                          Cancel
+                          <FaExclamationCircle />
+                          Request Changes
                         </button>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="flex gap-3">
-                      <button
-                        onClick={() => deliverable.deliverableId && onApproveDeliverable(deliverable.deliverableId)}
-                        className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center gap-2"
-                      >
-                        <FaCheckCircle />
-                        Approve Deliverable
-                      </button>
-                      <button
-                        onClick={() => setSelectedDeliverableId(deliverable.deliverableId || null)}
-                        className="px-6 py-3 bg-orange-600 text-white rounded-lg font-medium hover:bg-orange-700 transition-colors flex items-center gap-2"
-                      >
-                        <FaExclamationCircle />
-                        Request Changes
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          ))}
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

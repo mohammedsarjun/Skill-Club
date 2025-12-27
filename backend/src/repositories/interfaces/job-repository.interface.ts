@@ -7,8 +7,8 @@ import {
   IJobWithCategoryDetail,
   JobData,
 } from '../../models/interfaces/job.model.interface';
-import { JobQueryParams } from 'src/dto/commonDTO/job-common.dto';
-import { FreelancerJobFiltersDto } from 'src/dto/freelancerDTO/freelancer-job.dto';
+import { JobQueryParams } from '../../dto/commonDTO/job-common.dto';
+import { FreelancerJobFiltersDto } from '../../dto/freelancerDTO/freelancer-job.dto';
 
 export interface IJobRepository extends BaseRepository<IJob> {
   createJob(jobData: Partial<JobData>): Promise<IJob | null>;

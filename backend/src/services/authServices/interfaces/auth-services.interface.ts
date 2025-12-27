@@ -1,4 +1,4 @@
-import { UserDto, UserProfileDto } from 'src/dto/user.dto';
+import { UserDto, UserProfileDto } from '../../../dto/user.dto';
 import { CreateUserDTO, GetUserDto, LoginUserDto } from '../../../dto/authDTO/auth.dto';
 export interface IAuthService {
   signup(userData: CreateUserDTO): Promise<GetUserDto>;

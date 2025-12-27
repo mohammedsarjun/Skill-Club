@@ -1,7 +1,7 @@
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { ISpecialityWithSkill } from '../../models/interfaces/speciality.model.interface';
-import { ISpecialityRepository } from 'src/repositories/interfaces/speciality-repository.interface';
+import { ISpecialityRepository } from '../../repositories/interfaces/speciality-repository.interface';
 import { IFreelancerSpecialityService } from './interfaces/freelancer-speciality-service.interface';
 import { GetFreelancerSpecialityWithSkillsDTO } from '../../dto/freelancerDTO/freelancer-speciality.dto';
 import { mapSpecialityModelToGetFreelancerSpecialityWithSkillsDTO } from '../../mapper/freelancerMapper/freelancer-speciality.mapper';

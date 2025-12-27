@@ -9,9 +9,9 @@ import { validateData } from '../../utils/validation';
 import { offerValidationSchema } from '../../utils/validationSchemas/offer-validation';
 import { IOfferRepository } from '../../repositories/interfaces/offer-repository.interface';
 import { IProposalRepository } from '../../repositories/interfaces/proposal-repository.interface';
-import { DirectOfferStrategy } from './offerStrategies/direct-offer-strategy';
-import { ProposalOfferStrategy } from './offerStrategies/proposal-offer-strategy';
-import { IOfferCreationStrategy } from './offerStrategies/offer-creation-strategy.interface';
+import { DirectOfferStrategy } from './strategies/offerStrategies/direct-offer-strategy';
+import { ProposalOfferStrategy } from './strategies/offerStrategies/proposal-offer-strategy';
+import { IOfferCreationStrategy } from './strategies/offerStrategies/offer-creation-strategy.interface';
 import { mapOfferModelToClientOfferResponseDTO } from '../../mapper/clientMapper/client-offer.mapper';
 import { mapOfferModelToClientOfferListItemDTO } from '../../mapper/clientMapper/client-offer-list.mapper';
 import {
@@ -77,6 +77,8 @@ export class ClientOfferService implements IClientOfferService {
     clientId: string,
     offerData: ClientOfferRequestDTO,
   ): Promise<ClientOfferResponseDTO> {
+
+  
     const parsed = validateData(offerValidationSchema, offerData);
 
     if (!Types.ObjectId.isValid(clientId)) {
@@ -124,67 +126,7 @@ export class ClientOfferService implements IClientOfferService {
     };
     const baseOffer = await strategy.create(clientId, strategyInput);
 
-    // Compute conversion rate and base USD amounts; enforce USD-based ranges
-    const { getUsdRateFor } = await import('../../utils/currency.util');
-    const currency = strategyInput.currency;
-    const rateToUSD = await getUsdRateFor(currency);
-
-    // Hourly or fixed
-    let hourlyRateBaseUSD: number | undefined;
-    let budgetBaseUSD: number | undefined;
-    if (strategyInput.payment_type === 'hourly' && typeof strategyInput.hourly_rate === 'number') {
-      hourlyRateBaseUSD = strategyInput.hourly_rate * rateToUSD;
-      if (hourlyRateBaseUSD < 5 || hourlyRateBaseUSD > 999) {
-        throw new AppError(
-          'Hourly rate must be between $5 and $999 after conversion',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-    } else if (
-      (strategyInput.payment_type === 'fixed' ||
-        strategyInput.payment_type === 'fixed_with_milestones') &&
-      typeof strategyInput.budget === 'number'
-    ) {
-      budgetBaseUSD = strategyInput.budget * rateToUSD;
-      if (budgetBaseUSD < 5 || budgetBaseUSD > 100000) {
-        throw new AppError(
-          'Fixed budget must be between $5 and $100000 after conversion',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-    }
-
-    // Milestones: ensure each >= $5 and total <= $100000
-    const milestonesWithBase = baseOffer.milestones?.map((m) => ({
-      ...m,
-      amountBaseUSD: typeof m.amount === 'number' ? m.amount * rateToUSD : undefined,
-    }));
-    if (milestonesWithBase && milestonesWithBase.length > 0) {
-      const amounts = milestonesWithBase
-        .map((m) => m.amountBaseUSD || 0)
-        .filter((n) => typeof n === 'number');
-      if (amounts.some((n) => n < 5)) {
-        throw new AppError(
-          'Each milestone must be at least $5 after conversion',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-      const total = amounts.reduce((a, b) => a + b, 0);
-      if (total > 100000) {
-        throw new AppError(
-          'Total milestones exceed $100000 after conversion',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-    }
-
-    const created = await this._offerRepository.createOffer({
-      ...baseOffer,
-      conversionRate: rateToUSD,
-      hourlyRateBaseUSD,
-      budgetBaseUSD,
-      milestones: milestonesWithBase ?? baseOffer.milestones,
-    });
+    const created = await this._offerRepository.createOffer(baseOffer);
     if (inferredOfferType === 'proposal' && parsed.proposalId) {
       console.log(parsed.proposalId);
       await this._proposalRepository.updateStatusById(parsed.proposalId, 'offer_sent');

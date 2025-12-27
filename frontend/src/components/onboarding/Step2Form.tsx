@@ -191,7 +191,7 @@ export default function Step2Form({
         <Button
           content="Back"
           type="submit"
-          color="gray"
+          variant="secondary"
           onClick={onBack}
         ></Button>
         <Button

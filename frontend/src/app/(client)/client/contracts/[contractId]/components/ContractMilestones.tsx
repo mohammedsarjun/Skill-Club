@@ -3,19 +3,17 @@ interface ContractMilestone {
   title: string;
   amount: number;
   expectedDelivery: string;
-  status: 'pending' | 'funded' | 'submitted' | 'approved' | 'paid';
+  status: 'pending' | 'funded' | 'under_review' | 'submitted' | 'approved' | 'paid';
 }
 
 interface ContractMilestonesProps {
   milestones: ContractMilestone[];
-  currency: string;
   formatDate: (dateString: string) => string;
-  formatCurrency: (amount: number, currency: string) => string;
+  formatCurrency: (amount: number) => string;
 }
 
 export const ContractMilestones = ({
   milestones,
-  currency,
   formatDate,
   formatCurrency,
 }: ContractMilestonesProps) => {
@@ -66,7 +64,7 @@ export const ContractMilestones = ({
                 Due: <span className="font-medium text-gray-900">{formatDate(milestone.expectedDelivery)}</span>
               </span>
               <span className="text-lg font-bold text-gray-900">
-                {formatCurrency(milestone.amount, currency)}
+                {formatCurrency(milestone.amount)}
               </span>
             </div>
           </div>

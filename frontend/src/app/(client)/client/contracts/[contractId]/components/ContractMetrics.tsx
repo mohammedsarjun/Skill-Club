@@ -7,9 +7,8 @@ interface ContractMetricsProps {
   fundedAmount: number;
   totalPaid: number;
   balance: number;
-  currency: string;
   formatDate: (dateString: string) => string;
-  formatCurrency: (amount: number, currency: string) => string;
+  formatCurrency: (amount: number) => string;
 }
 
 export const ContractMetrics = ({
@@ -19,7 +18,6 @@ export const ContractMetrics = ({
   fundedAmount,
   totalPaid,
   balance,
-  currency,
   formatDate,
   formatCurrency,
 }: ContractMetricsProps) => {
@@ -50,21 +48,21 @@ export const ContractMetrics = ({
         <FaDollarSign className="text-purple-600 mt-1 mr-3" />
         <div>
           <p className="text-sm text-gray-500 mb-1">Funded</p>
-          <p className="font-semibold text-gray-900">{formatCurrency(fundedAmount, currency)}</p>
+          <p className="font-semibold text-gray-900">{formatCurrency(fundedAmount)}</p>
         </div>
       </div>
       <div className="flex items-start">
         <FaDollarSign className="text-blue-600 mt-1 mr-3" />
         <div>
           <p className="text-sm text-gray-500 mb-1">Total Paid</p>
-          <p className="font-semibold text-gray-900">{formatCurrency(totalPaid, currency)}</p>
+          <p className="font-semibold text-gray-900">{formatCurrency(totalPaid)}</p>
         </div>
       </div>
       <div className="flex items-start">
         <FaDollarSign className="text-orange-600 mt-1 mr-3" />
         <div>
           <p className="text-sm text-gray-500 mb-1">Balance</p>
-          <p className="font-semibold text-gray-900">{formatCurrency(balance, currency)}</p>
+          <p className="font-semibold text-gray-900">{formatCurrency(balance)}</p>
         </div>
       </div>
     </div>

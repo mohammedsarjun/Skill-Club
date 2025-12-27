@@ -9,7 +9,7 @@ import { clientActionApi } from '@/api/action/ClientActionApi';
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
-import { formatCurrency, SupportedCurrency } from "@/utils/currency";
+import { formatCurrency } from '@/utils/currency';
 import Swal from 'sweetalert2';
 
 type OfferRow = {
@@ -43,8 +43,6 @@ const ClientOffersPage: React.FC = () => {
       timeout = setTimeout(() => cb(value), 400);
     };
   }, []);
-
-  const preferredCurrency = (useSelector((s: RootState) => s.auth.user?.preferredCurrency) || 'USD') as SupportedCurrency;
 
   useEffect(() => {
     let cancelled = false;
@@ -120,11 +118,11 @@ const ClientOffersPage: React.FC = () => {
     created: o.createdAt ? new Date(o.createdAt).toLocaleDateString() : "",
     payment:
       o.paymentType === "hourly"
-        ? `${formatCurrency(Number(o.hourlyRate || 0), preferredCurrency)} /hr • est ${o.estimatedHoursPerWeek ?? 0} hrs/wk`
+        ? `${formatCurrency(Number(o.hourlyRate || 0))} /hr • est ${o.estimatedHoursPerWeek ?? 0} hrs/wk`
         : o.paymentType === "fixed_with_milestones"
-        ? `${formatCurrency(Number(o.budget || 0), preferredCurrency)} (Milestones: ${o.milestones?.length ?? 0})`
+        ? `${formatCurrency(Number(o.budget || 0))} (Milestones: ${o.milestones?.length ?? 0})`
         : o.budget
-        ? `${formatCurrency(Number(o.budget || 0), preferredCurrency)} (Fixed)`
+        ? `${formatCurrency(Number(o.budget || 0))} (Fixed)`
         : "-",
     status: o.status,
     original: o,
@@ -235,7 +233,7 @@ const ClientOffersPage: React.FC = () => {
                 <div className="mt-4 grid grid-cols-2 gap-4">
                   <div className="bg-gray-50 p-4 rounded-lg border">
                     <p className="text-xs text-gray-500">Payment</p>
-                    <p className="font-medium mt-1">{selected.paymentType === "hourly" ? `${formatCurrency(Number(selected.hourlyRate || 0), preferredCurrency)} /hr` : selected.budget ? `${formatCurrency(Number(selected.budget), preferredCurrency)}` : "-"}</p>
+                    <p className="font-medium mt-1">{selected.paymentType === "hourly" ? `${formatCurrency(Number(selected.hourlyRate || 0))} /hr` : selected.budget ? `${formatCurrency(Number(selected.budget))}` : "-"}</p>
                   </div>
 
                   <div className="bg-gray-50 p-4 rounded-lg border">

@@ -9,9 +9,6 @@ export interface ProposalDetail {
   deadline?: Date;
   status: 'pending_verification' | 'rejected' | 'offer_sent';
   coverLetter: string;
-  currency?: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
-  amountBaseUSD?: number;
-  conversionRate?: number; // USD per 1 unit of `currency`
   createdAt?: Date;
   updatedAt?: Date;
 }

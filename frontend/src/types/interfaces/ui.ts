@@ -21,6 +21,7 @@ export type InputProps = {
   name?: string;
   hidden?: boolean;
   disabled?: boolean;
+  label?: string;
 };
 
 export type CheckboxProps = {

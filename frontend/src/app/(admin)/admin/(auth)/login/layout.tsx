@@ -6,9 +6,10 @@ import GuestGuard from "@/components/GuestGaurd";
 
 type LayoutProps = {
   children: React.ReactNode;
+  params?: any;
 };
 
-export default function Layout({ children }: LayoutProps) {
+export default function Layout({ children, params }: LayoutProps) {
   return (
     <>
     <GuestGuard>

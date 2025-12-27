@@ -1,10 +1,11 @@
 export interface IInitiatePayment {
   contractId: string;
+  milestoneId?: string;
   amount: number;
-  currency: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
   purpose: 'contract_funding' | 'milestone_funding' | 'hourly_advance';
   returnUrl: string;
   cancelUrl: string;
+
 }
 
 export interface IPayUConfig {

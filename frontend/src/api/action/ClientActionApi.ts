@@ -8,6 +8,8 @@ import { IFreelancerQueryParams } from "@/types/interfaces/IFreelancer";
 import { OfferPayload } from "@/types/interfaces/IOffer";
 import { IInitiatePayment, IPaymentResponse } from "@/types/interfaces/IPayment";
 import { IApproveDeliverableRequest, IRequestChangesRequest } from "@/types/interfaces/IDeliverable";
+import { IApproveMilestoneDeliverableRequest, IRequestMilestoneChangesRequest } from "@/types/interfaces/IMilestoneDeliverable";
+import { IApproveWorklogRequest, IRejectWorklogRequest } from "@/types/interfaces/IClientWorklog";
 export const clientActionApi = {
   async getClientData() {
     try {
@@ -227,7 +229,6 @@ export const clientActionApi = {
   },
   async createOffer(offerData: OfferPayload) {
     try {
-      console.log(offerData);
       const response = await axiosClient.post(
         clientRouterEndPoints.createOffer,
         { offerData }
@@ -459,7 +460,7 @@ export const clientActionApi = {
   async approveDeliverable(contractId: string, data: IApproveDeliverableRequest) {
     try {
       const response = await axiosClient.put(
-        `/client/contracts/${contractId}/deliverables/approve`,
+        clientRouterEndPoints.approveDeliverable(contractId),
         data
       );
       return response.data;
@@ -475,9 +476,132 @@ export const clientActionApi = {
   async requestDeliverableChanges(contractId: string, data: IRequestChangesRequest) {
     try {
       const response = await axiosClient.put(
-        `/client/contracts/${contractId}/deliverables/request-changes`,
+        clientRouterEndPoints.requestDeliverableChanges(contractId),
         data
       );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async approveMilestoneDeliverable(
+    contractId: string,
+    data: IApproveMilestoneDeliverableRequest
+  ) {
+    try {
+      const response = await axiosClient.put(
+        clientRouterEndPoints.approveMilestoneDeliverable(contractId),
+        data
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async requestMilestoneChanges(
+    contractId: string,
+    data: IRequestMilestoneChangesRequest
+  ) {
+    try {
+      const response = await axiosClient.put(
+        clientRouterEndPoints.requestMilestoneChanges(contractId),
+        data
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async respondToMilestoneExtension(
+    contractId: string,
+    milestoneId: string,
+    approved: boolean,
+    responseMessage?: string
+  ) {
+    try {
+      const response = await axiosClient.put(
+        clientRouterEndPoints.respondToMilestoneExtension(contractId),
+        { milestoneId, approved, responseMessage }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+  async getMilestoneDetail(contractId: string, milestoneId: string) {
+    try {
+      const response = await axiosClient.get(clientRouterEndPoints.getMilestoneDetail(contractId, milestoneId));
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getContractWorklogs(contractId: string, params?: { page?: number; limit?: number; status?: string }) {
+    try {
+      const response = await axiosClient.get(clientRouterEndPoints.getContractWorklogs(contractId), { params });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getWorklogDetail(contractId: string, worklogId: string) {
+    try {
+      const response = await axiosClient.get(clientRouterEndPoints.getWorklogDetail(contractId, worklogId));
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async approveWorklog(contractId: string, data: IApproveWorklogRequest) {
+    try {
+      const response = await axiosClient.post(clientRouterEndPoints.approveWorklog(contractId), data);
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async rejectWorklog(contractId: string, data: IRejectWorklogRequest) {
+    try {
+      const response = await axiosClient.post(clientRouterEndPoints.rejectWorklog(contractId), data);
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {

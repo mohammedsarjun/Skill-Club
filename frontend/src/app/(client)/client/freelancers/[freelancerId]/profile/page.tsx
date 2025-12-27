@@ -21,7 +21,7 @@ import { FaSpinner } from 'react-icons/fa';
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
-import { formatCurrency, SupportedCurrency } from "@/utils/currency";
+import { formatCurrency } from "@/utils/currency";
 const FreelancerProfile = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const params = useParams();
@@ -225,7 +225,7 @@ const FreelancerProfile = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <FaDollarSign size={14} className="text-gray-400" />
-                    <span className="font-semibold text-gray-900">{formatCurrency(Number(freelancer.freelancerProfile.hourlyRate || 0), (useSelector((s: RootState) => s.auth.user?.preferredCurrency) || 'USD') as SupportedCurrency)}/hr</span>
+                    <span className="font-semibold text-gray-900">{formatCurrency(Number(freelancer.freelancerProfile.hourlyRate || 0))}/hr</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <FaStar size={14} className="text-yellow-400" />

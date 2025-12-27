@@ -16,7 +16,6 @@ export class FreelancerChatController implements IFreelancerChatController {
   async sendMessage(req: Request, res: Response): Promise<void> {
     const freelancerId = req.user?.userId as string;
     const { contractId, message, attachments } = req.body;
-    
 
     const result = await this._freelancerChatService.sendMessage(freelancerId, {
       contractId,

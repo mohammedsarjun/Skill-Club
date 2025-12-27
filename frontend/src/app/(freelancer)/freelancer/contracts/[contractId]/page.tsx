@@ -21,37 +21,19 @@ import { FilesTab } from './components/workspace/FilesTab';
 import { IFreelancerContractDetail } from '@/types/interfaces/IFreelancerContractDetail';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
-import {
-  formatCurrency as formatCurrencyUtil,
-  SupportedCurrency,
-  convertCurrency,
-} from '@/utils/currency';
+import { formatCurrency as formatCurrencyUtil } from '@/utils/currency';
+import WorkLogTracker from './components/workspace/WorkLogTracker';
 
 function ContractDetails() {
   const [contractDetail, setContractDetail] = useState<IFreelancerContractDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'details' | 'workspace'>('details');
-  const [activeWorkspaceTab, setActiveWorkspaceTab] = useState<'deliverables' | 'milestones' | 'timesheet' | 'chat' | 'files'>('deliverables');
-  const [converted, setConverted] = useState<{
-    currency: SupportedCurrency;
-    hourlyRate?: number;
-    budget?: number;
-    totalMilestones?: number;
-    milestones?: {
-      milestoneId: string;
-      title: string;
-      amount: number;
-      expectedDelivery: string;
-      status: 'pending' | 'funded' | 'submitted' | 'approved' | 'paid';
-    }[];
-  }>({ currency: 'USD' });
+  const [activeWorkspaceTab, setActiveWorkspaceTab] = useState<'deliverables' | 'milestones' | 'timesheet' | 'chat' | 'files'|'worklogTracker'>('deliverables');
 
   const params = useParams();
   const router = useRouter();
   const contractId = params.contractId;
-  const preferredCurrency = (useSelector((s: RootState) => s.auth.user?.preferredCurrency) ||
-    'USD') as SupportedCurrency;
   const currentUserId = useSelector((s: RootState) => s.auth.user?.userId) || '';
 
   const handleGoBack = useCallback(() => {
@@ -65,27 +47,19 @@ function ContractDetails() {
   }, [contractDetail, router]);
 
   const handleWorkspaceClick = useCallback(() => {
-    if (!contractDetail) return;
-    if (contractDetail.status !== 'active') {
-      Swal.fire({
-        title: 'Workspace Locked',
-        text: 'Contract is not active. Workspace is locked.',
-        icon: 'info',
-      });
-    } else {
+    // if (!contractDetail) return;
+    // if (contractDetail.status !== 'active') {
+    //   Swal.fire({
+    //     title: 'Workspace Locked',
+    //     text: 'Contract is not active. Workspace is locked.',
+    //     icon: 'info',
+    //   });
+    // } else {
       setActiveTab('workspace');
-    }
+    // }
   }, [contractDetail]);
 
-  const handleWorkspaceTabClick = useCallback((tab: 'deliverables' | 'milestones' | 'timesheet' | 'chat' | 'files') => {
-    if (contractDetail?.status !== 'active') {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Workspace Locked',
-        text: 'The workspace is only available when the contract is active.',
-      });
-      return;
-    }
+  const handleWorkspaceTabClick = useCallback((tab: 'worklogTracker'|'deliverables' | 'milestones' | 'timesheet' | 'chat' | 'files') => {
     setActiveWorkspaceTab(tab);
   }, [contractDetail?.status]);
 
@@ -104,6 +78,8 @@ function ContractDetails() {
     setError(null);
     try {
       const resp = await freelancerActionApi.getContractDetail(String(contractId));
+
+      console.log(resp)
       if (resp?.success && resp.data) {
         const d = resp.data;
         const mapped: IFreelancerContractDetail = {
@@ -133,13 +109,42 @@ function ContractDetails() {
           currency: d.currency,
           milestones: Array.isArray(d.milestones)
             ? d.milestones.map((m: any) => ({
+                id: m.id || m.milestoneId,
                 milestoneId: m.milestoneId,
                 title: m.title,
                 amount: m.amount,
+                amountBaseUSD: m.amountBaseUSD,
                 expectedDelivery: m.expectedDelivery,
                 status: m.status,
                 submittedAt: m.submittedAt,
                 approvedAt: m.approvedAt,
+                revisionsAllowed: m.revisionsAllowed,
+                deliverables: Array.isArray(m.deliverables)
+                  ? m.deliverables.map((dlv: any) => ({
+                      id: dlv.id,
+                      submittedBy: dlv.submittedBy,
+                      files: dlv.files,
+                      message: dlv.message,
+                      status: dlv.status,
+                      version: dlv.version,
+                      submittedAt: dlv.submittedAt,
+                      approvedAt: dlv.approvedAt,
+                      revisionsRequested: dlv.revisionsRequested,
+                      revisionsAllowed: dlv.revisionsAllowed,
+                      revisionsLeft: dlv.revisionsLeft,
+                    }))
+                  : [],
+                extensionRequest: m.extensionRequest
+                  ? {
+                      requestedBy: m.extensionRequest.requestedBy,
+                      requestedDeadline: m.extensionRequest.requestedDeadline,
+                      reason: m.extensionRequest.reason,
+                      status: m.extensionRequest.status,
+                      requestedAt: m.extensionRequest.requestedAt,
+                      respondedAt: m.extensionRequest.respondedAt,
+                      responseMessage: m.extensionRequest.responseMessage,
+                    }
+                  : undefined,
               }))
             : [],
           timesheets: Array.isArray(d.timesheets)
@@ -188,6 +193,7 @@ function ContractDetails() {
           createdAt: d.createdAt,
           updatedAt: d.updatedAt,
         };
+
         setContractDetail(mapped);
       } else {
         setError(resp?.message || 'Failed to load contract details');
@@ -225,16 +231,40 @@ function ContractDetails() {
     }
   }, [contractId]);
 
-  const handleSubmitMilestoneDeliverable = useCallback(async (milestoneId: string, files: { fileName: string; fileUrl: string }[], message: string) => {
+  const handleSubmitMilestoneDeliverable = useCallback(async (cId: string, milestoneId: string, files: string[], message: string) => {
     try {
-      // TODO: Implement API call
-      // await freelancerActionApi.submitMilestoneDeliverable(contractId, milestoneId, files, message);
-      Swal.fire('Success', 'Milestone deliverable submitted successfully', 'success');
+      const formattedFiles = files.map((fileUrl, index) => ({
+        fileName: `file-${index + 1}`,
+        fileUrl,
+      }));
+
+      const resp = await freelancerActionApi.submitMilestoneDeliverable(cId, milestoneId, formattedFiles, message);
+      if (resp?.success) {
+        await loadContractDetail();
+        Swal.fire('Success', 'Milestone deliverable submitted successfully', 'success');
+      } else {
+        Swal.fire('Error', resp?.message || 'Failed to submit milestone deliverable', 'error');
+      }
     } catch (error) {
       console.error('Error submitting milestone deliverable:', error);
       Swal.fire('Error', 'Failed to submit milestone deliverable', 'error');
     }
-  }, [contractId]);
+  }, [loadContractDetail]);
+
+  const handleRequestMilestoneExtension = useCallback(async (cId: string, milestoneId: string, requestedDeadline: string, reason: string) => {
+    try {
+      const resp = await freelancerActionApi.requestMilestoneExtension(cId, milestoneId, requestedDeadline, reason);
+      if (resp?.success) {
+        await loadContractDetail();
+        Swal.fire('Success', 'Extension request submitted successfully', 'success');
+      } else {
+        Swal.fire('Error', resp?.message || 'Failed to request extension', 'error');
+      }
+    } catch (error) {
+      console.error('Error requesting extension:', error);
+      Swal.fire('Error', 'Failed to request extension', 'error');
+    }
+  }, [loadContractDetail]);
 
   const handleSubmitTimesheet = useCallback(async (logs: { logId?: string; date: string; hours: number; description: string }[]) => {
     try {
@@ -301,8 +331,8 @@ function ContractDetails() {
     });
   };
 
-  const formatCurrency = (amount: number, _currency: string) =>
-    formatCurrencyUtil(Number(amount || 0), converted.currency || preferredCurrency);
+  const formatCurrency = (amount: number) =>
+    formatCurrencyUtil(Number(amount || 0));
 
   const getCommunicationIcon = (method: string) => {
     switch (method) {
@@ -336,56 +366,6 @@ function ContractDetails() {
     };
   }, [contractId, loadContractDetail]);
 
-  useEffect(() => {
-    let cancelled = false;
-    const doConvert = async () => {
-      if (!contractDetail) return;
-      const srcCur = (contractDetail.currency || 'USD') as SupportedCurrency;
-      const tgtCur = preferredCurrency as SupportedCurrency;
-
-      try {
-        const [hr, bdg, msConverted] = await Promise.all([
-          contractDetail.hourlyRate != null
-            ? convertCurrency(contractDetail.hourlyRate, srcCur, tgtCur)
-            : Promise.resolve(undefined),
-          contractDetail.budget != null
-            ? convertCurrency(contractDetail.budget, srcCur, tgtCur)
-            : Promise.resolve(undefined),
-          Array.isArray(contractDetail.milestones)
-            ? Promise.all(
-                contractDetail.milestones.map(async (m) => ({
-                  ...m,
-                  amount: await convertCurrency(m.amount || 0, srcCur, tgtCur),
-                }))
-              )
-            : Promise.resolve(undefined),
-        ]);
-
-        const totalMs = Array.isArray(msConverted)
-          ? msConverted.reduce((s, m) => s + (m.amount || 0), 0)
-          : undefined;
-
-        if (!cancelled) {
-          setConverted({
-            currency: tgtCur,
-            hourlyRate: hr,
-            budget: bdg,
-            milestones: msConverted,
-            totalMilestones: totalMs,
-          });
-        }
-      } catch {
-        if (!cancelled) {
-          setConverted({ currency: srcCur as SupportedCurrency });
-        }
-      }
-    };
-    doConvert();
-    return () => {
-      cancelled = true;
-    };
-  }, [contractDetail, preferredCurrency]);
-
   return (
     <>
       <ContractHeader onGoBack={handleGoBack} />
@@ -412,17 +392,12 @@ function ContractDetails() {
                 className={`flex-1 px-6 py-4 font-medium transition-colors relative ${
                   activeTab === 'workspace'
                     ? 'text-blue-600 border-b-2 border-blue-600'
-                    : contractDetail.status !== 'active'
-                    ? 'text-gray-400 cursor-not-allowed'
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
-                disabled={contractDetail.status !== 'active'}
               >
                 <span className="flex items-center justify-center gap-2">
                   Workspace
-                  {contractDetail.status !== 'active' && (
-                    <FaLock className="text-sm" />
-                  )}
+        
                 </span>
               </button>
             </div>
@@ -444,10 +419,9 @@ function ContractDetails() {
                     startDate={contractDetail.expectedStartDate}
                     endDate={contractDetail.expectedEndDate}
                     paymentType={contractDetail.paymentType}
-                    fundedAmount={converted.budget ?? contractDetail.fundedAmount}
-                    totalPaid={converted.budget ?? contractDetail.totalPaid}
-                    balance={converted.budget ?? contractDetail.balance}
-                    currency={converted.currency}
+                    fundedAmount={contractDetail.fundedAmount}
+                    totalPaid={contractDetail.totalPaid}
+                    balance={contractDetail.balance}
                     formatDate={formatDate}
                     formatCurrency={formatCurrency}
                   />
@@ -456,11 +430,10 @@ function ContractDetails() {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
                   <ContractBudget
                     paymentType={contractDetail.paymentType}
-                    hourlyRate={converted.hourlyRate ?? contractDetail.hourlyRate}
+                    hourlyRate={contractDetail.hourlyRate}
                     estimatedHoursPerWeek={contractDetail.estimatedHoursPerWeek}
-                    budget={converted.budget ?? contractDetail.budget}
-                    totalMilestones={converted.totalMilestones ?? calculateTotalMilestones()}
-                    currency={converted.currency}
+                    budget={contractDetail.budget}
+                    totalMilestones={calculateTotalMilestones()}
                     formatCurrency={formatCurrency}
                   />
                 </div>
@@ -468,8 +441,7 @@ function ContractDetails() {
                 <ContractDescription description={contractDetail.description} />
 
                 <ContractMilestones
-                  milestones={(converted.milestones ?? contractDetail.milestones) || []}
-                  currency={converted.currency}
+                  milestones={(contractDetail.milestones) || []}
                   formatDate={formatDate}
                   formatCurrency={formatCurrency}
                 />
@@ -536,6 +508,19 @@ function ContractDetails() {
                     Timesheet
                   </button>
                 )}
+
+                   {contractDetail.paymentType === 'hourly' && (
+                  <button
+                    onClick={() => handleWorkspaceTabClick('worklogTracker')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      activeWorkspaceTab === 'worklogTracker'
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    Work Log Tracker
+                  </button>
+                )}
                 <button
                   onClick={() => handleWorkspaceTabClick('chat')}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
@@ -582,25 +567,20 @@ function ContractDetails() {
                 {activeWorkspaceTab === 'milestones' && contractDetail.paymentType === 'fixed_with_milestones' && (
                   <MilestonesWorkspace
                     contractId={contractId as string}
-                    milestones={[]}
+                    milestones={contractDetail.milestones || []}
                     currency={getCurrencySymbol(contractDetail.currency)}
                     onSubmitMilestone={handleSubmitMilestoneDeliverable}
+                    onRequestExtension={handleRequestMilestoneExtension}
                   />
                 )}
-                {activeWorkspaceTab === 'timesheet' && contractDetail.paymentType === 'hourly' && (
-                  <TimesheetWorkspace
-                    contractId={contractId as string}
-                    timesheets={[]}
-                    hourlyRate={contractDetail.hourlyRate || 0}
-                    currency={getCurrencySymbol(contractDetail.currency)}
-                    onSubmitTimesheet={handleSubmitTimesheet}
-                    onSubmitHourLog={handleSubmitHourLog}
-                  />
+                {activeWorkspaceTab === 'worklogTracker' && contractDetail.paymentType === 'hourly' && (
+                  <WorkLogTracker contractId={contractId as string}/>
                 )}
                 {activeWorkspaceTab === 'chat' && (
                   <ChatPanel
                     contractId={contractId as string}
                     currentUserId={currentUserId}
+                    contractStatus={contractDetail.status}
                   />
                 )}
                 {activeWorkspaceTab === 'files' && (

@@ -66,43 +66,8 @@ export class FreelancerProposalService implements IFreelancerProposalService {
       jobRateType,
       freelancerId,
     );
-    // Compute base USD amount and conversion rate
-    const currency = proposalDbData.currency ?? 'USD';
-    let conversionRate = 1;
-    try {
-      const { getUsdRateFor } = await import('../../utils/currency.util');
-      // getUsdRateFor returns USD per 1 unit of currency
-      conversionRate = await getUsdRateFor(currency);
-    } catch (e) {
-      // Fallback to 1 when FX fetch fails
-      conversionRate = currency === 'USD' ? 1 : conversionRate;
-    }
 
-    const amount = proposalDbData.hourlyRate ?? proposalDbData.proposedBudget ?? undefined;
-    const amountBaseUSD = typeof amount === 'number' ? amount * conversionRate : undefined;
-
-    if (jobRateType === 'hourly' && typeof amountBaseUSD === 'number') {
-      if (amountBaseUSD < 5 || amountBaseUSD > 999) {
-        throw new AppError(
-          'Hourly rate must be between $5 and $999 after conversion',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-    }
-    if (jobRateType === 'fixed' && typeof amountBaseUSD === 'number') {
-      if (amountBaseUSD < 5 || amountBaseUSD > 100000) {
-        throw new AppError(
-          'Proposed budget must be between $5 and $100000 after conversion',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-    }
-
-    await this._proposalRepository.createProposal({
-      ...proposalDbData,
-      conversionRate,
-      amountBaseUSD,
-    });
+    await this._proposalRepository.createProposal(proposalDbData);
   }
 
   async getAllProposal(

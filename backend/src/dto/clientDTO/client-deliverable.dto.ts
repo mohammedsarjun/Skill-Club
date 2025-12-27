@@ -1,5 +1,6 @@
 export interface ApproveDeliverableDTO {
   deliverableId: string;
+  message?: string;
 }
 
 export interface RequestChangesDTO {
@@ -16,4 +17,7 @@ export interface DeliverableResponseDTO {
   version: number;
   submittedAt: string;
   approvedAt?: string;
+  revisionsRequested?: number;
+  revisionsAllowed?: number;
+  revisionsLeft?: number;
 }

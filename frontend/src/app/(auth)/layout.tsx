@@ -7,14 +7,10 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import GuestGuard from "@/components/GuestGaurd";
 
-type LayoutProps = {
-  children: React.ReactNode;
-};
-
-export default function Layout({ children }: LayoutProps) {
+export default function Layout({ children, params }: { children: React.ReactNode; params?: any }) {
   return (
     <GuestGuard>
-      <div className="bg-background min-h-screen">
+      <div className="bg-gray-50 min-h-screen">
         <AuthHeader />
         {children}
       </div>

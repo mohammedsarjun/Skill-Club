@@ -6,26 +6,20 @@ const EscrowSchema = new Schema<IEscrow>(
     escrowId: { type: String, required: true, unique: true, index: true },
     contractId: { type: Schema.Types.ObjectId, required: true, ref: 'Contract', index: true },
     paymentId: { type: Schema.Types.ObjectId, required: true, ref: 'Payment' },
-    
+
     clientId: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
     freelancerId: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
-    
+
     amount: { type: Number, required: true },
-    amountBaseUSD: Number,
-    currency: {
-      type: String,
-      enum: ['USD', 'EUR', 'GBP', 'INR', 'AUD', 'CAD', 'SGD', 'JPY'],
-      required: true,
-    },
-    conversionRate: Number,
-    
+
     status: { type: String, enum: ['held', 'released', 'refunded'], default: 'held' },
     heldAt: { type: Date, default: Date.now },
     releasedAt: Date,
     refundedAt: Date,
-    
+
     milestoneId: Schema.Types.ObjectId,
     description: { type: String, required: true },
+    purpose: { type: String, required: true },
   },
   { timestamps: true },
 );

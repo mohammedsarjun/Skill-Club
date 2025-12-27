@@ -46,7 +46,6 @@ export const mapContractModelToFreelancerContractListItemDTO = (
     paymentType: contract.paymentType,
     budget: contract.budget,
     hourlyRate: contract.hourlyRate,
-    currency: contract.currency,
     status: contract.status,
     createdAt: contract.createdAt!,
     client,

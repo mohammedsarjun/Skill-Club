@@ -42,12 +42,6 @@ const jobSchema: Schema<IJob> = new Schema(
       enum: ['hourly', 'fixed'],
       required: true,
     },
-    currency: {
-      type: String,
-      enum: ['USD', 'EUR', 'GBP', 'INR', 'AUD', 'CAD', 'SGD', 'JPY'],
-      default: 'USD',
-    },
-    conversionRate: { type: Number }, // USD per 1 unit of currency
     hourlyRate: {
       min: {
         type: Number,
@@ -75,10 +69,6 @@ const jobSchema: Schema<IJob> = new Schema(
         },
       },
     },
-    hourlyRateBaseUSD: {
-      min: { type: Number },
-      max: { type: Number },
-    },
     fixedRate: {
       min: {
         type: Number,
@@ -92,10 +82,6 @@ const jobSchema: Schema<IJob> = new Schema(
           return this.rateType === 'fixed';
         },
       },
-    },
-    fixedRateBaseUSD: {
-      min: { type: Number },
-      max: { type: Number },
     },
     clientId: {
       type: mongoose.Schema.Types.ObjectId,

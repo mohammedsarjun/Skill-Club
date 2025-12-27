@@ -9,7 +9,6 @@ dotenv.config();
 
 const seedSuperAdmin = async () => {
   try {
-    // ✅ Use your existing function
     await connectDB();
 
     const existingSuperAdmin = await Admin.findOne({ isSuperAdmin: true });

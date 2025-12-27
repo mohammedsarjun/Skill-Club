@@ -1,8 +1,8 @@
 import {
   ClientProposalResponseDTO,
   ProposalQueryParamsDTO,
-} from 'src/dto/clientDTO/client-proposal.dto';
-import { ProposalDetailWithFreelancerDetail } from 'src/models/interfaces/proposal.model.interface';
+} from '../../dto/clientDTO/client-proposal.dto';
+import { ProposalDetailWithFreelancerDetail } from '../../models/interfaces/proposal.model.interface';
 
 type ProposalStatus = 'pending_verification' | 'accepted' | 'rejected';
 

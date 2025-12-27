@@ -18,7 +18,7 @@ import {
 } from '../../dto/adminDTO/skill.dto';
 import { ERROR_MESSAGES } from '../../contants/error-constants';
 
-import { ISkillWithPopulatedSpecialities, PopulatedSkill } from 'src/types/skill-type';
+import { ISkillWithPopulatedSpecialities, PopulatedSkill } from '../../types/skill-type';
 @injectable()
 export class AdminSkillServices implements IAdminSkillServices {
   private _adminSkillRepository;

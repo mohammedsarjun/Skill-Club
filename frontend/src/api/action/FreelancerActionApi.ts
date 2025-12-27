@@ -14,6 +14,7 @@ import { ICreateProposal } from "@/types/interfaces/IProposal";
 import { IFreelancerContractQueryParams } from "@/types/interfaces/IFreelancerContractList";
 import { IUpdateExpertise } from "@/types/interfaces/IExpertise";
 import { ISubmitDeliverableRequest } from "@/types/interfaces/IDeliverable";
+import { ISubmitWorklogRequest } from "@/types/interfaces/IWorklog";
 
 export const freelancerActionApi = {
   async getFreelancerData() {
@@ -569,11 +570,86 @@ export const freelancerActionApi = {
     }
   },
 
-  async submitDeliverable(contractId: string, data: ISubmitDeliverableRequest,message?: string) {
+  async submitDeliverable(contractId: string, data: ISubmitDeliverableRequest) {
     try {
       const response = await axiosClient.post(
-        `/freelancer/contracts/${contractId}/deliverables`,
-        {files: data, message  }
+        freelancerRouterEndPoints.submitContractDeliverable(contractId),
+        data
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async submitMilestoneDeliverable(
+    contractId: string,
+    milestoneId: string,
+    files: { fileName: string; fileUrl: string }[],
+    message?: string
+  ) {
+
+
+    try {
+      const response = await axiosClient.post(
+        freelancerRouterEndPoints.submitMilestoneDeliverable(contractId),
+        { milestoneId, files, message }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async requestMilestoneExtension(
+    contractId: string,
+    milestoneId: string,
+    requestedDeadline: string,
+    reason: string
+  ) {
+    try {
+      const response = await axiosClient.post(
+        freelancerRouterEndPoints.requestMilestoneExtension(contractId),
+        { milestoneId, requestedDeadline, reason }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async submitWorklog(data: ISubmitWorklogRequest) {
+    try {
+      const response = await axiosClient.post(
+        freelancerRouterEndPoints.submitWorklog,
+        data
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getContractWorklogs(contractId: string) {
+    try {
+      const response = await axiosClient.get(
+        freelancerRouterEndPoints.getContractWorklogs(contractId)
       );
       return response.data;
     } catch (error: unknown) {

@@ -22,7 +22,6 @@ export const mapCreateJobDtoToJobModel = (
     specialities: jobData.specialities.map((spec) => new Types.ObjectId(spec)),
     skills: jobData.skills.map((skill) => new Types.ObjectId(skill)),
     rateType: jobData.rateType,
-    currency: jobData.currency,
     hourlyRate: jobData.hourlyRate,
     fixedRate: jobData.fixedRate,
     clientId: new Types.ObjectId(clientId),
@@ -37,7 +36,6 @@ export const mapUpdateJobDtoToJobModel = (jobData: UpdateJobDto): Partial<JobDat
     specialities: jobData.specialities.map((spec) => new Types.ObjectId(spec)),
     skills: jobData.skills.map((skill) => new Types.ObjectId(skill)),
     rateType: jobData.rateType,
-    currency: jobData.currency,
     hourlyRate: jobData.hourlyRate,
     fixedRate: jobData.fixedRate,
   };
@@ -57,7 +55,6 @@ export const mapJobModelDtoToClientJobResponseDto = (
       rateType: jobData.rateType,
       min: (jobData.rateType == 'fixed' ? jobData?.fixedRate?.min : jobData?.hourlyRate?.min) || 0,
       max: (jobData.rateType == 'fixed' ? jobData?.fixedRate?.max : jobData?.hourlyRate?.max) || 0,
-      currency: jobData.currency || 'USD',
     },
   };
 };
@@ -78,7 +75,6 @@ export function mapJobModelToClientJobDetailResponseDTO(
       max: (dto.rateType == 'fixed' ? dto?.fixedRate?.max : dto?.hourlyRate?.max) || 0,
       hoursPerWeek: dto.rateType == 'hourly' ? dto?.hourlyRate?.hoursPerWeek : undefined,
       estimatedDuration: dto.rateType == 'hourly' ? dto?.hourlyRate?.estimatedDuration : undefined,
-      currency: dto.currency || 'USD',
     },
     specialities: dto.specialities.map((spec) => ({
       specialityId: spec._id.toString(),

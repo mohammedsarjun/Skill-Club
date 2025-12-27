@@ -1,7 +1,9 @@
 export default function CreateJobsLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params?: any;
 }) {
   return (
     <div className="min-h-screen flex items-start justify-center bg-gray-100 px-4 mt-20">

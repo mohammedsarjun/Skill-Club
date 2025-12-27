@@ -1,7 +1,12 @@
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { IClientChatService } from './interfaces/client-chat-service.interface';
-import { SendMessageDTO, GetMessagesDTO, MarkAsReadDTO, MessageResponseDTO } from '../../dto/clientDTO/client-chat.dto';
+import {
+  SendMessageDTO,
+  GetMessagesDTO,
+  MarkAsReadDTO,
+  MessageResponseDTO,
+} from '../../dto/clientDTO/client-chat.dto';
 import { IChatRepository } from '../../repositories/chat-repository.interface';
 import { IContractRepository } from '../../repositories/interfaces/contract-repository.interface';
 import { IUserRepository } from '../../repositories/interfaces/user-repository.interface';
@@ -19,7 +24,7 @@ export class ClientChatService implements IClientChatService {
   constructor(
     @inject('IChatRepository') chatRepository: IChatRepository,
     @inject('IContractRepository') contractRepository: IContractRepository,
-    @inject('IUserRepository') userRepository: IUserRepository
+    @inject('IUserRepository') userRepository: IUserRepository,
   ) {
     this._chatRepository = chatRepository;
     this._contractRepository = contractRepository;
@@ -27,7 +32,10 @@ export class ClientChatService implements IClientChatService {
   }
 
   async sendMessage(clientId: string, dto: SendMessageDTO): Promise<MessageResponseDTO> {
-    const contract = await this._contractRepository.findContractDetailByIdForClient(dto.contractId, clientId);
+    const contract = await this._contractRepository.findContractDetailByIdForClient(
+      dto.contractId,
+      clientId,
+    );
 
     if (!contract) {
       throw new AppError('Contract not found or access denied', HttpStatus.NOT_FOUND);
@@ -49,18 +57,21 @@ export class ClientChatService implements IClientChatService {
     const response = ClientChatMapper.toMessageResponseDTO(
       message,
       `${client.firstName} ${client.lastName}`,
-      client.avatar
+      client.avatar,
     );
 
     emitNewMessage(dto.contractId, {
       senderName: `${client.clientProfile.companyName}`,
-      senderAvatar: client.clientProfile.logo||'',
+      senderAvatar: client.clientProfile.logo || '',
       contractId: message.contractId,
       messageId: message.messageId,
       senderId: message.senderId,
       senderRole: message.senderRole,
       message: message.message,
-      attachments: (message.attachments || []).map(att => ({ url: att.fileUrl, name: att.fileName })),
+      attachments: (message.attachments || []).map((att) => ({
+        url: att.fileUrl,
+        name: att.fileName,
+      })),
       sentAt: message.sentAt,
     });
 
@@ -68,7 +79,10 @@ export class ClientChatService implements IClientChatService {
   }
 
   async getMessages(clientId: string, dto: GetMessagesDTO): Promise<MessageResponseDTO[]> {
-    const contract = await this._contractRepository.findContractDetailByIdForClient(dto.contractId, clientId);
+    const contract = await this._contractRepository.findContractDetailByIdForClient(
+      dto.contractId,
+      clientId,
+    );
     if (!contract) {
       throw new AppError('Contract not found or access denied', HttpStatus.NOT_FOUND);
     }
@@ -76,7 +90,7 @@ export class ClientChatService implements IClientChatService {
     const messages = await this._chatRepository.getMessagesByContract(
       dto.contractId,
       dto.limit,
-      dto.skip
+      dto.skip,
     );
 
     const clientIdStr =
@@ -86,7 +100,8 @@ export class ClientChatService implements IClientChatService {
     const freelancerIdStr =
       typeof contract.freelancerId === 'string'
         ? contract.freelancerId
-        : (contract.freelancerId as any)?._id?.toString() || (contract.freelancerId as any)?.id?.toString();
+        : (contract.freelancerId as any)?._id?.toString() ||
+          (contract.freelancerId as any)?.id?.toString();
 
     const [client, freelancer] = await Promise.all([
       clientIdStr ? this._userRepository.findById(clientIdStr) : Promise.resolve(null),
@@ -111,7 +126,10 @@ export class ClientChatService implements IClientChatService {
   }
 
   async markAsRead(clientId: string, dto: MarkAsReadDTO): Promise<void> {
-    const contract = await this._contractRepository.findContractDetailByIdForClient(dto.contractId, clientId);
+    const contract = await this._contractRepository.findContractDetailByIdForClient(
+      dto.contractId,
+      clientId,
+    );
     if (!contract) {
       throw new AppError('Contract not found or access denied', HttpStatus.NOT_FOUND);
     }
@@ -126,7 +144,10 @@ export class ClientChatService implements IClientChatService {
   }
 
   async getUnreadCount(clientId: string, contractId: string): Promise<number> {
-    const contract = await this._contractRepository.findContractDetailByIdForClient(contractId, clientId);
+    const contract = await this._contractRepository.findContractDetailByIdForClient(
+      contractId,
+      clientId,
+    );
     if (!contract) {
       throw new AppError('Contract not found or access denied', HttpStatus.NOT_FOUND);
     }

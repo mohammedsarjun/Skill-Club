@@ -12,6 +12,7 @@ import { FreelancerOfferController } from '../controllers/freelancer/freelancer-
 import { FreelancerSavedJobController } from '../controllers/freelancer/freelancer-saved-job-controller';
 import { FreelancerContractController } from '../controllers/freelancer/freelancer-contract-controller';
 import { FreelancerChatController } from '../controllers/freelancer/freelancer-chat-controller';
+import { FreelancerWorklogController } from '../controllers/freelancer/freelancer-worklog-controller';
 const freelancerRouter = express.Router();
 
 const freelancerController = container.resolve(FreelancerController);
@@ -23,6 +24,7 @@ const freelancerOfferController = container.resolve(FreelancerOfferController);
 const freelancerSavedJobController = container.resolve(FreelancerSavedJobController);
 const freelancerContractController = container.resolve(FreelancerContractController);
 const freelancerChatController = container.resolve(FreelancerChatController);
+const freelancerWorklogController = container.resolve(FreelancerWorklogController);
 freelancerRouter.get(
   '/me',
   authMiddleware,
@@ -263,6 +265,38 @@ freelancerRouter.post(
   roleGuard('freelancer'),
   freelancerBlockMiddleware,
   freelancerContractController.submitDeliverable.bind(freelancerContractController),
+);
+
+freelancerRouter.post(
+  '/contracts/:contractId/milestones/deliverables',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerContractController.submitMilestoneDeliverable.bind(freelancerContractController),
+);
+
+freelancerRouter.post(
+  '/contracts/:contractId/milestones/extension',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerContractController.requestMilestoneExtension.bind(freelancerContractController),
+);
+
+freelancerRouter.post(
+  '/worklogs',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerWorklogController.submitWorklog.bind(freelancerWorklogController),
+);
+
+freelancerRouter.get(
+  '/contracts/:contractId/worklogs',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerWorklogController.getWorklogsByContract.bind(freelancerWorklogController),
 );
 
 freelancerRouter.post(

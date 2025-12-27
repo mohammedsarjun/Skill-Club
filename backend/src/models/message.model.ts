@@ -67,7 +67,7 @@ const messageSchema = new Schema<IMessageDocument>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 messageSchema.index({ contractId: 1, sentAt: -1 });

@@ -6,7 +6,6 @@ export interface CreateUserDTO {
   password: string;
   agreement: boolean;
   timezone?: string;
-  preferredCurrency?: string;
   country?: string;
 }
 
@@ -22,5 +21,4 @@ export interface GetUserDto {
   lastName?: string;
   email?: string;
   phone?: number;
-  preferredCurrency?: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
 }

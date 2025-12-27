@@ -26,7 +26,6 @@ export interface User {
   isClientBlocked: boolean;
   
   // Additional user data
-  preferredCurrency?: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
   avatar?: string;
 }
 

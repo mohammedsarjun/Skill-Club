@@ -3,7 +3,7 @@ import { IUser } from '../models/interfaces/user.model.interface';
 import { FilterQuery, Types, UpdateQuery } from 'mongoose';
 import BaseRepository from './baseRepositories/base-repository';
 import { IUserRepository } from './interfaces/user-repository.interface';
-import { AddressDTO } from 'src/dto/user.dto';
+import { AddressDTO } from '../dto/user.dto';
 
 export class UserRepository extends BaseRepository<IUser> implements IUserRepository {
   constructor() {
@@ -134,5 +134,13 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
 
   async countAllUsers(): Promise<number> {
     return super.count();
+  }
+
+  async updateWalletBalance(userId: string, amount: number): Promise<IUser | null> {
+    return await this.model.findByIdAndUpdate(
+      userId,
+      { $inc: { walletBalance: amount } },
+      { new: true }
+    ).exec();
   }
 }

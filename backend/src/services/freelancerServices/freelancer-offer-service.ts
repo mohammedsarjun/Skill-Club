@@ -85,7 +85,7 @@ export class FreelancerOfferService implements IFreelancerOfferService {
     }
 
     const contractData = mapOfferToContract(existing);
-    const contract = await this._contractRepository.createContract(contractData as any);
+    const contract = await this._contractRepository.createContract(contractData);
 
     await this._offerRepository.updateStatusById(offerId, 'accepted');
 

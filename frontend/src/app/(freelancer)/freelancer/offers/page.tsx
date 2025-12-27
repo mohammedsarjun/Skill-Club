@@ -9,7 +9,7 @@ import { freelancerActionApi } from "@/api/action/FreelancerActionApi";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
-import { formatCurrency, SupportedCurrency } from "@/utils/currency";
+import { formatCurrency } from '@/utils/currency';
 
 
 
@@ -37,7 +37,6 @@ const OffersPage: React.FC = () => {
   const [total, setTotal] = useState(0);
 
   const router = useRouter();
-  const preferredCurrency = (useSelector((s: RootState) => s.auth.user?.preferredCurrency) || 'USD') as SupportedCurrency;
   // debounce search
   const debouncedSearch = useMemo(() => {
     const handle = { id: 0 } as any;
@@ -116,9 +115,9 @@ const OffersPage: React.FC = () => {
     client: typeof o.clientId === "string" ? o.clientId : (o.clientId as any)?.name ?? String((o.clientId as any)?.id ?? "Client"),
     proposedDate: o.createdAt ? new Date(o.createdAt).toLocaleDateString() : "",
     payment: o.paymentType === "hourly"
-      ? `${o.hourlyRate !== undefined ? formatCurrency(Number(o.hourlyRate), preferredCurrency) : '-'} /hr`
+      ? `${o.hourlyRate !== undefined ? formatCurrency(Number(o.hourlyRate)) : '-'} /hr`
       : o.budget
-        ? `${formatCurrency(Number(o.budget), preferredCurrency)} (Fixed)`
+        ? `${formatCurrency(Number(o.budget))} (Fixed)`
         : "-",
     status: o.status,
     original: o,

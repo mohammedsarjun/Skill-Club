@@ -27,8 +27,4 @@ export interface IUserServices {
     actionData: Record<string, unknown>,
   ): Promise<void>;
   updateUserProfile(userId: string, profileData: UserProfileDto): Promise<UserProfileDto>;
-  updatePreferredCurrency(
-    userId: string,
-    preferredCurrency: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY',
-  ): Promise<UserDto>;
 }

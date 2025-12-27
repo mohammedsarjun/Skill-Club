@@ -64,4 +64,8 @@ export const ERROR_MESSAGES = {
     ALREADY_EXIST: 'Proposal already sent',
     NOT_FOUND: 'Proposal Not Found',
   },
+  CONTRACT: {
+    NOT_FOUND: 'Contract not found',
+    UNAUTHORIZED_ACCESS: 'You are not authorized to access this contract',
+  },
 };

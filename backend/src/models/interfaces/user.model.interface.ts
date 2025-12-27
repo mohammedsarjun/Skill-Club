@@ -48,9 +48,6 @@ export interface IFreelancerProfile {
   languages: ILanguage[];
   bio: string;
   hourlyRate: number;
-  hourlyRateCurrency?: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
-  hourlyRateConversionRate?: number; // USD per 1 unit of currency
-  hourlyRateBaseUSD?: number;
   portfolio: [];
 }
 
@@ -79,12 +76,12 @@ export interface IUser extends Document {
   isOnboardingCompleted: boolean;
   isFreelancerOnboarded: boolean;
   isClientOnboarded: boolean;
+  walletBalance?: number;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
   roles: string[];
   activeRole: string;
   freelancerProfile: IFreelancerProfile;
-  preferredCurrency: string;
 
   preferredTimezone: string;
   clientProfile: IClientProfile; // ✅ added here

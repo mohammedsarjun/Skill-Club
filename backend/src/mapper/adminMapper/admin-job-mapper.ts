@@ -1,6 +1,5 @@
 import { AdminJobDetailResponseDTO, AdminJobResponseDTO } from '../../dto/adminDTO/admin-job.dto';
 import { IJobDetail, IJobWithCategoryDetail } from '../../models/interfaces/job.model.interface';
-import { SupportedCurrency } from '../../contants/currency.constants';
 
 export function mapJobModelToAdminJobResponseDTO(dto: IJobWithCategoryDetail): AdminJobResponseDTO {
   return {
@@ -14,7 +13,6 @@ export function mapJobModelToAdminJobResponseDTO(dto: IJobWithCategoryDetail): A
       rateType: dto.rateType,
       min: (dto.rateType == 'fixed' ? dto?.fixedRate?.min : dto?.hourlyRate?.min) || 0,
       max: (dto.rateType == 'fixed' ? dto?.fixedRate?.max : dto?.hourlyRate?.max) || 0,
-      currency: dto.currency as SupportedCurrency,
     },
   };
 }
@@ -31,7 +29,6 @@ export function mapJobModelToAdminJobDetailResponseDTO(dto: IJobDetail): AdminJo
       rateType: dto.rateType,
       min: (dto.rateType == 'fixed' ? dto?.fixedRate?.min : dto?.hourlyRate?.min) || 0,
       max: (dto.rateType == 'fixed' ? dto?.fixedRate?.max : dto?.hourlyRate?.max) || 0,
-      currency: dto.currency as SupportedCurrency,
       hoursPerWeek: dto.rateType == 'hourly' ? dto?.hourlyRate?.hoursPerWeek : undefined,
       estimatedDuration: dto.rateType == 'hourly' ? dto?.hourlyRate?.estimatedDuration : undefined,
     },

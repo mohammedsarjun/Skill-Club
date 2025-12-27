@@ -2,16 +2,12 @@ import React from "react";
 import AuthHeader from "@/components/common/AuthHeader";
 import AuthGuard from "@/components/ClientAuthGaurd";
 
-type LayoutProps = {
-  children: React.ReactNode;
-};
-
-export default function Layout({ children }: LayoutProps) {
+export default function Layout({ children, params }: { children: React.ReactNode; params?: any }) {
 
   return (
 
 
-      <div className="bg-background min-h-screen">
+      <div className="bg-white min-h-screen">
         <AuthHeader />
         {children}
       </div>

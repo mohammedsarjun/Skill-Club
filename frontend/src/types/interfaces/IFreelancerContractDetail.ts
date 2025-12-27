@@ -25,14 +25,38 @@ export interface IFreelancerContractDetail {
   currency: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
 
   milestones?: {
+    id?: string;
     milestoneId: string;
     title: string;
     amount: number;
     amountBaseUSD?: number;
     expectedDelivery: string;
-    status: 'pending' | 'funded' | 'submitted' | 'approved' | 'paid';
+    status: 'pending_funding' | 'funded' | 'under_review' | 'submitted' | 'approved' | 'paid';
     submittedAt?: string;
     approvedAt?: string;
+    revisionsAllowed?: number;
+    deliverables?: {
+      id: string;
+      submittedBy: string;
+      files: { fileName: string; fileUrl: string }[];
+      message?: string;
+      status: 'submitted' | 'approved' | 'changes_requested';
+      version: number;
+      submittedAt: string;
+      approvedAt?: string;
+      revisionsRequested?: number;
+      revisionsAllowed?: number;
+      revisionsLeft?: number;
+    }[];
+    extensionRequest?: {
+      requestedBy: string;
+      requestedDeadline: string;
+      reason: string;
+      status: 'pending' | 'approved' | 'rejected';
+      requestedAt: string;
+      respondedAt?: string;
+      responseMessage?: string;
+    };
   }[];
 
   timesheets?: {
@@ -52,6 +76,18 @@ export interface IFreelancerContractDetail {
     version: number;
     submittedAt: string;
     approvedAt?: string;
+    revisionsRequested?: number;
+    revisionsAllowed?: number;
+    revisionsLeft?: number;
+  }[];
+
+  timeline?: {
+    id?: string;
+    action: string;
+    performedBy: string;
+    milestoneId?: string;
+    details?: string;
+    timestamp: string;
   }[];
 
   title: string;

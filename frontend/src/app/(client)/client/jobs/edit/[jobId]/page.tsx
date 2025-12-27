@@ -124,7 +124,7 @@ function CreateJobPost() {
         <Button
           content="Back"
           type="button"
-          color="gray"
+          variant="secondary"
           onClick={() => step > 1 && setStep(step - 1)}
         />
         {isNextAllowed ? (
@@ -134,7 +134,7 @@ function CreateJobPost() {
             onClick={handleClickNext}
           />
         ) : (
-          <Button content={nextContent} type="button" color="gray" />
+          <Button content={nextContent} type="button" variant="secondary" />
         )}
       </div>
     </div>

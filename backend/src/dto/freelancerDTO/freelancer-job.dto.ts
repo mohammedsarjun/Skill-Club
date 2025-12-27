@@ -26,16 +26,13 @@ export interface FreelancerJobDetailResponseDto {
   hourlyRate?: {
     min: number;
     max: number;
-    currency?: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
     hoursPerWeek: number;
     estimatedDuration: '1 To 3 Months' | '3 To 6 Months';
   } | null;
   fixedRate?: {
     min: number;
-    currency?: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
     max: number;
   } | null;
-  hourlyRateCurrency?: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
   proposalReceived: number;
   postedAt: string; // ISO date string
   client: {
@@ -45,6 +42,7 @@ export interface FreelancerJobDetailResponseDto {
     totalJobsPosted: number;
   };
   status: string;
+  isProposalAlreadySent:boolean
 }
 
 export interface FreelancerJobResponseDto {
@@ -60,14 +58,11 @@ export interface FreelancerJobResponseDto {
     max: number;
     hoursPerWeek?: number;
     estimatedDuration?: '1 To 3 Months' | '3 To 6 Months';
-    currency?: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
   } | null;
   fixedRate?: {
     min: number;
     max: number;
-    currency?: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
   } | null;
-  hourlyRateCurrency?: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
   totalProposalReceived: number;
   postedAt: string;
   client: {

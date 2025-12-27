@@ -116,4 +116,8 @@ export class ProposalRepository extends BaseRepository<IProposal> implements IPr
   async updateStatusById(proposalId: string, status: string): Promise<IProposal | null> {
     return await super.updateById(proposalId, { $set: { status } });
   }
+
+  async findProposalByFreelancerAndJobId(freelancerId:string,jobId:string): Promise<IProposal | null>{
+    return await super.findOne({freelancerId,jobId})
+  }
 }

@@ -3,7 +3,7 @@ import '../../config/container';
 import { IClientCategoryService } from './interfaces/client-category-service.interface';
 import { GetClientCategoryDTO } from '../../dto/clientDTO/client-category.dto';
 import { mapCategoryModelToGetClientCategoryDTO } from '../../mapper/clientMapper/client-category.mapper';
-import { ICategoryRepository } from 'src/repositories/interfaces/category-repository.interface';
+import { ICategoryRepository } from '../../repositories/interfaces/category-repository.interface';
 
 @injectable()
 export class ClientCategoryService implements IClientCategoryService {

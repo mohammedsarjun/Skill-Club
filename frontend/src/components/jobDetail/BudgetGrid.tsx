@@ -1,5 +1,5 @@
 import React from "react";
-import { FaDollarSign, FaClock, FaCalendarAlt } from "react-icons/fa";
+import { FaClock, FaCalendarAlt } from "react-icons/fa";
 import { Budget } from "@/types/interfaces/jobDetail";
 
 interface Props {
@@ -36,10 +36,10 @@ export const BudgetGrid: React.FC<Props> = ({ budget }) => {
         {/* Minimum Rate */}
         <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 p-4 rounded-lg border border-blue-200">
           <div className="flex items-center text-blue-700 text-sm mb-2">
-            <FaDollarSign className="w-4 h-4 mr-2" />
+            <span className="mr-2 text-gray-700">₹</span>
             Minimum Rate
           </div>
-          <p className="text-2xl font-bold text-gray-900">${budget.min ?? 0}</p>
+          <p className="text-2xl font-bold text-gray-900">₹{budget.min ?? 0}</p>
           {budget.rateType === "hourly" && (
             <p className="text-xs text-gray-600 mt-1">per hour</p>
           )}
@@ -48,10 +48,10 @@ export const BudgetGrid: React.FC<Props> = ({ budget }) => {
         {/* Maximum Rate */}
         <div className="bg-gradient-to-br from-green-50 to-green-100/50 p-4 rounded-lg border border-green-200">
           <div className="flex items-center text-green-700 text-sm mb-2">
-            <FaDollarSign className="w-4 h-4 mr-2" />
+            <span className="mr-2 text-gray-700">₹</span>
             Maximum Rate
           </div>
-          <p className="text-2xl font-bold text-gray-900">${budget.max ?? 0}</p>
+          <p className="text-2xl font-bold text-gray-900">₹{budget.max ?? 0}</p>
           {budget.rateType === "hourly" && (
             <p className="text-xs text-gray-600 mt-1">per hour</p>
           )}

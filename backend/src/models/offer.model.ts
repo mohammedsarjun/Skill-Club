@@ -11,8 +11,8 @@ const milestoneSchema = new Schema<OfferMilestone>(
   {
     title: { type: String, required: true, trim: true },
     amount: { type: Number, required: true },
-    amountBaseUSD: { type: Number },
     expectedDelivery: { type: Date, required: true },
+    revisions: { type: Number, default: 0 },
   },
   { _id: false },
 );
@@ -61,17 +61,10 @@ const offerSchema = new Schema<IOffer>(
       required: true,
     },
     budget: { type: Number },
-    currency: {
-      type: String,
-      enum: ['USD', 'EUR', 'GBP', 'INR', 'AUD', 'CAD', 'SGD', 'JPY'],
-      required: true,
-    },
-    budgetBaseUSD: { type: Number },
     hourlyRate: { type: Number },
-    hourlyRateBaseUSD: { type: Number },
-    conversionRate: { type: Number }, // USD per 1 unit of `currency`
     estimatedHoursPerWeek: { type: Number },
     milestones: [milestoneSchema],
+    revisions: { type: Number, default: 0 },
     expectedStartDate: { type: Date, required: true },
     expectedEndDate: { type: Date, required: true },
     communication: {

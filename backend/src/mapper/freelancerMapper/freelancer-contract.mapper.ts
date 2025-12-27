@@ -2,14 +2,17 @@ import { IContract } from '../../models/interfaces/contract.model.interface';
 import { FreelancerContractDetailDTO } from '../../dto/freelancerDTO/freelancer-contract.dto';
 
 export function mapContractToFreelancerDetailDTO(contract: IContract): FreelancerContractDetailDTO {
+
   return {
+
+    
     contractId: contract.contractId,
     offerId: contract.offerId?.toString() || '',
     offerType: (contract.offerId as unknown as { offerType?: 'direct' | 'proposal' })?.offerType,
     jobId: contract.jobId?.toString(),
     jobTitle: (contract.jobId as unknown as { title?: string })?.title,
     proposalId: contract.proposalId?.toString(),
-    
+
     client: contract.clientId
       ? {
           clientId: (contract.clientId as unknown as { _id: string })._id || '',
@@ -23,22 +26,31 @@ export function mapContractToFreelancerDetailDTO(contract: IContract): Freelance
 
     paymentType: contract.paymentType,
     budget: contract.budget,
-    budgetBaseUSD: contract.budgetBaseUSD,
     hourlyRate: contract.hourlyRate,
-    hourlyRateBaseUSD: contract.hourlyRateBaseUSD,
-    conversionRate: contract.conversionRate,
     estimatedHoursPerWeek: contract.estimatedHoursPerWeek,
-    currency: contract.currency,
 
     milestones: contract.milestones?.map((milestone) => ({
-      milestoneId: milestone.milestoneId?.toString() || '',
+      milestoneId: (milestone._id as unknown as { toString(): string })?.toString?.() || '',
       title: milestone.title,
       amount: milestone.amount,
-      amountBaseUSD: milestone.amountBaseUSD,
       expectedDelivery: milestone.expectedDelivery,
       status: milestone.status,
       submittedAt: milestone.submittedAt,
       approvedAt: milestone.approvedAt,
+      revisionsAllowed: (milestone as any).revisionsAllowed,
+      deliverables: milestone.deliverables?.map((deliverable, index) => ({
+        id: (deliverable._id as unknown as { toString(): string })?.toString?.() || `deliverable-${index}`,
+        submittedBy: deliverable.submittedBy?.toString() || '',
+        files: deliverable.files || [],
+        message: deliverable.message,
+        status: deliverable.status,
+        version: deliverable.version || 1,
+        submittedAt: deliverable.submittedAt,
+        approvedAt: deliverable.approvedAt,
+        revisionsRequested: (deliverable as any).revisionsRequested || 0,
+        revisionsAllowed: (milestone as any).revisionsAllowed,
+        revisionsLeft: ((milestone as any).revisionsAllowed || 0) - ((deliverable as any).revisionsRequested || 0),
+      })) || [],
     })),
 
     timesheets: contract.timesheets?.map((timesheet) => ({
@@ -56,6 +68,11 @@ export function mapContractToFreelancerDetailDTO(contract: IContract): Freelance
       status: deliverable.status,
       submittedAt: deliverable.submittedAt,
       approvedAt: deliverable.approvedAt,
+      revisionsRequested: (deliverable as any).revisionsRequested,
+      revisionsAllowed: typeof (contract as any).revisions === 'number' ? (contract as any).revisions : undefined,
+      revisionsLeft:
+        (typeof (contract as any).revisions === 'number' ? (contract as any).revisions : 0) -
+        ((deliverable as any).revisionsRequested || 0),
     })),
 
     title: contract.title,
@@ -64,7 +81,7 @@ export function mapContractToFreelancerDetailDTO(contract: IContract): Freelance
     expectedEndDate: contract.expectedEndDate,
     referenceFiles: contract.referenceFiles,
     referenceLinks: contract.referenceLinks,
-    
+
     communication: contract.communication
       ? {
           preferredMethod: contract.communication.preferredMethod,
@@ -74,7 +91,7 @@ export function mapContractToFreelancerDetailDTO(contract: IContract): Freelance
           meetingTimeUtc: contract.communication.meetingTimeUtc,
         }
       : undefined,
-    
+
     reporting: contract.reporting
       ? {
           frequency: contract.reporting.frequency,
@@ -89,7 +106,7 @@ export function mapContractToFreelancerDetailDTO(contract: IContract): Freelance
     fundedAmount: contract.fundedAmount,
     totalPaid: contract.totalPaid,
     balance: contract.balance,
-    
+
     createdAt: contract.createdAt,
     updatedAt: contract.updatedAt,
   };

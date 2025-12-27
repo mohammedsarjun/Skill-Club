@@ -10,7 +10,7 @@ import {
 } from '../models/interfaces/job.model.interface';
 import { IJobRepository } from './interfaces/job-repository.interface';
 import { JobQueryParams } from '../dto/commonDTO/job-common.dto';
-import { FreelancerJobFiltersDto } from 'src/dto/freelancerDTO/freelancer-job.dto';
+import { FreelancerJobFiltersDto } from '../dto/freelancerDTO/freelancer-job.dto';
 import { PipelineStage, Types } from 'mongoose';
 import { mapFreelancerJobFilterDtoToJobAggregationQuery } from '../mapper/freelancerMapper/freelancer-job.mapper';
 

@@ -20,17 +20,21 @@ import {
   mapJobModelToFreelancerJobDetailResponseDTO,
   mapJobModelToFreelancerJobResponseDTO,
 } from '../../mapper/freelancerMapper/freelancer-job.mapper';
+import { IProposalRepository } from '../../repositories/interfaces/proposal-repository.interface';
 
 @injectable()
 export class FreelancerJobService implements IFreelancerJobService {
   private _jobRepository: IJobRepository;
   private _clientRepository: IClientRepository;
+  private _proposalRepository:IProposalRepository
   constructor(
     @inject('IJobRepository') jobRepository: IJobRepository,
     @inject('IClientRepository') clientRepository: IClientRepository,
+    @inject('IProposalRepository') proposalRepository: IProposalRepository,
   ) {
     this._jobRepository = jobRepository;
     this._clientRepository = clientRepository;
+    this._proposalRepository=proposalRepository
   }
 
   async getAllJobs(
@@ -47,8 +51,6 @@ export class FreelancerJobService implements IFreelancerJobService {
       jobFilterDto,
       paginationData,
     );
-
-    console.log(jobData);
 
     const freelancerJobResponseDto = jobData
       ? jobData.map(mapJobModelToFreelancerJobResponseDTO)
@@ -75,8 +77,8 @@ export class FreelancerJobService implements IFreelancerJobService {
     const userData = await this._clientRepository.getClientById(clientId._id);
     const totalJobsPosted = await this._jobRepository.countAllJobsByClientId(clientId._id);
     const clientMinimalData = mapuserModelToFreelancerClientMinimalDTO(userData!, totalJobsPosted);
-
-    const jobDetailData = mapJobModelToFreelancerJobDetailResponseDTO(jobData, clientMinimalData);
+    const isProposalAlreadySent=await this._proposalRepository.findProposalByFreelancerAndJobId(freelancerUserId,jobId)
+    const jobDetailData = mapJobModelToFreelancerJobDetailResponseDTO(jobData, clientMinimalData,isProposalAlreadySent?true:false);
 
     return jobDetailData;
   }

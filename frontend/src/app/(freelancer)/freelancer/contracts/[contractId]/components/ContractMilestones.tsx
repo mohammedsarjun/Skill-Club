@@ -1,21 +1,21 @@
+import { Calendar, Clock } from "lucide-react";
+
 interface ContractMilestone {
   milestoneId: string;
   title: string;
   amount: number;
   expectedDelivery: string;
-  status: 'pending' | 'funded' | 'submitted' | 'approved' | 'paid';
+  status: 'pending_funding' | 'funded' | 'under_review' | 'submitted' | 'approved' | 'paid';
 }
 
 interface ContractMilestonesProps {
   milestones: ContractMilestone[];
-  currency: string;
   formatDate: (dateString: string) => string;
-  formatCurrency: (amount: number, currency: string) => string;
+  formatCurrency: (amount: number) => string;
 }
 
 export const ContractMilestones = ({
   milestones,
-  currency,
   formatDate,
   formatCurrency,
 }: ContractMilestonesProps) => {
@@ -39,39 +39,59 @@ export const ContractMilestones = ({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-      <h2 className="text-xl font-bold text-gray-900 mb-6">Milestones</h2>
-      <div className="space-y-4">
+
+
+<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+  <h1 className="text-xl font-bold text-gray-900 mb-4">Contract Milestones</h1>
+
+  {/* Milestones List */}
+  <div className="grid gap-4 mb-8">
         {milestones.map((milestone, index) => (
+          
           <div
-            key={milestone.milestoneId}
-            className="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow"
+            key={index}
+            className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+            // onClick={() => {
+            //   setSelectedMilestone(milestone);
+            //   setActiveTab(milestone.deliverables.some(d => d.status === 'approved') ? 'approved' : 'changes_requested');
+            // }}
           >
-            <div className="flex justify-between items-start mb-3">
+            <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
-                <h3 className="font-semibold text-gray-900 text-lg">
-                  {index + 1}. {milestone.title}
-                </h3>
+                <div className="flex items-center gap-3 mb-2">
+                  <h3 className="text-xl font-bold text-gray-900">{milestone.title}</h3>
+                  {/* {getStatusBadge(milestone.status)} */}
+                </div>
+                <p className="text-sm text-gray-500">Milestone ID: {milestone.milestoneId}</p>
               </div>
-              <span
-                className={`inline-block px-3 py-1 text-xs font-medium rounded-full border ${getStatusColor(
-                  milestone.status
-                )}`}
-              >
-                {milestone.status.toUpperCase()}
-              </span>
             </div>
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-600">
-                Due: <span className="font-medium text-gray-900">{formatDate(milestone.expectedDelivery)}</span>
-              </span>
-              <span className="text-lg font-bold text-gray-900">
-                {formatCurrency(milestone.amount, currency)}
-              </span>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-gray-400">₹</span>
+                <div>
+                  <p className="text-xs text-gray-500">Amount</p>
+                  <p className="text-sm font-semibold text-gray-900">₹{milestone.amount.toLocaleString()}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-gray-400" />
+                <div>
+                  <p className="text-xs text-gray-500">Expected Delivery</p>
+                  <p className="text-sm font-semibold text-gray-900">{formatDate(milestone.expectedDelivery)}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="w-5 h-5 text-gray-400" />
+                {/* <div>
+                  <p className="text-xs text-gray-500">Deliverables</p>
+                  <p className="text-sm font-semibold text-gray-900">{milestone.deliverables.length} submitted</p>
+                </div> */}
+              </div>
             </div>
           </div>
         ))}
       </div>
-    </div>
+</div>
   );
 };

@@ -1,4 +1,9 @@
-import { SendMessageDTO, GetMessagesDTO, MarkAsReadDTO, MessageResponseDTO } from '../../../dto/clientDTO/client-chat.dto';
+import {
+  SendMessageDTO,
+  GetMessagesDTO,
+  MarkAsReadDTO,
+  MessageResponseDTO,
+} from '../../../dto/clientDTO/client-chat.dto';
 
 export interface IClientChatService {
   sendMessage(clientId: string, dto: SendMessageDTO): Promise<MessageResponseDTO>;

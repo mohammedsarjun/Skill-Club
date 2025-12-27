@@ -23,7 +23,6 @@ export function mapCreateProposalRequestDtoToProposalModel(
     deadline: rateType == 'fixed' ? createProposalRequestDto.deadline : undefined,
     coverLetter: createProposalRequestDto.coverLetter,
     status: 'pending_verification',
-    currency: createProposalRequestDto.currency ?? 'USD',
   };
 }
 
@@ -46,7 +45,5 @@ export const mapProposalModelToFreelancerProposalResponseDTO = (
     proposedAt: rawProposalData.createdAt!,
     proposedBudget: rawProposalData?.proposedBudget,
     deadline: rawProposalData?.deadline,
-    currency: rawProposalData?.currency,
-    amountBaseUSD: rawProposalData?.amountBaseUSD,
   };
 };

@@ -1,4 +1,4 @@
-import { ProposalQueryParamsDTO } from 'src/dto/clientDTO/client-proposal.dto';
+import { ProposalQueryParamsDTO } from '../../dto/clientDTO/client-proposal.dto';
 import {
   IProposal,
   ProposalDetail,
@@ -24,4 +24,5 @@ export interface IProposalRepository extends BaseRepository<IProposal> {
   ): Promise<ProposalDetailWithJobDetail[] | null>;
   findOneById(proposalId: string): Promise<ProposalDetailWithFreelancerDetail | null>;
   updateStatusById(proposalId: string, status: string): Promise<IProposal | null>;
+  findProposalByFreelancerAndJobId(freelancerId:string,proposalId:string): Promise<IProposal | null>
 }

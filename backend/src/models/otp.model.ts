@@ -1,6 +1,6 @@
 import mongoose, { Model, Schema } from 'mongoose';
 import { IOtp } from './interfaces/otp.model.interface';
-
+const otpExpiry=Number(process.env.OTP_EXPIRY)
 const otpSchema = new Schema({
   email: {
     type: String,
@@ -21,8 +21,8 @@ const otpSchema = new Schema({
   },
   expiresAt: {
     type: Date,
-    default: () => new Date(Date.now() + 70 * 1000),
-    index: { expires: '70s' },
+    default: () => new Date(Date.now() + otpExpiry * 1000),
+    index: { expires: `${otpExpiry}s` },
   },
 });
 

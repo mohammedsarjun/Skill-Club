@@ -31,7 +31,7 @@ function ClientDashboard() {
     { label: "Posted Jobs", value: "28", icon: FaFileAlt, color: "bg-blue-50" },
     {
       label: "Total Spend",
-      value: "$45,280",
+          value: "₹45,280",
       icon: FaDollarSign,
       color: "bg-purple-50",
     },
@@ -47,7 +47,7 @@ function ClientDashboard() {
     {
       id: 1,
       title: "Senior React Developer",
-      budget: "$5,000 - $8,000",
+          budget: "₹5,000 - ₹8,000",
       proposals: 24,
       postedDate: "2 days ago",
       status: "Active",
@@ -55,7 +55,7 @@ function ClientDashboard() {
     {
       id: 2,
       title: "UI/UX Designer for Mobile App",
-      budget: "$3,000 - $5,000",
+          budget: "₹3,000 - ₹5,000",
       proposals: 18,
       postedDate: "5 days ago",
       status: "Active",
@@ -63,7 +63,7 @@ function ClientDashboard() {
     {
       id: 3,
       title: "Full Stack Developer - E-commerce",
-      budget: "$8,000 - $12,000",
+          budget: "₹8,000 - ₹12,000",
       proposals: 32,
       postedDate: "1 week ago",
       status: "Active",
@@ -71,7 +71,7 @@ function ClientDashboard() {
     {
       id: 4,
       title: "DevOps Engineer",
-      budget: "$6,000 - $9,000",
+          budget: "₹6,000 - ₹9,000",
       proposals: 15,
       postedDate: "1 week ago",
       status: "Active",

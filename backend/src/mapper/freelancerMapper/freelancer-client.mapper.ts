@@ -1,5 +1,5 @@
-import { FreelancerClientMinimalDTO } from 'src/dto/freelancerDTO/freelancer-client.dto';
-import { IUser } from 'src/models/interfaces/user.model.interface';
+import { FreelancerClientMinimalDTO } from '../../dto/freelancerDTO/freelancer-client.dto';
+import { IUser } from '../../models/interfaces/user.model.interface';
 
 export function mapuserModelToFreelancerClientMinimalDTO(
   userData: IUser,

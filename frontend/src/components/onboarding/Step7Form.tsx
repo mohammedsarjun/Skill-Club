@@ -150,7 +150,7 @@ export default function StepSevenForm({ onBack, onNext, savedData }: StepSevenPr
       </div>
 
       <div className="flex justify-between mt-6 items-center">
-        <Button content="Back" type="button" color="gray" onClick={onBack} />
+        <Button content="Back" type="button" variant="secondary" onClick={onBack} />
         <Button
           content="Next"
           type="button"

@@ -2,8 +2,10 @@ import FreelancerOnboardingGuard from "@/components/auth/FreelancerOnboardingGua
 
 export default function OnboardingLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params?: any;
 }) {
   return (
     <FreelancerOnboardingGuard>

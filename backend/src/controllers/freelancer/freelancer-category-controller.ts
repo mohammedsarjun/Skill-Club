@@ -18,11 +18,11 @@ export class FreelancerCategoryController implements IFreelancerCategoryControll
     this._freelancerCategoryService = freelancerCategoryService;
   }
 
-  async getAllCategories(_req: Request, res: Response): Promise<void> { 
+  async getAllCategories(_req: Request, res: Response): Promise<void> {
     const categoryData: GetFreelancerCategoryDTO[] =
       await this._freelancerCategoryService.getAllCategories();
 
-      console.log(categoryData)
+    console.log(categoryData);
     res.status(HttpStatus.OK).json({
       success: true,
       message: MESSAGES.CATEGORY.FETCH_SUCCESS,

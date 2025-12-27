@@ -1,8 +1,9 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import { clientActionApi } from "@/api/action/ClientActionApi";
-import { OfferPayload, PaymentType, CommunicationMethod, ReportingFrequency, ReportingFormat, Currency } from "@/types/interfaces/IOffer";
+import { OfferPayload, PaymentType, CommunicationMethod, ReportingFrequency, ReportingFormat } from "@/types/interfaces/IOffer";
 import { validateOffer } from "@/utils/validations/offerValidations";
+import { useRouter } from "next/navigation";
 import {
   FaBriefcase,
   FaDollarSign,
@@ -31,6 +32,7 @@ interface Milestone {
   title: string;
   amount: string;
   expected_delivery: string;
+  revisions?: string;
 }
 
 interface ReferenceFile {
@@ -49,7 +51,6 @@ interface OfferData {
   description: string;
   payment_type: PaymentType;
   budget?: number;
-  currency: Currency;
   hourly_rate?: number;
   estimated_hours_per_week?: number;
   milestones?: Milestone[];
@@ -93,15 +94,14 @@ const SendOfferToFreelancer: React.FC = () => {
   // Payment Details
   const [paymentType, setPaymentType] = useState<PaymentType>("fixed");
   const [budget, setBudget] = useState<string>("");
-  const preferredCurrency =
-    useSelector((s: RootState) => s.auth.user?.preferredCurrency) || "USD";
-  const [currency, setCurrency] = useState<Currency>(preferredCurrency as Currency);
   const [hourlyRate, setHourlyRate] = useState<string>("");
   const [estimatedHoursPerWeek, setEstimatedHoursPerWeek] = useState<string>("");
+  const [revisions, setRevisions] = useState<string>("0");
+  const router = useRouter();
 
   // Milestones
   const [milestones, setMilestones] = useState<Milestone[]>([
-    { title: "", amount: "", expected_delivery: "" },
+    { title: "", amount: "", expected_delivery: "", revisions: "0" },
   ]);
 
   // Timeline
@@ -215,7 +215,7 @@ const SendOfferToFreelancer: React.FC = () => {
   const addMilestone = (): void => {
     setMilestones([
       ...milestones,
-      { title: "", amount: "", expected_delivery: "" },
+      { title: "", amount: "", expected_delivery: "", revisions: "0" },
     ]);
   };
 
@@ -306,7 +306,6 @@ const SendOfferToFreelancer: React.FC = () => {
       description,
       payment_type: paymentType,
       budget: paymentType !== "hourly" ? (budget ? parseFloat(budget) : undefined) : undefined,
-      currency,
       hourly_rate: paymentType === "hourly" ? (hourlyRate ? parseFloat(hourlyRate) : undefined) : undefined,
       estimated_hours_per_week:
         paymentType === "hourly"
@@ -314,7 +313,9 @@ const SendOfferToFreelancer: React.FC = () => {
           : undefined,
       milestones:
         paymentType === "fixed_with_milestones"
-          ? milestones.filter((m) => m.title && m.amount)
+          ? milestones
+              .filter((m) => m.title && m.amount)
+              .map((m) => ({ title: m.title, amount: parseFloat(m.amount), expected_delivery: m.expected_delivery, revisions: m.revisions ? parseInt(m.revisions) : 0 }))
           : undefined,
       expected_start_date: expectedStartDate,
       expected_end_date: expectedEndDate,
@@ -341,6 +342,7 @@ const SendOfferToFreelancer: React.FC = () => {
       reference_links: referenceLinks.filter((l) => l.description && l.link),
       expires_at: expiresAt,
       status: "pending",
+      revisions: paymentType === "fixed_with_milestones" ? undefined : parseInt(revisions) || 0,
     };
 
     try {
@@ -385,9 +387,12 @@ const SendOfferToFreelancer: React.FC = () => {
       } as OfferPayload;
 
       try {
+
+        console.log(payload)
         const res = await clientActionApi.createOffer(payload);
         if (res && res.success) {
           toast.success("Offer sent successfully!");
+          router.push(`/client/offers/${res.data.offerId}`);
         } else {
           toast.error(res?.message || "Failed to send offer");
         }
@@ -523,25 +528,7 @@ const SendOfferToFreelancer: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Currency *
-                  </label>
-                  <select
-                    value={currency}
-                    onChange={(e) => { setCurrency(e.target.value as Currency); clearError('currency'); }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent"
-                  >
-                    <option value="USD">USD ($)</option>
-                    <option value="EUR">EUR (€)</option>
-                    <option value="GBP">GBP (£)</option>
-                    <option value="INR">INR (₹)</option>
-                    <option value="AUD">AUD (A$)</option>
-                    <option value="CAD">CAD (C$)</option>
-                    <option value="SGD">SGD (S$)</option>
-                    <option value="JPY">JPY (¥)</option>
-                  </select>
-                </div>
+   
 
                 {paymentType !== "hourly" && (
                   <div>
@@ -641,6 +628,13 @@ const SendOfferToFreelancer: React.FC = () => {
                                 placeholder="Amount"
                                 className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent text-sm"
                               />
+                              <input
+                                type="number"
+                                value={milestone.revisions ?? "0"}
+                                onChange={(e) => { updateMilestone(index, "revisions", e.target.value); clearError(`milestones.${index}.revisions`); }}
+                                placeholder="Revisions"
+                                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent text-sm"
+                              />
                               {errors[`milestones.${index}.amount`] && (
                                 <p className="text-red-600 text-sm mt-1">{errors[`milestones.${index}.amount`]}</p>
                               )}
@@ -674,6 +668,16 @@ const SendOfferToFreelancer: React.FC = () => {
                   {errors["milestones"] && (<p className="text-red-600 text-sm mt-2">{errors["milestones"]}</p>)}
                 </div>
               )}
+                <div className="col-span-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Revisions</label>
+                  <input
+                    type="number"
+                    value={revisions}
+                    onChange={(e) => { setRevisions(e.target.value); clearError('revisions'); }}
+                    placeholder="0"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent"
+                  />
+                </div>
             </div>
           </div>
 

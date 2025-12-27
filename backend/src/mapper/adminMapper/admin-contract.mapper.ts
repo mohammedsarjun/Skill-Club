@@ -1,5 +1,8 @@
 import { IContract } from '../../models/interfaces/contract.model.interface';
-import { AdminContractListItemDTO, AdminContractDetailDTO } from '../../dto/adminDTO/admin-contract.dto';
+import {
+  AdminContractListItemDTO,
+  AdminContractDetailDTO,
+} from '../../dto/adminDTO/admin-contract.dto';
 
 export function mapContractToAdminListItemDTO(contract: IContract): AdminContractListItemDTO {
   return {
@@ -9,12 +12,20 @@ export function mapContractToAdminListItemDTO(contract: IContract): AdminContrac
     paymentType: contract.paymentType,
     budget: contract.budget,
     hourlyRate: contract.hourlyRate,
-    currency: contract.currency,
     status: contract.status,
     createdAt: contract.createdAt || new Date(),
     client: contract.clientId
       ? {
-          clientId: (contract.clientId as unknown as { _id: string; firstName?: string; lastName?: string; companyName?: string; logo?: string })._id || '',
+          clientId:
+            (
+              contract.clientId as unknown as {
+                _id: string;
+                firstName?: string;
+                lastName?: string;
+                companyName?: string;
+                logo?: string;
+              }
+            )._id || '',
           firstName: (contract.clientId as unknown as { firstName?: string }).firstName,
           lastName: (contract.clientId as unknown as { lastName?: string }).lastName,
           companyName: (contract.clientId as unknown as { companyName?: string }).companyName,
@@ -23,10 +34,19 @@ export function mapContractToAdminListItemDTO(contract: IContract): AdminContrac
       : undefined,
     freelancer: contract.freelancerId
       ? {
-          freelancerId: (contract.freelancerId as unknown as { _id: string; firstName?: string; lastName?: string; logo?: string })._id || '',
+          freelancerId:
+            (
+              contract.freelancerId as unknown as {
+                _id: string;
+                firstName?: string;
+                lastName?: string;
+                logo?: string;
+              }
+            )._id || '',
           firstName: (contract.freelancerId as unknown as { firstName?: string }).firstName,
           lastName: (contract.freelancerId as unknown as { lastName?: string }).lastName,
-          logo: (contract.freelancerId as unknown as { freelancerProfile?: { logo?: string } }).freelancerProfile?.logo,
+          logo: (contract.freelancerId as unknown as { freelancerProfile?: { logo?: string } })
+            .freelancerProfile?.logo,
         }
       : undefined,
   };
@@ -40,7 +60,7 @@ export function mapContractToAdminDetailDTO(contract: IContract): AdminContractD
     jobId: contract.jobId?.toString(),
     jobTitle: (contract.jobId as unknown as { title?: string })?.title,
     proposalId: contract.proposalId?.toString(),
-    
+
     client: contract.clientId
       ? {
           clientId: (contract.clientId as unknown as { _id: string })._id || '',
@@ -65,18 +85,13 @@ export function mapContractToAdminDetailDTO(contract: IContract): AdminContractD
 
     paymentType: contract.paymentType,
     budget: contract.budget,
-    budgetBaseUSD: contract.budgetBaseUSD,
     hourlyRate: contract.hourlyRate,
-    hourlyRateBaseUSD: contract.hourlyRateBaseUSD,
-    conversionRate: contract.conversionRate,
     estimatedHoursPerWeek: contract.estimatedHoursPerWeek,
-    currency: contract.currency,
 
     milestones: contract.milestones?.map((milestone) => ({
-      milestoneId: milestone.milestoneId?.toString() || '',
+      milestoneId: (milestone._id as unknown as { toString(): string })?.toString?.() || '',
       title: milestone.title,
       amount: milestone.amount,
-      amountBaseUSD: milestone.amountBaseUSD,
       expectedDelivery: milestone.expectedDelivery,
       status: milestone.status,
       submittedAt: milestone.submittedAt,
@@ -106,7 +121,7 @@ export function mapContractToAdminDetailDTO(contract: IContract): AdminContractD
     expectedEndDate: contract.expectedEndDate,
     referenceFiles: contract.referenceFiles,
     referenceLinks: contract.referenceLinks,
-    
+
     communication: contract.communication
       ? {
           preferredMethod: contract.communication.preferredMethod,
@@ -116,7 +131,7 @@ export function mapContractToAdminDetailDTO(contract: IContract): AdminContractD
           meetingTimeUtc: contract.communication.meetingTimeUtc,
         }
       : undefined,
-    
+
     reporting: contract.reporting
       ? {
           frequency: contract.reporting.frequency,
@@ -131,7 +146,7 @@ export function mapContractToAdminDetailDTO(contract: IContract): AdminContractD
     fundedAmount: contract.fundedAmount,
     totalPaid: contract.totalPaid,
     balance: contract.balance,
-    
+
     createdAt: contract.createdAt,
     updatedAt: contract.updatedAt,
   };

@@ -16,7 +16,6 @@ export interface FreelancerContractListItemDTO {
   paymentType: 'fixed' | 'fixed_with_milestones' | 'hourly';
   budget?: number;
   hourlyRate?: number;
-  currency: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
   status: string;
   createdAt: Date;
   client?: {
@@ -43,7 +42,7 @@ export interface FreelancerContractDetailDTO {
   jobId?: string;
   jobTitle?: string;
   proposalId?: string;
-  
+
   client?: {
     clientId: string;
     firstName?: string;
@@ -55,22 +54,31 @@ export interface FreelancerContractDetailDTO {
 
   paymentType: 'fixed' | 'fixed_with_milestones' | 'hourly';
   budget?: number;
-  budgetBaseUSD?: number;
   hourlyRate?: number;
-  hourlyRateBaseUSD?: number;
-  conversionRate?: number;
   estimatedHoursPerWeek?: number;
-  currency: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
 
   milestones?: {
     milestoneId: string;
     title: string;
     amount: number;
-    amountBaseUSD?: number;
     expectedDelivery: Date;
-    status: 'pending' | 'funded' | 'submitted' | 'approved' | 'paid';
+    status: 'pending_funding' | 'funded' | 'under_review' | 'submitted' | 'approved' | 'paid';
     submittedAt?: Date;
     approvedAt?: Date;
+    revisionsAllowed?: number;
+    deliverables?: {
+      id: string;
+      submittedBy: string;
+      files: { fileName: string; fileUrl: string }[];
+      message?: string;
+      status: 'submitted' | 'approved' | 'changes_requested';
+      version: number;
+      submittedAt: Date;
+      approvedAt?: Date;
+      revisionsRequested?: number;
+      revisionsAllowed?: number;
+      revisionsLeft?: number;
+    }[];
   }[];
 
   timesheets?: {
@@ -88,6 +96,9 @@ export interface FreelancerContractDetailDTO {
     status: 'submitted' | 'approved' | 'changes_requested';
     submittedAt: Date;
     approvedAt?: Date;
+    revisionsRequested?: number;
+    revisionsAllowed?: number;
+    revisionsLeft?: number;
   }[];
 
   title: string;
@@ -96,7 +107,7 @@ export interface FreelancerContractDetailDTO {
   expectedEndDate: Date;
   referenceFiles: { fileName: string; fileUrl: string }[];
   referenceLinks: { description: string; link: string }[];
-  
+
   communication?: {
     preferredMethod: 'chat' | 'video_call' | 'email' | 'mixed';
     meetingFrequency?: 'daily' | 'weekly' | 'monthly';
@@ -104,7 +115,7 @@ export interface FreelancerContractDetailDTO {
     meetingDayOfMonth?: number;
     meetingTimeUtc?: string;
   };
-  
+
   reporting?: {
     frequency: 'daily' | 'weekly' | 'monthly';
     dueTimeUtc: string;
@@ -117,7 +128,7 @@ export interface FreelancerContractDetailDTO {
   fundedAmount: number;
   totalPaid: number;
   balance: number;
-  
+
   createdAt?: Date;
   updatedAt?: Date;
 }

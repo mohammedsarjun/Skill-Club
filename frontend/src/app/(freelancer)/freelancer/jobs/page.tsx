@@ -5,7 +5,7 @@ import { FreelancerJobFilters, FreelancerJobResponse } from "@/types/interfaces/
 import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
-import { convertCurrency, formatCurrency, SupportedCurrency } from '@/utils/currency';
+import { formatCurrency } from '@/utils/currency';
 import { useRouter } from "next/navigation";
 import { debounce } from "lodash";
 import {
@@ -352,63 +352,7 @@ const FreelancerJobListing = () => {
   // Decide which jobs to render: backend (jobs) if available, else paginated fallback
   const displayJobs = jobs.length > 0 ? jobs : paginatedFallbackJobs;
 
-  const preferredCurrency = (useSelector((s: RootState) => s.auth.user?.preferredCurrency) || 'USD') as SupportedCurrency;
-
-  const [convertedRates, setConvertedRates] = useState<Record<string, { min?: number; max?: number; currency?: SupportedCurrency; loading?: boolean }>>({});
-
-  useEffect(() => {
-    let mounted = true;
-    const convertAll = async () => {
-      const next: Record<string, any> = {};
-      for (const job of displayJobs) {
-        const jobId = job.jobId;
-        next[jobId] = { loading: true };
-      }
-      if (!mounted) return;
-      setConvertedRates((s) => ({ ...s, ...next }));
-
-      await Promise.all(
-        displayJobs.map(async (job: any) => {
-          const jobId = job.jobId;
-          try {
-            // Determine source currency and rate shape
-            const srcCur = (job.hourlyRate?.currency || job.fixedRate?.currency || job.currency || 'USD') as SupportedCurrency;
-
-            if (job.hourlyRate && typeof job.hourlyRate.min === 'number') {
-              const minSrc = Number(job.hourlyRate.min || 0);
-              const maxSrc = Number(job.hourlyRate.max || 0);
-              const min = srcCur === preferredCurrency ? minSrc : await convertCurrency(minSrc, srcCur, preferredCurrency);
-              const max = srcCur === preferredCurrency ? maxSrc : await convertCurrency(maxSrc, srcCur, preferredCurrency);
-              if (!mounted) return;
-              setConvertedRates((prev) => ({ ...prev, [jobId]: { min, max, currency: preferredCurrency, loading: false } }));
-            } else if (job.fixedRate && typeof job.fixedRate.min === 'number') {
-              const minSrc = Number(job.fixedRate.min || 0);
-              const maxSrc = Number(job.fixedRate.max || 0);
-              const min = srcCur === preferredCurrency ? minSrc : await convertCurrency(minSrc, srcCur, preferredCurrency);
-              const max = srcCur === preferredCurrency ? maxSrc : await convertCurrency(maxSrc, srcCur, preferredCurrency);
-              if (!mounted) return;
-              setConvertedRates((prev) => ({ ...prev, [jobId]: { min, max, currency: preferredCurrency, loading: false } }));
-            } else {
-              // Fallback to legacy numeric fields if present
-              const minSrc = Number(job.minHourlyRate ?? job.minFixedRate ?? 0);
-              const maxSrc = Number(job.maxHourlyRate ?? job.maxFixedRate ?? 0);
-              const src = (job.currency || 'USD') as SupportedCurrency;
-              const min = src === preferredCurrency ? minSrc : await convertCurrency(minSrc, src, preferredCurrency);
-              const max = src === preferredCurrency ? maxSrc : await convertCurrency(maxSrc, src, preferredCurrency);
-              if (!mounted) return;
-              setConvertedRates((prev) => ({ ...prev, [jobId]: { min, max, currency: preferredCurrency, loading: false } }));
-            }
-          } catch (err) {
-            // on error, clear loading and leave no conversion (UI will fallback to raw)
-            if (!mounted) return;
-            setConvertedRates((prev) => ({ ...prev, [jobId]: { loading: false } }));
-          }
-        })
-      );
-    };
-    if (displayJobs && displayJobs.length) convertAll();
-    return () => { mounted = false; };
-  }, [displayJobs, preferredCurrency]);
+  // Rates are read directly from the job object (INR only)
 
   // Per-item saved state check (calls `/freelancer/jobs/:jobId/saved` for each visible job)
   useEffect(() => {
@@ -862,22 +806,11 @@ const FreelancerJobListing = () => {
                         <div className="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg">
                           <div className="text-xs font-medium mb-1">Hourly</div>
                           <div className="text-lg font-bold">
-                            {convertedRates[job.jobId]?.loading ? (
-                              <span>...</span>
-                            ) : convertedRates[job.jobId] && convertedRates[job.jobId].min != null ? (
-                              <>
-                                {formatCurrency(Number(convertedRates[job.jobId].min || 0), convertedRates[job.jobId].currency || preferredCurrency)}
-                                <span className="mx-1">-</span>
-                                {formatCurrency(Number(convertedRates[job.jobId].max || 0), convertedRates[job.jobId].currency || preferredCurrency)}
-                              </>
-                            ) : (
-                              // Fallback to raw values
-                              <>
-                                ${job.minHourlyRate ?? job.minFixedRate ?? 0}
-                                <span className="mx-1">-</span>
-                                ${job.maxHourlyRate ?? job.maxFixedRate ?? 0}
-                              </>
-                            )}
+                            <>
+                              {formatCurrency(Number(job.minHourlyRate ?? job.minFixedRate ?? 0))}
+                              <span className="mx-1">-</span>
+                              {formatCurrency(Number(job.maxHourlyRate ?? job.maxFixedRate ?? 0))}
+                            </>
                           </div>
                         </div>
                       ) : (
@@ -886,22 +819,11 @@ const FreelancerJobListing = () => {
                             Fixed Price
                           </div>
                           <div className="text-lg font-bold">
-                            {convertedRates[job.jobId]?.loading ? (
-                              <span>...</span>
-                            ) : convertedRates[job.jobId] && convertedRates[job.jobId].min != null ? (
-                              <>
-                                {formatCurrency(Number(convertedRates[job.jobId].min || 0), convertedRates[job.jobId].currency || preferredCurrency)}
-                                <span className="mx-1">-</span>
-                                {formatCurrency(Number(convertedRates[job.jobId].max || 0), convertedRates[job.jobId].currency || preferredCurrency)}
-                              </>
-                            ) : (
-                              // Fallback to raw values
-                              <>
-                                ${job.minFixedRate ?? job.minHourlyRate ?? 0}
-                                <span className="mx-1">-</span>
-                                ${job.maxFixedRate ?? job.maxHourlyRate ?? 0}
-                              </>
-                            )}
+                            <>
+                              {formatCurrency(Number(job.minFixedRate ?? job.minHourlyRate ?? 0))}
+                              <span className="mx-1">-</span>
+                              {formatCurrency(Number(job.maxFixedRate ?? job.maxHourlyRate ?? 0))}
+                            </>
                           </div>
                         </div>
                       )}

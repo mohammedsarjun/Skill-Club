@@ -1,4 +1,9 @@
-import { SendMessageDTO, GetMessagesDTO, MarkAsReadDTO, MessageResponseDTO } from '../../../dto/freelancerDTO/freelancer-chat.dto';
+import {
+  SendMessageDTO,
+  GetMessagesDTO,
+  MarkAsReadDTO,
+  MessageResponseDTO,
+} from '../../../dto/freelancerDTO/freelancer-chat.dto';
 
 export interface IFreelancerChatService {
   sendMessage(freelancerId: string, dto: SendMessageDTO): Promise<MessageResponseDTO>;

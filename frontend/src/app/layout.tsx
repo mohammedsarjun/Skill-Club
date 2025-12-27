@@ -4,29 +4,29 @@ import Footer from "@/components/common/Footer";
 import { Toaster } from "react-hot-toast";
 import { Providers } from "./providers";
 import "./globals.css";
+
 import Script from "next/script";
 import { persistor } from "@/store";
 import RouteLoader from "../components/common/RouteLoader";
 import GlobalSpinner from "@/components/common/Spinner";
 import "react-quill-new/dist/quill.snow.css";
 import ClientInit from "@/components/UserInit";
-type LayoutProps = {
-  children: React.ReactNode;
-};
-
 import { SocketProvider } from "@/hooks/useSocket";
 
-
-export default function Layout({ children }: LayoutProps) {
+export default function Layout({ children, params }: { children: React.ReactNode; params?: any }) {
   return (
     <html>
-      <body className="bg-background min-h-screen">
+      <body className="bg-gray-50 min-h-screen text-gray-900 font-sans">
           <Providers>
             <SocketProvider>
               <RouteLoader />
               <ClientInit />
               <GlobalSpinner />
-              {children}
+              <div className="flex flex-col min-h-screen">
+                <div className="flex-1">
+                  {children}
+                </div>
+              </div>
               <script
                 src="https://accounts.google.com/gsi/client"
                 async

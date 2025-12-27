@@ -6,7 +6,7 @@ import { HttpStatus } from '../../enums/http-status.enum';
 import { IClientSpecialityController } from './interfaces/client-speciality-controller.interface';
 import { IClientSpecialityService } from '../../services/clientServices/interfaces/client-speciality-service.interface';
 import { MESSAGES } from '../../contants/contants';
-import { GetClientSpecialityWithSkillsDTO } from 'src/dto/clientDTO/client-speciality.dto';
+import { GetClientSpecialityWithSkillsDTO } from '../../dto/clientDTO/client-speciality.dto';
 // import { GetClientSpecialityWithSkillsDTO } from 'src/dto/clientDTO/client-speciality-dto';
 
 @injectable()

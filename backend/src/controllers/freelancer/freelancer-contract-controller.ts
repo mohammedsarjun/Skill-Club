@@ -6,12 +6,18 @@ import { IFreelancerContractService } from '../../services/freelancerServices/in
 import { HttpStatus } from '../../enums/http-status.enum';
 import { FreelancerContractQueryParamsDTO } from '../../dto/freelancerDTO/freelancer-contract.dto';
 import { SubmitDeliverableDTO } from '../../dto/freelancerDTO/freelancer-deliverable.dto';
+import {
+  SubmitMilestoneDeliverableDTO,
+  RequestMilestoneExtensionDTO,
+} from '../../dto/freelancerDTO/freelancer-milestone.dto';
 
 @injectable()
 export class FreelancerContractController implements IFreelancerContractController {
   private _freelancerContractService: IFreelancerContractService;
 
-  constructor(@inject('IFreelancerContractService') freelancerContractService: IFreelancerContractService) {
+  constructor(
+    @inject('IFreelancerContractService') freelancerContractService: IFreelancerContractService,
+  ) {
     this._freelancerContractService = freelancerContractService;
   }
 
@@ -41,7 +47,10 @@ export class FreelancerContractController implements IFreelancerContractControll
     const freelancerId = req.user?.userId as string;
     const { contractId } = req.params;
 
-    const result = await this._freelancerContractService.getContractDetail(freelancerId, contractId);
+    const result = await this._freelancerContractService.getContractDetail(
+      freelancerId,
+      contractId,
+    );
 
     res.status(HttpStatus.OK).json({
       success: true,
@@ -55,11 +64,51 @@ export class FreelancerContractController implements IFreelancerContractControll
     const { contractId } = req.params;
     const data: SubmitDeliverableDTO = req.body;
 
-    const result = await this._freelancerContractService.submitDeliverable(freelancerId, contractId, data);
+    const result = await this._freelancerContractService.submitDeliverable(
+      freelancerId,
+      contractId,
+      data,
+    );
 
     res.status(HttpStatus.CREATED).json({
       success: true,
       message: 'Deliverable submitted successfully',
+      data: result,
+    });
+  }
+
+  async submitMilestoneDeliverable(req: Request, res: Response): Promise<void> {
+    const freelancerId = req.user?.userId as string;
+    const { contractId } = req.params;
+    const data: SubmitMilestoneDeliverableDTO = req.body;
+
+    const result = await this._freelancerContractService.submitMilestoneDeliverable(
+      freelancerId,
+      contractId,
+      data,
+    );
+
+    res.status(HttpStatus.CREATED).json({
+      success: true,
+      message: 'Milestone deliverable submitted successfully',
+      data: result,
+    });
+  }
+
+  async requestMilestoneExtension(req: Request, res: Response): Promise<void> {
+    const freelancerId = req.user?.userId as string;
+    const { contractId } = req.params;
+    const data: RequestMilestoneExtensionDTO = req.body;
+
+    const result = await this._freelancerContractService.requestMilestoneExtension(
+      freelancerId,
+      contractId,
+      data,
+    );
+
+    res.status(HttpStatus.CREATED).json({
+      success: true,
+      message: 'Extension request submitted successfully',
       data: result,
     });
   }

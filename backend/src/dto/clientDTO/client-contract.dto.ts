@@ -10,13 +10,12 @@ export interface ClientContractQueryParamsDTO {
 }
 
 export interface ClientContractListItemDTO {
-  id:string,
+  id: string;
   contractId: string;
   title: string;
   paymentType: 'fixed' | 'fixed_with_milestones' | 'hourly';
   budget?: number;
   hourlyRate?: number;
-  currency: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
   status: string;
   createdAt: Date;
   freelancer?: {
@@ -42,7 +41,7 @@ export interface ClientContractDetailDTO {
   jobId?: string;
   jobTitle?: string;
   proposalId?: string;
-  
+
   freelancer?: {
     freelancerId: string;
     firstName?: string;
@@ -54,20 +53,15 @@ export interface ClientContractDetailDTO {
 
   paymentType: 'fixed' | 'fixed_with_milestones' | 'hourly';
   budget?: number;
-  budgetBaseUSD?: number;
   hourlyRate?: number;
-  hourlyRateBaseUSD?: number;
-  conversionRate?: number;
   estimatedHoursPerWeek?: number;
-  currency: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
 
   milestones?: {
     milestoneId: string;
     title: string;
     amount: number;
-    amountBaseUSD?: number;
     expectedDelivery: Date;
-    status: 'pending' | 'funded' | 'submitted' | 'approved' | 'paid';
+    status: 'pending_funding' | 'funded' | 'under_review' | 'submitted' | 'approved' | 'paid';
     submittedAt?: Date;
     approvedAt?: Date;
   }[];
@@ -86,6 +80,9 @@ export interface ClientContractDetailDTO {
     version: number;
     submittedAt?: Date;
     approvedAt?: Date;
+    revisionsRequested?: number;
+    revisionsAllowed?: number;
+    revisionsLeft?: number;
   }[];
 
   title: string;
@@ -94,7 +91,7 @@ export interface ClientContractDetailDTO {
   expectedEndDate: Date;
   referenceFiles: { fileName: string; fileUrl: string }[];
   referenceLinks: { description: string; link: string }[];
-  
+
   communication?: {
     preferredMethod: 'chat' | 'video_call' | 'email' | 'mixed';
     meetingFrequency?: 'daily' | 'weekly' | 'monthly';
@@ -102,7 +99,7 @@ export interface ClientContractDetailDTO {
     meetingDayOfMonth?: number;
     meetingTimeUtc?: string;
   };
-  
+
   reporting?: {
     frequency: 'daily' | 'weekly' | 'monthly';
     dueTimeUtc: string;
@@ -115,7 +112,7 @@ export interface ClientContractDetailDTO {
   fundedAmount: number;
   totalPaid: number;
   balance: number;
-  
+
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -8,7 +8,7 @@ import { mapClientToDTO } from '../../mapper/clientMapper/client.mapper';
 import { GetClientDTO, UpdateClientDto } from '../../dto/clientDTO/client.dto';
 import { flattenObject } from '../../utils/flatten-objects';
 import { ERROR_MESSAGES } from '../../contants/error-constants';
-import { IClientRepository } from 'src/repositories/interfaces/client-repository.interface';
+import { IClientRepository } from '../../repositories/interfaces/client-repository.interface';
 
 @injectable()
 export class ClientService implements IClientService {
@@ -26,7 +26,7 @@ export class ClientService implements IClientService {
       }
 
       // Map the profile to DTO safely
-      const clientDto = mapClientToDTO(clientData.clientProfile);
+      const clientDto = mapClientToDTO(clientData.clientProfile)
 
       return clientDto;
     } catch (_error) {

@@ -142,7 +142,7 @@ function OtpPage() {
           )}
 
           <h2 className="font-bold text-2xl">
-            Enter <span className="text-primary">Otp</span> Below
+            Enter <span className="text-blue-600">Otp</span> Below
           </h2>
 
           <p className="text-gray-600 font-medium">Enter Otp:</p>
@@ -184,13 +184,13 @@ function OtpPage() {
             className={`mx-auto px-8 py-3 text-lg rounded-md text-white transition-colors ${
               timeLeft === 0
                 ? "bg-gray-400 cursor-not-allowed"
-                : "bg-primary hover:bg-primary-dark"
+                : "bg-blue-600 hover:bg-blue-600-dark"
             }`}
           />
 
           <p className="text-gray-500 text-sm mt-2">Didn't receive the Otp?</p>
           <p
-            className={`text-primary font-semibold cursor-pointer hover:underline ${
+            className={`text-blue-600 font-semibold cursor-pointer hover:underline ${
               timeLeft > 0 || loading ? "opacity-50 cursor-not-allowed" : ""
             }`}
             onClick={handleResend}

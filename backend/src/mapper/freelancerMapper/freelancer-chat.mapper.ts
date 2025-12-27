@@ -5,7 +5,7 @@ export class FreelancerChatMapper {
   static toMessageResponseDTO(
     message: IMessage,
     senderName: string,
-    senderAvatar?: string
+    senderAvatar?: string,
   ): MessageResponseDTO {
     return {
       messageId: message.messageId,
@@ -24,15 +24,11 @@ export class FreelancerChatMapper {
 
   static toMessageResponseDTOList(
     messages: IMessage[],
-    userMap: Map<string, { name: string; avatar?: string }>
+    userMap: Map<string, { name: string; avatar?: string }>,
   ): MessageResponseDTO[] {
     return messages.map((msg) => {
       const user = userMap.get(msg.senderId);
-      return this.toMessageResponseDTO(
-        msg,
-        user?.name || 'Unknown',
-        user?.avatar
-      );
+      return this.toMessageResponseDTO(msg, user?.name || 'Unknown', user?.avatar);
     });
   }
 }

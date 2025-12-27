@@ -31,6 +31,12 @@ const freelancerRouterEndPoints = {
   acceptOffer: (offerId: string) => `/freelancer/offers/${offerId}/accept`,
   getContracts: '/freelancer/contracts',
   getContractDetail: (contractId: string) => `/freelancer/contracts/${contractId}`,
+  // Contract deliverables & milestones
+  submitContractDeliverable: (contractId: string) => `/freelancer/contracts/${contractId}/deliverables`,
+  submitMilestoneDeliverable: (contractId: string) => `/freelancer/contracts/${contractId}/milestones/deliverables`,
+  requestMilestoneExtension: (contractId: string) => `/freelancer/contracts/${contractId}/milestones/extension`,
+  submitWorklog: "/freelancer/worklogs",
+  getContractWorklogs: (contractId: string) => `/freelancer/contracts/${contractId}/worklogs`,
   updateExpertise: '/freelancer/profile/expertise',
   sendChatMessage: "/freelancer/chat/send",
   getChatMessages: (contractId: string) => `/freelancer/chat/${contractId}/messages`,

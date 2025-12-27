@@ -24,8 +24,8 @@ export const FundContractModal = ({
   onSuccess,
 }: FundContractModalProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
-  const preferredCurrency =
-    useSelector((s: RootState) => s.auth.user?.preferredCurrency) || "USD";
+
+  const preferredCurrency = "INR";
 
   const handleFundContract = async () => {
     setIsProcessing(true);
@@ -40,17 +40,7 @@ export const FundContractModal = ({
       const response = await clientActionApi.initiatePayment({
         contractId,
         amount,
-        currency: preferredCurrency as
-          | "USD"
-          | "EUR"
-          | "GBP"
-          | "INR"
-          | "AUD"
-          | "CAD"
-          | "SGD"
-          | "JPY",
         purpose,
-
         returnUrl: `${window.location.origin}/client/contracts/${contractId}?payment=success`,
         cancelUrl: `${window.location.origin}/client/contracts/${contractId}?payment=cancelled`,
       });
@@ -97,7 +87,8 @@ export const FundContractModal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+      <div className="bg-white rounded-lg max-w-md w-full mx-4 max-h-[90vh] flex flex-col">
+
         <h2 className="text-xl font-semibold text-gray-900 mb-4">
           Fund Contract
         </h2>

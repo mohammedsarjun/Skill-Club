@@ -12,4 +12,7 @@ export interface DeliverableResponseDTO {
   version: number;
   submittedAt: string;
   approvedAt?: string;
+  revisionsRequested?: number;
+  revisionsAllowed?: number;
+  revisionsLeft?: number;
 }

@@ -4,6 +4,7 @@ const milestoneSchema = z.object({
   title: z.string().min(3),
   amount: z.number().positive(),
   expected_delivery: z.string().refine((v) => !isNaN(new Date(v).getTime())),
+  revisions: z.number().int().min(0).optional(),
 });
 
 export const offerValidationSchema = z
@@ -17,7 +18,6 @@ export const offerValidationSchema = z
     description: z.string().min(20),
     payment_type: z.enum(['fixed', 'fixed_with_milestones', 'hourly']),
     budget: z.number().positive().optional(),
-    currency: z.enum(['USD', 'EUR', 'GBP', 'INR', 'AUD', 'CAD', 'SGD', 'JPY']),
     hourly_rate: z.number().positive().optional(),
     estimated_hours_per_week: z.number().int().positive().optional(),
     milestones: z.array(milestoneSchema).optional(),
@@ -52,6 +52,8 @@ export const offerValidationSchema = z
       .max(10),
     expires_at: z.string().refine((v) => !isNaN(new Date(v).getTime())),
     status: z.enum(['pending', 'accepted', 'rejected', 'withdrawn']),
+    // Number of allowed revisions for the whole offer
+    revisions: z.number().int().min(0).optional(),
   })
   .superRefine((data, ctx) => {
     if (data.payment_type !== 'hourly' && !data.budget) {

@@ -214,7 +214,8 @@ function FreelancerProfilePage(): JSX.Element {
   const [city, setCity] = useState<string>("");
 
   const [role, setRole] = useState<string>("Full Stack Developer");
-  const [hourlyRate, setHourlyRate] = useState<string>("$85/hour");
+  const [hourlyRate, setHourlyRate] = useState<string>("₹85/hour");
+  
   const [description, setDescription] = useState<string>("");
   const [logo, setLogo] = useState<string>("");
   const [education, setEducation] = useState<Education[]>([]);

@@ -6,4 +6,8 @@ export interface IClientContractController {
   getContracts(req: Request, res: Response): Promise<void>;
   approveDeliverable(req: Request, res: Response): Promise<void>;
   requestDeliverableChanges(req: Request, res: Response): Promise<void>;
+  approveMilestoneDeliverable(req: Request, res: Response): Promise<void>;
+  requestMilestoneChanges(req: Request, res: Response): Promise<void>;
+  respondToMilestoneExtension(req: Request, res: Response): Promise<void>;
+  getMilestoneDetail(req: Request, res: Response): Promise<void> 
 }

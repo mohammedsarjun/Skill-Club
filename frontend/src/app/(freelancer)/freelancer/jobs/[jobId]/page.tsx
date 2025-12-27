@@ -26,9 +26,7 @@ import {
 import ProposalFormModal from "./components/ProposalModal";
 import { ICreateProposal } from "@/types/interfaces/IProposal";
 import toast from "react-hot-toast";
-import { formatCurrency, SupportedCurrency, convertCurrency } from "@/utils/currency";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store";
+import { formatCurrency } from "@/utils/currency";
 
 // TypeScript Interfaces
 interface HourlyRate {
@@ -36,13 +34,12 @@ interface HourlyRate {
   max: number;
   hoursPerWeek: number;
   estimatedDuration: "1 To 3 Months" | "3 To 6 Months";
-  currency?: SupportedCurrency;
+
 }
 
 interface FixedRate {
   min: number;
   max: number;
-  currency?: SupportedCurrency;
 }
 
 interface Client {
@@ -111,7 +108,6 @@ const JobDetailPage: React.FC = () => {
       year: "numeric",
     });
   };
-  const preferredCurrency = (useSelector((s: RootState) => s.auth.user?.preferredCurrency) || 'USD') as SupportedCurrency;
 
   const [convertedMin, setConvertedMin] = useState<number>(0);
   const [convertedMax, setConvertedMax] = useState<number>(0);
@@ -120,29 +116,21 @@ const JobDetailPage: React.FC = () => {
     let mounted = true;
     if (!jobDetail) return;
 
-    (async () => {
-      try {
-        const jobCurrency = ((jobDetail as any).hourlyRate?.currency || (jobDetail as any).fixedRate?.currency || (jobDetail as any).currency || 'USD') as SupportedCurrency;
-        const rawMin = jobDetail?.fixedRate?.min ?? jobDetail?.hourlyRate?.min ?? 0;
-        const rawMax = jobDetail?.hourlyRate?.max ?? jobDetail?.fixedRate?.max ?? 0;
+    try {
+      const rawMin = jobDetail?.fixedRate?.min ?? jobDetail?.hourlyRate?.min ?? 0;
+      const rawMax = jobDetail?.hourlyRate?.max ?? jobDetail?.fixedRate?.max ?? 0;
 
-        const [minConverted, maxConverted] = await Promise.all([
-          convertCurrency(rawMin, jobCurrency, preferredCurrency),
-          convertCurrency(rawMax, jobCurrency, preferredCurrency),
-        ]);
-
-        if (!mounted) return;
-        setConvertedMin(Number(minConverted || 0));
-        setConvertedMax(Number(maxConverted || 0));
-      } catch (err) {
-        if (!mounted) return;
-        setConvertedMin(0);
-        setConvertedMax(0);
-      }
-    })();
+      if (!mounted) return;
+      setConvertedMin(Number(rawMin || 0));
+      setConvertedMax(Number(rawMax || 0));
+    } catch (err) {
+      if (!mounted) return;
+      setConvertedMin(0);
+      setConvertedMax(0);
+    }
 
     return () => { mounted = false; };
-  }, [jobDetail, preferredCurrency]);
+  }, [jobDetail]);
 
 
   const getStatusBadge = (status: JobStatus): JSX.Element => {
@@ -212,7 +200,6 @@ const JobDetailPage: React.FC = () => {
         jobId as string
       );
       const jobDetail = jobDetailResponse.data;
-      console.log('DEBUG jobDetail (raw API data):', jobDetail);
       setJobDetail({
         jobId: jobId as string,
         title: jobDetail.title,
@@ -294,9 +281,10 @@ const JobDetailPage: React.FC = () => {
 
 
   async function handleProposalSubmit(submittedData:any):Promise<void>{
-    submittedData.jobId=jobId
-    submittedData.currency = preferredCurrency
-    const response=await freelancerActionApi.createProposal(submittedData)
+    submittedData.jobId = jobId;
+    // Backend stores currency but app is INR-only; send INR explicitly
+    submittedData.currency = 'INR';
+    const response = await freelancerActionApi.createProposal(submittedData)
     if(response.success){
       toast.success(response.message)
     }else{
@@ -382,9 +370,9 @@ const JobDetailPage: React.FC = () => {
                         : "Fixed Budget"}
                     </div>
                     <div className="text-3xl font-bold text-gray-900">
-                      {formatCurrency(Number(convertedMin || 0), preferredCurrency)}
+                      {formatCurrency(Number(convertedMin || 0))}
                       {" - "}
-                      {formatCurrency(Number(convertedMax || 0), preferredCurrency)}
+                      {formatCurrency(Number(convertedMax || 0))}
                       {jobDetail?.rateType === "hourly" && (
                         <span className="text-lg">/hr</span>
                       )}

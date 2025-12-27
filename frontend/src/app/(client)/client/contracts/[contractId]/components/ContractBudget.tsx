@@ -4,8 +4,7 @@ interface ContractBudgetProps {
   estimatedHoursPerWeek?: number;
   budget?: number;
   totalMilestones: number;
-  currency: string;
-  formatCurrency: (amount: number, currency: string) => string;
+  formatCurrency: (amount: number) => string;
 }
 
 export const ContractBudget = ({
@@ -14,7 +13,6 @@ export const ContractBudget = ({
   estimatedHoursPerWeek,
   budget,
   totalMilestones,
-  currency,
   formatCurrency,
 }: ContractBudgetProps) => {
   return (
@@ -26,7 +24,7 @@ export const ContractBudget = ({
             <div className="flex justify-between items-center pb-3 border-b border-gray-200">
               <span className="text-gray-600">Hourly Rate</span>
               <span className="text-lg font-bold text-gray-900">
-                {formatCurrency(hourlyRate || 0, currency)}/hr
+                {formatCurrency(hourlyRate || 0)}/hr
               </span>
             </div>
             {estimatedHoursPerWeek && (
@@ -43,7 +41,7 @@ export const ContractBudget = ({
           <div className="flex justify-between items-center pb-3 border-b border-gray-200">
             <span className="text-gray-600">Fixed Budget</span>
             <span className="text-lg font-bold text-gray-900">
-              {formatCurrency(budget || 0, currency)}
+              {formatCurrency(budget || 0)}
             </span>
           </div>
         )}
@@ -52,13 +50,13 @@ export const ContractBudget = ({
             <div className="flex justify-between items-center pb-3 border-b border-gray-200">
               <span className="text-gray-600">Total Budget</span>
               <span className="text-lg font-bold text-gray-900">
-                {formatCurrency(budget || 0, currency)}
+                {formatCurrency(budget || 0)}
               </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Total Milestones Amount</span>
               <span className="text-lg font-semibold text-gray-900">
-                {formatCurrency(totalMilestones, currency)}
+                {formatCurrency(totalMilestones)}
               </span>
             </div>
           </>

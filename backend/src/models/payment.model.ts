@@ -7,26 +7,20 @@ const PaymentSchema = new Schema<IPayment>(
     contractId: { type: Schema.Types.ObjectId, required: true, ref: 'Contract', index: true },
     clientId: { type: Schema.Types.ObjectId, required: true, ref: 'User', index: true },
     freelancerId: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
-    
+    isMilestonePayment: { type: Boolean, required: true, default: false },
+    milestoneId: { type: Schema.Types.ObjectId, ref: 'Milestone' },
     purpose: {
       type: String,
       enum: ['contract_funding', 'milestone_funding', 'hourly_advance'],
       required: true,
     },
     amount: { type: Number, required: true },
-    amountBaseUSD: Number,
-    currency: {
-      type: String,
-      enum: ['USD', 'EUR', 'GBP', 'INR', 'AUD', 'CAD', 'SGD', 'JPY'],
-      required: true,
-    },
-    conversionRate: Number,
-    
+
     gateway: { type: String, enum: ['payu', 'razorpay', 'stripe'], required: true },
     gatewayTransactionId: String,
     gatewayOrderId: String,
     gatewayResponse: Schema.Types.Mixed,
-    
+
     status: {
       type: String,
       enum: ['pending', 'success', 'failed', 'cancelled'],

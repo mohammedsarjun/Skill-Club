@@ -11,7 +11,6 @@ export interface AdminJobResponseDTO {
     rateType: string;
     min: number;
     max: number;
-    currency?: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
   };
   totalProposal: number;
   status: string;
@@ -37,7 +36,6 @@ export interface AdminJobDetailResponseDTO {
     rateType: 'hourly' | 'fixed';
     min: number;
     max: number;
-    currency?: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
     hoursPerWeek?: number;
     estimatedDuration?: '1 To 3 Months' | '3 To 6 Months';
   };

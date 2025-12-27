@@ -1,6 +1,6 @@
 import BaseRepository from '../../baseRepositories/base-repository';
 import { ISkill } from '../../../models/interfaces/skill.model.interface';
-import { CreateSkillDTO } from 'src/dto/adminDTO/skill.dto';
+import { CreateSkillDTO } from '../../../dto/adminDTO/skill.dto';
 export interface IAdminSkillRepository extends BaseRepository<ISkill> {
   findAllWithFilters(
     filters: { search?: string; category?: string },

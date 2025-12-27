@@ -16,7 +16,6 @@ export interface AdminContractListItemDTO {
   paymentType: 'fixed' | 'fixed_with_milestones' | 'hourly';
   budget?: number;
   hourlyRate?: number;
-  currency: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
   status: string;
   createdAt: Date;
   client?: {
@@ -49,7 +48,7 @@ export interface AdminContractDetailDTO {
   jobId?: string;
   jobTitle?: string;
   proposalId?: string;
-  
+
   client?: {
     clientId: string;
     firstName?: string;
@@ -70,20 +69,15 @@ export interface AdminContractDetailDTO {
 
   paymentType: 'fixed' | 'fixed_with_milestones' | 'hourly';
   budget?: number;
-  budgetBaseUSD?: number;
   hourlyRate?: number;
-  hourlyRateBaseUSD?: number;
-  conversionRate?: number;
   estimatedHoursPerWeek?: number;
-  currency: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
 
   milestones?: {
     milestoneId: string;
     title: string;
     amount: number;
-    amountBaseUSD?: number;
     expectedDelivery: Date;
-    status: 'pending' | 'funded' | 'submitted' | 'approved' | 'paid';
+    status: 'pending_funding' | 'funded' | 'under_review' | 'submitted' | 'approved' | 'paid';
     submittedAt?: Date;
     approvedAt?: Date;
   }[];
@@ -111,7 +105,7 @@ export interface AdminContractDetailDTO {
   expectedEndDate: Date;
   referenceFiles: { fileName: string; fileUrl: string }[];
   referenceLinks: { description: string; link: string }[];
-  
+
   communication?: {
     preferredMethod: 'chat' | 'video_call' | 'email' | 'mixed';
     meetingFrequency?: 'daily' | 'weekly' | 'monthly';
@@ -119,7 +113,7 @@ export interface AdminContractDetailDTO {
     meetingDayOfMonth?: number;
     meetingTimeUtc?: string;
   };
-  
+
   reporting?: {
     frequency: 'daily' | 'weekly' | 'monthly';
     dueTimeUtc: string;
@@ -132,7 +126,7 @@ export interface AdminContractDetailDTO {
   fundedAmount: number;
   totalPaid: number;
   balance: number;
-  
+
   createdAt?: Date;
   updatedAt?: Date;
 }

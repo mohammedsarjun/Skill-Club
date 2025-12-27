@@ -17,13 +17,6 @@ const proposalSchema = new Schema<IProposal>(
       default: 'pending_verification',
     },
     coverLetter: { type: String, required: true, trim: true },
-    currency: {
-      type: String,
-      enum: ['USD', 'EUR', 'GBP', 'INR', 'AUD', 'CAD', 'SGD', 'JPY'],
-      default: 'USD',
-    },
-    amountBaseUSD: { type: Number },
-    conversionRate: { type: Number }, // USD per 1 unit of `currency`
   },
   { timestamps: true },
 );

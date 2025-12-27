@@ -1,7 +1,7 @@
 import { Types } from 'mongoose';
 import { IUser } from '../../models/interfaces/user.model.interface';
 import BaseRepository from '../baseRepositories/base-repository';
-import { AddressDTO } from 'src/dto/user.dto';
+import { AddressDTO } from '../../dto/user.dto';
 
 export interface IUserRepository extends BaseRepository<IUser> {
   findByEmail(email: string): Promise<IUser | null>;
@@ -35,4 +35,5 @@ export interface IUserRepository extends BaseRepository<IUser> {
   updateUserProfile(userId: string, profileData: Partial<IUser>): Promise<IUser | null>;
   updateUserAddress(userId: string, userAddress: AddressDTO): Promise<IUser | null>;
   countAllUsers(): Promise<number>;
+  updateWalletBalance(userId: string, amount: number): Promise<IUser | null>;
 }

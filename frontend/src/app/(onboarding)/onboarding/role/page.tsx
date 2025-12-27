@@ -37,7 +37,7 @@ function ChooseRolePage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
-      <div className="bg-secondary signUp bg-white p-8 rounded-lg shadow-lg w-full max-w-3xl space-y-6 flex flex-col items-center justify-center">
+      <div className="bg-white signUp bg-white p-8 rounded-lg shadow-lg w-full max-w-3xl space-y-6 flex flex-col items-center justify-center">
         <h2 className="text-4xl">Join as a client or freelancer</h2>
 
         {/* Cards */}

@@ -17,7 +17,6 @@ export class ClientOfferController implements IClientOfferController {
   async createOffer(req: Request, res: Response): Promise<void> {
     const clientId = req.user?.userId as string;
     const offerData = req.body.offerData;
-    console.log('Incoming createOffer payload:', JSON.stringify(offerData));
     const result = await this._clientOfferService.createOffer(clientId, offerData);
     res.status(201).json({ success: true, message: 'Offer created successfully', data: result });
   }

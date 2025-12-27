@@ -17,7 +17,7 @@ import { OfferTimeline } from './components/OfferTimeline';
 import { AcceptOfferModal, RejectOfferModal } from './components/Modals';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
-import { formatCurrency as formatCurrencyUtil, SupportedCurrency, convertCurrency } from '@/utils/currency';
+import { formatCurrency as formatCurrencyUtil } from '@/utils/currency';
 interface OfferMilestone { title: string; amount: number; expectedDelivery: string; }
 interface OfferReferenceFile { fileName: string; fileUrl: string; }
 interface OfferReferenceLink { description: string; link: string; }
@@ -68,18 +68,10 @@ function OfferDetails() {
   const [offerDetail, setOfferDetail] = useState<OfferDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [converted, setConverted] = useState<{
-    currency: SupportedCurrency;
-    hourlyRate?: number;
-    budget?: number;
-    totalMilestones?: number;
-    milestones?: OfferMilestone[];
-  }>({ currency: 'USD' });
   const [showAcceptModal, setShowAcceptModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const params = useParams();
   const offerId = params.offerId;
-  const preferredCurrency = (useSelector((s: RootState) => s.auth.user?.preferredCurrency) || 'USD') as SupportedCurrency;
   const handleGoBack = () => {
     console.log('Navigate back to offers list');
   };
@@ -97,9 +89,7 @@ function OfferDetails() {
     });
   };
 
-  const formatCurrency = (amount: number, _currency: string) => (
-    formatCurrencyUtil(Number(amount || 0), converted.currency || preferredCurrency)
-  );
+  const formatCurrency = (amount: number) => formatCurrencyUtil(amount);
 
   const getCommunicationIcon = (method: string) => {
     switch (method) {
@@ -195,56 +185,6 @@ function OfferDetails() {
     return () => { cancelled = true; };
   }, [offerId]);
 
-  // Convert monetary fields to preferred currency for display
-  useEffect(() => {
-    let cancelled = false;
-    const doConvert = async () => {
-      if (!offerDetail) return;
-      const srcCur = (offerDetail.currency || 'USD') as SupportedCurrency;
-      const tgtCur = preferredCurrency as SupportedCurrency;
-
-      try {
-        const [hr, bdg, msConverted] = await Promise.all([
-          offerDetail.hourlyRate != null
-            ? convertCurrency(offerDetail.hourlyRate, srcCur, tgtCur)
-            : Promise.resolve(undefined),
-          offerDetail.budget != null
-            ? convertCurrency(offerDetail.budget, srcCur, tgtCur)
-            : Promise.resolve(undefined),
-          Array.isArray(offerDetail.milestones)
-            ? Promise.all(
-                offerDetail.milestones.map(async (m) => ({
-                  ...m,
-                  amount: await convertCurrency(m.amount || 0, srcCur, tgtCur),
-                }))
-              )
-            : Promise.resolve(undefined),
-        ]);
-
-        const totalMs = Array.isArray(msConverted)
-          ? msConverted.reduce((s, m) => s + (m.amount || 0), 0)
-          : undefined;
-
-        if (!cancelled) {
-          setConverted({
-            currency: tgtCur,
-            hourlyRate: hr,
-            budget: bdg,
-            milestones: msConverted as any,
-            totalMilestones: totalMs,
-          });
-        }
-      } catch {
-        if (!cancelled) {
-          // Fallback: show raw with original currency if conversion fails
-          setConverted({ currency: srcCur as SupportedCurrency });
-        }
-      }
-    };
-    doConvert();
-    return () => { cancelled = true; };
-  }, [offerDetail, preferredCurrency]);
-
   return (
     <>
       <OfferHeader onGoBack={handleGoBack} />
@@ -275,22 +215,22 @@ function OfferDetails() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
               <OfferBudget
                 paymentType={offerDetail.paymentType}
-                hourlyRate={converted.hourlyRate ?? offerDetail.hourlyRate}
+                hourlyRate={offerDetail.hourlyRate}
                 estimatedHoursPerWeek={offerDetail.estimatedHoursPerWeek}
-                budget={converted.budget ?? offerDetail.budget}
-                totalMilestones={converted.totalMilestones ?? calculateTotalMilestones()}
-                currency={converted.currency}
-                formatCurrency={formatCurrency}
+                budget={offerDetail.budget}
+                totalMilestones={calculateTotalMilestones()}
+                currency={'INR'}
+                formatCurrency={(amt: number) => formatCurrencyUtil(amt)}
               />
             </div>
 
             <OfferDescription description={offerDetail.description} />
 
             <OfferMilestones
-              milestones={(converted.milestones ?? offerDetail.milestones) || []}
-              currency={converted.currency}
+              milestones={offerDetail.milestones || []}
+              currency={'INR'}
               formatDate={formatDate}
-              formatCurrency={formatCurrency}
+              formatCurrency={(amt: number) => formatCurrencyUtil(amt)}
             />
 
             <OfferCommunication

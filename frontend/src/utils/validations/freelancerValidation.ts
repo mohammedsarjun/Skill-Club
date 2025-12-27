@@ -14,37 +14,49 @@ function stringToNumber(val: unknown, fieldName: string) {
   return val;
 }
 
-export function proposalSchema(jobType: string, rateToUSD: number = 1) {
-  const toLocal = (usd: number) => (rateToUSD > 0 ? usd / rateToUSD : usd);
-  if (jobType === "hourly") {
-    const minLocal = toLocal(5);
-    const maxLocal = toLocal(999);
+// INR-only validation for freelancer proposals
+
+export function proposalSchema(jobType: string) {
+  // Use coercion to accept string inputs from form fields ("1000")
+  // and convert them into numbers/dates before validation.
+  if (jobType === 'hourly') {
     return z.object({
-      hourlyRate: z.preprocess(
-        (val) => stringToNumber(val, "hourlyRate"),
-        z
-          .number()
-          .min(minLocal, `Hourly rate must be at least $5 (≈ ${minLocal.toFixed(2)})`)
-          .max(maxLocal, `Hourly rate cannot exceed $999 (≈ ${maxLocal.toFixed(2)})`)
-      ),
-      availableHoursPerWeek: z.preprocess(
-        (val) => stringToNumber(val, "availableHoursPerWeek"),
-        z.number().min(1, "Available hours are required")
-      ),
-      coverLetter: z.string().min(10, "Minimum 10 characters required"),
+      // Accept string numbers from form inputs and coerce to number
+      hourlyRate: z.preprocess((val) => {
+        if (typeof val === 'string') {
+          const n = Number(val);
+          return Number.isNaN(n) ? val : n;
+        }
+        return val;
+      }, z.number().min(100, 'Hourly rate must be at least ₹100').max(10000, 'Hourly rate cannot exceed ₹10,000')),
+      availableHoursPerWeek: z.preprocess((val) => {
+        if (typeof val === 'string') {
+          const n = Number(val);
+          return Number.isNaN(n) ? val : n;
+        }
+        return val;
+      }, z.number().min(1).max(40)),
+      coverLetter: z.string().min(50, 'Cover letter must be at least 50 characters'),
     });
   }
-  const minLocal = toLocal(5);
-  const maxLocal = toLocal(100000);
+
   return z.object({
-    proposedBudget: z.preprocess(
-      (val) => stringToNumber(val, "proposedBudget"),
-      z
-        .number()
-        .min(minLocal, `Proposed budget must be at least $5 (≈ ${minLocal.toFixed(2)})`)
-        .max(maxLocal, `Proposed budget cannot exceed $100000 (≈ ${maxLocal.toFixed(2)})`)
-    ),
-    deadline: z.string().nonempty("Deadline is required"),
-    coverLetter: z.string().min(10, "Minimum 10 characters required"),
+    proposedBudget: z.preprocess((val) => {
+      if (typeof val === 'string') {
+        const n = Number(val);
+        return Number.isNaN(n) ? val : n;
+      }
+      return val;
+    }, z.number().min(500, 'Budget must be at least ₹500').max(100000, 'Budget cannot exceed ₹1,00,000')),
+    deadline: z.preprocess((val) => {
+      // Date inputs often come as strings; attempt to parse
+      if (typeof val === 'string') {
+        const d = new Date(val);
+        return isNaN(d.getTime()) ? val : d;
+      }
+      return val;
+    }, z.date()),
+    coverLetter: z.string().min(50, 'Cover letter must be at least 50 characters'),
   });
 }
+

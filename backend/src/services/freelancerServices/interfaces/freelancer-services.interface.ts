@@ -1,8 +1,11 @@
-import { EducationDTO } from 'src/dto/user.dto';
+import { EducationDTO } from '../../../dto/user.dto';
 import { FetchFreelancerDTO } from '../../../dto/freelancer.dto';
 import { CreatePortfolioDto, PortfolioDto } from '../../../dto/portfolio.dto';
 import { IExperience, IFreelancerProfile } from '../../../models/interfaces/user.model.interface';
-import { ExpertiseResponseDTO, UpdateExpertiseDTO } from '../../../dto/freelancerDTO/freelancer-expertise.dto';
+import {
+  ExpertiseResponseDTO,
+  UpdateExpertiseDTO,
+} from '../../../dto/freelancerDTO/freelancer-expertise.dto';
 export interface IFreelancerService {
   getFreelancerData(id: string): Promise<FetchFreelancerDTO>;
   updateFreelancerLanguage(

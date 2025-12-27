@@ -16,7 +16,7 @@ import {
 import { IFreelancerData } from '../../models/interfaces/user.model.interface';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
-import { IPortfolioRepository } from 'src/repositories/interfaces/portfolio-respository.interface';
+import { IPortfolioRepository } from '../../repositories/interfaces/portfolio-respository.interface';
 
 @injectable()
 export class ClientFreelancerService implements IClientFreelancerService {

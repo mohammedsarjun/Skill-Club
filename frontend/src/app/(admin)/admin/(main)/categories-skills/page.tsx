@@ -420,8 +420,8 @@ const DynamicManagementPage: React.FC = () => {
               className={`cursor-pointer pb-2 text-lg font-medium transition-colors duration-200
                 ${
                   isActive
-                    ? "text-primary border-b-2 border-green-500"
-                    : "text-gray-600 hover:text-primary-dark"
+                    ? "text-blue-600 border-b-2 border-green-500"
+                    : "text-gray-600 hover:text-blue-600-dark"
                 }
               `}
               onClick={() =>

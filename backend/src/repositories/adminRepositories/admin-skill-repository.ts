@@ -1,4 +1,4 @@
-import { CreateSkillDTO } from 'src/dto/adminDTO/skill.dto';
+import { CreateSkillDTO } from '../../dto/adminDTO/skill.dto';
 import { ISkill } from '../../models/interfaces/skill.model.interface';
 import { skillModel } from '../../models/skill.model';
 import BaseRepository from '../baseRepositories/base-repository';

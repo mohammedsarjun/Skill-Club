@@ -1,5 +1,4 @@
 import { Types } from 'mongoose';
-import { SupportedCurrency } from 'src/contants/currency.constants';
 
 export interface freelancerParams {
   search: string;
@@ -34,7 +33,6 @@ export interface ClientFreelancerResponseDto {
   skills: ClientFreelancerSkill[];
   bio: string;
   language: string[];
-  hourlyRateCurrency?: SupportedCurrency;
 }
 
 // DTO for sending freelancer profile data
@@ -52,7 +50,6 @@ export interface FetchClientFreelancerDTO {
   bio: string;
   hourlyRate: number;
   portfolio: null;
-  hourlyRateCurrency?: SupportedCurrency;
 }
 
 // Experience DTO

@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import GenericTable, { Column, Filter } from "@/components/admin/Table";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
-import { formatCurrency, SupportedCurrency } from "@/utils/currency";
+import { formatCurrency } from '@/utils/currency';
 
 // Backend DTO shape
 export interface FreelancerProposalResponseDTO {
@@ -90,7 +90,6 @@ export default function FreelancerProposalPage() {
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
   const pageSize = 10;
-  const preferredCurrency = (useSelector((s: RootState) => s.auth.user?.preferredCurrency) || 'USD') as SupportedCurrency;
 
   useEffect(() => {
     (async () => {
@@ -242,9 +241,9 @@ export default function FreelancerProposalPage() {
                 jobTitle: p.jobDetail.title,
                 proposedDate: new Date(p.proposedAt).toLocaleDateString(),
                 rate: p.hourlyRate
-                  ? `${formatCurrency(Number(p.hourlyRate || 0), preferredCurrency)}/hr`
+                  ? `${formatCurrency(Number(p.hourlyRate || 0))}/hr`
                   : p.proposedBudget
-                  ? `${formatCurrency(Number(p.proposedBudget || 0), preferredCurrency)} (Fixed)`
+                  ? `${formatCurrency(Number(p.proposedBudget || 0))} (Fixed)`
                   : "-",
                 status: p.status,
                 original: p,
@@ -294,7 +293,7 @@ export default function FreelancerProposalPage() {
                     <>
                       <div className="bg-gray-50 p-4 rounded-lg">
                         <p className="text-xs text-gray-500">Fixed Budget</p>
-                        <p className="font-medium">{formatCurrency(Number(selected.proposedBudget || 0), preferredCurrency)}</p>
+                        <p className="font-medium">{formatCurrency(Number(selected.proposedBudget || 0))}</p>
                       </div>
                       <div className="bg-gray-50 p-4 rounded-lg">
                         <p className="text-xs text-gray-500">Deadline</p>
@@ -309,7 +308,7 @@ export default function FreelancerProposalPage() {
                     <>
                       <div className="bg-gray-50 p-4 rounded-lg">
                         <p className="text-xs text-gray-500">Hourly Rate</p>
-                        <p className="font-medium">{formatCurrency(Number(selected.hourlyRate || 0), preferredCurrency)}/hr</p>
+                        <p className="font-medium">{formatCurrency(Number(selected.hourlyRate || 0))}/hr</p>
                       </div>
                       <div className="bg-gray-50 p-4 rounded-lg">
                         <p className="text-xs text-gray-500">Available Hours</p>

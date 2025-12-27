@@ -53,7 +53,7 @@ export const ProposalModal: React.FC<Props> = ({ open, onOpenChange, proposal })
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
               <p className="text-sm text-blue-700 mb-1">Bid Amount</p>
-              <p className="text-2xl font-bold text-gray-900">${proposal.bidAmount}/hr</p>
+              <p className="text-2xl font-bold text-gray-900">₹{proposal.bidAmount}/hr</p>
             </div>
             <div className="bg-green-50 p-4 rounded-lg border border-green-200">
               <p className="text-sm text-green-700 mb-1">Estimated Duration</p>

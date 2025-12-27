@@ -4,12 +4,12 @@ import {
   FreelancerJobFiltersDto,
   FreelancerJobResponseDto,
 } from '../../dto/freelancerDTO/freelancer-job.dto';
-import { SupportedCurrency } from '../../contants/currency.constants';
 import { IJobDetail, IJobResponse } from '../../models/interfaces/job.model.interface';
 
 export function mapJobModelToFreelancerJobDetailResponseDTO(
   jobDetailDto: IJobDetail,
   clientData: FreelancerClientMinimalDTO,
+  isProposalAlreadySent:boolean
 ): FreelancerJobDetailResponseDto {
   return {
     jobId: jobDetailDto?._id?.toString() as string,
@@ -26,7 +26,6 @@ export function mapJobModelToFreelancerJobDetailResponseDTO(
             max: jobDetailDto.hourlyRate!.max,
             hoursPerWeek: jobDetailDto.hourlyRate!.hoursPerWeek,
             estimatedDuration: jobDetailDto.hourlyRate!.estimatedDuration,
-            currency: jobDetailDto.currency as SupportedCurrency,
           }
         : null,
     fixedRate:
@@ -34,7 +33,6 @@ export function mapJobModelToFreelancerJobDetailResponseDTO(
         ? {
             min: jobDetailDto.fixedRate!.min,
             max: jobDetailDto.fixedRate!.max,
-            currency: jobDetailDto.currency as SupportedCurrency,
           }
         : null,
 
@@ -47,6 +45,7 @@ export function mapJobModelToFreelancerJobDetailResponseDTO(
       totalJobsPosted: clientData.totalJobsPosted,
     },
     status: jobDetailDto.status,
+    isProposalAlreadySent:isProposalAlreadySent
   };
 }
 
@@ -166,7 +165,6 @@ export function mapJobModelToFreelancerJobResponseDTO(
             max: jobDetailDto.hourlyRate!.max,
             hoursPerWeek: jobDetailDto.hourlyRate!.hoursPerWeek,
             estimatedDuration: jobDetailDto.hourlyRate!.estimatedDuration,
-            currency: jobDetailDto.currency as SupportedCurrency,
           }
         : null,
     fixedRate:
@@ -174,7 +172,6 @@ export function mapJobModelToFreelancerJobResponseDTO(
         ? {
             min: jobDetailDto.fixedRate!.min,
             max: jobDetailDto.fixedRate!.max,
-            currency: jobDetailDto.currency as SupportedCurrency,
           }
         : null,
     postedAt: jobDetailDto.createdAt.toString(),

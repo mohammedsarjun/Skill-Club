@@ -3,9 +3,7 @@
 import { useState } from "react";
 import Button from "../common/Button";
 import { FaCheckCircle, FaBriefcase, FaLock } from "react-icons/fa";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store";
-import { formatCurrency, SupportedCurrency } from "@/utils/currency";
+import { formatCurrency } from "@/utils/currency";
 
 const freelancers = [
   {
@@ -43,7 +41,6 @@ export default function Step1Form({
 }) {
   const [current, setCurrent] = useState(0);
   const freelancer = freelancers[current];
-  const preferredCurrency = (useSelector((s: RootState) => s.auth.user?.preferredCurrency) || 'USD') as SupportedCurrency;
 
   function nextFreelancer() {
     setCurrent((prev) => (prev + 1) % freelancers.length);
@@ -108,7 +105,7 @@ export default function Step1Form({
 
     <div className="flex justify-center gap-4 mt-3 text-sm text-gray-600">
       <span>⭐ {freelancer.rating}</span>
-      <span>{formatCurrency(Number(freelancer.rate), preferredCurrency)}/hr</span>
+      <span>{formatCurrency(Number(freelancer.rate))}/hr</span>
       <span>{freelancer.jobs} jobs</span>
     </div>
 

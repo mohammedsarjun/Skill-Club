@@ -23,8 +23,16 @@ import { IOfferRepository } from '../repositories/interfaces/offer-repository.in
 import { OfferRepository } from '../repositories/offer-repository';
 import { IContractRepository } from '../repositories/interfaces/contract-repository.interface';
 import { ContractRepository } from '../repositories/contract-repository';
-import { IPaymentRepository, ITransactionRepository, IEscrowRepository } from '../repositories/interfaces/payment-repository.interface';
-import { PaymentRepository, TransactionRepository, EscrowRepository } from '../repositories/payment-repository';
+import {
+  IPaymentRepository,
+  ITransactionRepository,
+  IEscrowRepository,
+} from '../repositories/interfaces/payment-repository.interface';
+import {
+  PaymentRepository,
+  TransactionRepository,
+  EscrowRepository,
+} from '../repositories/payment-repository';
 import { IFileUploadService } from '../services/commonServices/interfaces/file-upload-service.interface';
 import { FileUploadService } from '../services/commonServices/file-upload-service';
 import { IGetRatesService } from '../services/commonServices/interfaces/get-rates-service.interface';
@@ -44,7 +52,9 @@ container.register<IProposalRepository>('IProposalRepository', { useClass: Propo
 container.register<IOfferRepository>('IOfferRepository', { useClass: OfferRepository });
 container.register<IContractRepository>('IContractRepository', { useClass: ContractRepository });
 container.register<IPaymentRepository>('IPaymentRepository', { useClass: PaymentRepository });
-container.register<ITransactionRepository>('ITransactionRepository', { useClass: TransactionRepository });
+container.register<ITransactionRepository>('ITransactionRepository', {
+  useClass: TransactionRepository,
+});
 container.register<IEscrowRepository>('IEscrowRepository', { useClass: EscrowRepository });
 container.register<IFileUploadService>('IFileUploadService', { useClass: FileUploadService });
 container.register<IGetRatesService>('IGetRatesService', { useClass: GetRatesService });
@@ -288,6 +298,23 @@ container.register<IFreelancerContractService>('IFreelancerContractService', {
   useClass: FreelancerContractService,
 });
 
+import { IWorklogRepository } from '../repositories/interfaces/worklog-repository.interface';
+import { WorklogRepository } from '../repositories/worklog-repository';
+import { IFreelancerWorklogService } from '../services/freelancerServices/interfaces/freelancer-worklog-service.interface';
+import { FreelancerWorklogService } from '../services/freelancerServices/freelancer-worklog-service';
+container.register<IWorklogRepository>('IWorklogRepository', {
+  useClass: WorklogRepository,
+});
+container.register<IFreelancerWorklogService>('IFreelancerWorklogService', {
+  useClass: FreelancerWorklogService,
+});
+
+import { IClientWorklogService } from '../services/clientServices/interfaces/client-worklog-service.interface';
+import { ClientWorklogService } from '../services/clientServices/client-worklog-service';
+container.register<IClientWorklogService>('IClientWorklogService', {
+  useClass: ClientWorklogService,
+});
+
 // Client Saved Freelancer
 import { ISavedFreelancerRepository } from '../repositories/interfaces/saved-freelancer-repository.interface';
 import { SavedFreelancerRepository } from '../repositories/saved-freelancer-repository';
@@ -300,6 +327,7 @@ import { IClientChatService } from '../services/clientServices/interfaces/client
 import { ClientChatService } from '../services/clientServices/client-chat-service';
 import { IFreelancerChatService } from '../services/freelancerServices/interfaces/freelancer-chat-service.interface';
 import { FreelancerChatService } from '../services/freelancerServices/freelancer-chat-service';
+
 
 container.register<ISavedFreelancerRepository>('ISavedFreelancerRepository', {
   useClass: SavedFreelancerRepository,
@@ -314,4 +342,29 @@ container.register<IChatRepository>('IChatRepository', { useClass: ChatRepositor
 container.register<IClientChatService>('IClientChatService', { useClass: ClientChatService });
 container.register<IFreelancerChatService>('IFreelancerChatService', {
   useClass: FreelancerChatService,
+});
+
+
+// payment strategies
+import { HourlyPaymentStrategy } from '../services/clientServices/strategies/paymentStrategies/HourlyPaymentStrategy';
+import { FixedPaymentStrategy } from '../services/clientServices/strategies/paymentStrategies/FixedPaymentStrategy';
+
+import { IPaymentAmountStrategy } from '../services/clientServices/strategies/paymentStrategies/interfaces/IPaymentAmountStrategy';
+import { MilestonePaymentStrategy } from '../services/clientServices/strategies/paymentStrategies/MIlestonePaymentStrategy';
+
+container.register<IPaymentAmountStrategy>("IPaymentAmountStrategy", {
+  useClass: HourlyPaymentStrategy,
+});
+
+container.register<IPaymentAmountStrategy>("IPaymentAmountStrategy", {
+  useClass: FixedPaymentStrategy,
+});
+container.register<IPaymentAmountStrategy>("IPaymentAmountStrategy", {
+  useClass: MilestonePaymentStrategy,
+});
+
+//payment factory
+import { PaymentAmountStrategyFactory } from '../services/clientServices/factories/paymentFactories/PaymentAmountStrategyFactory';
+container.register("PaymentAmountStrategyFactory", {
+  useClass: PaymentAmountStrategyFactory,
 });

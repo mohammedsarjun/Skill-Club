@@ -1,4 +1,4 @@
-import crypto from "crypto";
+import crypto from 'crypto';
 
 export class PayUService {
   private merchantKey: string;
@@ -6,12 +6,12 @@ export class PayUService {
   private payuUrl: string;
 
   constructor() {
-    this.merchantKey = process.env.PAYU_MERCHANT_KEY || "";
-    this.merchantSalt = process.env.PAYU_MERCHANT_SALT || "";
-    this.payuUrl = process.env.PAYU_URL || "https://test.payu.in/_payment";
+    this.merchantKey = process.env.PAYU_MERCHANT_KEY || '';
+    this.merchantSalt = process.env.PAYU_MERCHANT_SALT || '';
+    this.payuUrl = process.env.PAYU_URL || 'https://test.payu.in/_payment';
 
     if (!this.merchantKey || !this.merchantSalt) {
-      throw new Error("PayU merchant credentials not configured");
+      throw new Error('PayU merchant credentials not configured');
     }
   }
 
@@ -44,50 +44,50 @@ export class PayUService {
       productinfo,
       firstname,
       email,
-      udf1 = "",
-      udf2 = "",
-      udf3 = "",
-      udf4 = "",
-      udf5 = "",
+      udf1 = '',
+      udf2 = '',
+      udf3 = '',
+      udf4 = '',
+      udf5 = '',
     } = params;
 
     // UDF6–UDF10 must exist as empty strings — PayU requirement
     const hashString =
       key +
-      "|" +
+      '|' +
       txnid +
-      "|" +
+      '|' +
       amount +
-      "|" +
+      '|' +
       productinfo +
-      "|" +
+      '|' +
       firstname +
-      "|" +
+      '|' +
       email +
-      "|" +
+      '|' +
       udf1 +
-      "|" +
+      '|' +
       udf2 +
-      "|" +
+      '|' +
       udf3 +
-      "|" +
+      '|' +
       udf4 +
-      "|" +
+      '|' +
       udf5 +
-      "|" +
-      "" +
-      "|" +
-      "" +
-      "|" +
-      "" +
-      "|" +
-      "" +
-      "|" +
-      "" +
-      "|" +
+      '|' +
+      '' +
+      '|' +
+      '' +
+      '|' +
+      '' +
+      '|' +
+      '' +
+      '|' +
+      '' +
+      '|' +
       this.merchantSalt;
 
-    return crypto.createHash("sha512").update(hashString).digest("hex");
+    return crypto.createHash('sha512').update(hashString).digest('hex');
   }
 
   /**
@@ -98,13 +98,13 @@ export class PayUService {
    * SALT|status|
    * ||||||||||udf10|udf9|udf8|udf7|udf6|udf5|udf4|udf3|udf2|udf1|
    * email|firstname|productinfo|amount|txnid|key
-   * 
+   *
    * Note: UDF fields are in REVERSE order compared to request hash!
    * -------------------------------------------------------------------
    */
   verifyHash(params: {
     status: string;
-    key: string;      // MUST use PayU callback key, DO NOT USE merchant key
+    key: string; // MUST use PayU callback key, DO NOT USE merchant key
     txnid: string;
     amount: string;
     productinfo: string;
@@ -130,16 +130,16 @@ export class PayUService {
       productinfo,
       firstname,
       email,
-      udf1 = "",
-      udf2 = "",
-      udf3 = "",
-      udf4 = "",
-      udf5 = "",
-      udf6 = "",
-      udf7 = "",
-      udf8 = "",
-      udf9 = "",
-      udf10 = "",
+      udf1 = '',
+      udf2 = '',
+      udf3 = '',
+      udf4 = '',
+      udf5 = '',
+      udf6 = '',
+      udf7 = '',
+      udf8 = '',
+      udf9 = '',
+      udf10 = '',
       hash,
     } = params;
 
@@ -147,45 +147,42 @@ export class PayUService {
     // Standard format: SALT|status|udf10|udf9|...|udf1|email|firstname|productinfo|amount|txnid|key
     const hashString =
       this.merchantSalt +
-      "|" +
+      '|' +
       status +
-      "|" +
+      '|' +
       udf10 +
-      "|" +
+      '|' +
       udf9 +
-      "|" +
+      '|' +
       udf8 +
-      "|" +
+      '|' +
       udf7 +
-      "|" +
+      '|' +
       udf6 +
-      "|" +
+      '|' +
       udf5 +
-      "|" +
+      '|' +
       udf4 +
-      "|" +
+      '|' +
       udf3 +
-      "|" +
+      '|' +
       udf2 +
-      "|" +
+      '|' +
       udf1 +
-      "|" +
+      '|' +
       email +
-      "|" +
+      '|' +
       firstname +
-      "|" +
+      '|' +
       productinfo +
-      "|" +
+      '|' +
       amount +
-      "|" +
+      '|' +
       txnid +
-      "|" +
+      '|' +
       key;
 
-    const calculatedHash = crypto
-      .createHash("sha512")
-      .update(hashString)
-      .digest("hex");
+    const calculatedHash = crypto.createHash('sha512').update(hashString).digest('hex');
 
     console.log('Hash verification debug:');
     console.log('Hash string:', hashString);

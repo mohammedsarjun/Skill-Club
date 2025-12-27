@@ -9,7 +9,6 @@ export interface UserDto {
   freelancerProfile?: string | undefined;
   isFreelancerBlocked: boolean;
   isClientBlocked: boolean;
-  preferredCurrency?: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
 }
 
 export interface UserProfileDto {

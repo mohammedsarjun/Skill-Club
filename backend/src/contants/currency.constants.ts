@@ -12,7 +12,7 @@ export const SUPPORTED_CURRENCIES = [
 export type SupportedCurrency = (typeof SUPPORTED_CURRENCIES)[number];
 
 export const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
-  USD: '$',
+  USD: '₹',
   EUR: '€',
   GBP: '£',
   INR: '₹',

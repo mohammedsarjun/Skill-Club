@@ -2,17 +2,41 @@ import { Document, Types } from 'mongoose';
 
 export type ContractStatus = 'pending_funding' | 'active' | 'completed' | 'cancelled' | 'refunded';
 
-export type MilestoneStatus = 'pending' | 'funded' | 'submitted' | 'approved' | 'paid';
+export type MilestoneStatus = 'pending_funding' | 'funded' | 'under_review' | 'submitted' | 'approved' | 'paid';
+
+export interface MilestoneDeliverable {
+  _id?: Types.ObjectId;
+  submittedBy: Types.ObjectId;
+  files: { fileName: string; fileUrl: string }[];
+  message?: string;
+  status: 'submitted' | 'approved' | 'changes_requested';
+  version: number;
+  submittedAt: Date;
+  approvedAt?: Date;
+  revisionsRequested?: number;
+}
+
+export interface MilestoneExtensionRequest {
+  requestedBy: Types.ObjectId;
+  requestedDeadline: Date;
+  reason: string;
+  status: 'pending' | 'approved' | 'rejected';
+  requestedAt: Date;
+  respondedAt?: Date;
+  responseMessage?: string;
+}
 
 export interface ContractMilestone {
-  milestoneId: Types.ObjectId;
+  _id?: Types.ObjectId;
   title: string;
   amount: number;
-  amountBaseUSD?: number;
   expectedDelivery: Date;
   status: MilestoneStatus;
   submittedAt?: Date;
   approvedAt?: Date;
+  revisionsAllowed?: number;
+  deliverables?: MilestoneDeliverable[];
+  extensionRequest?: MilestoneExtensionRequest;
 }
 
 export interface ContractDeliverable {
@@ -24,6 +48,7 @@ export interface ContractDeliverable {
   version: number;
   submittedAt: Date;
   approvedAt?: Date;
+  revisionsRequested?: number;
 }
 
 export interface HourLog {
@@ -63,6 +88,15 @@ export interface ContractReporting {
   format: 'text_with_attachments' | 'text_only' | 'video';
 }
 
+export interface TimelineEntry {
+  _id?: Types.ObjectId;
+  action: string;
+  performedBy: Types.ObjectId;
+  milestoneId?: Types.ObjectId;
+  details?: string;
+  timestamp: Date;
+}
+
 export interface IContract extends Document {
   contractId: string;
 
@@ -80,21 +114,22 @@ export interface IContract extends Document {
   // Payment info
   paymentType: 'fixed' | 'fixed_with_milestones' | 'hourly';
   budget?: number;
-  budgetBaseUSD?: number;
   hourlyRate?: number;
-  hourlyRateBaseUSD?: number;
-  conversionRate?: number;
   estimatedHoursPerWeek?: number;
-  currency: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
 
   // Milestones
   milestones?: ContractMilestone[];
+  // Allowed revisions copied from offer
+  revisions?: number;
 
   // Hourly tracking
   timesheets?: ContractTimesheet[];
 
   // Deliverables
   deliverables?: ContractDeliverable[];
+
+  // Timeline tracking
+  timeline?: TimelineEntry[];
 
   // Project details
   title: string;

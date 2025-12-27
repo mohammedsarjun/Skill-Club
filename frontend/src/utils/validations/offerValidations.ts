@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { getUsdRateFor, formatCurrency } from "../currency";
 
 // Reusable date refinements
 const isFutureDate = (value: string, field: string) => {
@@ -13,6 +12,7 @@ const milestoneSchema = z.object({
   title: z.string().min(3, 'Milestone title too short'),
   amount: z.preprocess(v => (v === '' || v === null ? undefined : Number(v)), z.number().positive('Amount must be > 0')),
   expected_delivery: z.string().refine(v => isFutureDate(v, 'expected_delivery'), 'Delivery date must be a valid future date'),
+  revisions: z.preprocess(v => (v === '' || v === null ? 0 : Number(v)), z.number().int().min(0).max(100).optional()),
 });
 
 const dayOfWeek = z.enum(['monday','tuesday','wednesday','thursday','friday','saturday','sunday']);
@@ -22,9 +22,16 @@ export const offerSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 chars'),
   description: z.string().min(20, 'Description must be at least 20 chars'),
   payment_type: z.enum(['fixed', 'fixed_with_milestones', 'hourly']),
-  budget: z.preprocess(v => (v === '' || v === undefined ? undefined : Number(v)), z.number().positive('Budget must be > 0').optional()),
-  currency: z.enum(['USD','EUR','GBP','INR','AUD','CAD','SGD','JPY']),
+budget: z.preprocess(
+  v => (v === '' || v === undefined ? undefined : Number(v)),
+  z
+    .number()
+    .min(501, { message: "Budget must be greater than 500" })
+    .max(1000000, { message: "Budget must be less than 10 lakh" })
+    .optional()
+),
   hourly_rate: z.preprocess(v => (v === '' || v === undefined ? undefined : Number(v)), z.number().positive('Hourly rate must be > 0').optional()),
+  revisions: z.preprocess(v => (v === '' || v === undefined ? undefined : Number(v)), z.number().int().min(0).max(100).optional()),
   estimated_hours_per_week: z.preprocess(v => (v === '' || v === undefined ? undefined : Number(v)), z.number().int().positive('Hours must be > 0').max(168, 'Too many hours').optional()),
   milestones: z.array(milestoneSchema).optional(),
   expected_start_date: z.string().refine(v => isFutureDate(v, 'expected_start_date'), 'Start date must be a valid future date'),
@@ -124,55 +131,44 @@ export async function validateOffer(payload: any) {
     return { success: false, errors: fieldErrors };
   }
 
-  // USD-normalized money checks
+  // INR validation for amounts
   const data = parsed.data;
-  try {
-    const rateToUSD = await getUsdRateFor(data.currency as any);
-    if (data.payment_type === 'hourly' && typeof data.hourly_rate === 'number') {
-      const hrUSD = data.hourly_rate * rateToUSD;
-      if (hrUSD < 5 || hrUSD > 999) {
-        const minLocal = 5 / (rateToUSD || 1);
-        const maxLocal = 999 / (rateToUSD || 1);
-        return {
-          success: false,
-          errors: { hourly_rate: `Hourly rate must be between ${formatCurrency(minLocal, data.currency)} and ${formatCurrency(maxLocal, data.currency)}` },
-        };
-      }
+  if (data.payment_type === 'hourly' && typeof data.hourly_rate === 'number') {
+    // Accept INR hourly rates from ₹100 up to ₹10,000
+    if (data.hourly_rate < 100 || data.hourly_rate > 10000) {
+      return {
+        success: false,
+        errors: { hourly_rate: 'Hourly rate must be between ₹100 and ₹10,000' },
+      };
     }
-    if (data.payment_type !== 'hourly' && typeof data.budget === 'number') {
-      const budgetUSD = data.budget * rateToUSD;
-      if (budgetUSD < 5 || budgetUSD > 100000) {
-        const minLocal = 5 / (rateToUSD || 1);
-        const maxLocal = 100000 / (rateToUSD || 1);
-        return {
-          success: false,
-          errors: { budget: `Budget must be between ${formatCurrency(minLocal, data.currency)} and ${formatCurrency(maxLocal, data.currency)}` },
-        };
-      }
+  }
+  
+  if (data.payment_type !== 'hourly' && typeof data.budget === 'number') {
+    if (data.budget < 500 || data.budget > 100000) {
+      return {
+        success: false,
+        errors: { budget: 'Budget must be between ₹500 and ₹1,00,000' },
+      };
     }
-    if (data.payment_type === 'fixed_with_milestones' && Array.isArray(data.milestones)) {
-      for (let i = 0; i < data.milestones.length; i++) {
-        const m = data.milestones[i];
-        const mUSD = (m.amount || 0) * rateToUSD;
-        if (mUSD < 5) {
-          const minLocal = 5 / (rateToUSD || 1);
-          return {
-            success: false,
-            errors: { [`milestones.${i}.amount`]: `Each milestone must be at least ${formatCurrency(minLocal, data.currency)}` },
-          };
-        }
-      }
-      const totalUSD = data.milestones.reduce((s, m) => s + (m.amount || 0), 0) * rateToUSD;
-      if (totalUSD > 100000) {
-        const maxLocal = 100000 / (rateToUSD || 1);
-        return {
-          success: false,
-          errors: { milestones: `Total milestones exceed ${formatCurrency(maxLocal, data.currency)}` },
-        };
-      }
+  }
+  
+  if (data.payment_type === 'fixed_with_milestones' && Array.isArray(data.milestones)) {
+    // for (let i = 0; i < data.milestones.length; i++) {
+    //   const m = data.milestones[i];
+    //   if ((m.amount || 0) < 500) {
+    //     return {
+    //       success: false,
+    //       errors: { [`milestones.${i}.amount`]: 'Each milestone must be at least ₹500' },
+    //     };
+    //   }
+    // }
+    const total = data.milestones.reduce((s, m) => s + (m.amount || 0), 0);
+    if (total > 100000) {
+      return {
+        success: false,
+        errors: { milestones: 'Total milestones cannot exceed ₹1,00,000' },
+      };
     }
-  } catch (e) {
-    return { success: false, errors: { form: 'Could not validate currency rates. Try again.' } };
   }
 
   return { success: true, data: parsed.data, errors: {} };

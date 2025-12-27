@@ -158,7 +158,7 @@ export default function ProposalManagementTable() {
   const transformedData: any[] = proposalsData.map((p) => ({
     ...p,
     freelancerName: p.freelancer?.name || "",
-    rateType: p.hourlyRate ? `$${p.hourlyRate}/hr` : p.proposedBudget ? `$${p.proposedBudget?.toLocaleString()} (Fixed)` : "",
+    rateType: p.hourlyRate ? `₹${p.hourlyRate}/hr` : p.proposedBudget ? `₹${p.proposedBudget?.toLocaleString()} (Fixed)` : "",
     proposalDate: p.createdAt
       ? new Date(p.createdAt).toLocaleDateString("en-US", {
           year: "numeric",

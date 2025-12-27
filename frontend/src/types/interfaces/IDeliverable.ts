@@ -16,6 +16,7 @@ export interface ISubmitDeliverableRequest {
 
 export interface IApproveDeliverableRequest {
   deliverableId: string;
+  message?: string;
 }
 
 export interface IRequestChangesRequest {

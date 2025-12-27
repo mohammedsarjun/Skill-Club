@@ -5,7 +5,15 @@ import { IClientContractController } from './interfaces/client-contract-controll
 import { IClientContractService } from '../../services/clientServices/interfaces/client-contract-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { ClientContractQueryParamsDTO } from '../../dto/clientDTO/client-contract.dto';
-import { ApproveDeliverableDTO, RequestChangesDTO } from '../../dto/clientDTO/client-deliverable.dto';
+import {
+  ApproveDeliverableDTO,
+  RequestChangesDTO,
+} from '../../dto/clientDTO/client-deliverable.dto';
+import {
+  ApproveMilestoneDeliverableDTO,
+  RequestMilestoneChangesDTO,
+  RespondToExtensionDTO,
+} from '../../dto/clientDTO/client-milestone.dto';
 
 @injectable()
 export class ClientContractController implements IClientContractController {
@@ -78,11 +86,82 @@ export class ClientContractController implements IClientContractController {
     const { contractId } = req.params;
     const data: RequestChangesDTO = req.body;
 
-    const result = await this._clientContractService.requestDeliverableChanges(clientId, contractId, data);
+    const result = await this._clientContractService.requestDeliverableChanges(
+      clientId,
+      contractId,
+      data,
+    );
 
     res.status(HttpStatus.OK).json({
       success: true,
       message: 'Changes requested successfully',
+      data: result,
+    });
+  }
+
+  async approveMilestoneDeliverable(req: Request, res: Response): Promise<void> {
+    const clientId = req.user?.userId as string;
+    const { contractId } = req.params;
+    const data: ApproveMilestoneDeliverableDTO = req.body;
+
+    const result = await this._clientContractService.approveMilestoneDeliverable(
+      clientId,
+      contractId,
+      data,
+    );
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Milestone deliverable approved successfully',
+      data: result,
+    });
+  }
+
+  async requestMilestoneChanges(req: Request, res: Response): Promise<void> {
+    const clientId = req.user?.userId as string;
+    const { contractId } = req.params;
+    const data: RequestMilestoneChangesDTO = req.body;
+
+    const result = await this._clientContractService.requestMilestoneChanges(
+      clientId,
+      contractId,
+      data,
+    );
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Milestone changes requested successfully',
+      data: result,
+    });
+  }
+
+  async respondToMilestoneExtension(req: Request, res: Response): Promise<void> {
+    const clientId = req.user?.userId as string;
+    const { contractId } = req.params;
+    const data: RespondToExtensionDTO = req.body;
+
+    const result = await this._clientContractService.respondToMilestoneExtension(
+      clientId,
+      contractId,
+      data,
+    );
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: `Extension request ${data.approved ? 'approved' : 'rejected'} successfully`,
+      data: result,
+    });
+  }
+
+
+  async getMilestoneDetail(req: Request, res: Response): Promise<void> {
+    const clientId = req.user?.userId as string;
+    const { contractId, milestoneId } = req.params; 
+    const result = await this._clientContractService.getMilestoneDetail(clientId, contractId, milestoneId);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Milestone detail fetched successfully',
       data: result,
     });
   }

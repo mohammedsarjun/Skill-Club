@@ -7,13 +7,13 @@ export interface ClientOfferRequestDTO {
   description: string;
   payment_type: 'fixed' | 'fixed_with_milestones' | 'hourly';
   budget?: number;
-  currency: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
   hourly_rate?: number;
   estimated_hours_per_week?: number;
   milestones?: {
     title: string;
     amount: number;
     expected_delivery: string;
+    revisions?: number;
   }[];
   expected_start_date: string;
   expected_end_date: string;
@@ -48,6 +48,7 @@ export interface ClientOfferRequestDTO {
   reference_files: { file_name: string; file_url: string }[];
   reference_links: { description: string; link: string }[];
   expires_at: string;
+  revisions?: number;
   status: 'pending' | 'accepted' | 'rejected' | 'withdrawn';
 }
 

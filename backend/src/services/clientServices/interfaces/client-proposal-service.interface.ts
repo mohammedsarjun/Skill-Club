@@ -1,4 +1,4 @@
-import { ClientProposalResponseDTO } from 'src/dto/clientDTO/client-proposal.dto';
+import { ClientProposalResponseDTO } from '../../../dto/clientDTO/client-proposal.dto';
 
 export interface IClientProposalService {
   getAllProposal(

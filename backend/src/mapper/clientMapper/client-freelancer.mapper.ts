@@ -12,11 +12,10 @@ import {
   freelancerParams,
 } from '../../dto/clientDTO/client-freelancer.dto';
 import { Types } from 'mongoose';
-import { EducationDTO, ExperienceDTO, IEducationDTO } from 'src/dto/freelancer.dto';
+import { EducationDTO, ExperienceDTO, IEducationDTO } from '../../dto/freelancer.dto';
 import { mapEducationModelToDTO } from '../freelancer.mapper';
-import { LanguageDTO } from 'src/dto/user.dto';
-import { IPortfolio } from 'src/models/interfaces/portfolio.model.interface';
-import { SupportedCurrency } from 'src/contants/currency.constants';
+import { LanguageDTO } from '../../dto/user.dto';
+import { IPortfolio } from '../../models/interfaces/portfolio.model.interface';
 
 export interface FreelancerModelQuery {
   roles?: string;
@@ -120,7 +119,6 @@ export const mapUserModelToClientFreelancerResponseDto = (
   specialityIds: userData.specialityIds,
   skills: userData.skills,
   bio: userData.bio,
-  hourlyRateCurrency: userData.hourlyRateCurrency as SupportedCurrency,
   language: userData.language,
 });
 
@@ -143,7 +141,6 @@ export const mapFreelancerToFetchClientFreelancerDTO = (
     bio: user?.bio || '',
     hourlyRate: user?.hourlyRate || 0,
     portfolio: null,
-    hourlyRateCurrency: user.hourlyRateCurrency as SupportedCurrency,
   };
 };
 

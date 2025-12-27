@@ -6,7 +6,7 @@ interface ActionButtonsProps {
 }
 
 export const ActionButtons = ({ status, onFundContract, onCancelContract, isProcessing }: ActionButtonsProps) => {
-  if (status !== 'pending_funding') return null;
+  // if (status !== 'pending_funding') return null;
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">

@@ -50,9 +50,8 @@ function SignupPage() {
 
       const res = await fetch("https://ipapi.co/json/");
       const data = await res.json();
-  const preferredCurrency = getCurrency(data.country_code);
 
-      const response = await authApi.signUp(formData,{preferredCurrency, timezone, country: data.country_code});
+      const response = await authApi.signUp(formData,{timezone, country: data.country_code});
       if (!response?.success) {
         toast.error(response?.message);
         setIsLoading(false);

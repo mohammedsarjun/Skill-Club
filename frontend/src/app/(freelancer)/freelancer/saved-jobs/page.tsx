@@ -11,9 +11,7 @@ import {
 import { freelancerActionApi } from '@/api/action/FreelancerActionApi';
 import Pagination from '@/components/common/Pagination';
 import { useRouter } from 'next/navigation';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store';
-import { formatCurrency, SupportedCurrency } from '@/utils/currency';
+import { formatCurrency } from '@/utils/currency';
 
 interface SavedJobItemDTO {
   id: string;
@@ -40,7 +38,6 @@ function SavedJobs() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [removingJobId, setRemovingJobId] = useState<string | null>(null);
-  const preferredCurrency = (useSelector((s: RootState) => s.auth.user?.preferredCurrency) || 'USD') as SupportedCurrency;
 
   useEffect(() => {
     let active = true;
@@ -183,16 +180,16 @@ function SavedJobs() {
                     <div className="text-lg font-bold text-gray-900">
                       {savedJob.rateType === 'hourly' ? (
                         <>
-                          <span>{formatCurrency(Number(savedJob.hourlyRate?.min || 0), preferredCurrency)}</span>
+                          <span>{formatCurrency(Number(savedJob.hourlyRate?.min || 0))}</span>
                           <span className="text-gray-600"> - </span>
-                          <span>{formatCurrency(Number(savedJob.hourlyRate?.max || 0), preferredCurrency)}</span>
+                          <span>{formatCurrency(Number(savedJob.hourlyRate?.max || 0))}</span>
                           <span className="text-sm">/hr</span>
                         </>
                       ) : (
                         <>
-                          <span>{formatCurrency(Number(savedJob.fixedRate?.min || 0), preferredCurrency)}</span>
+                          <span>{formatCurrency(Number(savedJob.fixedRate?.min || 0))}</span>
                           <span className="text-gray-600"> - </span>
-                          <span>{formatCurrency(Number(savedJob.fixedRate?.max || 0), preferredCurrency)}</span>
+                          <span>{formatCurrency(Number(savedJob.fixedRate?.max || 0))}</span>
                         </>
                       )}
                     </div>
