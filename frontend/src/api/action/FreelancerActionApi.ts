@@ -15,6 +15,11 @@ import { IFreelancerContractQueryParams } from "@/types/interfaces/IFreelancerCo
 import { IUpdateExpertise } from "@/types/interfaces/IExpertise";
 import { ISubmitDeliverableRequest } from "@/types/interfaces/IDeliverable";
 import { ISubmitWorklogRequest } from "@/types/interfaces/IWorklog";
+import {
+  IFreelancerMeetingQueryParams,
+  IAcceptMeetingRequest,
+  IRequestRescheduleRequest,
+} from "@/types/interfaces/IFreelancerMeeting";
 
 export const freelancerActionApi = {
   async getFreelancerData() {
@@ -630,6 +635,26 @@ export const freelancerActionApi = {
     }
   },
 
+  async requestContractExtension(
+    contractId: string,
+    requestedDeadline: string,
+    reason: string
+  ) {
+    try {
+      const response = await axiosClient.post(
+        freelancerRouterEndPoints.requestContractExtension(contractId),
+        { requestedDeadline, reason }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
   async submitWorklog(data: ISubmitWorklogRequest) {
     try {
       const response = await axiosClient.post(
@@ -650,6 +675,69 @@ export const freelancerActionApi = {
     try {
       const response = await axiosClient.get(
         freelancerRouterEndPoints.getContractWorklogs(contractId)
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getMeetings(params?: IFreelancerMeetingQueryParams) {
+    try {
+      const response = await axiosClient.get(
+        freelancerRouterEndPoints.getMeetings,
+        { params }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getMeetingDetail(meetingId: string) {
+    try {
+      const response = await axiosClient.get(
+        freelancerRouterEndPoints.getMeetingDetail(meetingId)
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async acceptMeeting(data: IAcceptMeetingRequest) {
+    try {
+      const response = await axiosClient.post(
+        freelancerRouterEndPoints.acceptMeeting,
+        data
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async requestMeetingReschedule(data: IRequestRescheduleRequest) {
+    try {
+      const response = await axiosClient.post(
+        freelancerRouterEndPoints.requestMeetingReschedule,
+        data
       );
       return response.data;
     } catch (error: unknown) {

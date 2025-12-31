@@ -16,6 +16,7 @@ import { ClientContractController } from '../controllers/client/client-contract-
 import { ClientPaymentController } from '../controllers/client/client-payment-controller';
 import { ClientChatController } from '../controllers/client/client-chat-controller';
 import { ClientWorklogController } from '../controllers/client/client-worklog-controller';
+import { ClientMeetingController } from '../controllers/client/client-meeting-controller';
 const clientRouter = express.Router();
 
 const clientController = container.resolve(ClientController);
@@ -30,6 +31,7 @@ const clientContractController = container.resolve(ClientContractController);
 const clientPaymentController = container.resolve(ClientPaymentController);
 const clientChatController = container.resolve(ClientChatController);
 const clientWorklogController = container.resolve(ClientWorklogController);
+const clientMeetingController = container.resolve(ClientMeetingController);
 clientRouter.get(
   '/me',
   authMiddleware,
@@ -287,6 +289,22 @@ clientRouter.put(
   clientContractController.respondToMilestoneExtension.bind(clientContractController),
 );
 
+clientRouter.put(
+  '/contracts/:contractId/extension/respond',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientContractController.respondToContractExtension.bind(clientContractController),
+);
+
+clientRouter.post(
+  '/contracts/:contractId/deliverables/download',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientContractController.downloadDeliverableFiles.bind(clientContractController),
+);
+
 clientRouter.get(
   '/contracts/:contractId/worklogs',
   authMiddleware,
@@ -363,5 +381,22 @@ clientRouter.get(
   clientBlockMiddleware,
   clientChatController.getUnreadCount.bind(clientChatController),
 );
+
+clientRouter.get(
+  '/chat/:contractId/messages',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientChatController.getMessages.bind(clientChatController),
+);
+
+clientRouter.post(
+  '/contracts/:contractId/meetings',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientMeetingController.proposeMeeting.bind(clientMeetingController),
+);
+
 
 export default clientRouter;

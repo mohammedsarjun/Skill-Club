@@ -82,6 +82,7 @@ export class EscrowRepository extends BaseRepository<IEscrow> implements IEscrow
   }
 
   async findOneByContractIdAndStatus(contractId: string, status: IEscrow['status']): Promise<IEscrow | null> {
+    console.log("contract and status:",contractId, status);
     return await this.model.findOne({ contractId, status }).exec();
   }
 

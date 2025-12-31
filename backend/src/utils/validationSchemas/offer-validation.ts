@@ -21,7 +21,6 @@ export const offerValidationSchema = z
     hourly_rate: z.number().positive().optional(),
     estimated_hours_per_week: z.number().int().positive().optional(),
     milestones: z.array(milestoneSchema).optional(),
-    expected_start_date: z.string().refine((v) => !isNaN(new Date(v).getTime())),
     expected_end_date: z.string().refine((v) => !isNaN(new Date(v).getTime())),
     communication: z.object({
       preferred_method: z.enum(['chat', 'video_call', 'email', 'mixed']),

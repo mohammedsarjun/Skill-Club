@@ -77,7 +77,7 @@ export interface AdminContractDetailDTO {
     title: string;
     amount: number;
     expectedDelivery: Date;
-    status: 'pending_funding' | 'funded' | 'under_review' | 'submitted' | 'approved' | 'paid';
+    status: 'pending_funding' | 'funded' | 'under_review' | 'submitted' | 'approved' | 'paid' | 'changes_requested';
     submittedAt?: Date;
     approvedAt?: Date;
   }[];

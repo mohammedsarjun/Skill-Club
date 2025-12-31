@@ -7,9 +7,10 @@ import { IFreelancerData } from "@/types/interfaces/IFreelancerData";
 import { IFreelancerQueryParams } from "@/types/interfaces/IFreelancer";
 import { OfferPayload } from "@/types/interfaces/IOffer";
 import { IInitiatePayment, IPaymentResponse } from "@/types/interfaces/IPayment";
-import { IApproveDeliverableRequest, IRequestChangesRequest } from "@/types/interfaces/IDeliverable";
+import { IApproveDeliverableRequest, IRequestChangesRequest, IDownloadDeliverableRequest } from "@/types/interfaces/IDeliverable";
 import { IApproveMilestoneDeliverableRequest, IRequestMilestoneChangesRequest } from "@/types/interfaces/IMilestoneDeliverable";
 import { IApproveWorklogRequest, IRejectWorklogRequest } from "@/types/interfaces/IClientWorklog";
+import { MeetingProposalRequest, MeetingProposalResponse } from "@/types/interfaces/IMeeting";
 export const clientActionApi = {
   async getClientData() {
     try {
@@ -547,6 +548,27 @@ export const clientActionApi = {
       }
     }
   },
+
+  async respondToContractExtension(
+    contractId: string,
+    approved: boolean,
+    responseMessage?: string
+  ) {
+    try {
+      const response = await axiosClient.put(
+        clientRouterEndPoints.respondToContractExtension(contractId),
+        { approved, responseMessage }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
   async getMilestoneDetail(contractId: string, milestoneId: string) {
     try {
       const response = await axiosClient.get(clientRouterEndPoints.getMilestoneDetail(contractId, milestoneId));
@@ -611,4 +633,35 @@ export const clientActionApi = {
       }
     }
   },
+
+  async proposeMeeting(contractId: string, data: MeetingProposalRequest) {
+    try {
+      const response = await axiosClient.post<MeetingProposalResponse>(clientRouterEndPoints.proposeMeeting(contractId), data);
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async downloadDeliverableFiles(contractId: string, data: IDownloadDeliverableRequest) {
+    try {
+      const response = await axiosClient.post(
+        clientRouterEndPoints.downloadDeliverableFiles(contractId),
+        data,
+        { responseType: 'blob' }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
 }

@@ -65,7 +65,7 @@ const offerSchema = new Schema<IOffer>(
     estimatedHoursPerWeek: { type: Number },
     milestones: [milestoneSchema],
     revisions: { type: Number, default: 0 },
-    expectedStartDate: { type: Date, required: true },
+    expectedStartDate: { type: Date },
     expectedEndDate: { type: Date, required: true },
     communication: {
       preferredMethod: {

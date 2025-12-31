@@ -34,7 +34,6 @@ export const mapOfferModelToClientOfferResponseDTO = (offer: IOffer): ClientOffe
       amount: m.amount,
       expectedDelivery: m.expectedDelivery,
     })),
-    expectedStartDate: offer.expectedStartDate,
     expectedEndDate: offer.expectedEndDate,
     expiresAt: offer.expiresAt,
     createdAt: offer.createdAt!,

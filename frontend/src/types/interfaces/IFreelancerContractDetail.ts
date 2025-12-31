@@ -31,7 +31,7 @@ export interface IFreelancerContractDetail {
     amount: number;
     amountBaseUSD?: number;
     expectedDelivery: string;
-    status: 'pending_funding' | 'funded' | 'under_review' | 'submitted' | 'approved' | 'paid';
+    status: 'pending_funding' | 'funded' | 'changes_requested' | 'submitted' | 'approved' | 'paid';
     submittedAt?: string;
     approvedAt?: string;
     revisionsAllowed?: number;
@@ -96,6 +96,16 @@ export interface IFreelancerContractDetail {
   expectedEndDate: string;
   referenceFiles: { fileName: string; fileUrl: string }[];
   referenceLinks: { description: string; link: string }[];
+  
+  extensionRequest?: {
+    requestedBy: string;
+    requestedDeadline: string;
+    reason: string;
+    status: 'pending' | 'approved' | 'rejected';
+    requestedAt: string;
+    respondedAt?: string;
+    responseMessage?: string;
+  };
   
   communication?: {
     preferredMethod: 'chat' | 'video_call' | 'email' | 'mixed';

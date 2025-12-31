@@ -6,10 +6,18 @@ import { ClientContractQueryParamsDTO } from '../dto/clientDTO/client-contract.d
 import { FreelancerContractQueryParamsDTO } from '../dto/freelancerDTO/freelancer-contract.dto';
 import { AdminContractQueryParamsDTO } from '../dto/adminDTO/admin-contract.dto';
 import { UpdateQuery, ClientSession } from 'mongoose';
+import { DeliverableChangeQueryStrategyFactory } from './factories/interfaces/deliverable-change.strategy.interface';
+import { inject, injectable } from 'tsyringe';
 
+@injectable()
 export class ContractRepository extends BaseRepository<IContract> implements IContractRepository {
-  constructor() {
+  private _deliverableChangeStrategyFactory: DeliverableChangeQueryStrategyFactory;
+  constructor(
+    @inject('DeliverableChangeQueryStrategyFactory')
+    deliverableChangeStrategyFactory: DeliverableChangeQueryStrategyFactory,
+  ) {
     super(Contract);
+    this._deliverableChangeStrategyFactory = deliverableChangeStrategyFactory;
   }
 
   async createContract(data: Partial<IContract>): Promise<IContract> {
@@ -252,23 +260,18 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
     contractId: string,
     deliverableId: string,
     message: string,
+    milestoneId: string | undefined,
+    contractType: string,
   ): Promise<IContract | null> {
-    return (await this.model
-      .findByIdAndUpdate(
-        contractId,
-        {
-          $set: {
-            'deliverables.$[elem].status': 'changes_requested',
-            'deliverables.$[elem].message': message,
-          },
-          $inc: { 'deliverables.$[elem].revisionsRequested': 1 },
-        },
-        {
-          new: true,
-          arrayFilters: [{ 'elem._id': deliverableId }],
-        },
-      )
-      .exec()) as IContract | null;
+    const strategy = this._deliverableChangeStrategyFactory.getStrategy(contractType);
+
+    const { filter, update, options } = strategy.buildQuery({
+      contractId,
+      deliverableId,
+      message,
+      milestoneId,
+    });
+    return (await this.model.findByIdAndUpdate(filter, update, options).exec()) as IContract | null;
   }
 
   async updateContractPayment(
@@ -342,10 +345,7 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
         { $set: updateFields },
         {
           new: true,
-          arrayFilters: [
-            { 'milestone._id': milestoneId },
-            { 'deliverable._id': deliverableId },
-          ],
+          arrayFilters: [{ 'milestone._id': milestoneId }, { 'deliverable._id': deliverableId }],
         },
       )
       .exec()) as IContract | null;
@@ -364,6 +364,7 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
           $set: {
             'milestones.$[milestone].deliverables.$[deliverable].status': 'changes_requested',
             'milestones.$[milestone].deliverables.$[deliverable].message': message,
+            'milestones.$[milestone].status': 'changes_requested',
           },
           $inc: {
             'milestones.$[milestone].deliverables.$[deliverable].revisionsRequested': 1,
@@ -371,10 +372,7 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
         },
         {
           new: true,
-          arrayFilters: [
-            { 'milestone._id': milestoneId },
-            { 'deliverable._id': deliverableId },
-          ],
+          arrayFilters: [{ 'milestone._id': milestoneId }, { 'deliverable._id': deliverableId }],
         },
       )
       .exec()) as IContract | null;
@@ -465,24 +463,23 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
     status: string,
     session?: ClientSession,
   ): Promise<IContract | null> {
-    const query = this.model
-      .findByIdAndUpdate(
-        contractId,
-        {
-          $set: {
-            'milestones.$[milestone].status': status,
-          },
+    const query = this.model.findByIdAndUpdate(
+      contractId,
+      {
+        $set: {
+          'milestones.$[milestone].status': status,
         },
-        {
-          new: true,
-          arrayFilters: [{ 'milestone._id': milestoneId }],
-        },
-      );
-    
+      },
+      {
+        new: true,
+        arrayFilters: [{ 'milestone._id': milestoneId }],
+      },
+    );
+
     if (session) {
       query.session(session);
     }
-    
+
     return (await query.exec()) as IContract | null;
   }
 
@@ -506,7 +503,79 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
     } as UpdateQuery<IContract>);
   }
 
-  async updateById<R = IContract>(id: string, data: UpdateQuery<IContract>, session?: ClientSession): Promise<R | null> {
+  async requestContractExtension(
+    contractId: string,
+    requestedBy: string,
+    requestedDeadline: Date,
+    reason: string,
+  ): Promise<IContract | null> {
+    return await this.updateById(contractId, {
+      extensionRequest: {
+        requestedBy,
+        requestedDeadline,
+        reason,
+        status: 'pending',
+        requestedAt: new Date(),
+      },
+    } as UpdateQuery<IContract>);
+  }
+
+  async respondToContractExtension(
+    contractId: string,
+    approved: boolean,
+    responseMessage?: string,
+  ): Promise<IContract | null> {
+    const updateData: UpdateQuery<IContract> = {
+      'extensionRequest.status': approved ? 'approved' : 'rejected',
+      'extensionRequest.respondedAt': new Date(),
+      'extensionRequest.responseMessage': responseMessage,
+    };
+
+    if (approved) {
+      const contract = await this.findById(contractId);
+      if (contract?.extensionRequest?.requestedDeadline) {
+        updateData.expectedEndDate = contract.extensionRequest.requestedDeadline;
+      }
+    }
+
+    return await this.updateById(contractId, updateData);
+  }
+
+  async findContractsWithPendingDeliverables(threeDaysAgo: Date): Promise<IContract[]> {
+    const filter = {
+      $or: [
+        {
+          deliverables: {
+            $elemMatch: { status: 'submitted', submittedAt: { $lte: threeDaysAgo } },
+          },
+        },
+        {
+          'milestones.deliverables': {
+            $elemMatch: { status: 'submitted', submittedAt: { $lte: threeDaysAgo } },
+          },
+        },
+      ],
+    } as Record<string, unknown>;
+
+    return await super.findAll(filter, {
+      populate: [
+        { path: 'deliverables.submittedBy', select: 'firstName lastName avatar' },
+        { path: 'milestones.deliverables.submittedBy', select: 'firstName lastName avatar' },
+      ],
+    });
+  }
+
+  async updateById<R = IContract>(
+    id: string,
+    data: UpdateQuery<IContract>,
+    session?: ClientSession,
+  ): Promise<R | null> {
     return await super.updateById<R>(id, data, session);
+  }
+
+  async isAllMilestonesPaid(contractId: string): Promise<boolean> {
+    const contract = await this.findById(contractId);
+    if (!contract || !contract.milestones) return false;
+    return contract.milestones.every((milestone) => milestone.status === 'paid');
   }
 }

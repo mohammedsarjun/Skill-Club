@@ -15,7 +15,6 @@ export interface ClientOfferRequestDTO {
     expected_delivery: string;
     revisions?: number;
   }[];
-  expected_start_date: string;
   expected_end_date: string;
   communication: {
     preferred_method: 'chat' | 'video_call' | 'email' | 'mixed';
@@ -68,7 +67,6 @@ export interface ClientOfferResponseDTO {
     amount: number;
     expectedDelivery: Date;
   }[];
-  expectedStartDate: Date;
   expectedEndDate: Date;
   expiresAt: Date;
   createdAt: Date;

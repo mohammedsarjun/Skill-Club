@@ -17,10 +17,15 @@ import {
   MilestoneDeliverableResponseDTO,
   MilestoneExtensionResponseDTO,
 } from '../../dto/freelancerDTO/freelancer-milestone.dto';
+import {
+  RequestContractExtensionDTO,
+  ContractExtensionResponseDTO,
+} from '../../dto/freelancerDTO/freelancer-contract-extension.dto';
 import { mapContractModelToFreelancerContractListItemDTO } from '../../mapper/freelancerMapper/freelancer-contract-list.mapper';
 import { mapContractToFreelancerDetailDTO } from '../../mapper/freelancerMapper/freelancer-contract.mapper';
 import { FreelancerDeliverableMapper } from '../../mapper/freelancerMapper/freelancer-deliverable.mapper';
 import { FreelancerMilestoneMapper } from '../../mapper/freelancerMapper/freelancer-milestone.mapper';
+import { FreelancerContractExtensionMapper } from '../../mapper/freelancerMapper/freelancer-contract-extension.mapper';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { Types } from 'mongoose';
@@ -87,7 +92,7 @@ export class FreelancerContractService implements IFreelancerContractService {
         HttpStatus.NOT_FOUND,
       );
     }
-    console.log(mapContractToFreelancerDetailDTO(contract))
+
     return mapContractToFreelancerDetailDTO(contract);
   }
 
@@ -203,16 +208,19 @@ export class FreelancerContractService implements IFreelancerContractService {
       throw new AppError('Milestone not found', HttpStatus.NOT_FOUND);
     }
 
-    console.log(milestone)
-
-    if (milestone.status !== 'funded') {
+    if (
+      milestone.status === 'pending_funding' ||
+      milestone.status === 'submitted' ||
+      milestone.status === 'approved' ||
+      milestone.status === 'paid'
+    ) {
       throw new AppError(
-        'Milestone must be funded before submitting deliverables',
+        'Cannot submit deliverable for this milestone in its current status',
         HttpStatus.BAD_REQUEST,
       );
     }
 
-    console.log("every problem crossed")
+   
 
     const updatedContract = await this._contractRepository.submitMilestoneDeliverable(
       contractId,
@@ -229,7 +237,7 @@ export class FreelancerContractService implements IFreelancerContractService {
     await this._contractRepository.updateMilestoneStatus(
       contractId,
       data.milestoneId,
-      'under_review',
+      'submitted',
     );
 
     await this._contractRepository.addTimelineEntry(
@@ -354,6 +362,90 @@ export class FreelancerContractService implements IFreelancerContractService {
 
     return FreelancerMilestoneMapper.toMilestoneExtensionResponseDTO(
       updatedMilestone.extensionRequest,
+    );
+  }
+
+  async requestContractExtension(
+    freelancerId: string,
+    contractId: string,
+    data: RequestContractExtensionDTO,
+  ): Promise<ContractExtensionResponseDTO> {
+    if (!Types.ObjectId.isValid(freelancerId)) {
+      throw new AppError('Invalid freelancerId', HttpStatus.BAD_REQUEST);
+    }
+
+    if (!Types.ObjectId.isValid(contractId)) {
+      throw new AppError('Invalid contractId', HttpStatus.BAD_REQUEST);
+    }
+
+    if (!data.reason || data.reason.trim().length === 0) {
+      throw new AppError('Extension reason is required', HttpStatus.BAD_REQUEST);
+    }
+
+    const contract = await this._contractRepository.findById(contractId);
+
+    if (!contract) {
+      throw new AppError('Contract not found', HttpStatus.NOT_FOUND);
+    }
+
+    if (contract.freelancerId.toString() !== freelancerId) {
+      throw new AppError(
+        'You are not authorized to request extension for this contract',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    if (contract.status !== 'active') {
+      throw new AppError(
+        'Contract must be active to request extension',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (contract.paymentType !== 'fixed') {
+      throw new AppError(
+        'Only fixed payment contracts support deadline extensions',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (contract.extensionRequest && contract.extensionRequest.status === 'pending') {
+      throw new AppError('Extension request already pending', HttpStatus.BAD_REQUEST);
+    }
+
+    const requestedDeadline = new Date(data.requestedDeadline);
+    if (requestedDeadline <= contract.expectedEndDate) {
+      throw new AppError(
+        'Requested deadline must be after current deadline',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const updatedContract = await this._contractRepository.requestContractExtension(
+      contractId,
+      freelancerId,
+      requestedDeadline,
+      data.reason,
+    );
+
+    if (!updatedContract) {
+      throw new AppError('Failed to request contract extension', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    await this._contractRepository.addTimelineEntry(
+      contractId,
+      'contract_extension_requested',
+      freelancerId,
+      undefined,
+      `Extension requested for contract deadline`,
+    );
+
+    if (!updatedContract.extensionRequest) {
+      throw new AppError('Failed to retrieve extension request', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    return FreelancerContractExtensionMapper.toContractExtensionResponseDTO(
+      updatedContract.extensionRequest,
     );
   }
 }

@@ -39,18 +39,17 @@ export const MilestonesWorkspace: React.FC<MilestonesWorkspaceProps> = ({
   const selectedMilestone = milestones?.find((m) => m.milestoneId === selectedMilestoneId);
 
   const canSubmitDeliverable = (milestone?: NonNullable<typeof selectedMilestone>): boolean => {
+  
     if (!milestone) return false;
-    console.log("Checking if can submit for milestone:", milestone);
-    if (milestone.status === "under_review" || milestone.status === "submitted" || milestone.status === "approved" || milestone.status === "paid") return false;
+    if (milestone.status === "submitted" || milestone.status === "approved" || milestone.status === "paid") return false;
 
-    
-    if (milestone.status !== "funded") return false;
+    if (milestone.status !== "funded" && milestone.status !== "changes_requested") return false;
     
     const deliverables = milestone.deliverables || [];
     const latestDeliverable = deliverables[deliverables.length - 1];
     if (!latestDeliverable) return true;
     
-    return latestDeliverable.status === "changes_requested" && (latestDeliverable.revisionsLeft ?? 0) > 0;
+    return latestDeliverable.status === "changes_requested";
   };
 
   const getStatusBadge = (status: string) => {

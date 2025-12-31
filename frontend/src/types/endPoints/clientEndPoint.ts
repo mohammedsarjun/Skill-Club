@@ -37,10 +37,13 @@ const clientRouterEndPoints = {
   approveMilestoneDeliverable: (contractId: string) => `/client/contracts/${contractId}/milestones/deliverables/approve`,
   requestMilestoneChanges: (contractId: string) => `/client/contracts/${contractId}/milestones/deliverables/request-changes`,
   respondToMilestoneExtension: (contractId: string) => `/client/contracts/${contractId}/milestones/extension/respond`,
+  respondToContractExtension: (contractId: string) => `/client/contracts/${contractId}/extension/respond`,
   getContractWorklogs: (contractId: string) => `/client/contracts/${contractId}/worklogs`,
   getWorklogDetail: (contractId: string, worklogId: string) => `/client/contracts/${contractId}/worklogs/${worklogId}`,
   approveWorklog: (contractId: string) => `/client/contracts/${contractId}/worklogs/approve`,
   rejectWorklog: (contractId: string) => `/client/contracts/${contractId}/worklogs/reject`,
+  proposeMeeting: (contractId: string) => `/client/contracts/${contractId}/meetings`,
+  downloadDeliverableFiles: (contractId: string) => `/client/contracts/${contractId}/deliverables/download`,
 };
 
 export default clientRouterEndPoints;

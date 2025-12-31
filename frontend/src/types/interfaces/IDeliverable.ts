@@ -23,3 +23,7 @@ export interface IRequestChangesRequest {
   deliverableId: string;
   message: string;
 }
+
+export interface IDownloadDeliverableRequest {
+  deliverableId: string;
+}

@@ -104,8 +104,6 @@ const SendOfferToFreelancer: React.FC = () => {
     { title: "", amount: "", expected_delivery: "", revisions: "0" },
   ]);
 
-  // Timeline
-  const [expectedStartDate, setExpectedStartDate] = useState<string>("");
   const [expectedEndDate, setExpectedEndDate] = useState<string>("");
   const [expiresAt, setExpiresAt] = useState<string>("");
 
@@ -317,7 +315,6 @@ const SendOfferToFreelancer: React.FC = () => {
               .filter((m) => m.title && m.amount)
               .map((m) => ({ title: m.title, amount: parseFloat(m.amount), expected_delivery: m.expected_delivery, revisions: m.revisions ? parseInt(m.revisions) : 0 }))
           : undefined,
-      expected_start_date: expectedStartDate,
       expected_end_date: expectedEndDate,
       communication: (
         preferredMethod === "video_call"
@@ -688,20 +685,7 @@ const SendOfferToFreelancer: React.FC = () => {
               Project Timeline
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Expected Start Date *
-                </label>
-                <input
-                  type="date"
-                  value={expectedStartDate}
-                  onChange={(e) => { setExpectedStartDate(e.target.value); clearError('expected_start_date'); }}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent"
-                />
-                {errors["expected_start_date"] && (<p className="text-red-600 text-sm mt-1">{errors["expected_start_date"]}</p>)}
-              </div>
-
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Expected End Date *

@@ -71,6 +71,7 @@ export interface IClientContractDetail {
     revisionsRequested?: number;
     revisionsAllowed?: number;
     revisionsLeft?: number;
+    isMeetingAlreadyProposed?: boolean;  
   }[];
 
   timeline?: {
@@ -88,6 +89,16 @@ export interface IClientContractDetail {
   expectedEndDate: string;
   referenceFiles: { fileName: string; fileUrl: string }[];
   referenceLinks: { description: string; link: string }[];
+  
+  extensionRequest?: {
+    requestedBy: string;
+    requestedDeadline: string;
+    reason: string;
+    status: 'pending' | 'approved' | 'rejected';
+    requestedAt: string;
+    respondedAt?: string;
+    responseMessage?: string;
+  };
   
   communication?: {
     preferredMethod: 'chat' | 'video_call' | 'email' | 'mixed';

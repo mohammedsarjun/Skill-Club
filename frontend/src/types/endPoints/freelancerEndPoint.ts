@@ -31,10 +31,10 @@ const freelancerRouterEndPoints = {
   acceptOffer: (offerId: string) => `/freelancer/offers/${offerId}/accept`,
   getContracts: '/freelancer/contracts',
   getContractDetail: (contractId: string) => `/freelancer/contracts/${contractId}`,
-  // Contract deliverables & milestones
   submitContractDeliverable: (contractId: string) => `/freelancer/contracts/${contractId}/deliverables`,
   submitMilestoneDeliverable: (contractId: string) => `/freelancer/contracts/${contractId}/milestones/deliverables`,
   requestMilestoneExtension: (contractId: string) => `/freelancer/contracts/${contractId}/milestones/extension`,
+  requestContractExtension: (contractId: string) => `/freelancer/contracts/${contractId}/extension`,
   submitWorklog: "/freelancer/worklogs",
   getContractWorklogs: (contractId: string) => `/freelancer/contracts/${contractId}/worklogs`,
   updateExpertise: '/freelancer/profile/expertise',
@@ -42,6 +42,10 @@ const freelancerRouterEndPoints = {
   getChatMessages: (contractId: string) => `/freelancer/chat/${contractId}/messages`,
   markChatAsRead: "/freelancer/chat/read",
   getChatUnreadCount: (contractId: string) => `/freelancer/chat/${contractId}/unread-count`,
+  getMeetings: '/freelancer/meetings',
+  getMeetingDetail: (meetingId: string) => `/freelancer/meetings/${meetingId}`,
+  acceptMeeting: '/freelancer/meetings/accept',
+  requestMeetingReschedule: '/freelancer/meetings/reschedule',
 };
 
 export default freelancerRouterEndPoints;

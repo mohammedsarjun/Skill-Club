@@ -7,6 +7,7 @@ import {
   DeliverableResponseDTO,
   ApproveDeliverableDTO,
   RequestChangesDTO,
+  DownloadDeliverableDTO,
 } from '../../../dto/clientDTO/client-deliverable.dto';
 import {
   ApproveMilestoneDeliverableDTO,
@@ -16,6 +17,11 @@ import {
   MilestoneExtensionResponseDTO,
   ClientMilestonesDetailDTO,
 } from '../../../dto/clientDTO/client-milestone.dto';
+import {
+  RespondToContractExtensionDTO,
+  ContractExtensionResponseDTO,
+} from '../../../dto/clientDTO/client-contract-extension.dto';
+import archiver from 'archiver';
 
 export interface IClientContractService {
   getContractDetail(clientId: string, contractId: string): Promise<ClientContractDetailDTO>;
@@ -49,9 +55,20 @@ export interface IClientContractService {
     contractId: string,
     data: RespondToExtensionDTO,
   ): Promise<MilestoneExtensionResponseDTO>;
+  respondToContractExtension(
+    clientId: string,
+    contractId: string,
+    data: RespondToContractExtensionDTO,
+  ): Promise<ContractExtensionResponseDTO>;
   getMilestoneDetail(
     clientId: string,
     contractId: string,
     milestoneId: string,
   ): Promise<ClientMilestonesDetailDTO>;
+  autoApprovePendingDeliverables(): Promise<void>;
+  downloadDeliverableFiles(
+    clientId: string,
+    contractId: string,
+    data: DownloadDeliverableDTO,
+  ): Promise<archiver.Archiver>;
 }

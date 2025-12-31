@@ -8,12 +8,14 @@ import { ClientContractQueryParamsDTO } from '../../dto/clientDTO/client-contrac
 import {
   ApproveDeliverableDTO,
   RequestChangesDTO,
+  DownloadDeliverableDTO,
 } from '../../dto/clientDTO/client-deliverable.dto';
 import {
   ApproveMilestoneDeliverableDTO,
   RequestMilestoneChangesDTO,
   RespondToExtensionDTO,
 } from '../../dto/clientDTO/client-milestone.dto';
+import { RespondToContractExtensionDTO } from '../../dto/clientDTO/client-contract-extension.dto';
 
 @injectable()
 export class ClientContractController implements IClientContractController {
@@ -164,5 +166,40 @@ export class ClientContractController implements IClientContractController {
       message: 'Milestone detail fetched successfully',
       data: result,
     });
+  }
+
+  async respondToContractExtension(req: Request, res: Response): Promise<void> {
+    const clientId = req.user?.userId as string;
+    const { contractId } = req.params;
+    const data: RespondToContractExtensionDTO = req.body;
+
+    const result = await this._clientContractService.respondToContractExtension(
+      clientId,
+      contractId,
+      data,
+    );
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: `Contract extension request ${data.approved ? 'approved' : 'rejected'} successfully`,
+      data: result,
+    });
+  }
+
+  async downloadDeliverableFiles(req: Request, res: Response): Promise<void> {
+    const clientId = req.user?.userId as string;
+    const { contractId } = req.params;
+    const data: DownloadDeliverableDTO = req.body;
+
+    const zipArchive = await this._clientContractService.downloadDeliverableFiles(
+      clientId,
+      contractId,
+      data,
+    );
+
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename=deliverable-files.zip`);
+
+    zipArchive.pipe(res);
   }
 }

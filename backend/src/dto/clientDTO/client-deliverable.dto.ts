@@ -8,6 +8,15 @@ export interface RequestChangesDTO {
   message: string;
 }
 
+export interface RequestChangesDTO {
+  deliverableId: string;
+  message: string;
+}
+
+export interface DownloadDeliverableDTO {
+  deliverableId: string;
+}
+
 export interface DeliverableResponseDTO {
   id: string;
   submittedBy: string;

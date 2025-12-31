@@ -19,6 +19,7 @@ import morgan from 'morgan';
 import { appLogger, accessLogStream } from './utils/logger';
 import currencyRouter from './routes/currency-router';
 import { initializeSocket } from './config/socket';
+import './schedulers/auto-approve-contract-deliverables.cron'
 const PORT = process.env.PORT;
 
 connectDB();

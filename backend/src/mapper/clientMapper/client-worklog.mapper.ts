@@ -9,7 +9,7 @@ export function mapWorklogToListItemDTO(worklog: IWorklog): ClientWorklogListIte
     duration: worklog.duration,
     filesCount: worklog.files?.length || 0,
     status: worklog.status,
-    submittedAt: worklog.createdAt,
+    submittedAt: worklog.createdAt!,
   };
 }
 
@@ -26,7 +26,7 @@ export function mapWorklogToDetailDTO(worklog: IWorklog & { freelancerName?: str
     files: worklog.files || [],
     description: worklog.description,
     status: worklog.status,
-    submittedAt: worklog.createdAt,
+    submittedAt: worklog.createdAt!,
     reviewedAt: worklog.reviewedAt,
     reviewMessage: worklog.reviewMessage,
   };

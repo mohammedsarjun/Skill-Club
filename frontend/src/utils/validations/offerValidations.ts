@@ -34,7 +34,6 @@ budget: z.preprocess(
   revisions: z.preprocess(v => (v === '' || v === undefined ? undefined : Number(v)), z.number().int().min(0).max(100).optional()),
   estimated_hours_per_week: z.preprocess(v => (v === '' || v === undefined ? undefined : Number(v)), z.number().int().positive('Hours must be > 0').max(168, 'Too many hours').optional()),
   milestones: z.array(milestoneSchema).optional(),
-  expected_start_date: z.string().refine(v => isFutureDate(v, 'expected_start_date'), 'Start date must be a valid future date'),
   expected_end_date: z.string().refine(v => isFutureDate(v, 'expected_end_date'), 'End date must be a valid future date'),
   expires_at: z.string().refine(v => isFutureDate(v, 'expires_at'), 'Expiry must be future date/time'),
   communication: z.object({
@@ -81,14 +80,10 @@ budget: z.preprocess(
       }
     }
   }
-  const start = new Date(data.expected_start_date).getTime();
   const end = new Date(data.expected_end_date).getTime();
-  if (!isNaN(start) && !isNaN(end) && end < start) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['expected_end_date'], message: 'End date must be after start date' });
-  }
   const expiry = new Date(data.expires_at).getTime();
-  if (!isNaN(end) && !isNaN(expiry) && expiry > start) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['expires_at'], message: 'Expiry must be before start date' });
+  if (!isNaN(end) && !isNaN(expiry) && expiry > end) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['expires_at'], message: 'Expiry must be before end date' });
   }
 
   // When video_call is selected, validate meeting fields according to frequency

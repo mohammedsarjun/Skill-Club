@@ -69,7 +69,6 @@ const ClientOffersPage: React.FC = () => {
             hourlyRate: it.hourlyRate,
             estimatedHoursPerWeek: undefined,
             milestones: undefined,
-            expectedStartDate: it.createdAt,
             expectedEndDate: it.expiresAt,
             communication: { preferredMethod: 'chat' },
             reporting: { frequency: 'weekly', dueTimeUtc: '', format: 'text_only' },

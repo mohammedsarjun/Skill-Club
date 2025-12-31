@@ -18,8 +18,10 @@ import { FundContractModal } from "./components/FundContractModal";
 import { ClientDeliverablesView } from "./components/workspace/ClientDeliverablesView";
 import { ClientMilestonesView } from "./components/workspace/ClientMilestonesView";
 import { ClientTimesheetView } from "./components/workspace/ClientTimesheetView";
+import { ClientWorklogList } from "./components/workspace/ClientWorklogList";
 import { ChatPanel } from "./components/workspace/ChatPanel";
 import { FilesTab } from "@/app/(freelancer)/freelancer/contracts/[contractId]/components/workspace/FilesTab";
+import ExtensionRequestCard from "./components/ExtensionRequestCard";
 import { IClientContractDetail } from "@/types/interfaces/IClientContractDetail";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
@@ -27,6 +29,10 @@ import { formatCurrency as formatCurrencyUtil } from "@/utils/currency";
 import MilestonePaymentModal from "./components/MIlestoneFundDetails";
 import FixedPaymentModal from "./components/FixedFundDetailsModal";
 import { HourlyPaymentModal } from "./components/HourlyFundDetailsModal";
+import { Calendar } from "lucide-react";
+import MeetingProposalModal from "./components/workspace/MeetingProposalModal";
+import { MeetingProposal } from "@/types/interfaces/IMeetingProposal";
+import toast from "react-hot-toast";
 
 function ContractDetails() {
   const [contractDetail, setContractDetail] =
@@ -36,6 +42,7 @@ function ContractDetails() {
   const [isFundMilestoneModalOpen, setIsFundMilestoneModalOpen] = useState(false);
   const [isFixedPaymentModalOpen, setIsFixedPaymentModalOpen] = useState(false);
   const [hourlyPaymentModalOpen, setIsHourlyPaymentModalOpen] = useState(false);
+  const [isMeetingProposalModalOpen, setIsMeetingProposalModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"details" | "workspace">(
     "details"
   );
@@ -75,6 +82,7 @@ function ContractDetails() {
 
   const handleFundSuccess = useCallback(async () => {
     const resp = await clientActionApi.getContractDetail(String(contractId));
+
     if (resp?.success && resp.data) {
       const d = resp.data;
       setContractDetail({
@@ -304,6 +312,7 @@ function ContractDetails() {
     setError(null);
     try {
       const resp = await clientActionApi.getContractDetail(String(contractId));
+
       if (resp?.success && resp.data) {
         const d = resp.data;
         const mapped: IClientContractDetail = {
@@ -344,6 +353,7 @@ function ContractDetails() {
                 revisionsRequested: dlv.revisionsRequested,
                 revisionsAllowed: dlv.revisionsAllowed,
                 revisionsLeft: dlv.revisionsLeft,
+              isMeetingAlreadyProposed: dlv.isMeetingProposalSent,
               }))
             : [],
           title: d.title,
@@ -370,6 +380,7 @@ function ContractDetails() {
           balance: d.balance || 0,
           createdAt: d.createdAt,
           updatedAt: d.updatedAt,
+          extensionRequest: d.extensionRequest,
         };
 
         console.log(mapped)
@@ -461,14 +472,31 @@ function ContractDetails() {
 
   const handleApproveTimesheet = useCallback(async (weekStart: string) => {
     try {
-      // TODO: Implement API call
-      // await clientActionApi.approveTimesheet(contractId, weekStart);
       Swal.fire('Success', 'Timesheet approved', 'success');
     } catch (error) {
       console.error('Error approving timesheet:', error);
       Swal.fire('Error', 'Failed to approve timesheet', 'error');
     }
   }, [contractId]);
+
+  const handleRespondToContractExtension = useCallback(async (approved: boolean, responseMessage?: string) => {
+    try {
+      const resp = await clientActionApi.respondToContractExtension(
+        contractId as string,
+        approved,
+        responseMessage
+      );
+      if (resp?.success) {
+        await loadContractDetail();
+        Swal.fire('Success', `Extension request ${approved ? 'approved' : 'rejected'} successfully`, 'success');
+      } else {
+        Swal.fire('Error', resp?.message || 'Failed to respond to extension request', 'error');
+      }
+    } catch (error) {
+      console.error('Error responding to extension request:', error);
+      Swal.fire('Error', 'Failed to respond to extension request', 'error');
+    }
+  }, [contractId, loadContractDetail]);
 
   useEffect(() => {
     let cancelled = false;
@@ -563,6 +591,14 @@ function ContractDetails() {
                   />
                 </div>
 
+                {contractDetail.paymentType === 'fixed' && contractDetail.extensionRequest && (
+                  <ExtensionRequestCard
+                    extensionRequest={contractDetail.extensionRequest}
+                    currentEndDate={contractDetail.expectedEndDate}
+                    onRespond={handleRespondToContractExtension}
+                  />
+                )}
+
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
                   <ContractBudget
                     paymentType={contractDetail.paymentType}
@@ -597,10 +633,12 @@ function ContractDetails() {
               <div className="lg:col-span-1">
                 <div className="sticky top-6 space-y-6">
                   <ActionButtons
+                  contractType={contractDetail.paymentType}
                     status={contractDetail.status}
                     onFundContract={handleFundContract}
                     onCancelContract={handleCancelContract}
                     isProcessing={isCancelling}
+                    canCancel={contractDetail.status !== 'cancelled' && contractDetail.status !== 'completed' && contractDetail.paymentType !== 'fixed'}
                   />
 
                   <FreelancerCard
@@ -688,9 +726,11 @@ function ContractDetails() {
                       version: d.version,
                       submittedAt: d.submittedAt,
                       approvedAt: d.approvedAt,
+                      isMeetingAlreadyProposed: d.isMeetingAlreadyProposed ,
                     }))}
                     onApproveDeliverable={handleApproveDeliverable}
                     onRequestChanges={handleRequestChanges}
+                    onProposeMeeting={() => setIsMeetingProposalModalOpen(true)}
                   />
                 )}
 
@@ -730,14 +770,18 @@ function ContractDetails() {
                 )}
 
                 {activeWorkspaceTab === 'timesheet' && contractDetail.paymentType === 'hourly' && (
-                  <ClientTimesheetView
-                    contractId={contractId as string}
-                    // Client contract detail does not include timesheets in the type; pass empty array or map if available from API
-                    timesheets={[]}
-                    hourlyRate={contractDetail.hourlyRate || 0}
-                    currencySymbol={getCurrencySymbol(contractDetail.currency)}
-                    onApproveTimesheet={handleApproveTimesheet}
-                  />
+                  <>
+                    <ClientTimesheetView
+                      contractId={contractId as string}
+                      timesheets={[]}
+                      hourlyRate={contractDetail.hourlyRate || 0}
+                      currencySymbol={getCurrencySymbol(contractDetail.currency)}
+                      onApproveTimesheet={handleApproveTimesheet}
+                    />
+                    <div className="mt-8">
+                      <ClientWorklogList contractId={contractId as string} />
+                    </div>
+                  </>
                 )}
 
                 {activeWorkspaceTab === 'chat' && (
@@ -789,23 +833,6 @@ function ContractDetails() {
 
 {contractDetail && (
   <>
-    {/* 
-    <FundContractModal
-      isOpen={isFundModalOpen}
-      onClose={() => setIsFundModalOpen(false)}
-      contractId={contractId as string}
-      amount={
-        contractDetail.paymentType === "hourly" &&
-        contractDetail.hourlyRate &&
-        contractDetail.estimatedHoursPerWeek
-          ? contractDetail.hourlyRate * contractDetail.estimatedHoursPerWeek
-          : contractDetail.budget || 0
-      }
-      paymentType={contractDetail.paymentType}
-      onSuccess={handleFundSuccess}
-    />
-    */}
-
     {isFundMilestoneModalOpen && (
       <MilestonePaymentModal
         milestones={contractDetail.milestones || []}
@@ -821,7 +848,6 @@ function ContractDetails() {
       />
     )}
 
-
     {hourlyPaymentModalOpen && (
       <HourlyPaymentModal
         contractId={contractId as string}
@@ -830,8 +856,61 @@ function ContractDetails() {
         onClose={() => setIsHourlyPaymentModalOpen(false)}
       />
     )}
+
+    <MeetingProposalModal
+      isOpen={isMeetingProposalModalOpen}
+      onClose={() => setIsMeetingProposalModalOpen(false)}
+      contractId={contractId as string}
+      onSubmit={async (proposal: MeetingProposal) => {
+        try {
+          const meetingType = contractDetail?.paymentType === 'fixed_with_milestones' ? 'milestone' : 'fixed';
+          
+          let milestoneId: string | undefined;
+          let deliverableId: string | undefined;
+
+          if (meetingType === 'milestone' && contractDetail?.milestones && contractDetail.milestones.length > 0) {
+            const activeMilestone = contractDetail.milestones.find((m: { status: string }) => 
+              m.status === 'funded' || m.status === 'submitted'
+            );
+            milestoneId = activeMilestone?.milestoneId;
+          } else if (meetingType === 'fixed' && contractDetail?.deliverables && contractDetail.deliverables.length > 0) {
+            const latestDeliverable = contractDetail.deliverables[contractDetail.deliverables.length - 1];
+            deliverableId = latestDeliverable?.id;
+          }
+
+          const resp = await clientActionApi.proposeMeeting(contractId as string, {
+            scheduledAt: proposal.meetingDateTimeISO,
+            durationMinutes: proposal.meetingDuration,
+            meetingLink: proposal.meetingLink,
+            type: meetingType,
+            milestoneId,
+            deliverableId,
+          });
+
+          if (resp?.success) {
+            toast.success('Meeting proposed successfully!');
+            setContractDetail((prev) => {
+              if (!prev) return null;
+              return {
+                ...prev,
+                deliverables: (prev.deliverables || []).map((d) =>
+                  d.id === deliverableId ? { ...d, isMeetingAlreadyProposed: true } : d
+                ),
+              };
+            });
+            setIsMeetingProposalModalOpen(false);
+          } else {
+            toast.error(resp?.message || 'Failed to propose meeting');
+          }
+        } catch (error) {
+          console.error('Error proposing meeting:', error);
+          toast.error('Failed to propose meeting');
+        }
+      }}
+    />
   </>
 )}
+
 
     </>
   );

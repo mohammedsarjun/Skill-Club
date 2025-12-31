@@ -5,7 +5,7 @@ interface ContractMilestone {
   title: string;
   amount: number;
   expectedDelivery: string;
-  status: 'pending_funding' | 'funded' | 'under_review' | 'submitted' | 'approved' | 'paid';
+  status: 'pending_funding' | 'funded' | "changes_requested" | 'submitted' | 'approved' | 'paid';
 }
 
 interface ContractMilestonesProps {

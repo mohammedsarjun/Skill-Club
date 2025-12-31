@@ -6,4 +6,5 @@ export interface IFreelancerContractController {
   submitDeliverable(req: Request, res: Response): Promise<void>;
   submitMilestoneDeliverable(req: Request, res: Response): Promise<void>;
   requestMilestoneExtension(req: Request, res: Response): Promise<void>;
+  requestContractExtension(req: Request, res: Response): Promise<void>;
 }

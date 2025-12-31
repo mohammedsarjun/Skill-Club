@@ -61,7 +61,7 @@ export interface ClientContractDetailDTO {
     title: string;
     amount: number;
     expectedDelivery: Date;
-    status: 'pending_funding' | 'funded' | 'under_review' | 'submitted' | 'approved' | 'paid';
+    status: 'pending_funding' | 'funded' | 'under_review' | 'submitted' | 'approved' | 'paid' | 'changes_requested';
     submittedAt?: Date;
     approvedAt?: Date;
   }[];
@@ -82,7 +82,8 @@ export interface ClientContractDetailDTO {
     approvedAt?: Date;
     revisionsRequested?: number;
     revisionsAllowed?: number;
-    revisionsLeft?: number;
+      revisionsLeft?: number;
+      isMeetingProposalSent?: boolean;
   }[];
 
   title: string;
@@ -91,6 +92,16 @@ export interface ClientContractDetailDTO {
   expectedEndDate: Date;
   referenceFiles: { fileName: string; fileUrl: string }[];
   referenceLinks: { description: string; link: string }[];
+
+  extensionRequest?: {
+    requestedBy: string;
+    requestedDeadline: string;
+    reason: string;
+    status: 'pending' | 'approved' | 'rejected';
+    requestedAt: string;
+    respondedAt?: string;
+    responseMessage?: string;
+  };
 
   communication?: {
     preferredMethod: 'chat' | 'video_call' | 'email' | 'mixed';

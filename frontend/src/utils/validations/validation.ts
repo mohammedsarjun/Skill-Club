@@ -360,3 +360,8 @@ export const clientProfileSchema = z.object({
     .nonempty("Website is required")
     .url("Please enter a valid URL"),
 });
+
+export const meetingLinkSchema = z
+  .string()
+  .nonempty("Meeting link is required")
+  .url("Please enter a valid meeting URL");

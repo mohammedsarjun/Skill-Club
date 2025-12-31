@@ -10,6 +10,7 @@ import {
   SubmitMilestoneDeliverableDTO,
   RequestMilestoneExtensionDTO,
 } from '../../dto/freelancerDTO/freelancer-milestone.dto';
+import { RequestContractExtensionDTO } from '../../dto/freelancerDTO/freelancer-contract-extension.dto';
 
 @injectable()
 export class FreelancerContractController implements IFreelancerContractController {
@@ -109,6 +110,24 @@ export class FreelancerContractController implements IFreelancerContractControll
     res.status(HttpStatus.CREATED).json({
       success: true,
       message: 'Extension request submitted successfully',
+      data: result,
+    });
+  }
+
+  async requestContractExtension(req: Request, res: Response): Promise<void> {
+    const freelancerId = req.user?.userId as string;
+    const { contractId } = req.params;
+    const data: RequestContractExtensionDTO = req.body;
+
+    const result = await this._freelancerContractService.requestContractExtension(
+      freelancerId,
+      contractId,
+      data,
+    );
+
+    res.status(HttpStatus.CREATED).json({
+      success: true,
+      message: 'Contract extension request submitted successfully',
       data: result,
     });
   }

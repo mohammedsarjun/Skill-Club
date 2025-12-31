@@ -1,10 +1,15 @@
 "use client";
 import { useState, useEffect, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { clientActionApi } from '@/api/action/ClientActionApi';
 import Swal from 'sweetalert2';
 import Table from '@/components/admin/Table';
 import { IWorklogListItem, IWorklogDetail } from '@/types/interfaces/IClientWorklog';
-import WorklogDetailModal from './WorklogDetailModal';
+
+const WorklogDetailModal = dynamic(() => 
+  import('./WorklogDetailModal').then(mod => ({ default: mod.WorklogDetailModal })),
+  { ssr: false }
+);
 
 interface ClientWorklogListProps {
   contractId: string;
@@ -16,7 +21,7 @@ export const ClientWorklogList = ({ contractId }: ClientWorklogListProps) => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
   const [selectedWorklog, setSelectedWorklog] = useState<IWorklogDetail | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
 
@@ -27,8 +32,8 @@ export const ClientWorklogList = ({ contractId }: ClientWorklogListProps) => {
         page,
         limit: 10,
       };
-      if (statusFilter) {
-        params.status = statusFilter;
+      if (activeFilters.status) {
+        params.status = activeFilters.status;
       }
 
       const response = await clientActionApi.getContractWorklogs(contractId, params);
@@ -42,7 +47,7 @@ export const ClientWorklogList = ({ contractId }: ClientWorklogListProps) => {
     } finally {
       setLoading(false);
     }
-  }, [contractId, page, statusFilter]);
+  }, [contractId, page, activeFilters]);
 
   useEffect(() => {
     loadWorklogs();
@@ -152,8 +157,8 @@ export const ClientWorklogList = ({ contractId }: ClientWorklogListProps) => {
           totalPages={totalPages}
           totalCount={totalCount}
           viewOnly={true}
-          setFilters={(f) => setStatusFilter(f.status || '')}
-          activeFilters={{ status: statusFilter }}
+          setFilters={setActiveFilters}
+          activeFilters={activeFilters}
           badgeKeys={['status']}
           badgeColors={{
             submitted: '#f59e0b',

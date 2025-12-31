@@ -118,6 +118,18 @@ export const mapContractModelToClientContractDetailDTO = (
     referenceFiles: contract.referenceFiles || [],
     referenceLinks: contract.referenceLinks || [],
 
+    extensionRequest: contract.extensionRequest
+      ? {
+          requestedBy: contract.extensionRequest.requestedBy.toString(),
+          requestedDeadline: contract.extensionRequest.requestedDeadline.toISOString(),
+          reason: contract.extensionRequest.reason,
+          status: contract.extensionRequest.status,
+          requestedAt: contract.extensionRequest.requestedAt.toISOString(),
+          respondedAt: contract.extensionRequest.respondedAt?.toISOString(),
+          responseMessage: contract.extensionRequest.responseMessage,
+        }
+      : undefined,
+
     communication: contract.communication
       ? {
           preferredMethod: contract.communication.preferredMethod,

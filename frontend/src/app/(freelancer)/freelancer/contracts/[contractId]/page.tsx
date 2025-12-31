@@ -18,6 +18,7 @@ import { MilestonesWorkspace } from './components/workspace/MilestonesWorkspace'
 import { TimesheetWorkspace } from './components/workspace/TimesheetWorkspace';
 import { ChatPanel } from './components/workspace/ChatPanel';
 import { FilesTab } from './components/workspace/FilesTab';
+import RequestExtensionModal from './components/RequestExtensionModal';
 import { IFreelancerContractDetail } from '@/types/interfaces/IFreelancerContractDetail';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
@@ -30,6 +31,7 @@ function ContractDetails() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'details' | 'workspace'>('details');
   const [activeWorkspaceTab, setActiveWorkspaceTab] = useState<'deliverables' | 'milestones' | 'timesheet' | 'chat' | 'files'|'worklogTracker'>('deliverables');
+  const [isExtensionModalOpen, setIsExtensionModalOpen] = useState(false);
 
   const params = useParams();
   const router = useRouter();
@@ -190,6 +192,7 @@ function ContractDetails() {
           fundedAmount: d.fundedAmount || 0,
           totalPaid: d.totalPaid || 0,
           balance: d.balance || 0,
+          extensionRequest: d.extensionRequest,
           createdAt: d.createdAt,
           updatedAt: d.updatedAt,
         };
@@ -265,6 +268,21 @@ function ContractDetails() {
       Swal.fire('Error', 'Failed to request extension', 'error');
     }
   }, [loadContractDetail]);
+
+  const handleRequestContractExtension = useCallback(async (requestedDeadline: string, reason: string) => {
+    try {
+      const resp = await freelancerActionApi.requestContractExtension(contractId as string, requestedDeadline, reason);
+      if (resp?.success) {
+        await loadContractDetail();
+        Swal.fire('Success', 'Extension request submitted successfully', 'success');
+      } else {
+        Swal.fire('Error', resp?.message || 'Failed to request extension', 'error');
+      }
+    } catch (error) {
+      console.error('Error requesting extension:', error);
+      Swal.fire('Error', 'Failed to request extension', 'error');
+    }
+  }, [contractId, loadContractDetail]);
 
   const handleSubmitTimesheet = useCallback(async (logs: { logId?: string; date: string; hours: number; description: string }[]) => {
     try {
@@ -426,6 +444,60 @@ function ContractDetails() {
                     formatCurrency={formatCurrency}
                   />
                 </div>
+
+                {contractDetail.paymentType === 'fixed' && contractDetail.status === 'active' && (
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-800 mb-1">Deadline Extension</h3>
+                        <p className="text-sm text-gray-600">
+                          {contractDetail.extensionRequest?.status === 'pending'
+                            ? 'Extension request is pending review'
+                            : contractDetail.extensionRequest?.status === 'approved'
+                            ? 'Extension request has been approved'
+                            : contractDetail.extensionRequest?.status === 'rejected'
+                            ? 'Extension request was rejected'
+                            : 'Request an extension for the contract deadline'}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setIsExtensionModalOpen(true)}
+                        disabled={contractDetail.extensionRequest?.status === 'pending'}
+                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                      >
+                        {contractDetail.extensionRequest?.status === 'pending'
+                          ? 'Request Sent'
+                          : 'Request Extension'}
+                      </button>
+                    </div>
+                    {contractDetail.extensionRequest && (
+                      <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <span className="text-gray-600">Requested Deadline:</span>
+                            <span className="ml-2 font-medium">{formatDate(contractDetail.extensionRequest.requestedDeadline)}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">Status:</span>
+                            <span className={`ml-2 font-medium ${
+                              contractDetail.extensionRequest.status === 'approved' ? 'text-green-600' :
+                              contractDetail.extensionRequest.status === 'rejected' ? 'text-red-600' :
+                              'text-yellow-600'
+                            }`}>
+                              {contractDetail.extensionRequest.status.charAt(0).toUpperCase() + contractDetail.extensionRequest.status.slice(1)}
+                            </span>
+                          </div>
+                        </div>
+                        {contractDetail.extensionRequest.responseMessage && (
+                          <div className="mt-3 text-sm">
+                            <span className="text-gray-600">Response:</span>
+                            <p className="mt-1 text-gray-800">{contractDetail.extensionRequest.responseMessage}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
                   <ContractBudget
@@ -596,6 +668,15 @@ function ContractDetails() {
             </div>
           )}
         </div>
+      )}
+
+      {contractDetail && (
+        <RequestExtensionModal
+          isOpen={isExtensionModalOpen}
+          onClose={() => setIsExtensionModalOpen(false)}
+          contractEndDate={contractDetail.expectedEndDate}
+          onSubmit={handleRequestContractExtension}
+        />
       )}
     </>
   );

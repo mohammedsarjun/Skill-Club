@@ -47,14 +47,11 @@ export interface OfferPayload {
   hourly_rate?: number; // required if hourly
   revisions?: number;
   estimated_hours_per_week?: number;
-  milestones?: MilestonePayload[]; // required if fixed_with_milestones
+  milestones?: MilestonePayload[];
 
-  // Timeline
-  expected_start_date: string;
   expected_end_date: string;
-  expires_at: string; // ISO datetime
+  expires_at: string;
 
-  // Communication & reporting
   communication: {
     preferred_method: CommunicationMethod;
     meeting_frequency?: ReportingFrequency;
@@ -132,7 +129,7 @@ export interface Offer {
   hourlyRate?: number;
   estimatedHoursPerWeek?: number;
   milestones?: OfferMilestone[];
-  expectedStartDate: string | Date;
+  expectedStartDate?: string | Date;
   expectedEndDate: string | Date;
   communication: OfferCommunication;
   reporting: OfferReporting;

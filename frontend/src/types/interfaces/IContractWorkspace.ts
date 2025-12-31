@@ -8,6 +8,7 @@ export interface IDeliverable {
   submittedAt: string;
   approvedAt?: string;
   revisionNote?: string;
+  isMeetingAlreadyProposed?: boolean;
 }
 
 export interface IMilestoneDeliverable {

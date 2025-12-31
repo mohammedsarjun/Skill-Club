@@ -40,6 +40,8 @@ export interface IContractRepository extends BaseRepository<IContract> {
     contractId: string,
     deliverableId: string,
     message: string,
+    milestoneId: string | undefined,
+    contractType: string,
   ): Promise<IContract | null>;
   updateContractPayment(
     contractId: string,
@@ -79,6 +81,17 @@ export interface IContractRepository extends BaseRepository<IContract> {
     approved: boolean,
     responseMessage?: string,
   ): Promise<IContract | null>;
+  requestContractExtension(
+    contractId: string,
+    requestedBy: string,
+    requestedDeadline: Date,
+    reason: string,
+  ): Promise<IContract | null>;
+  respondToContractExtension(
+    contractId: string,
+    approved: boolean,
+    responseMessage?: string,
+  ): Promise<IContract | null>;
   updateMilestoneStatus(
     contractId: string,
     milestoneId: string,
@@ -92,6 +105,9 @@ export interface IContractRepository extends BaseRepository<IContract> {
     milestoneId?: string,
     details?: string,
   ): Promise<IContract | null>;
+  findContractsWithPendingDeliverables(threeDaysAgo: Date): Promise<IContract[]>;
+
+  isAllMilestonesPaid(contractId: string): Promise<boolean>;
   // `updateById` is provided by BaseRepository with a generic return type.
   // No need to redeclare it here to avoid signature incompatibilities.
 }

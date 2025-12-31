@@ -13,6 +13,7 @@ import { FreelancerSavedJobController } from '../controllers/freelancer/freelanc
 import { FreelancerContractController } from '../controllers/freelancer/freelancer-contract-controller';
 import { FreelancerChatController } from '../controllers/freelancer/freelancer-chat-controller';
 import { FreelancerWorklogController } from '../controllers/freelancer/freelancer-worklog-controller';
+import { FreelancerMeetingController } from '../controllers/freelancer/freelancer-meeting-controller';
 const freelancerRouter = express.Router();
 
 const freelancerController = container.resolve(FreelancerController);
@@ -25,6 +26,7 @@ const freelancerSavedJobController = container.resolve(FreelancerSavedJobControl
 const freelancerContractController = container.resolve(FreelancerContractController);
 const freelancerChatController = container.resolve(FreelancerChatController);
 const freelancerWorklogController = container.resolve(FreelancerWorklogController);
+const freelancerMeetingController = container.resolve(FreelancerMeetingController);
 freelancerRouter.get(
   '/me',
   authMiddleware,
@@ -284,6 +286,14 @@ freelancerRouter.post(
 );
 
 freelancerRouter.post(
+  '/contracts/:contractId/extension',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerContractController.requestContractExtension.bind(freelancerContractController),
+);
+
+freelancerRouter.post(
   '/worklogs',
   authMiddleware,
   roleGuard('freelancer'),
@@ -329,6 +339,38 @@ freelancerRouter.get(
   roleGuard('freelancer'),
   freelancerBlockMiddleware,
   freelancerChatController.getUnreadCount.bind(freelancerChatController),
+);
+
+freelancerRouter.get(
+  '/meetings',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerMeetingController.getMeetings.bind(freelancerMeetingController),
+);
+
+freelancerRouter.get(
+  '/meetings/:meetingId',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerMeetingController.getMeetingDetail.bind(freelancerMeetingController),
+);
+
+freelancerRouter.post(
+  '/meetings/accept',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerMeetingController.acceptMeeting.bind(freelancerMeetingController),
+);
+
+freelancerRouter.post(
+  '/meetings/reschedule',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerMeetingController.requestReschedule.bind(freelancerMeetingController),
 );
 
 export default freelancerRouter;

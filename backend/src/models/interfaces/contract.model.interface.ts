@@ -2,7 +2,7 @@ import { Document, Types } from 'mongoose';
 
 export type ContractStatus = 'pending_funding' | 'active' | 'completed' | 'cancelled' | 'refunded';
 
-export type MilestoneStatus = 'pending_funding' | 'funded' | 'under_review' | 'submitted' | 'approved' | 'paid';
+export type MilestoneStatus = 'pending_funding' | 'funded'|'changes_requested' | 'submitted' | 'approved' | 'paid';
 
 export interface MilestoneDeliverable {
   _id?: Types.ObjectId;
@@ -97,6 +97,16 @@ export interface TimelineEntry {
   timestamp: Date;
 }
 
+export interface ContractExtensionRequest {
+  requestedBy: Types.ObjectId;
+  requestedDeadline: Date;
+  reason: string;
+  status: 'pending' | 'approved' | 'rejected';
+  requestedAt: Date;
+  respondedAt?: Date;
+  responseMessage?: string;
+}
+
 export interface IContract extends Document {
   contractId: string;
 
@@ -121,12 +131,16 @@ export interface IContract extends Document {
   milestones?: ContractMilestone[];
   // Allowed revisions copied from offer
   revisions?: number;
+  revisionAllowed?: number;
 
   // Hourly tracking
   timesheets?: ContractTimesheet[];
 
   // Deliverables
   deliverables?: ContractDeliverable[];
+
+  // Extension request for fixed contracts
+  extensionRequest?: ContractExtensionRequest;
 
   // Timeline tracking
   timeline?: TimelineEntry[];

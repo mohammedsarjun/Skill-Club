@@ -23,6 +23,8 @@ import { IOfferRepository } from '../repositories/interfaces/offer-repository.in
 import { OfferRepository } from '../repositories/offer-repository';
 import { IContractRepository } from '../repositories/interfaces/contract-repository.interface';
 import { ContractRepository } from '../repositories/contract-repository';
+// import { IMeetingRepository } from 'src/repositories/interfaces/meeting-repository.interface';
+// import { MeetingRepository } from 'src/repositories/meeting-repository';
 import {
   IPaymentRepository,
   ITransactionRepository,
@@ -37,6 +39,8 @@ import { IFileUploadService } from '../services/commonServices/interfaces/file-u
 import { FileUploadService } from '../services/commonServices/file-upload-service';
 import { IGetRatesService } from '../services/commonServices/interfaces/get-rates-service.interface';
 import { GetRatesService } from '../services/commonServices/get-rates-service';
+import { IFileDownloadService } from '../services/commonServices/interfaces/file-download-service.interface';
+import { FileDownloadService } from '../services/commonServices/file-download-service';
 container.register<ICategoryRepository>('ICategoryRepository', { useClass: CategoryRepository });
 container.register<ISpecialityRepository>('ISpecialityRepository', {
   useClass: SpecialityRepository,
@@ -55,9 +59,16 @@ container.register<IPaymentRepository>('IPaymentRepository', { useClass: Payment
 container.register<ITransactionRepository>('ITransactionRepository', {
   useClass: TransactionRepository,
 });
+import { IMeetingRepository } from '../repositories/interfaces/meeting-repository.interface';
+import { MeetingRepository } from '../repositories/meeting-repository';
+
+container.register<IMeetingRepository>('IMeetingRepository', {
+  useClass: MeetingRepository,
+});
 container.register<IEscrowRepository>('IEscrowRepository', { useClass: EscrowRepository });
 container.register<IFileUploadService>('IFileUploadService', { useClass: FileUploadService });
 container.register<IGetRatesService>('IGetRatesService', { useClass: GetRatesService });
+container.register<IFileDownloadService>('IFileDownloadService', { useClass: FileDownloadService });
 //Auth
 import { AuthService } from '../services/authServices/auth-services';
 import type { IAuthService } from '../services/authServices/interfaces/auth-services.interface';
@@ -368,3 +379,54 @@ import { PaymentAmountStrategyFactory } from '../services/clientServices/factori
 container.register("PaymentAmountStrategyFactory", {
   useClass: PaymentAmountStrategyFactory,
 });
+
+// deliverable change strategies
+import { MilestoneDeliverableChangeStrategy } from '../services/clientServices/strategies/deliverableStrategies/MilestoneDeliverableChangeStrategy';
+import { DefaultDeliverableChangeStrategy } from '../services/clientServices/strategies/deliverableStrategies/DefaultDeliverableChangeStrategy';
+import { IDeliverableChangeStrategy } from '../services/clientServices/strategies/deliverableStrategies/IDeliverableChangeStrategy';
+container.register<IDeliverableChangeStrategy>("IDeliverableChangeStrategy", {
+  useClass: MilestoneDeliverableChangeStrategy,
+});
+container.register<IDeliverableChangeStrategy>("IDeliverableChangeStrategy", {
+  useClass: DefaultDeliverableChangeStrategy,
+});
+
+import { DeliverableChangeStrategyFactory } from '../services/clientServices/factories/deliverableFactories/DeliverableChangeStrategyFactory';
+container.register("DeliverableChangeStrategyFactory", {
+  useClass: DeliverableChangeStrategyFactory,
+});
+
+
+//meeting service
+import { IClientMeetingService } from '../services/clientServices/interfaces/client-meeting-service.interface';
+import { ClientMeetingService } from '../services/clientServices/client-meeting-service';
+
+container.register<IClientMeetingService>('IClientMeetingService', {
+  useClass: ClientMeetingService,
+});
+
+import { IFreelancerMeetingService } from '../services/freelancerServices/interfaces/freelancer-meeting-service.interface';
+import { FreelancerMeetingService } from '../services/freelancerServices/freelancer-meeting-service';
+
+container.register<IFreelancerMeetingService>('IFreelancerMeetingService', {
+  useClass: FreelancerMeetingService,
+});
+
+//deliverables change query stategies
+import { IDeliverablesChangeQueryStrategy } from '../repositories/strategies/interfaces/deliverables-changes.strategy.interface';
+import { FixedDeliverablesChangeQueryStrategy } from '../repositories/strategies/fixed-deliverables-changes.strategy';
+import { MilestoneDeliverablesChangeQueryStrategy } from '../repositories/strategies/milestone-deliverables-changes.strategy';
+
+container.register<IDeliverablesChangeQueryStrategy>('IDeliverablesChangeQueryStrategy', {
+  useClass: FixedDeliverablesChangeQueryStrategy,
+});
+container.register<IDeliverablesChangeQueryStrategy>('IDeliverablesChangeQueryStrategy', {
+  useClass: MilestoneDeliverablesChangeQueryStrategy,
+});
+
+// deliverable change strategy factory (repository-level)
+import { DeliverableChangeQueryStrategyFactory } from '../repositories/factories/interfaces/deliverable-change.strategy.interface';
+container.register("DeliverableChangeQueryStrategyFactory", {
+  useClass: DeliverableChangeQueryStrategyFactory,
+});
+

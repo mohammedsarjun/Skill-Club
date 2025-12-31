@@ -7,6 +7,7 @@ import {
   HourLog,
   MilestoneDeliverable,
   MilestoneExtensionRequest,
+  ContractExtensionRequest,
   TimelineEntry,
 } from '../models/interfaces/contract.model.interface';
 
@@ -39,13 +40,27 @@ const MilestoneExtensionRequestSchema = new Schema<MilestoneExtensionRequest>({
   responseMessage: String,
 });
 
+const ContractExtensionRequestSchema = new Schema<ContractExtensionRequest>({
+  requestedBy: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
+  requestedDeadline: { type: Date, required: true },
+  reason: { type: String, required: true },
+  status: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending',
+  },
+  requestedAt: { type: Date, default: Date.now },
+  respondedAt: Date,
+  responseMessage: String,
+});
+
 const ContractMilestoneSchema = new Schema<ContractMilestone>({
   title: { type: String, required: true },
   amount: { type: Number, required: true },
   expectedDelivery: { type: Date, required: true },
   status: {
     type: String,
-    enum: ['pending_funding', 'funded', 'submitted', 'approved', 'paid'],
+    enum: ['pending_funding', 'funded','changes_requested','submitted', 'approved', 'paid'],
     default: 'pending_funding',
   },
   submittedAt: Date,
@@ -113,11 +128,13 @@ const ContractSchema = new Schema<IContract>(
     milestones: [ContractMilestoneSchema],
     timesheets: [ContractTimesheetSchema],
     deliverables: [ContractDeliverableSchema],
+    extensionRequest: ContractExtensionRequestSchema,
     timeline: [TimelineEntrySchema],
 
     title: { type: String, required: true },
     description: { type: String, required: true },
     revisions: { type: Number, default: 0 },
+    revisionAllowed: { type: Number, default: 0 },
     expectedStartDate: { type: Date, required: true },
     expectedEndDate: { type: Date, required: true },
     referenceFiles: [{ fileName: String, fileUrl: String }],

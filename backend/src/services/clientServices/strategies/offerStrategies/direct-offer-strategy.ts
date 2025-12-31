@@ -31,7 +31,6 @@ export class DirectOfferStrategy implements IOfferCreationStrategy {
         expectedDelivery: new Date(m.expected_delivery),
         revisions: typeof m.revisions === 'number' ? m.revisions : undefined,
       })),
-      expectedStartDate: new Date(dto.expected_start_date),
       expectedEndDate: new Date(dto.expected_end_date),
       communication: {
         preferredMethod: dto.communication.preferred_method,

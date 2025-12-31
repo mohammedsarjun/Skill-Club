@@ -3,6 +3,9 @@ import { useState, useCallback } from 'react';
 import { FaUpload, FaCheckCircle, FaExclamationCircle, FaClock, FaFile, FaTrash } from 'react-icons/fa';
 import { IDeliverable } from '@/types/interfaces/IContractWorkspace';
 import { uploadApi } from '@/api/uploadApi';
+import VideoPlayer from '@/components/common/VideoPlayer';
+import ImageViewerModal from '@/components/common/ImageViewer';
+import getMediaType from '@/utils/getMediaType';
 
 interface DeliverablesWorkspaceProps {
   contractId: string;
@@ -17,11 +20,16 @@ export const DeliverablesWorkspace = ({
   onSubmitDeliverable,
   onResubmitDeliverable,
 }: DeliverablesWorkspaceProps) => {
+
+  console.log(currentDeliverables)
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState('');
   const [dragActive, setDragActive] = useState(false);
-
+  const [isDeliverablesVideoModalOpen, setIsDeliverablesVideoModalOpen] = useState(false);
+  const [isDeliverablesImageModalOpen, setIsDeliverablesImageModalOpen] = useState(false);
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState<string>("");
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string>("");
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -41,6 +49,17 @@ export const DeliverablesWorkspace = ({
       setFiles((prev) => [...prev, ...newFiles]);
     }
   }, []);
+
+  const handleDeliverablePreview = (mediaUrl: string) => {
+    const type = getMediaType({ url: mediaUrl });
+    if (type === "video") {
+      setVideoPreviewUrl(mediaUrl);
+      setIsDeliverablesVideoModalOpen(true);
+    } else if (type === "image") {
+      setImagePreviewUrl(mediaUrl);
+      setIsDeliverablesImageModalOpen(true);
+    }
+  };
 
   const handleFileInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -152,10 +171,8 @@ export const DeliverablesWorkspace = ({
                   {deliverable.files.map((file, idx) => (
                     <a
                       key={idx}
-                      href={file.fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-sm transition-colors"
+                      className="inline-flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-sm transition-colors cursor-pointer"
+                      onClick={() => handleDeliverablePreview(file.fileUrl)}
                     >
                       <FaFile className="text-gray-500" />
                       <span className="text-gray-700">{file.fileName}</span>
@@ -251,6 +268,21 @@ export const DeliverablesWorkspace = ({
           <h3 className="text-xl font-semibold text-green-900 mb-2">Contract Completed!</h3>
           <p className="text-green-700">Your deliverable has been approved by the client.</p>
         </div>
+      )}
+
+      {isDeliverablesImageModalOpen && (
+        <ImageViewerModal
+          imageUrl={imagePreviewUrl}
+          onClose={() => setIsDeliverablesImageModalOpen(false)}
+          isOpen={isDeliverablesImageModalOpen}
+        />
+      )}
+
+      {isDeliverablesVideoModalOpen && (
+        <VideoPlayer
+          videoUrl={videoPreviewUrl}
+          onClose={() => setIsDeliverablesVideoModalOpen(false)}
+        />
       )}
     </div>
   );

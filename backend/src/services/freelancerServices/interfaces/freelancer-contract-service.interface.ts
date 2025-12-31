@@ -13,6 +13,10 @@ import {
   MilestoneDeliverableResponseDTO,
   MilestoneExtensionResponseDTO,
 } from '../../../dto/freelancerDTO/freelancer-milestone.dto';
+import {
+  RequestContractExtensionDTO,
+  ContractExtensionResponseDTO,
+} from '../../../dto/freelancerDTO/freelancer-contract-extension.dto';
 
 export interface IFreelancerContractService {
   getAllContracts(
@@ -35,4 +39,9 @@ export interface IFreelancerContractService {
     contractId: string,
     data: RequestMilestoneExtensionDTO,
   ): Promise<MilestoneExtensionResponseDTO>;
+  requestContractExtension(
+    freelancerId: string,
+    contractId: string,
+    data: RequestContractExtensionDTO,
+  ): Promise<ContractExtensionResponseDTO>;
 }

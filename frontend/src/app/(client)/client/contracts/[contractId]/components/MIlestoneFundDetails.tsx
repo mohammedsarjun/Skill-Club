@@ -14,7 +14,7 @@ interface MilestonePaymentModalProp {
     amount: number;
     amountBaseUSD?: number;
     expectedDelivery: string;
-    status: 'pending' | 'funded' | 'under_review' | 'submitted' | 'approved' | 'paid';
+    status: 'pending_funding' | 'funded' | 'under_review' | 'submitted' | 'approved' | 'paid';
     submittedAt?: string;
     approvedAt?: string;
     revisionsAllowed?: number;
@@ -56,7 +56,7 @@ const MilestonePaymentModal = ({
 
   const totalAmount = milestones.reduce((sum, m) => sum + m.amount, 0);
   const paidAmount = milestones
-    .filter(m => m.status === 'funded')
+    .filter(m => m.status !== 'pending_funding')
     .reduce((sum, m) => sum + m.amount, 0);
 
  
@@ -164,7 +164,6 @@ const MilestonePaymentModal = ({
     setProcessingId('all');
     try {
 
-      console.log("Initiating full contract funding");
       const response = await clientActionApi.initiatePayment({
         contractId,
         amount: totalAmount,
@@ -312,7 +311,7 @@ const MilestonePaymentModal = ({
                     : "bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-lg"
                 }`}
               >
-                {milestone.status === "funded"
+                {milestone.status !== "pending_funding"
                   ? "✓ Paid"
                   : isProcessing
                   ? "Processing..."
@@ -324,41 +323,7 @@ const MilestonePaymentModal = ({
       </div>
     </div>
 
-    {/* ================= FOOTER ================= */}
-    <div className="border-t bg-gray-50 px-8 py-6 shrink-0">
-      <div className="flex justify-between mb-4">
-        <div>
-          <div className="text-sm text-gray-600">Total Contract</div>
-          <div className="text-3xl font-bold text-gray-900">
-            {formatCurrency(totalAmount)}
-          </div>
-        </div>
-        <div className="text-right">
-          <div className="text-sm text-gray-600">Remaining</div>
-          <div className="text-2xl font-bold text-indigo-600">
-            {formatCurrency(totalAmount - paidAmount)}
-          </div>
-        </div>
-      </div>
 
-      <button
-        onClick={handlePayAll}
-        disabled={processingId === "all" || paidAmount === totalAmount}
-        className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
-          paidAmount === totalAmount
-            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-            : processingId === "all"
-            ? "bg-purple-400 text-white cursor-wait"
-            : "bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 shadow-lg"
-        }`}
-      >
-        {paidAmount === totalAmount
-          ? "✓ Contract Fully Funded"
-          : processingId === "all"
-          ? "Processing Payment..."
-          : `Fund Entire Contract – ${formatCurrency(totalAmount)}`}
-      </button>
-    </div>
   </div>
 </div>
 
